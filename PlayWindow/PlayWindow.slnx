@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="PixelEngine/PixelEngine.vcxproj" Id="ebc5deec-a4e3-441f-b2c2-75bb520403b5" />
+  <Project Path="PlayWindow/PlayWindow.vcxproj" Id="7a688d83-f3de-4005-873e-b99f1c1ab9dd" />
+</Solution>
