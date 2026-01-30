@@ -1,8 +1,12 @@
 <Solution>
   <Configurations>
+    <Platform Name="Any CPU" />
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
   <Project Path="PixelEngine/PixelEngine.vcxproj" Id="ebc5deec-a4e3-441f-b2c2-75bb520403b5" />
-  <Project Path="PlayWindow/PlayWindow.vcxproj" Id="7a688d83-f3de-4005-873e-b99f1c1ab9dd" />
+  <Project Path="WinPlay/WinPlay.csproj" Id="ab5e9783-3238-4282-a10d-39ce3138c692">
+    <BuildDependency Project="PixelEngine/PixelEngine.vcxproj" />
+    <Platform Solution="Debug|x64" Project="x64" />
+  </Project>
 </Solution>

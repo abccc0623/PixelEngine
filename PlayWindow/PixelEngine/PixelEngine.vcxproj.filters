@@ -19,6 +19,12 @@
     <Filter Include="EngineAPI\pch">
       <UniqueIdentifier>{3d8fb4b2-2b35-4b0a-9a0c-15c5b73be8e7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Platform">
+      <UniqueIdentifier>{bf365fef-644d-46e1-a5d7-fc90075a7a8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Platform\Window">
+      <UniqueIdentifier>{af612e66-de86-4e39-8f0e-b4558bb99f60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -33,6 +39,15 @@
     <ClInclude Include="Export\PixelEngineAPI.h">
       <Filter>EngineAPI</Filter>
     </ClInclude>
+    <ClInclude Include="WindowPlatform.h">
+      <Filter>EngineAPI\Platform\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform.h">
+      <Filter>EngineAPI\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelEngine.h">
+      <Filter>EngineAPI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -43,6 +58,12 @@
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>EngineAPI\pch</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowPlatform.cpp">
+      <Filter>EngineAPI\Platform\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelEngine.cpp">
+      <Filter>EngineAPI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
