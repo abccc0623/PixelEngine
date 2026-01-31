@@ -2,6 +2,7 @@
 #include "PixelEngineDLL.h"
 extern "C" PIXEL_ENGINEDLL bool EngineInitialize();							
 extern "C" PIXEL_ENGINEDLL void UpdateEngine();
+extern "C" PIXEL_ENGINEDLL bool RunningEngineCheck();
 extern "C" PIXEL_ENGINEDLL void ReleaseEngine();							
 extern "C" PIXEL_ENGINEDLL void QuitWindow();
 

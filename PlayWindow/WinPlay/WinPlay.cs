@@ -11,8 +11,7 @@ namespace WinPlay
         static void Main(string[] args)
         {
             PixelEngine.EngineInitialize();
-
-            while (true)
+            while (PixelEngine.RunningEngineCheck())
             {
                 PixelEngine.UpdateEngine();
                 if (PixelEngine.GetKeyDown((byte)'W'))
@@ -20,7 +19,7 @@ namespace WinPlay
                     var data = PixelEngine.GetTotalTime();
                     Console.WriteLine(data.ToString());
                 }
-                if (PixelEngine.GetKey((byte)'A'))
+                if (PixelEngine.GetKeyUp((byte)'A'))
                 {
                     Console.WriteLine("A");
                 }
@@ -34,10 +33,10 @@ namespace WinPlay
                 }
                 if (PixelEngine.GetKeyDown(27))
                 {
-                    PixelEngine.ReleaseEngine();
                     break;
                 }
             }
+            PixelEngine.ReleaseEngine();
         }
     }
 }

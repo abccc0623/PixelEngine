@@ -12,6 +12,9 @@ namespace WinPlay
         public static extern bool EngineInitialize();
 
         [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool RunningEngineCheck();
+
+        [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern void ReleaseEngine();
 
         [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]

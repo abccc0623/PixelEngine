@@ -24,6 +24,7 @@ public:
 	void QuitWindow();
 	void ClientUpdate();
 	void EngineUpdate();
+	bool RunningCheck();
 
 	bool GetKeyDown(byte number);
 	bool GetKeyUp(byte number);

@@ -12,7 +12,6 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
     case WM_DESTROY:
-        Engine->Release();
         PostQuitMessage(0);
         return 0;
     case WM_PAINT:

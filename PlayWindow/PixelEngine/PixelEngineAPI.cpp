@@ -15,6 +15,15 @@ void UpdateEngine()
 	Engine->Update();
 }
 
+bool RunningEngineCheck()
+{
+	if (Engine != nullptr)
+	{
+		return Engine->RunningCheck();
+	}
+	return false;
+}
+
 void ReleaseEngine()
 {
 	Engine->Release();

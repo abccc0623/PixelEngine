@@ -40,6 +40,11 @@ void PixelEngine::EngineUpdate()
 	}
 }
 
+bool PixelEngine::RunningCheck()
+{
+	return (ManagerList == nullptr) ? false : true;
+}
+
 bool PixelEngine::GetKeyDown(byte number)
 {
 	return keyInputManager->GetKeyDown(number);
