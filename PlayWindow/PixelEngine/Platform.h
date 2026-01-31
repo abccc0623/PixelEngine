@@ -1,15 +1,9 @@
 #pragma once
-class Platform
+#include "EngineManager.h"
+class Platform : public EngineManager
 {
 	public: 
 		Platform() = default;
 		virtual ~Platform() = default;
-	private:
-		
-
-	public:
-		virtual void Initialize() = 0;
-		virtual void Update() = 0;
-		virtual void Release() = 0;
 };
 

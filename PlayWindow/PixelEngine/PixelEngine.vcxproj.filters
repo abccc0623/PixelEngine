@@ -25,6 +25,18 @@
     <Filter Include="EngineAPI\Platform\Window">
       <UniqueIdentifier>{af612e66-de86-4e39-8f0e-b4558bb99f60}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Manager">
+      <UniqueIdentifier>{01a425fe-f48f-4f21-a628-dd34d9a56cc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\KeyInputManager">
+      <UniqueIdentifier>{6ec3a1a1-c079-4b77-8b21-ad9317e33f5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\EngineManager">
+      <UniqueIdentifier>{ef97bac9-5f23-4061-880b-dc50a4258060}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\TimeManager">
+      <UniqueIdentifier>{d47675bc-5c4e-45a8-9193-712adc6f9d66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -48,6 +60,15 @@
     <ClInclude Include="PixelEngine.h">
       <Filter>EngineAPI</Filter>
     </ClInclude>
+    <ClInclude Include="KeyInputManager.h">
+      <Filter>EngineAPI\Manager\KeyInputManager</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineManager.h">
+      <Filter>EngineAPI\Manager\EngineManager</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeManager.h">
+      <Filter>EngineAPI\Manager\TimeManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -64,6 +85,15 @@
     </ClCompile>
     <ClCompile Include="PixelEngine.cpp">
       <Filter>EngineAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyInputManager.cpp">
+      <Filter>EngineAPI\Manager\KeyInputManager</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineManager.cpp">
+      <Filter>EngineAPI\Manager\EngineManager</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeManager.cpp">
+      <Filter>EngineAPI\Manager\TimeManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

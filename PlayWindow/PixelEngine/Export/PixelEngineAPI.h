@@ -1,10 +1,16 @@
 #pragma once
 #include "PixelEngineDLL.h"
-#include <windows.h>
-#include <iostream>
+extern "C" PIXEL_ENGINEDLL bool EngineInitialize();							
+extern "C" PIXEL_ENGINEDLL void UpdateEngine();
+extern "C" PIXEL_ENGINEDLL void ReleaseEngine();							
+extern "C" PIXEL_ENGINEDLL void QuitWindow();
 
-extern "C" PIXEL_ENGINEDLL bool EngineInitialize();							//GameEngine 시작
-extern "C" PIXEL_ENGINEDLL void ReleaseEngine();								//GameEngine 종료
-extern "C" PIXEL_ENGINEDLL void UpdateEngine();								//GameEngine 업데이트
-extern "C" PIXEL_ENGINEDLL void OnReSize(int X, int Y);						//윈도우 사이즈 재조정
-extern "C" PIXEL_ENGINEDLL void GetWindowSize(int* X, int* Y);
+//KeyInput
+extern "C" PIXEL_ENGINEDLL bool GetKeyDown(byte number);		
+extern "C" PIXEL_ENGINEDLL bool GetKeyUp(byte number);			
+extern "C" PIXEL_ENGINEDLL bool GetKey(byte number);
+
+//Time
+extern "C" PIXEL_ENGINEDLL float GetDeltaTime();
+extern "C" PIXEL_ENGINEDLL double GetTotalTime();
+extern "C" PIXEL_ENGINEDLL int GetFPS();

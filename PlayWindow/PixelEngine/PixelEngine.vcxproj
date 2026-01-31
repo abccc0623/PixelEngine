@@ -130,9 +130,7 @@ copy /Y "$(ProjectDir)Export\*h" "$(SolutionDir)Export"
 if not exist "$(SolutionDir)WinPlay\bin\x64\Debug\Library" mkdir "$(SolutionDir)WinPlay\bin\x64\Debug\Library"
 
 copy /y "$(OutDir)$(TargetName).dll" "$(SolutionDir)WinPlay\bin\x64\Debug\Library\"
-
 copy /y "$(OutDir)$(TargetName).lib" "$(SolutionDir)WinPlay\bin\x64\Debug\Library\"
-
 copy /y "$(OutDir)$(TargetName).pdb" "$(SolutionDir)WinPlay\bin\x64\Debug\Library\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -155,16 +153,21 @@ copy /y "$(OutDir)$(TargetName).pdb" "$(SolutionDir)WinPlay\bin\x64\Debug\Librar
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="EngineManager.h" />
     <ClInclude Include="Export\PixelEngineAPI.h" />
     <ClInclude Include="Export\PixelEngineDLL.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="KeyInputManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelEngine.h" />
     <ClInclude Include="Platform.h" />
+    <ClInclude Include="TimeManager.h" />
     <ClInclude Include="WindowPlatform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="EngineManager.cpp" />
+    <ClCompile Include="KeyInputManager.cpp" />
     <ClCompile Include="PixelEngine.cpp" />
     <ClCompile Include="PixelEngineAPI.cpp" />
     <ClCompile Include="pch.cpp">
@@ -173,6 +176,7 @@ copy /y "$(OutDir)$(TargetName).pdb" "$(SolutionDir)WinPlay\bin\x64\Debug\Librar
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="WindowPlatform.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,5 +1,7 @@
 #pragma once
 
+typedef unsigned char byte;
+
 #ifdef ENGINE_INTERFACE
 #define PIXEL_ENGINEDLL __declspec(dllexport)
 #else

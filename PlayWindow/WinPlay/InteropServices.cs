@@ -18,10 +18,21 @@ namespace WinPlay
         public static extern void UpdateEngine();
 
         [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void OnReSize(int X, int Y);
+        public static extern bool GetKeyDown(byte number);
 
-        // C++의 int*는 C#에서 out 또는 ref 키워드로 매핑하면 편리합니다.
         [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void GetWindowSize(out int X, out int Y);
+        public static extern bool GetKeyUp(byte number);
+
+        [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool GetKey(byte number);
+
+        [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float GetDeltaTime();
+
+        [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
+        public static extern double GetTotalTime();
+
+        [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int GetFPS();
     }
 }
