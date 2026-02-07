@@ -16,8 +16,8 @@ private:
 	Transform* transform;
 	RenderingData* rendering;
 	float moveSpeed;
-	bool isMove;
 	float RotationSpeed;
+	bool isMove;
 	int mLastMousePosX;
 	int mLastMousePosY;
 };

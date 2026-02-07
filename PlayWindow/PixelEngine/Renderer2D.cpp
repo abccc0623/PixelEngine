@@ -28,7 +28,7 @@ void Renderer2D::Start()
 
 void Renderer2D::Update()
 {
-
+	transform->AddRotation(Vector3(0, 0, GetDeltaTime() * 120));
 }
 
 void Renderer2D::LastUpdate()

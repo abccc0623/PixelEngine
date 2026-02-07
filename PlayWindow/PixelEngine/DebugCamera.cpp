@@ -10,7 +10,9 @@ DebugCamera::DebugCamera():
 	transform(nullptr),
 	isMove(false),
 	moveSpeed(10),
-	RotationSpeed(10)
+	RotationSpeed(10),
+	mLastMousePosX(0),
+	mLastMousePosY(0)
 {
 
 }
@@ -26,6 +28,7 @@ void DebugCamera::Start()
 	transform = targetObject->GetModule<Transform>();
 	rendering = GetRenderingData();
 	rendering->Type = CAMERA;
+	transform->AddPosition(transform->GetLookVector() * -3);
 }
 
 void DebugCamera::Update()

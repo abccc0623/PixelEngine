@@ -1,5 +1,6 @@
 #include "FunctionManager.h"
 #include "GameObject.h"
+#include <iostream>
 
 FunctionManager::FunctionManager()
 {

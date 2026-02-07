@@ -90,7 +90,8 @@ void GraphicsCore::GraphicsInitialize(HWND WindowHandle, int Width, int Height)
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.Windowed = TRUE; //윈도우 모드 또는 풀스크린 모드
-	sd.Flags = createDeviceFlags; //디버깅 모드일때만 Direct11 디버그로 실행
+	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	sd.Flags = 0; //디버깅 모드일때만 Direct11 디버그로 실행
 
 
 	/**
@@ -157,7 +158,7 @@ void GraphicsCore::GraphicsInitialize(HWND WindowHandle, int Width, int Height)
 	mScreenViewport.Height = (float)ClientHeight;
 	mScreenViewport.MinDepth = 0.0f;
 	mScreenViewport.MaxDepth = 1.0f;
-	mScreenViewport.TopLeftX = 1;
+	mScreenViewport.TopLeftX = 0;
 	mScreenViewport.TopLeftY = 0;
 	mDeviceContext->RSSetViewports(1, &mScreenViewport);
 
@@ -193,7 +194,7 @@ void GraphicsCore::BeginRender(float R, float G, float B, float A)
 
 void GraphicsCore::EndRender()
 {
-	mSwapChain->Present(0, 0);
+	mSwapChain->Present(1, 0);
 }
 
 ID3D11DeviceContext* GraphicsCore::GetDeviceContext()

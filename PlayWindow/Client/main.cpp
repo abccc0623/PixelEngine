@@ -63,18 +63,3 @@ int main() {
 
     return (int)msg.wParam;
 }
-
-//int main(int argc, char* argv[])
-//{
-//    EngineInitialize();
-//    bool IsOK = LoadLuaScript("./Test.lua");
-//    if (!IsOK) {
-//        std::cout << "Load ½ÇÆÐ" << std::endl;
-//    }
-//    while (true)
-//    {
-//
-//    }
-//    ReleaseEngine();
-//    return 0;
-//}

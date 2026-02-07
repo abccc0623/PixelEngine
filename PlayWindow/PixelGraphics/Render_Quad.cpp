@@ -15,22 +15,8 @@ void Render_Quad::Binding(RenderingData* mData)
 {
 	ObjectBuffer mbuffer;
 	DirectX::SimpleMath::Matrix mWorld = DirectX::SimpleMath::Matrix::Identity;
-	mWorld._11 = mData->World[0];
-	mWorld._12 = mData->World[1];
-	mWorld._13 = mData->World[2];
-	mWorld._14 = mData->World[3];
-	mWorld._21 = mData->World[4];
-	mWorld._22 = mData->World[5];
-	mWorld._23 = mData->World[6];
-	mWorld._24 = mData->World[7];
-	mWorld._31 = mData->World[8];
-	mWorld._32 = mData->World[9];
-	mWorld._33 = mData->World[10];
-	mWorld._34 = mData->World[11];
-	mWorld._41 = mData->World[12];
-	mWorld._42 = mData->World[13];
-	mWorld._43 = mData->World[14];
-	mWorld._44 = 1.0f;
+	memcpy(&mWorld, mData->World, sizeof(float) * 16);
+
 	mbuffer.world = DirectX::XMMatrixTranspose(mWorld);
 	mbuffer.TexMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixIdentity());
 	GetDeviceContext()->UpdateSubresource(mContextBuffer_List["ObjectBuffer"], 0, nullptr, &mbuffer, 0, 0);
@@ -56,6 +42,6 @@ void Render_Quad::Binding(RenderingData* mData)
 	GetDeviceContext()->VSSetShader(mShaderBuffer->mVertexShader, NULL, 0);
 	GetDeviceContext()->PSSetShader(mShaderBuffer->mPixelShader, NULL, 0);
 
-
+	GetDeviceContext()->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
 	GetDeviceContext()->DrawIndexed(mAxis->IndexCount, 0, 0);
 }

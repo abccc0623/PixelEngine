@@ -28,9 +28,6 @@ void Scene::Initialize()
 
     GameObject* obj = Engine->CreateGameObject();
     obj->AddModule<DebugCamera>();
-
-    GameObject* box = Engine->CreateGameObject();
-    box->AddModule<Renderer>();
 }
 
 void Scene::Start()
