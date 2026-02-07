@@ -79,6 +79,9 @@
     <Filter Include="EngineAPI\Module\Renderer2D">
       <UniqueIdentifier>{9bcc0a18-ef41-4021-b5a3-debac0af3999}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Module\LuaScript">
+      <UniqueIdentifier>{4a286522-28ec-4098-bc1e-2c1d09fbc887}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -159,6 +162,12 @@
     <ClInclude Include="Renderer2D.h">
       <Filter>EngineAPI\Module\Renderer2D</Filter>
     </ClInclude>
+    <ClInclude Include="LuaScript.h">
+      <Filter>EngineAPI\Module\LuaScript</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleTypeList.h">
+      <Filter>EngineAPI\Types</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -229,6 +238,9 @@
     </ClCompile>
     <ClCompile Include="Renderer2D.cpp">
       <Filter>EngineAPI\Module\Renderer2D</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaScript.cpp">
+      <Filter>EngineAPI\Module\LuaScript</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -3,7 +3,6 @@
 #include "TimeManager.h"
 #include "FactoryManager.h"
 #include "PixelGraphicsAPI.h"
-#include "GameObject.h"
 #include "LuaManager.h"
 #include "FunctionManager.h"
 #include "SceneManager.h"
@@ -12,6 +11,9 @@
 #include <iostream>
 #include <Windows.h>
 
+
+#include "ModuleTypeList.h"
+extern std::unordered_map<std::string, std::function<void(GameObject*)>> moduleFactories;
 void PixelEngine::Initialize(HWND hWnd, int width, int height)
 {
 	ManagerList = std::vector<EngineManager*>();
@@ -29,14 +31,12 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	ManagerList.push_back(luaManager);
 	ManagerList.push_back(sceneManager);
 
-	
+	ModuleRegister();
 	PixelGraphicsInitialize(hWnd, width, height);
 	for (int i = 0; i < ManagerList.size(); i++)
 	{
 		ManagerList[i]->Initialize();
 	}
-	sceneManager->ChangeScene(new Scene());
-
 }
 
 void PixelEngine::Update()
@@ -151,6 +151,15 @@ GameObject* PixelEngine::CreateGameObject()
 		return nullptr;
 	}
 	return factoryManager->Get();
+}
+
+Scene* PixelEngine::CreateScene()
+{
+	if (sceneManager != nullptr)
+	{
+		//sceneManager
+	}
+	return nullptr;
 }
 
 void PixelEngine::RegisterFunction(GameObject* obj, Module* module, int type)

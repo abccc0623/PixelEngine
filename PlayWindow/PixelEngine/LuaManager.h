@@ -1,6 +1,7 @@
 #pragma once
 #include "EngineManager.h";
 #include <string>
+#include "sol.hpp"
 struct lua_State;
 class LuaManager : public EngineManager
 {
@@ -15,6 +16,6 @@ public:
 	bool LoadLuaScript(const std::string& fileName);
 
 private:
-	lua_State* luaState;
+	sol::state lua;
 };
 

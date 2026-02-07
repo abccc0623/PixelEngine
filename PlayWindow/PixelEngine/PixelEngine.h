@@ -12,6 +12,7 @@ class FunctionManager;
 class SceneManager;
 class GameObject;
 class Module;
+class Scene;
 class PixelEngine
 {
 public:
@@ -50,6 +51,8 @@ public:
 
 	bool LoadLuaScript(const std::string& path);
 	GameObject* CreateGameObject();
+	Scene* CreateScene();
+
 	void RegisterFunction(GameObject* obj, Module* module, int type);
 private:
 };

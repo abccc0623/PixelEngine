@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "Matrix.h"
 #include "PixelGraphicsAPI.h"
+#include "PixelEngineAPI.h"
 #include <iostream>
 Renderer::Renderer() 
 {
@@ -73,7 +74,7 @@ void Renderer::Start()
 
 void Renderer::Update()
 {
-    transform->SetPosition(0, 0, 3);
+
 }
 
 void Renderer::LastUpdate()

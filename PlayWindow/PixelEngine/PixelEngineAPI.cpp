@@ -78,19 +78,19 @@ float GetDeltaTime()
 
 double GetTotalTime()
 {
-	// (Engine != nullptr) return Engine->GetTotalTime();
+	if  (Engine != nullptr) return Engine->GetTotalTime();
 	return false;
 }
 
 int GetFPS()
 {
-	//if (Engine != nullptr) return Engine->GetFPS();
+	if (Engine != nullptr) return Engine->GetFPS();
 	return false;
 }
 
 bool LoadLuaScript(const std::string& path)
 {
-	//if (Engine != nullptr) return Engine->LoadLuaScript(path);
+	if (Engine != nullptr) return Engine->LoadLuaScript(path);
 	return false;
 }
 

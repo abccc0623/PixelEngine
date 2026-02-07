@@ -79,7 +79,7 @@ void GraphicsCore::GraphicsInitialize(HWND WindowHandle, int Width, int Height)
 	*/
 	DXGI_SWAP_CHAIN_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
-	sd.BufferCount = 1;
+	sd.BufferCount = 2;
 	sd.BufferDesc.Width = ClientWidth;
 	sd.BufferDesc.Height = ClientHeight;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -90,7 +90,7 @@ void GraphicsCore::GraphicsInitialize(HWND WindowHandle, int Width, int Height)
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.Windowed = TRUE; //윈도우 모드 또는 풀스크린 모드
-	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	sd.Flags = 0; //디버깅 모드일때만 Direct11 디버그로 실행
 
 
@@ -194,7 +194,7 @@ void GraphicsCore::BeginRender(float R, float G, float B, float A)
 
 void GraphicsCore::EndRender()
 {
-	mSwapChain->Present(1, 0);
+	mSwapChain->Present(0, 0);
 }
 
 ID3D11DeviceContext* GraphicsCore::GetDeviceContext()

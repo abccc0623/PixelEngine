@@ -23,11 +23,7 @@ Scene::~Scene()
 }
 void Scene::Initialize()
 {
-    GameObject* q = Engine->CreateGameObject();
-    q->AddModule<Renderer2D>();
-
-    GameObject* obj = Engine->CreateGameObject();
-    obj->AddModule<DebugCamera>();
+  
 }
 
 void Scene::Start()

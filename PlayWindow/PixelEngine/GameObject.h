@@ -23,7 +23,7 @@ public:
 	size_t GetHashCode();
 
 	template <std::derived_from<Module> T>
-	void AddModule() 
+	T* AddModule() 
 	{
 		T* target = new T();
 		constexpr bool check[6] =
@@ -44,6 +44,7 @@ public:
 		auto name = target->GetClassNameString();
 		target->targetObject = this;
 		ModuleMap.insert({ target->GetClassNameString(),target });
+		return target;
 	}
 
 	template <std::derived_from<Module> T>
@@ -58,6 +59,7 @@ public:
 		Module* basePtr = findTarget->second;
 		return static_cast<T*>(basePtr);
 	}
+	void AddModule(std::string name);
 private:
 	size_t hashCode;
 	void AddFunction(Module* target, int Type);

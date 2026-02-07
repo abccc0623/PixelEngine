@@ -2,6 +2,8 @@
 #include <windows.h>
 #include <functional>
 #include <vector>
+#include <string>
+#include <iostream>
 
 LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -39,8 +41,9 @@ int main() {
         CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, NULL, NULL, hInst, NULL);
 
     ShowWindow(hWnd, SW_SHOW);
-
     EngineInitialize(hWnd,800,600);
+
+    LoadLuaScript("./Test.Lua");
 
     MSG msg = { 0 };
     while (true)

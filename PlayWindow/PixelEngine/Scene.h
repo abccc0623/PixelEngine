@@ -1,5 +1,5 @@
 #pragma once
-class RenderingData;
+struct RenderingData;
 class FunctionManager;
 class Scene
 {

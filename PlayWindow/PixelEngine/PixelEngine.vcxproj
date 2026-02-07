@@ -113,7 +113,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Export;$(ProjectDir)Import;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Export;$(ProjectDir)Import;$(ProjectDir)Import\sol;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -162,8 +162,10 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClInclude Include="KeyInputManager.h" />
     <ClInclude Include="BaseModule.h" />
     <ClInclude Include="LuaManager.h" />
+    <ClInclude Include="LuaScript.h" />
     <ClInclude Include="LuaWrapper.h" />
     <ClInclude Include="Module.h" />
+    <ClInclude Include="ModuleTypeList.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelEngine.h" />
@@ -188,6 +190,7 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClCompile Include="KeyInputManager.cpp" />
     <ClCompile Include="BaseModule.cpp" />
     <ClCompile Include="LuaManager.cpp" />
+    <ClCompile Include="LuaScript.cpp" />
     <ClCompile Include="Module.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PixelEngine.cpp" />

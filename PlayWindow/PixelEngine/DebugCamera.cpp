@@ -75,5 +75,4 @@ void DebugCamera::LastUpdate()
 	{
 		rendering->World[i] = local._m[i];
 	}
-	SetDebugCamera(rendering->World);
 }
