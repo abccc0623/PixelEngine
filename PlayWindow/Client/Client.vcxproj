@@ -114,7 +114,9 @@
     </Link>
     <PreBuildEvent>
       <Command>xcopy "$(SolutionDir)Export" "$(ProjectDir)Export" /E /I /Y
-xcopy "$(SolutionDir)Library" "$(ProjectDir)Library" /E /I /Y</Command>
+xcopy "$(SolutionDir)Library" "$(ProjectDir)Library" /E /I /Y
+
+xcopy "$(SolutionDir)Library\*.dll" "$(OutDir)" /E /I /Y</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
