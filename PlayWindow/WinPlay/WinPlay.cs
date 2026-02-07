@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,27 +11,13 @@ namespace WinPlay
     {
         static void Main(string[] args)
         {
+            //dll 파일이 해당 라이브러리도 찾도록 수정
+            string libraryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Library");
+            if (!PixelEngine.SetDllDirectory(libraryPath)) return;
+        
             PixelEngine.EngineInitialize();
             while (PixelEngine.RunningEngineCheck())
             {
-                PixelEngine.UpdateEngine();
-                if (PixelEngine.GetKeyDown((byte)'W'))
-                {
-                    var data = PixelEngine.GetTotalTime();
-                    Console.WriteLine(data.ToString());
-                }
-                if (PixelEngine.GetKeyUp((byte)'A'))
-                {
-                    Console.WriteLine("A");
-                }
-                if (PixelEngine.GetKey((byte)'S'))
-                {
-                    Console.WriteLine("S");
-                }
-                if (PixelEngine.GetKey((byte)'D'))
-                {
-                    Console.WriteLine("D");
-                }
                 if (PixelEngine.GetKeyDown(27))
                 {
                     break;

@@ -37,6 +37,48 @@
     <Filter Include="EngineAPI\Manager\TimeManager">
       <UniqueIdentifier>{d47675bc-5c4e-45a8-9193-712adc6f9d66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\GameObject">
+      <UniqueIdentifier>{fd91ae43-897d-4d8d-8b7c-398fa825e79e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Module">
+      <UniqueIdentifier>{c4a2fc1a-e97f-48c7-b9e2-b8c39a49d2b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Module\Transform">
+      <UniqueIdentifier>{72ac7abd-9e55-4d0e-9c5a-b727899add8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Types">
+      <UniqueIdentifier>{059cdd80-82b6-4efa-b0c2-0704175cf3c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Types\Vector3">
+      <UniqueIdentifier>{63d2d554-216a-419a-9c82-c1aa77f8367a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Types\Matrix">
+      <UniqueIdentifier>{6504ab51-dee4-430b-a0b2-8af62ef26674}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Module\Module">
+      <UniqueIdentifier>{313a14e0-ecd1-4ed4-a4bf-bb4c5358dd87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\FactoryManager">
+      <UniqueIdentifier>{c250685d-9e98-4160-94a0-d6dcfa200ff4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Module\Renderer">
+      <UniqueIdentifier>{a63a91de-52cd-4300-bd7c-6a629bf674d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\LuaManager">
+      <UniqueIdentifier>{ba574e3a-2e7c-4a25-a783-1c8b39736d2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\FunctionManager">
+      <UniqueIdentifier>{5ce280f1-4a93-4944-93e5-52d1bf5e2c7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\SceneManager">
+      <UniqueIdentifier>{71956ce1-f04f-4034-99f8-9a421fb9d93f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Module\DebugCamera">
+      <UniqueIdentifier>{dbbcd275-3e77-41d3-9c4d-cc58a12c6021}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Module\Renderer2D">
+      <UniqueIdentifier>{9bcc0a18-ef41-4021-b5a3-debac0af3999}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -69,6 +111,54 @@
     <ClInclude Include="TimeManager.h">
       <Filter>EngineAPI\Manager\TimeManager</Filter>
     </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>EngineAPI\Module\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>EngineAPI\Types\Vector3</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>EngineAPI\Types\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseModule.h">
+      <Filter>EngineAPI\Module\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="Module.h">
+      <Filter>EngineAPI\Module\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="FactoryManager.h">
+      <Filter>EngineAPI\Manager\FactoryManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>EngineAPI\Module\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaManager.h">
+      <Filter>EngineAPI\Manager\LuaManager</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaWrapper.h">
+      <Filter>EngineAPI\Manager\LuaManager</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionManager.h">
+      <Filter>EngineAPI\Manager\FunctionManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>EngineAPI\Manager\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>EngineAPI\Manager\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugCamera.h">
+      <Filter>EngineAPI\Module\DebugCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer2D.h">
+      <Filter>EngineAPI\Module\Renderer2D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -94,6 +184,51 @@
     </ClCompile>
     <ClCompile Include="TimeManager.cpp">
       <Filter>EngineAPI\Manager\TimeManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>EngineAPI\Module\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3.cpp">
+      <Filter>EngineAPI\Types\Vector3</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix.cpp">
+      <Filter>EngineAPI\Types\Matrix</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseModule.cpp">
+      <Filter>EngineAPI\Module\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="Module.cpp">
+      <Filter>EngineAPI\Module\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="FactoryManager.cpp">
+      <Filter>EngineAPI\Manager\FactoryManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>EngineAPI\Module\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaManager.cpp">
+      <Filter>EngineAPI\Manager\LuaManager</Filter>
+    </ClCompile>
+    <ClCompile Include="FunctionManager.cpp">
+      <Filter>EngineAPI\Manager\FunctionManager</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>EngineAPI\Manager\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>EngineAPI\Manager\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugCamera.cpp">
+      <Filter>EngineAPI\Module\DebugCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer2D.cpp">
+      <Filter>EngineAPI\Module\Renderer2D</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

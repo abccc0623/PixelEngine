@@ -4,7 +4,7 @@ void KeyInputManager::Initialize()
 {
 	for (int i = 0; i < arraySize; i++)
 	{
-		keyStates[i] = KeyState::NONE;
+		keyStates[i] = KeyState::KEY_NONE;
 	}
 }
 
@@ -21,7 +21,7 @@ void KeyInputManager::Update()
         }
         else
         {
-			keyStates[i] = wasPressed ? UP : NONE;
+			keyStates[i] = wasPressed ? UP : KEY_NONE;
         }
 	}
 }
@@ -30,7 +30,7 @@ void KeyInputManager::Release()
 {
 	for (int i = 0; i < arraySize; i++)
 	{
-		keyStates[i] = KeyState::NONE;
+		keyStates[i] = KeyState::KEY_NONE;
 	}
 }
 
@@ -47,4 +47,16 @@ bool KeyInputManager::GetKeyDown(byte keyNumber)
 bool KeyInputManager::GetKeyUp(byte keyNumber)
 {
 	return (keyStates[keyNumber] & UP) ? true : false;
+}
+
+int KeyInputManager::MousePosition_X()
+{
+	GetCursorPos(&ClientCursorPos);
+	return (int)ClientCursorPos.x;
+}
+
+int KeyInputManager::MousePosition_Y()
+{
+	GetCursorPos(&ClientCursorPos);
+	return (int)ClientCursorPos.y;
 }

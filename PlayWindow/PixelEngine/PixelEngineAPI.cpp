@@ -3,10 +3,11 @@
 #include "WindowPlatform.h"
 
 PixelEngine* Engine = nullptr;
-bool EngineInitialize()
+WindowPlatform* window = nullptr;
+bool EngineInitialize(HWND hWnd, int width, int height)
 {
 	Engine = new PixelEngine();
-	Engine->Initialize();
+	Engine->Initialize(hWnd, width, height);
     return true;
 }
 
@@ -26,16 +27,16 @@ bool RunningEngineCheck()
 
 void ReleaseEngine()
 {
-	Engine->Release();
-	delete Engine;
-	Engine = nullptr;
+	window->Release();
+	delete window;
+	window = nullptr;
 }
 
 void QuitWindow()
 {
-	if (Engine != nullptr)
+	if (window != nullptr)
 	{
-		Engine->QuitWindow();
+		//Engine->QuitWindow();
 	}
 }
 
@@ -57,6 +58,18 @@ bool GetKey(byte number)
 	return false;
 }
 
+int GetMousePosition_X()
+{
+	if (Engine != nullptr) return Engine->GetMousePosition_X();
+	return -1;
+}
+
+int GetMousePosition_Y()
+{
+	if (Engine != nullptr) return Engine->GetMousePosition_Y();
+	return -1;
+}
+
 float GetDeltaTime()
 {
 	if (Engine != nullptr) return Engine->GetDeltaTime();
@@ -65,13 +78,20 @@ float GetDeltaTime()
 
 double GetTotalTime()
 {
-	if (Engine != nullptr) return Engine->GetTotalTime();
+	// (Engine != nullptr) return Engine->GetTotalTime();
 	return false;
 }
 
 int GetFPS()
 {
-	if (Engine != nullptr) return Engine->GetFPS();
+	//if (Engine != nullptr) return Engine->GetFPS();
 	return false;
 }
-								
+
+bool LoadLuaScript(const std::string& path)
+{
+	//if (Engine != nullptr) return Engine->LoadLuaScript(path);
+	return false;
+}
+
+						

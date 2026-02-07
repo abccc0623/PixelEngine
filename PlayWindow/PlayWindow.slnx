@@ -4,7 +4,13 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="PixelEngine/PixelEngine.vcxproj" Id="ebc5deec-a4e3-441f-b2c2-75bb520403b5" />
+  <Project Path="Client/Client.vcxproj" Id="4d1d0bc9-bb1c-4dd0-a628-e0d684e2fd21">
+    <BuildDependency Project="PixelEngine/PixelEngine.vcxproj" />
+  </Project>
+  <Project Path="PixelEngine/PixelEngine.vcxproj" Id="ebc5deec-a4e3-441f-b2c2-75bb520403b5">
+    <BuildDependency Project="PixelGraphics/PixelGraphics.vcxproj" />
+  </Project>
+  <Project Path="PixelGraphics/PixelGraphics.vcxproj" Id="90a09673-cd57-47dd-92b7-d8dfdfb3fbf0" />
   <Project Path="WinPlay/WinPlay.csproj" Id="ab5e9783-3238-4282-a10d-39ce3138c692">
     <BuildDependency Project="PixelEngine/PixelEngine.vcxproj" />
     <Platform Solution="Debug|x64" Project="x64" />

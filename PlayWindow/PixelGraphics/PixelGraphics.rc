@@ -1,0 +1,10 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+/////////////////////////////////////////////////////////////////////////////
+MAIN_HEADER_RESOURCE    SHADER    "Shaders\\MainHeader.hlsli"
+DEBUG_PS_SHADER     SHADER      "Shaders\\Debug_ps.hlsl"
+DEBUG_VS_SHADER     SHADER      "Shaders\\Debug_vs.hlsl"
+STATIC_PS_SHADER    SHADER      "Shaders\\Static_ps.hlsl"
+STATIC_VS_SHADER    SHADER      "Shaders\\Static_vs.hlsl"
+

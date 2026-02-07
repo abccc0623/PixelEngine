@@ -1,6 +1,7 @@
 #include "WindowPlatform.h"
 #include "PixelEngineAPI.h"
 #include "PixelEngine.h"
+#include "PixelGraphicsAPI.h"
 #include <windows.h>
 #include <process.h>
 #include <iostream>
@@ -12,6 +13,7 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
     case WM_DESTROY:
+        PixelGraphicsRelease();
         PostQuitMessage(0);
         return 0;
     case WM_PAINT:
@@ -51,6 +53,10 @@ unsigned int __stdcall WindowThread(void* pArguments)
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
         NULL, NULL, wc.hInstance, NULL);
+    Engine = new PixelEngine();
+    PixelGraphicsInitialize(pThis->g_hWnd, 800, 600);
+    //Engine->Initialize();
+
 
     MSG msg;
     while (true)
@@ -65,7 +71,11 @@ unsigned int __stdcall WindowThread(void* pArguments)
                 break;
             }
         }
-    }
+        else 
+        {
+            //Engine->Update();
+        }
+    } 
 
     return 0;
 }
@@ -73,12 +83,11 @@ unsigned int __stdcall WindowThread(void* pArguments)
 void WindowPlatform::Initialize()
 {
     //윈도우 상태를 킨다.
-    _beginthreadex(NULL, 0, WindowThread,this, 0, NULL);
+    //_beginthreadex(NULL, 0, WindowThread,this, 0, NULL);
 }
 
 void WindowPlatform::Update()
 {
-    
 
 }
 

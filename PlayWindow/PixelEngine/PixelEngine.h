@@ -1,25 +1,37 @@
 #pragma once
+#include <string>
+#include <windows.h>
+#include <vector>
 typedef unsigned char byte;
 class EngineManager; 
-class Platform;
 class KeyInputManager;
 class TimeManager;
-
+class FactoryManager;
+class LuaManager;
+class FunctionManager;
+class SceneManager;
+class GameObject;
+class Module;
 class PixelEngine
 {
 public:
 	PixelEngine() = default;
 	~PixelEngine() = default;
-	void Initialize();
+	void Initialize(HWND hWnd, int width, int height);
 	void Update();
 	void Release();
 private:
-	static constexpr int managerArraySize = 3;
-	EngineManager** ManagerList = nullptr;
+	static constexpr int managerArraySize = 5;
+	std::vector<EngineManager*> ManagerList;
 
-	Platform* targetPlatform = nullptr;
+	//EngineManager** ManagerList = nullptr;
+
 	TimeManager* timeManager = nullptr;
 	KeyInputManager* keyInputManager = nullptr;
+	FactoryManager* factoryManager = nullptr;
+	LuaManager* luaManager = nullptr;
+	FunctionManager* functionManager = nullptr;
+	SceneManager* sceneManager = nullptr;
 public:
 	void QuitWindow();
 	void ClientUpdate();
@@ -29,9 +41,16 @@ public:
 	bool GetKeyDown(byte number);
 	bool GetKeyUp(byte number);
 	bool GetKey(byte number);
+	int GetMousePosition_X();
+	int GetMousePosition_Y();
 
 	float GetDeltaTime();
 	double GetTotalTime();
 	int GetFPS();
+
+	bool LoadLuaScript(const std::string& path);
+	GameObject* CreateGameObject();
+	void RegisterFunction(GameObject* obj, Module* module, int type);
+private:
 };
 

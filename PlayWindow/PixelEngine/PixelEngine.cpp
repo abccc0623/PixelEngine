@@ -1,24 +1,42 @@
 #include "PixelEngine.h"
 #include "KeyInputManager.h"
-#include "WindowPlatform.h"
 #include "TimeManager.h"
+#include "FactoryManager.h"
+#include "PixelGraphicsAPI.h"
+#include "GameObject.h"
+#include "LuaManager.h"
+#include "FunctionManager.h"
+#include "SceneManager.h"
+#include "Module.h"
+#include "Scene.h"
+#include <iostream>
 #include <Windows.h>
 
-void PixelEngine::Initialize()
+void PixelEngine::Initialize(HWND hWnd, int width, int height)
 {
-	ManagerList = new EngineManager*[managerArraySize];
-	targetPlatform = new WindowPlatform();
+	ManagerList = std::vector<EngineManager*>();
 	keyInputManager = new KeyInputManager();
 	timeManager = new TimeManager();
+	factoryManager = new FactoryManager();
+	luaManager = new LuaManager();
+	sceneManager = new SceneManager();
+	functionManager = new FunctionManager();
 
-	ManagerList[0] = targetPlatform;
-	ManagerList[1] = keyInputManager;
-	ManagerList[2] = timeManager;
+	ManagerList.push_back(keyInputManager);
+	ManagerList.push_back(timeManager);
+	ManagerList.push_back(factoryManager);
+	ManagerList.push_back(functionManager);
+	ManagerList.push_back(luaManager);
+	ManagerList.push_back(sceneManager);
+
 	
-	for (int i = 0; i < managerArraySize; i++)
+	PixelGraphicsInitialize(hWnd, width, height);
+	for (int i = 0; i < ManagerList.size(); i++)
 	{
 		ManagerList[i]->Initialize();
 	}
+	sceneManager->ChangeScene(new Scene());
+
 }
 
 void PixelEngine::Update()
@@ -33,16 +51,16 @@ void PixelEngine::ClientUpdate()
 
 void PixelEngine::EngineUpdate()
 {
-	if (ManagerList == nullptr)return;
 	for (int i = 0; i < managerArraySize; i++)
 	{
 		ManagerList[i]->Update();
 	}
+	PixelGraphicsRendering(0.25f, 0.25f, 0.25f, 1.0f);
 }
 
 bool PixelEngine::RunningCheck()
 {
-	return (ManagerList == nullptr) ? false : true;
+	return (ManagerList.size() == 0) ? false : true;
 }
 
 bool PixelEngine::GetKeyDown(byte number)
@@ -60,10 +78,19 @@ bool PixelEngine::GetKey(byte number)
 	return keyInputManager->GetKey(number);
 }
 
+int PixelEngine::GetMousePosition_X()
+{
+	return keyInputManager->MousePosition_X();
+}
+
+int PixelEngine::GetMousePosition_Y()
+{
+	return keyInputManager->MousePosition_Y();
+}
+
 void PixelEngine::Release()
 {
-	if (ManagerList == nullptr)return;
-	for (int i = 0; i < managerArraySize; i++)
+	for (int i = 0; i < ManagerList.size(); i++)
 	{
 		ManagerList[i]->Release();
 		if (ManagerList[i] != nullptr)
@@ -72,17 +99,12 @@ void PixelEngine::Release()
 			ManagerList[i] = nullptr;
 		}
 	}
-	delete[] ManagerList;
-	ManagerList = nullptr;
+	ManagerList.clear();
 }
 
 void PixelEngine::QuitWindow()
 {
-	if(ManagerList != nullptr)
-	{
-		WindowPlatform* win = static_cast<WindowPlatform*>(ManagerList[0]);
-		win->QuitWindow();
-	}
+	
 }
 
 float PixelEngine::GetDeltaTime()
@@ -111,3 +133,34 @@ int PixelEngine::GetFPS()
 	}
 	return 0;
 }
+
+bool PixelEngine::LoadLuaScript(const std::string& path)
+{
+	if (luaManager != nullptr)
+	{
+		return luaManager->LoadLuaScript(path);
+	}
+	return false;
+}
+
+GameObject* PixelEngine::CreateGameObject()
+{
+	if (factoryManager == nullptr) 
+	{
+		std::cout << "Not Find FactoryManager" << std::endl;
+		return nullptr;
+	}
+	return factoryManager->Get();
+}
+
+void PixelEngine::RegisterFunction(GameObject* obj, Module* module, int type)
+{
+ 	if (functionManager == nullptr)
+	{
+		std::cout << "Not Find functionManager" << std::endl;
+		return;
+	}
+	functionManager->RegisterFunction(obj, module, type);
+}
+
+

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <windows.h>
 typedef unsigned char byte;
 
 #ifdef ENGINE_INTERFACE

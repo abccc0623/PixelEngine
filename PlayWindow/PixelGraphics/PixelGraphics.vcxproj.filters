@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="PicnicGraphics">
+      <UniqueIdentifier>{b5e5c1e1-affe-4260-b136-1f97e4dc57d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\GraphicsAPI">
+      <UniqueIdentifier>{098d4ea7-db79-440e-8b1a-e7f86f786aef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\GraphicsCore">
+      <UniqueIdentifier>{56891195-805c-4338-83be-e242a52ec6ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Resources">
+      <UniqueIdentifier>{4e6ccea0-a396-433e-b2a7-9c1454bf8fe1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager">
+      <UniqueIdentifier>{f629217a-356f-49e7-b3ae-213c04c90117}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\BindingClass">
+      <UniqueIdentifier>{43ad01ee-16bf-4e17-b517-61ac7b4371c7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsCore.h">
+      <Filter>PicnicGraphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderResources.h">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsEngine.h">
+      <Filter>PicnicGraphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelGraphicsLib.h">
+      <Filter>PicnicGraphics\GraphicsAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering.h">
+      <Filter>PicnicGraphics\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Factory.h">
+      <Filter>PicnicGraphics\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelResources.h">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="CBufferResources.h">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleMath.h">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="InputLayout.h">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="CompileShaderManager.h">
+      <Filter>PicnicGraphics\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Camera.h">
+      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Axis.h">
+      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\RenderringData.h">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\VertexData.h">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PixelGraphicsAPI.h">
+      <Filter>PicnicGraphics\GraphicsAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PixelGraphicsDLL.h">
+      <Filter>PicnicGraphics\GraphicsAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Quad.h">
+      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PicnicGraphicsAPI.cpp">
+      <Filter>PicnicGraphics\GraphicsAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsCore.cpp">
+      <Filter>PicnicGraphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsEngine.cpp">
+      <Filter>PicnicGraphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering.cpp">
+      <Filter>PicnicGraphics\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Factory.cpp">
+      <Filter>PicnicGraphics\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="CompileShaderManager.cpp">
+      <Filter>PicnicGraphics\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Camera.cpp">
+      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Axis.cpp">
+      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Quad.cpp">
+      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </None>
+    <None Include="Shaders\MainHeader.hlsli">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\Debug_ps.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Debug_vs.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Skinning_ps.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Skinning_vs.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Static_ps.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Static_vs.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PixelGraphics.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

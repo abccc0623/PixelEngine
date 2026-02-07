@@ -1,6 +1,8 @@
 #pragma once
 #include "PixelEngineDLL.h"
-extern "C" PIXEL_ENGINEDLL bool EngineInitialize();							
+#include <string>
+#include <windows.h>
+extern "C" PIXEL_ENGINEDLL bool EngineInitialize(HWND hWnd,int width,int height);
 extern "C" PIXEL_ENGINEDLL void UpdateEngine();
 extern "C" PIXEL_ENGINEDLL bool RunningEngineCheck();
 extern "C" PIXEL_ENGINEDLL void ReleaseEngine();							
@@ -10,8 +12,13 @@ extern "C" PIXEL_ENGINEDLL void QuitWindow();
 extern "C" PIXEL_ENGINEDLL bool GetKeyDown(byte number);		
 extern "C" PIXEL_ENGINEDLL bool GetKeyUp(byte number);			
 extern "C" PIXEL_ENGINEDLL bool GetKey(byte number);
+extern "C" PIXEL_ENGINEDLL int GetMousePosition_X();
+extern "C" PIXEL_ENGINEDLL int GetMousePosition_Y();
 
 //Time
 extern "C" PIXEL_ENGINEDLL float GetDeltaTime();
 extern "C" PIXEL_ENGINEDLL double GetTotalTime();
 extern "C" PIXEL_ENGINEDLL int GetFPS();
+
+//Lua
+extern "C" PIXEL_ENGINEDLL bool LoadLuaScript(const std::string& path);

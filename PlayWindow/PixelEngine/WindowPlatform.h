@@ -12,6 +12,7 @@ typedef HINSTANCE__* HINSTANCE;
 #define CALLBACK __stdcall
 #endif
 
+class RenderingData;
 class WindowPlatform : public Platform
 {
 public:
