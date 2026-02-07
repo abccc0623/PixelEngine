@@ -47,7 +47,7 @@ void SceneManager::ChangeScene(std::string name)
 	}
 }
 
-void SceneManager::CreateScene(std::string name)
+void SceneManager::CreateScene(const std::string& name)
 {
 	auto it = sceneMap.find(name);
 	if (it != sceneMap.end())

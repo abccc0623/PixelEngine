@@ -2,6 +2,7 @@
 #include <string>
 #include <windows.h>
 #include <vector>
+#include <sol/forward.hpp>
 typedef unsigned char byte;
 class EngineManager; 
 class KeyInputManager;
@@ -48,10 +49,10 @@ public:
 	float GetDeltaTime();
 	double GetTotalTime();
 	int GetFPS();
-
+	sol::state* GetLua();
 	bool LoadLuaScript(const std::string& path);
 	GameObject* CreateGameObject();
-	Scene* CreateScene();
+	Scene* CreateScene(std::string name);
 
 	void RegisterFunction(GameObject* obj, Module* module, int type);
 private:

@@ -14,7 +14,7 @@ public:
 	void Release() override;
 
 	void ChangeScene(std::string name);
-	void CreateScene(std::string name);
+	void CreateScene(const std::string& name);
 private:
 	Scene* targetScene;
 	std::unordered_map<std::string, Scene*> sceneMap;

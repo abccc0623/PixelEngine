@@ -1,8 +1,7 @@
 #pragma once
 #include "EngineManager.h";
 #include <string>
-#include "sol.hpp"
-struct lua_State;
+#include <sol/forward.hpp>
 class LuaManager : public EngineManager
 {
 public:
@@ -14,8 +13,10 @@ public:
 	void Update() override;
 	void Release() override;
 	bool LoadLuaScript(const std::string& fileName);
-
+	sol::state* GetLua();
 private:
-	sol::state lua;
+	sol::state* lua;
+
+	void LoadDefaultSettingFile();
 };
 

@@ -173,6 +173,7 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Renderer2D.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Vector3.h" />
@@ -192,6 +193,7 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClCompile Include="LuaManager.cpp" />
     <ClCompile Include="LuaScript.cpp" />
     <ClCompile Include="Module.cpp" />
+    <ClCompile Include="ModuleTypeList.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PixelEngine.cpp" />
     <ClCompile Include="PixelEngineAPI.cpp" />
@@ -210,6 +212,12 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="WindowPlatform.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Setting.lua" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PixelEngine.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

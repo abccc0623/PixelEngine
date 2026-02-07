@@ -7,13 +7,14 @@
 #include <concepts>
 #include <vector>
 #include <string>
+#include "sol.hpp"
 #define AWAKE_FUNCTION 0
 #define START_FUNCTION 1
 #define UPDATE_FUNCTION 2
 #define MATRIX_UPDATE_FUNCTION 3
 #define PHYSICS_UPDATE_FUNCTION 4
 #define LAST_UPDATE_FUNCTION 5
-
+class Module;
 class GameObject :public Object
 {
 public:
@@ -60,6 +61,7 @@ public:
 		return static_cast<T*>(basePtr);
 	}
 	void AddModule(std::string name);
+	Module* GetModule(std::string name);
 private:
 	size_t hashCode;
 	void AddFunction(Module* target, int Type);

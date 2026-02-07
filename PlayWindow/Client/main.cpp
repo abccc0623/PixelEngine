@@ -43,7 +43,7 @@ int main() {
     ShowWindow(hWnd, SW_SHOW);
     EngineInitialize(hWnd,800,600);
 
-    LoadLuaScript("./Test.Lua");
+    LoadLuaScript("./Asset/Setting.Lua");
 
     MSG msg = { 0 };
     while (true)

@@ -38,6 +38,20 @@ void GameObject::AddModule(std::string name)
 	}
 }
 
+Module* GameObject::GetModule(std::string name)
+{
+	auto findTarget = ModuleMap.find(name);
+	if (findTarget != ModuleMap.end())
+	{
+		return findTarget->second;
+	}
+	else 
+	{
+		std::cout << "Not Find Module : "+ name << std::endl;
+	}
+	return nullptr;
+}
+
 void GameObject::AddFunction(Module* target, int Type)
 {
 	Engine->RegisterFunction(this, target, Type);

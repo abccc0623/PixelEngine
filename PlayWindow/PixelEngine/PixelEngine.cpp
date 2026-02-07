@@ -153,12 +153,18 @@ GameObject* PixelEngine::CreateGameObject()
 	return factoryManager->Get();
 }
 
-Scene* PixelEngine::CreateScene()
+Scene* PixelEngine::CreateScene(std::string name)
 {
 	if (sceneManager != nullptr)
 	{
-		//sceneManager
+		sceneManager->CreateScene(name);
 	}
+	return nullptr;
+}
+
+sol::state* PixelEngine::GetLua()
+{
+	if (luaManager != nullptr) {return luaManager->GetLua();}
 	return nullptr;
 }
 
