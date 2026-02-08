@@ -86,3 +86,19 @@ void Action::StartReady()
 	}
 }
 
+void Action::Release()
+{
+	while (!RunAciontQueue.empty())
+	{
+		auto a = RunAciontQueue.front();
+		delete a;
+		RunAciontQueue.pop();
+	}
+	while (!IdleAcionQueue.empty())
+	{
+		auto a = RunAciontQueue.front();
+		delete a;
+		RunAciontQueue.pop();
+	}
+}
+

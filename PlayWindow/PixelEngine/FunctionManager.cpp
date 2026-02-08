@@ -15,7 +15,7 @@ FunctionManager::FunctionManager()
 
 FunctionManager::~FunctionManager()
 {
-
+	Action::Release();
 }
 
 void FunctionManager::Initialize()
@@ -51,12 +51,26 @@ void FunctionManager::Update()
 
 void FunctionManager::Release()
 {
-	awakeFunction = {};
-	startFunction = {};
-	updateFunction.clear();
-	matrixFunction.clear();
-	physicsFunction.clear();
-	lastFunction.clear();
+	Action::StartReady();
+
+	while (awakeFunction.empty() == false)
+	{
+		auto a = awakeFunction.front();
+		delete a;
+		awakeFunction.pop();
+	};
+
+	while (startFunction.empty() == false)
+	{
+		auto a = startFunction.front();
+		delete a;
+		startFunction.pop();
+	};
+
+	for (const auto& pair : updateFunction)  delete pair.second;
+	for (const auto& pair : matrixFunction)  delete pair.second;
+	for (const auto& pair : physicsFunction) delete pair.second;
+	for (const auto& pair : lastFunction)	 delete pair.second;
 }
 
 void FunctionManager::RegisterFunction(GameObject* obj, Module* module, int type)

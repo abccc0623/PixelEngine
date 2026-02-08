@@ -17,6 +17,7 @@ public:
 	static Action* Create();
 	static void Delete(Action* action);
 	static void StartReady();
+	static void Release();
 private:
 	std::function<void(void)> fun;
 	std::string key;
