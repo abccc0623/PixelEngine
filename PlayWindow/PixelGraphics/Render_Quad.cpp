@@ -22,6 +22,19 @@ void Render_Quad::Binding(RenderingData* mData)
 	GetDeviceContext()->UpdateSubresource(mContextBuffer_List["ObjectBuffer"], 0, nullptr, &mbuffer, 0, 0);
 	GetDeviceContext()->VSSetConstantBuffers(1, 1, &mContextBuffer_List["ObjectBuffer"]);
 
+	
+	if (mData->Texture_ID != -1)
+	{
+		ID3D11ShaderResourceView* SRV = mTexture_Map[mData->Texture_ID];
+		GetDeviceContext()->PSSetShaderResources(0, 1, &SRV);
+	}
+	else
+	{
+		// 텍스처가 없을 때를 대비해 기본 'Error' 텍스처나 nullptr 바인딩
+		ID3D11ShaderResourceView* nullSRV = nullptr;
+		GetDeviceContext()->PSSetShaderResources(0, 1, &nullSRV);
+	}
+
 	//모델 바인딩
 	DirectModel* mAxis = mModelBufferList["Quad"];
 	GetDeviceContext()->IASetVertexBuffers(0, 1, &mAxis->VertexBuffer, &mAxis->stride, &mAxis->Offset);
@@ -37,7 +50,7 @@ void Render_Quad::Binding(RenderingData* mData)
 	GetDeviceContext()->VSSetSamplers(0, 1, &mSampler);
 
 	//쉐이더 바인딩
-	ShaderResources* mShaderBuffer = mShaderResources_List["Debug"];
+	ShaderResources* mShaderBuffer = mShaderResources_List["Static"];
 	GetDeviceContext()->IASetInputLayout(mShaderBuffer->mLayout);
 	GetDeviceContext()->VSSetShader(mShaderBuffer->mVertexShader, NULL, 0);
 	GetDeviceContext()->PSSetShader(mShaderBuffer->mPixelShader, NULL, 0);

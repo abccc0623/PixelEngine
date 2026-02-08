@@ -6,9 +6,11 @@
 #include "LuaManager.h"
 #include "FunctionManager.h"
 #include "SceneManager.h"
+#include "TextureManager.h"
 #include "Module.h"
 #include "Scene.h"
 #include <iostream>
+#include "ResourceManager.h"
 #include <Windows.h>
 
 
@@ -23,6 +25,7 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	luaManager = new LuaManager();
 	sceneManager = new SceneManager();
 	functionManager = new FunctionManager();
+	resourceManager = new ResourceManager();
 
 	ManagerList.push_back(keyInputManager);
 	ManagerList.push_back(timeManager);
@@ -30,13 +33,14 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	ManagerList.push_back(functionManager);
 	ManagerList.push_back(luaManager);
 	ManagerList.push_back(sceneManager);
+	ManagerList.push_back(resourceManager);
 
-	ModuleRegister();
 	PixelGraphicsInitialize(hWnd, width, height);
 	for (int i = 0; i < ManagerList.size(); i++)
 	{
 		ManagerList[i]->Initialize();
 	}
+	ModuleRegister();
 }
 
 void PixelEngine::Update()
@@ -143,6 +147,15 @@ bool PixelEngine::LoadLuaScript(const std::string& path)
 	return false;
 }
 
+bool PixelEngine::CreateLuaAPIPath(const std::string& path)
+{
+	if (luaManager != nullptr)
+	{
+		return luaManager->CreateLuaAPIPath(path);
+	}
+	return false;
+}
+
 GameObject* PixelEngine::CreateGameObject()
 {
 	if (factoryManager == nullptr) 
@@ -160,6 +173,24 @@ Scene* PixelEngine::CreateScene(std::string name)
 		sceneManager->CreateScene(name);
 	}
 	return nullptr;
+}
+
+ObjectID PixelEngine::Load(RESOURCE_TYPE type, const std::string& path)
+{
+	if (resourceManager != nullptr)
+	{
+		resourceManager->Load(type,path);
+	}
+	return 0;
+}
+
+ObjectID PixelEngine::GetResourceID(RESOURCE_TYPE type, const std::string& path)
+{
+	if (resourceManager != nullptr)
+	{
+		return resourceManager->Get(type, path);
+	}
+	return ObjectID();
 }
 
 sol::state* PixelEngine::GetLua()

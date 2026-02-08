@@ -3,6 +3,10 @@
 #include "Transform.h"
 #include "PixelEngineAPI.h"
 #include "PixelGraphicsAPI.h"
+#include "PixelEngine.h"
+#include "ResourceManager.h"
+
+extern PixelEngine* Engine;
 Renderer2D::Renderer2D()
 {
 
@@ -23,7 +27,7 @@ void Renderer2D::Start()
 	transform = targetObject->GetModule<Transform>();
 	rendering = GetRenderingData();
 	rendering->Type = QUAD;
-	rendering->ModelIndex = 10;
+	rendering->Texture_ID = textureID;
 }
 
 void Renderer2D::Update()
@@ -38,4 +42,23 @@ void Renderer2D::LastUpdate()
 	{
 		rendering->World[i] = m._m[i];
 	}
+}
+
+void Renderer2D::SetTexture(const std::string& name)
+{
+	textureName = name;
+	textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
+	if (rendering != nullptr)
+	{
+		rendering->Texture_ID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE,textureName);
+	}
+}
+
+void Renderer2D::RegisterLua()
+{
+	auto lua = GetLua();
+	lua->new_usertype<Renderer2D>("Renderer2D",sol::base_classes, sol::bases<Module, BaseModule>(),
+		"SetTexture", [](Renderer2D& obj, std::string name) {obj.SetTexture(name); }
+	);
+
 }

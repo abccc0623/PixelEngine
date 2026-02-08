@@ -39,7 +39,7 @@ void LuaScript::Start()
         {
             sol::error err = result;
             std::string what = err.what();
-            std::cout << "--- LUA AWAKE ERROR ---" << std::endl;
+            std::cout << "--- LUA SRART ERROR ---" << std::endl;
             std::cout << what << std::endl;
             std::cout << "-----------------------" << std::endl;
         }
@@ -53,11 +53,15 @@ void LuaScript::Update()
         auto result = luaUpdate(selfTable);
         if (!result.valid())
         {
-            sol::error err = result;
-            std::string what = err.what();
-            std::cout << "--- LUA AWAKE ERROR ---" << std::endl;
-            std::cout << what << std::endl;
-            std::cout << "-----------------------" << std::endl;
+            if (updateLog == false)
+            {
+                sol::error err = result;
+                std::string what = err.what();
+                std::cout << "--- LUA UPDATE ERROR ---" << std::endl;
+                std::cout << what << std::endl;
+                std::cout << "-----------------------" << std::endl;
+                updateLog = true;
+            }
         }
     }
 }
@@ -74,5 +78,13 @@ void LuaScript::RegisterFile(std::string fileName)
         luaStart = selfTable["Awake"];
         luaStart = selfTable["Start"];
         luaUpdate = selfTable["Update"];
+    }
+    else 
+    {
+        sol::error err = result;
+        std::string what = err.what();
+        std::cout << "--- LUA Register ERROR ---" << std::endl;
+        std::cout << what << std::endl;
+        std::cout << "-----------------------" << std::endl;
     }
 }

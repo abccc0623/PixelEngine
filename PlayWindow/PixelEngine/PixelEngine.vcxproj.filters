@@ -82,6 +82,18 @@
     <Filter Include="EngineAPI\Module\LuaScript">
       <UniqueIdentifier>{4a286522-28ec-4098-bc1e-2c1d09fbc887}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Module\Camera">
+      <UniqueIdentifier>{bdcf9ffd-50f5-49b1-9790-e5b821a048c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\TextureManager">
+      <UniqueIdentifier>{01eb86b2-74e2-4bff-ba1c-63b39a80018f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\ResourceManager">
+      <UniqueIdentifier>{d6f518e3-501d-4b3a-b189-73aef13abd36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Bind">
+      <UniqueIdentifier>{4b734d7e-1996-4362-9fd3-ba7577f2c807}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -171,6 +183,18 @@
     <ClInclude Include="resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>EngineAPI\Module\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>EngineAPI\Manager\TextureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>EngineAPI\Manager\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="BindLua.h">
+      <Filter>EngineAPI\Bind</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -247,6 +271,18 @@
     </ClCompile>
     <ClCompile Include="ModuleTypeList.cpp">
       <Filter>EngineAPI\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>EngineAPI\Module\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>EngineAPI\Manager\TextureManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>EngineAPI\Manager\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="BindLua.cpp">
+      <Filter>EngineAPI\Bind</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

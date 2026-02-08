@@ -300,7 +300,21 @@ void Transform::WorldMatrixUpdate()
 	}
 }
 
+void Transform::RegisterLua()
+{
+	auto lua = GetLua();
+	lua->new_usertype<Transform>("Transform",
+		sol::base_classes, sol::bases<Module, BaseModule>(),
+		"SetPosition", [](Transform& obj, float x, float y, float z) {obj.SetPosition(x, y, z); },
+		"AddPosition", [](Transform& obj, float x, float y, float z) {obj.AddPosition(x, y, z); },
+		"SetRotation", [](Transform& obj, float x, float y, float z) {obj.SetRotation(x, y, z); },
+		"AddRotation", [](Transform& obj, float x, float y, float z) {obj.AddRotation(x, y, z); },
+		"SetScale", [](Transform& obj, float x, float y, float z) {obj.SetScale(x, y, z); },
+		"AddScale", [](Transform& obj, float x, float y, float z) {obj.AddScale(x, y, z); }
+	);
+}
+
 void Transform::Update()
 {
-	//std::cout << "Transform Update" << std::endl;
+	
 }

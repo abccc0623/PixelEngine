@@ -11,8 +11,8 @@ typedef unsigned char byte;
 class KeyInputManager : public EngineManager
 {
 public:
-	KeyInputManager() = default;
-	~KeyInputManager() = default;
+	KeyInputManager();
+	~KeyInputManager();
 
 	void Initialize() override;
 	void Update() override;

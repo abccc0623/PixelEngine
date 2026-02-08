@@ -15,7 +15,7 @@ Render_Axis::~Render_Axis()
 
 void Render_Axis::Binding(RenderingData* mData)
 {
-	if (mData->ModelIndex == -1) { return; }
+	if (mData->Model_ID == -1) { return; }
 
 	ObjectBuffer mbuffer;
 	DirectX::SimpleMath::Matrix mWorld = DirectX::SimpleMath::Matrix::Identity;
@@ -41,7 +41,7 @@ void Render_Axis::Binding(RenderingData* mData)
 	GetDeviceContext()->VSSetConstantBuffers(1, 1, &mContextBuffer_List["ObjectBuffer"]);
 
 	//¸ðµ¨ ¹ÙÀÎµù
-	DirectModel* mAxis = mModelBuffer_List[mData->ModelIndex];
+	DirectModel* mAxis = mModelBuffer_List[mData->Model_ID];
 	GetDeviceContext()->IASetVertexBuffers(0, 1, &mAxis->VertexBuffer, &mAxis->stride, &mAxis->Offset);
 	GetDeviceContext()->IASetIndexBuffer(mAxis->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 

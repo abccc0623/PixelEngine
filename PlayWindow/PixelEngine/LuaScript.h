@@ -13,6 +13,7 @@ public:
 
 	void RegisterFile(std::string fileName);
 private:
+	bool updateLog = false;
 	std::string path;
 	sol::state lua;
 	sol::table selfTable;

@@ -1,5 +1,13 @@
 #include "KeyInputManager.h"
 #include "windows.h"
+KeyInputManager::KeyInputManager()
+{
+
+}
+KeyInputManager::~KeyInputManager()
+{
+
+}
 void KeyInputManager::Initialize()
 {
 	for (int i = 0; i < arraySize; i++)

@@ -1,10 +1,11 @@
 #pragma once
 
+#include "BindLua.h"
 #include "Module.h"
 #include "Vector3.h"
 #include "Matrix.h"
 
-class Transform : public Module
+class Transform : public Module ,public BindLua<Transform>
 {
 public:
 	Transform();
@@ -73,4 +74,6 @@ public:
 	bool IsChange_Postion;
 	bool IsChange_Rotation;
 	bool IsChange_Scale;
+
+	static void RegisterLua();
 };

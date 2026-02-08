@@ -1,6 +1,7 @@
 #pragma once
 #include <windows.h>
 
+using ObjectID = size_t;
 class CompileShaderManager;
 class Rendering;
 class Factory;
@@ -20,11 +21,12 @@ public:
 	void SetDebugCamera(float* m);
 	void SetRenderCamera(float* m);
 
+	ObjectID LoadTexture(const char* filePath);
 	RenderingData* GetRenderingData();
 	RenderingData* GetRenderingDataQuid();
 	void SetRenderingData(RenderingData* mData);
-	int Model_Debug(float* VertexList, int VertexSize, int* IndexList, int indexSize);
-	int Model_Debug(Vertex_Debug* VertexList, int VertexSize, int* IndexList, int indexSize);
+	ObjectID Model_Debug(float* VertexList, int VertexSize, int* IndexList, int indexSize);
+	ObjectID Model_Debug(Vertex_Debug* VertexList, int VertexSize, int* IndexList, int indexSize);
 private:
 	CompileShaderManager*	mShader;
 	Rendering*				mRender;

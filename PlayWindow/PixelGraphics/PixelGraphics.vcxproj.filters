@@ -96,6 +96,9 @@
     <ClInclude Include="Render_Quad.h">
       <Filter>PicnicGraphics\Manager\BindingClass</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -104,7 +107,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="PicnicGraphicsAPI.cpp">
+    <ClCompile Include="PixelGraphicsAPI.cpp">
       <Filter>PicnicGraphics\GraphicsAPI</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsCore.cpp">
@@ -139,6 +142,7 @@
     <None Include="Shaders\MainHeader.hlsli">
       <Filter>리소스 파일</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Debug_ps.hlsl">

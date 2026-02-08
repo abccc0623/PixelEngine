@@ -20,9 +20,8 @@ PixelInputType main(VertexInputType input)
     PixelInputType output;
 
     //월드변환
-    output.posH = mul(float4(input.position.xyz, 1.0f), world);
-    output.posH = mul(float4(output.posH.xyz, 1.0f), world);
-    output.posH = mul(float4(output.posH.xyz, 1.0f), view_proj);
+    float4 worldPos = mul(float4(input.position, 1.0f), world);
+    output.posH = mul(worldPos, view_proj);
     //uv값
     output.UV = mul(float4(input.UV.xy, 0.0f, 1.0f), TexMatrix);
     //노말

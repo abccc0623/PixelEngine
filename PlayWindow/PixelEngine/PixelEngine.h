@@ -4,6 +4,8 @@
 #include <vector>
 #include <sol/forward.hpp>
 typedef unsigned char byte;
+using ObjectID = size_t;
+enum RESOURCE_TYPE;
 class EngineManager; 
 class KeyInputManager;
 class TimeManager;
@@ -14,6 +16,8 @@ class SceneManager;
 class GameObject;
 class Module;
 class Scene;
+class TextureManager;
+class ResourceManager;
 class PixelEngine
 {
 public:
@@ -34,6 +38,7 @@ private:
 	LuaManager* luaManager = nullptr;
 	FunctionManager* functionManager = nullptr;
 	SceneManager* sceneManager = nullptr;
+	ResourceManager* resourceManager = nullptr;
 public:
 	void QuitWindow();
 	void ClientUpdate();
@@ -50,10 +55,14 @@ public:
 	double GetTotalTime();
 	int GetFPS();
 	sol::state* GetLua();
-	bool LoadLuaScript(const std::string& path);
 	GameObject* CreateGameObject();
 	Scene* CreateScene(std::string name);
 
+	ObjectID Load(RESOURCE_TYPE type,const std::string& path);
+	ObjectID GetResourceID(RESOURCE_TYPE type,const std::string& path);
+
+	bool LoadLuaScript(const std::string& path);
+	bool CreateLuaAPIPath(const std::string& path);
 	void RegisterFunction(GameObject* obj, Module* module, int type);
 private:
 };

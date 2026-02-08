@@ -1,6 +1,8 @@
 #include "PixelEngineAPI.h" 
 #include "PixelEngine.h" 
 #include "WindowPlatform.h"
+#include "ResourceManager.h"
+#include <string>
 
 PixelEngine* Engine = nullptr;
 WindowPlatform* window = nullptr;
@@ -40,19 +42,19 @@ void QuitWindow()
 	}
 }
 
-bool GetKeyDown(byte number)
+bool GetKeyDown(char number)
 {
 	if (Engine != nullptr) return Engine->GetKeyDown(number);
 	return false;
 }
 
-bool GetKeyUp(byte number)
+bool GetKeyUp(char number)
 {
 	if (Engine != nullptr) return Engine->GetKeyUp(number);
 	return false;
 }
 
-bool GetKey(byte number)
+bool GetKey(char number)
 {
 	if (Engine != nullptr) return Engine->GetKey(number);
 	return false;
@@ -91,6 +93,18 @@ int GetFPS()
 bool LoadLuaScript(const std::string& path)
 {
 	if (Engine != nullptr) return Engine->LoadLuaScript(path);
+	return false;
+}
+
+bool LoadTexture(const std::string& path)
+{
+	if (Engine != nullptr) return Engine->Load(RESOURCE_TYPE::TEXTURE,path);
+	return true;
+}
+
+bool CreateLuaAPIPath(const std::string& path)
+{
+	if (Engine != nullptr) return Engine->CreateLuaAPIPath(path);
 	return false;
 }
 

@@ -1,6 +1,7 @@
 #include "GraphicsCore.h"
 #include "PixelGraphicsLib.h"
 #include "RenderringData.h"
+
 ID3D11Device*			GraphicsCore::mDevice			= nullptr;
 ID3D11DeviceContext*	GraphicsCore::mDeviceContext	= nullptr;
 IDXGISwapChain*			GraphicsCore::mSwapChain		= nullptr;
@@ -13,6 +14,8 @@ int GraphicsCore::ClientHeight = 0;
 int GraphicsCore::ClientWidth  = 0;
 HWND GraphicsCore::mHwnd;
 
+std::unordered_map<ObjectID, ID3D11ShaderResourceView*>			 GraphicsCore::mTexture_Map;
+
 std::vector<RenderingData*>						 GraphicsCore::mRendering_List;
 std::vector<DirectModel*>						 GraphicsCore::mModelBuffer_List;
 std::map<std::string, DirectModel*>				 GraphicsCore::mModelBufferList;
@@ -20,7 +23,6 @@ std::map<std::string, ShaderResources*>			 GraphicsCore::mShaderResources_List;
 std::map<std::string, ID3D11SamplerState*>		 GraphicsCore::mShaderSampler_List;
 std::map<std::string, ID3D11Buffer*>			 GraphicsCore::mContextBuffer_List;
 std::map<std::string, ID3D11RasterizerState*>	 GraphicsCore::mRasterizer_List;
-std::map<std::string, ID3D11ShaderResourceView*> GraphicsCore::mTexture_List;
 GraphicsCore::GraphicsCore()
 {
 

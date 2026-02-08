@@ -3,6 +3,7 @@
 #include "ModelResources.h"
 
 struct Vertex_Debug;
+using ObjectID = size_t;
 class Factory : GraphicsCore
 {
 public:
@@ -22,6 +23,7 @@ public:
 
 	ID3D11RasterizerState* CreateRasterizerState_Solid();
 	ID3D11RasterizerState* CreateRasterizerState_Wire();
+	ObjectID CreateTextureResource(const char* filePath);
 public:
 	template<typename VertextType, typename IndexType>
 	DirectModel* CreateModelBuffer(VertextType* VertexArray, int VertexArraySize, IndexType* IndexArray, int IndexArraySize);

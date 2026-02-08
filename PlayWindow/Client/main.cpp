@@ -44,6 +44,7 @@ int main() {
     EngineInitialize(hWnd,800,600);
 
     LoadLuaScript("./Asset/Setting.Lua");
+    CreateLuaAPIPath("./Assets/PixelEngine_API.lua");
 
     MSG msg = { 0 };
     while (true)

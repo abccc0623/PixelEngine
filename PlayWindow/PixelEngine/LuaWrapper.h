@@ -7,6 +7,10 @@ extern "C" {
 }
 #include "PixelEngineAPI.h"
 
+#include <map>
+#include <string>
+#include <vector>
+
 static int Lua_GetKey(lua_State* state);
 static int Lua_GetKeyDown(lua_State* state);
 static int Lua_GetKeyUp(lua_State* state);

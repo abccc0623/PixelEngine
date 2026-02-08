@@ -22,3 +22,4 @@ extern "C" PIXEL_ENGINEDLL int GetFPS();
 
 //Lua
 extern "C" PIXEL_ENGINEDLL bool LoadLuaScript(const std::string& path);
+extern "C" PIXEL_ENGINEDLL bool CreateLuaAPIPath(const std::string& path);

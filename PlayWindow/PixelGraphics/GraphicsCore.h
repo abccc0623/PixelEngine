@@ -4,8 +4,9 @@
 
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <string>
-
+using ObjectID = size_t;
 class GraphicsEngine;
 struct IDXGISwapChain;
 struct ID3D11Device;
@@ -48,11 +49,12 @@ protected:
 
 	static std::vector<RenderingData*>							mRendering_List;
 	static std::vector<DirectModel*>							mModelBuffer_List;
+	static std::unordered_map<ObjectID, ID3D11ShaderResourceView*> mTexture_Map;
 	static std::map<std::string, DirectModel*>					mModelBufferList;
 	static std::map<std::string, ShaderResources*>				mShaderResources_List;
 	static std::map<std::string, ID3D11SamplerState*>			mShaderSampler_List;
 	static std::map<std::string, ID3D11Buffer*>					mContextBuffer_List;
 	static std::map<std::string, ID3D11RasterizerState*>		mRasterizer_List;
-	static std::map<std::string, ID3D11ShaderResourceView*>		mTexture_List;
+	//static std::map<std::string, ID3D11ShaderResourceView*>		mTexture_Map;
 };
 

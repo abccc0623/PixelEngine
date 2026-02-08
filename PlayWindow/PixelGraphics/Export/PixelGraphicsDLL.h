@@ -1,5 +1,6 @@
 #pragma once
 
+
 #ifdef PICNICGRAPHICS_EXPORTS
 #define PICNIC_GRAPHICS_DLL extern "C" __declspec(dllexport)
 #else

@@ -14,9 +14,11 @@ public:
 	void Release() override;
 	bool LoadLuaScript(const std::string& fileName);
 	sol::state* GetLua();
+	bool CreateLuaAPIPath(const std::string& filePath);
 private:
 	sol::state* lua;
-
+	std::string apiExportPath;
 	void LoadDefaultSettingFile();
+	void GenerateSimpleStubs(sol::state* state);
 };
 

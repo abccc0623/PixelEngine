@@ -64,7 +64,7 @@ void Renderer::Awake()
     index = CreateDebugModel(mVertex, 8, IndexList, 24);
     rendering = GetRenderingData();
     rendering->Type = DEBUG;
-    rendering->ModelIndex = index;
+    //rendering->ModelIndex = index;
 }
 
 void Renderer::Start()

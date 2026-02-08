@@ -1,7 +1,9 @@
 #include "Module.h"
 #include <string>
 #include <iostream>
+#include "PixelEngine.h"
 
+extern PixelEngine* Engine;
 Module::Module()
 {
 	
@@ -34,3 +36,10 @@ std::string Module::GetClassNameString()
 	}
 	return className;
 }
+
+sol::state* Module::GetLua()
+{
+	return Engine->GetLua();
+}
+
+

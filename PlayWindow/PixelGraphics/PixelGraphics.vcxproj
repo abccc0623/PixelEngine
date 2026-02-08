@@ -211,6 +211,7 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
     <ClInclude Include="resource.h" />
     <ClInclude Include="ShaderResources.h" />
     <ClInclude Include="SimpleMath.h" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Render_Axis.cpp" />
@@ -225,12 +226,13 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PicnicGraphicsAPI.cpp" />
+    <ClCompile Include="PixelGraphicsAPI.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="Render_Camera.cpp" />
     <ClCompile Include="Render_Quad.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="Shaders\MainHeader.hlsli">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
     </None>
