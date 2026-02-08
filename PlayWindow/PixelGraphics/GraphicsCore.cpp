@@ -9,7 +9,7 @@ ID3D11RenderTargetView* GraphicsCore::mRenderTargetView = nullptr;
 ID3D11DepthStencilView* GraphicsCore::mDepthStencilView = nullptr;
 D3D11_VIEWPORT			GraphicsCore::mScreenViewport;
 D3D_DRIVER_TYPE			GraphicsCore::mDriverType;
-
+ID3D11BlendState*		GraphicsCore::pAlphaBlendState  = nullptr;
 int GraphicsCore::ClientHeight = 0;
 int GraphicsCore::ClientWidth  = 0;
 HWND GraphicsCore::mHwnd;
@@ -17,7 +17,7 @@ HWND GraphicsCore::mHwnd;
 std::unordered_map<ObjectID, ID3D11ShaderResourceView*>			 GraphicsCore::mTexture_Map;
 
 std::vector<RenderingData*>						 GraphicsCore::mRendering_List;
-std::vector<DirectModel*>						 GraphicsCore::mModelBuffer_List;
+std::unordered_map<ObjectID, DirectModel*>		 GraphicsCore::mModelBuffer_Map;
 std::map<std::string, DirectModel*>				 GraphicsCore::mModelBufferList;
 std::map<std::string, ShaderResources*>			 GraphicsCore::mShaderResources_List;
 std::map<std::string, ID3D11SamplerState*>		 GraphicsCore::mShaderSampler_List;
@@ -147,13 +147,10 @@ void GraphicsCore::GraphicsInitialize(HWND WindowHandle, int Width, int Height)
 	depthStencilDesc.CPUAccessFlags = 0;								//CPU가 자원을 접근하는 방식을 결정하는 플래그를 지정
 	depthStencilDesc.MiscFlags = 0;
 	mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer);
-
-
 	hr = mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView);
 	if (FAILED(hr)) { return; }
 
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
-
 
 	//뷰포트 생성
 	mScreenViewport.Width = (float)ClientWidth;
@@ -163,7 +160,7 @@ void GraphicsCore::GraphicsInitialize(HWND WindowHandle, int Width, int Height)
 	mScreenViewport.TopLeftX = 0;
 	mScreenViewport.TopLeftY = 0;
 	mDeviceContext->RSSetViewports(1, &mScreenViewport);
-
+	CreateBlend();
 }
 
 void GraphicsCore::GraphicsRelease()
@@ -191,12 +188,33 @@ void GraphicsCore::BeginRender(float R, float G, float B, float A)
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, DeepDarkGray);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	mDeviceContext->RSSetViewports(1, &mScreenViewport);
-
 }
 
 void GraphicsCore::EndRender()
 {
 	mSwapChain->Present(0, 0);
+}
+
+void GraphicsCore::CreateBlend()
+{
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.AlphaToCoverageEnable = FALSE;
+	blendDesc.IndependentBlendEnable = FALSE; // 모든 RenderTarget에 동일하게 적용
+
+	// 첫 번째 렌더 타겟 설정
+	blendDesc.RenderTarget[0].BlendEnable = TRUE; // 블렌딩 활성화!
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;      // 소스에 알파 곱함
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA; // 배경에 (1-알파) 곱함
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;          // 둘을 더함
+
+	// 알파 채널 자체의 연산 설정
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	pAlphaBlendState = nullptr;
+	mDevice->CreateBlendState(&blendDesc, &pAlphaBlendState);
 }
 
 ID3D11DeviceContext* GraphicsCore::GetDeviceContext()
@@ -221,17 +239,11 @@ int GraphicsCore::GetClientHeight()
 	return ClientHeight;
 }
 
-int GraphicsCore::SetModel(DirectModel* Model)
+ObjectID GraphicsCore::SetModel(DirectModel* Model)
 {
-	int Size = (int)mModelBuffer_List.size();
-	for(int i = 0; i < Size;i++)
-	{
-		if(mModelBuffer_List[i] == nullptr)
-		{
-			mModelBuffer_List[i] = Model;
-			return i;
-		}
-	}
-	mModelBuffer_List.push_back(Model);
-	return Size;
+	ObjectID id = std::hash<DirectModel*>{}(Model);
+	mModelBuffer_Map.insert({ id ,Model });
+	return id;
 }
+
+

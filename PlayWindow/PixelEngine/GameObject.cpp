@@ -25,17 +25,14 @@ size_t GameObject::GetHashCode()
 	return hashCode;
 }
 
-void GameObject::AddModule(std::string name)
+Module* GameObject::AddModule(std::string name)
 {
 	auto findTarget = moduleFactories.find(name);
 	if (findTarget != moduleFactories.end())
 	{
 		findTarget->second(this);
 	}
-	if (name == "LuaScript")
-	{
-		std::cout<< "LuaScript" <<std::endl;
-	}
+	return GetModule(name);
 }
 
 Module* GameObject::GetModule(std::string name)

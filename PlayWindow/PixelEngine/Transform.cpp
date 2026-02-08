@@ -303,12 +303,21 @@ void Transform::WorldMatrixUpdate()
 void Transform::RegisterLua()
 {
 	auto lua = GetLua();
+	lua->new_usertype<Vector3>("Vector3",
+		"x", &Vector3::X,
+		"y", &Vector3::Y,
+		"z", &Vector3::Z
+	);
+
 	lua->new_usertype<Transform>("Transform",
 		sol::base_classes, sol::bases<Module, BaseModule>(),
 		"SetPosition", [](Transform& obj, float x, float y, float z) {obj.SetPosition(x, y, z); },
 		"AddPosition", [](Transform& obj, float x, float y, float z) {obj.AddPosition(x, y, z); },
 		"SetRotation", [](Transform& obj, float x, float y, float z) {obj.SetRotation(x, y, z); },
 		"AddRotation", [](Transform& obj, float x, float y, float z) {obj.AddRotation(x, y, z); },
+		"GetPosition", [](Transform& obj) { return obj.Position;},
+		"GetRotation", [](Transform& obj) { return obj.Rotation;},
+		"GetScale", [](Transform& obj) { return obj.Scale;},
 		"SetScale", [](Transform& obj, float x, float y, float z) {obj.SetScale(x, y, z); },
 		"AddScale", [](Transform& obj, float x, float y, float z) {obj.AddScale(x, y, z); }
 	);

@@ -3,7 +3,7 @@
 #include "BindLua.h"
 #include <string>
 class Transform;
-class RenderingData;
+struct RenderingData;
 using ObjectID = size_t;
 class Renderer2D :public Module ,public BindLua<Renderer2D>
 {

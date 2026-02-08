@@ -17,8 +17,8 @@ public:
 
 	RenderingData* CreateRenderingData();
 	void DeleteRenderingData(RenderingData* Data);
-	int CreateDebugModel(float* VertexList, int VertexSize, int* IndexList, int IndexSize);
-	int CreateDebugModel(Vertex_Debug* VertexList, int VertexSize, int* IndexList, int IndexSize);
+	ObjectID CreateDebugModel(float* VertexList, int VertexSize, int* IndexList, int IndexSize);
+	ObjectID CreateDebugModel(Vertex_Debug* VertexList, int VertexSize, int* IndexList, int IndexSize);
 
 
 	ID3D11RasterizerState* CreateRasterizerState_Solid();

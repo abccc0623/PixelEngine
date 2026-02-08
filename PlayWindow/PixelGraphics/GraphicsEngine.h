@@ -21,10 +21,10 @@ public:
 	void SetDebugCamera(float* m);
 	void SetRenderCamera(float* m);
 
-	ObjectID LoadTexture(const char* filePath);
 	RenderingData* GetRenderingData();
 	RenderingData* GetRenderingDataQuid();
-	void SetRenderingData(RenderingData* mData);
+	void DeleteRenderingData(RenderingData* mData);
+	ObjectID LoadTexture(const char* filePath);
 	ObjectID Model_Debug(float* VertexList, int VertexSize, int* IndexList, int indexSize);
 	ObjectID Model_Debug(Vertex_Debug* VertexList, int VertexSize, int* IndexList, int indexSize);
 private:

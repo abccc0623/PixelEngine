@@ -54,7 +54,8 @@ void Render_Quad::Binding(RenderingData* mData)
 	GetDeviceContext()->IASetInputLayout(mShaderBuffer->mLayout);
 	GetDeviceContext()->VSSetShader(mShaderBuffer->mVertexShader, NULL, 0);
 	GetDeviceContext()->PSSetShader(mShaderBuffer->mPixelShader, NULL, 0);
-
-	GetDeviceContext()->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	GetDeviceContext()->OMSetBlendState(pAlphaBlendState, blendFactor, 0xFFFFFFFF);
 	GetDeviceContext()->DrawIndexed(mAxis->IndexCount, 0, 0);
+	//GetDeviceContext()->OMSetDepthStencilState(pDisabledDepthState, 0);
 }

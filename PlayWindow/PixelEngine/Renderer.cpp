@@ -5,7 +5,10 @@
 #include "PixelGraphicsAPI.h"
 #include "PixelEngineAPI.h"
 #include <iostream>
-Renderer::Renderer() 
+Renderer::Renderer():
+    index(-1),
+    rendering(nullptr),
+    transform(nullptr)
 {
 	
 }
@@ -64,7 +67,7 @@ void Renderer::Awake()
     index = CreateDebugModel(mVertex, 8, IndexList, 24);
     rendering = GetRenderingData();
     rendering->Type = DEBUG;
-    //rendering->ModelIndex = index;
+    rendering->Model_ID = index;
 }
 
 void Renderer::Start()

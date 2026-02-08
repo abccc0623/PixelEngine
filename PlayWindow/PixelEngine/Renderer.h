@@ -2,6 +2,7 @@
 #include "Module.h"
 struct RenderingData;
 class Transform;
+using ObjectID = size_t;
 class Renderer : public Module
 {
 public:
@@ -15,6 +16,6 @@ public:
 private:
 	RenderingData* rendering;
 	Transform* transform;
-	int index;
+	ObjectID index;
 };
 

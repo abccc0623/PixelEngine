@@ -18,7 +18,7 @@ float4 main(PixelInputType input) : SV_TARGET
     
     float4 Tex01 = { 1.0f, 1.0f, 1.0f, 1.0f };
     float4 Tex02 = { 1.0f, 1.0f, 1.0f, 1.0f };
-
+    if(textureColor.a < 0.1f) discard;
     return textureColor;
 }
 

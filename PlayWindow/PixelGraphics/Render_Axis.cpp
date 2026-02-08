@@ -41,7 +41,7 @@ void Render_Axis::Binding(RenderingData* mData)
 	GetDeviceContext()->VSSetConstantBuffers(1, 1, &mContextBuffer_List["ObjectBuffer"]);
 
 	//¸ðµ¨ ¹ÙÀÎµù
-	DirectModel* mAxis = mModelBuffer_List[mData->Model_ID];
+	DirectModel* mAxis = mModelBuffer_Map[mData->Model_ID];
 	GetDeviceContext()->IASetVertexBuffers(0, 1, &mAxis->VertexBuffer, &mAxis->stride, &mAxis->Offset);
 	GetDeviceContext()->IASetIndexBuffer(mAxis->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 

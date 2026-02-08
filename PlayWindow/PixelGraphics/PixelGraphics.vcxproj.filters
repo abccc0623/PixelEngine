@@ -78,9 +78,6 @@
     <ClInclude Include="Render_Axis.h">
       <Filter>PicnicGraphics\Manager\BindingClass</Filter>
     </ClInclude>
-    <ClInclude Include="inc\RenderringData.h">
-      <Filter>PicnicGraphics\Resources</Filter>
-    </ClInclude>
     <ClInclude Include="inc\VertexData.h">
       <Filter>PicnicGraphics\Resources</Filter>
     </ClInclude>
@@ -97,6 +94,9 @@
       <Filter>PicnicGraphics\Manager\BindingClass</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\RenderringData.h">
       <Filter>PicnicGraphics\Resources</Filter>
     </ClInclude>
   </ItemGroup>

@@ -59,16 +59,16 @@ void Render_Camera::Binding(RenderingData* mData)
 	
 	DirectX::SimpleMath::Matrix mProj;
 	
-	//{
-	//	mProj = DirectX::XMMatrixPerspectiveFovLH(mFovY, mAspect, mNearZ, mFarZ);
-	//}
-
+	if (mData->cameraOption.Projection == CameraOption::ProjectionType::Perspective)
+	{
+		mProj = DirectX::XMMatrixPerspectiveFovLH(mFovY, mAspect, mNearZ, mFarZ);
+	}
+	else
 	{
 		mNearZ = 1.0f; // 직교 투영은 0부터 시작해도 무방합니다.
 		mFarZ = 4000.0f;
-		mProj = DirectX::XMMatrixOrthographicLH(GetClientWidth(), GetClientHeight(), mNearZ, mFarZ);
+		mProj = DirectX::XMMatrixOrthographicLH((float)GetClientWidth(), (float)GetClientHeight(), mNearZ, mFarZ);
 	}
-
 
 
 	mCamBuffer.view			= DirectX::XMMatrixTranspose(mView);

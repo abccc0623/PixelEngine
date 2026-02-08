@@ -28,16 +28,23 @@ LuaManager::~LuaManager()
 void LuaManager::Initialize()
 {
     lua = new sol::state();
-    lua->open_libraries(sol::lib::base); // 기본 라이브러리 로드
-
+    lua->open_libraries(
+        sol::lib::base,    // print, assert, type 등 기본 함수
+        sol::lib::package, // require, package.path 등 (첫 번째 에러 해결)
+        sol::lib::table,   // table.insert, table.remove 등 (두 번째 에러 해결)
+        sol::lib::string,  // 문자열 처리
+        sol::lib::math,    // 수학 연산
+        sol::lib::os,      // 시간(os.time) 등 시스템 함수
+        sol::lib::debug    // 디버깅 툴
+    );
     ///Global함수 등록
     //
-    lua->new_enum("Key",
-        "W", 87,
-        "A", 65,
-        "S", 83,
-        "D", 68
-    );
+    //lua->new_enum("Key",
+    //    "W", 87,
+    //    "A", 65,
+    //    "S", 83,
+    //    "D", 68
+    //);
 
     //Key관련 등록
     sol::table input = lua->create_named_table("Input");
@@ -64,8 +71,20 @@ void LuaManager::Initialize()
         sol::base_classes, sol::bases<Module, BaseModule>(),
         "RegisterFile", &LuaScript::RegisterFile
     );
+
+    //게임 오브젝트 추가
     lua->new_usertype<GameObject>("GameObject",
-        "AddModule", [](GameObject& obj, std::string name){obj.AddModule(name);},
+        "AddModule", [](GameObject& obj, std::string name, sol::this_state s) ->sol::object
+        {
+            Module* mod = obj.AddModule(name);
+            if (!mod) return sol::nil;
+            auto it = moduleLuaFactories.find(name);
+            if (it != moduleLuaFactories.end())
+            {
+                return it->second(s, mod);
+            }
+            return sol::make_object(s, mod);
+        },
         "GetModule", [](GameObject& obj, std::string name, sol::this_state s) -> sol::object
         {
             Module* mod = obj.GetModule(name);

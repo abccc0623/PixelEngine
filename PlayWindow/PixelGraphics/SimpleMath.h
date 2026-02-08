@@ -7,6 +7,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248929
 // http://go.microsoft.com/fwlink/?LinkID=615561
 //-------------------------------------------------------------------------------------
+#pragma system_header
 
 #pragma once
 #include <windows.h>
@@ -27,7 +28,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wfloat-equal"
 #endif
-
 
 namespace DirectX
 {

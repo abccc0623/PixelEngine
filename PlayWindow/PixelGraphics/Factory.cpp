@@ -106,7 +106,7 @@ void Factory::DeleteRenderingData(RenderingData* Data)
 	}
 }
 
-int Factory::CreateDebugModel(float* VertexList, int VertexSizeAll, int* IndexList, int IndexSize)
+ObjectID Factory::CreateDebugModel(float* VertexList, int VertexSizeAll, int* IndexList, int IndexSize)
 {
 	int VertexSize  = VertexSizeAll / 3;
 	int VertexIndex = 0;
@@ -122,7 +122,7 @@ int Factory::CreateDebugModel(float* VertexList, int VertexSizeAll, int* IndexLi
 	return SetModel(Model);
 }
 
-int Factory::CreateDebugModel(Vertex_Debug* VertexList, int VertexSize, int* IndexList, int IndexSize)
+ObjectID Factory::CreateDebugModel(Vertex_Debug* VertexList, int VertexSize, int* IndexList, int IndexSize)
 {
 	DebugVertex* Debug = new DebugVertex[VertexSize];
 	for(int i = 0; i < VertexSize;i++)

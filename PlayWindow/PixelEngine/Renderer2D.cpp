@@ -7,14 +7,20 @@
 #include "ResourceManager.h"
 
 extern PixelEngine* Engine;
-Renderer2D::Renderer2D()
+Renderer2D::Renderer2D():
+	transform(nullptr),
+	rendering(nullptr),
+	textureName(""),
+	textureID(-1)
 {
-
+	rendering = GetRenderingData();
+	rendering->Type = QUAD;
+	rendering->Texture_ID = textureID;
 }
 
 Renderer2D::~Renderer2D()
 {
-
+	DeleteRenderingData(rendering);
 }
 
 void Renderer2D::Awake()
@@ -25,9 +31,6 @@ void Renderer2D::Awake()
 void Renderer2D::Start()
 {
 	transform = targetObject->GetModule<Transform>();
-	rendering = GetRenderingData();
-	rendering->Type = QUAD;
-	rendering->Texture_ID = textureID;
 }
 
 void Renderer2D::Update()
@@ -60,5 +63,4 @@ void Renderer2D::RegisterLua()
 	lua->new_usertype<Renderer2D>("Renderer2D",sol::base_classes, sol::bases<Module, BaseModule>(),
 		"SetTexture", [](Renderer2D& obj, std::string name) {obj.SetTexture(name); }
 	);
-
 }

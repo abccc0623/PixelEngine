@@ -39,9 +39,9 @@ RenderingData* GetRenderingData()
 	return mEngine->GetRenderingData();
 }
 
-void SetRenderingData(RenderingData* mData)
+void DeleteRenderingData(RenderingData* mData)
 {
-	mEngine->SetRenderingData(mData);
+	mEngine->DeleteRenderingData(mData);
 }
 
 ObjectID LoadGraphicsTexture(const char* filePath)

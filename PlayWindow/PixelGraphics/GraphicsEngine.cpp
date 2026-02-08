@@ -67,7 +67,7 @@ RenderingData* GraphicsEngine::GetRenderingData()
 	return mFactory->CreateRenderingData();
 }
 
-void GraphicsEngine::SetRenderingData(RenderingData* mData)
+void GraphicsEngine::DeleteRenderingData(RenderingData* mData)
 {
 	mFactory->DeleteRenderingData(mData);
 }

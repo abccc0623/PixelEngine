@@ -60,7 +60,7 @@ public:
 		Module* basePtr = findTarget->second;
 		return static_cast<T*>(basePtr);
 	}
-	void AddModule(std::string name);
+	Module* AddModule(std::string name);
 	Module* GetModule(std::string name);
 private:
 	size_t hashCode;

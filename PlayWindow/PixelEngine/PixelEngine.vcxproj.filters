@@ -195,6 +195,9 @@
     <ClInclude Include="BindLua.h">
       <Filter>EngineAPI\Bind</Filter>
     </ClInclude>
+    <ClInclude Include="Action.h">
+      <Filter>EngineAPI\Manager\FunctionManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -283,6 +286,9 @@
     </ClCompile>
     <ClCompile Include="BindLua.cpp">
       <Filter>EngineAPI\Bind</Filter>
+    </ClCompile>
+    <ClCompile Include="Action.cpp">
+      <Filter>EngineAPI\Manager\FunctionManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -11,8 +11,7 @@ PICNIC_GRAPHICS_DLL void SetRenderCamera(float Matrix[16]);
 PICNIC_GRAPHICS_DLL void SetDebugCamera(float Matrix[16]);
 
 PICNIC_GRAPHICS_DLL RenderingData* GetRenderingData();
-
-PICNIC_GRAPHICS_DLL void SetRenderingData(RenderingData* mData);
+PICNIC_GRAPHICS_DLL void DeleteRenderingData(RenderingData* mData);
 
 PICNIC_GRAPHICS_DLL ObjectID LoadGraphicsTexture(const char* filePath);
 PICNIC_GRAPHICS_DLL ObjectID CreateDebugModel(Vertex_Debug* Vertex,int VertexSize,int* IndexList,int IndexSize);
