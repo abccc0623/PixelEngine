@@ -1,25 +1,33 @@
 #pragma once
 
 #include "GraphicsCore.h"
+#include "KeyAllocator.h"
 #include <map>
-class Render_Camera;
+#include <vector>
+class BindingCamera;
 class Render_Axis;
 class Render_Quad;
-class Rendering : public GraphicsCore
+struct RenderingData;
+class GraphicsEngine;
+class BindingClass;
+class Rendering
 {
 public:
 	Rendering();
 	virtual ~Rendering();
 
-	void Initialize();
+	void Initialize(GraphicsEngine* engine);
 	void Release();
 	void Update();
 
-	float* DebugCameraMatrix;
-	float* MainCameraMatrix;
+	void SettingData(RenderingData* data);
+	void SetRendering(RenderingData* data);
 private:
-	Render_Camera* mRenderCamera;
-	Render_Axis* mRenderAxis;
-	Render_Quad* mRenderQuad;
+	void PushBack(RenderingData* data);
+	const Handle64 maxHandle64 = ~0ULL;
+	GraphicsEngine* graphicsEngine;
+	std::map<Handle64,std::vector<RenderingData*>> renderingList;
+	std::vector<BindingClass*> bindingClassList;
+	Handle64 prevValue;
 };
 

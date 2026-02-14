@@ -21,5 +21,5 @@ cbuffer SkinningBuffer : register(b2)
     float4x4 BoneOffset[96];
 };
 
-Texture2D MainTexture   : register(t0); //∏ﬁ¿Œ
+Texture2D MainTexture   : register(t0);
 SamplerState SampleType : register(s0);

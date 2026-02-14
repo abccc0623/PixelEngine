@@ -4,10 +4,11 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
+#define PE_NEW new(__FILE__, __LINE__)
 LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    switch (message) {
+    switch (message) 
+    {
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
@@ -28,7 +29,9 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-int main() {
+int main() 
+{
+
     // 2. 윈도우 클래스 등록 및 창 생성
     HINSTANCE hInst = GetModuleHandle(NULL);
     WNDCLASS wc = { 0 };

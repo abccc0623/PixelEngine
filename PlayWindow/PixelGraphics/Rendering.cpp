@@ -1,16 +1,24 @@
 #include "Rendering.h"
 
 //Binding 클래스들
-#include "Render_Camera.h"
-#include "Render_Axis.h"
-#include "Render_Quad.h"
+//#include "Render_Camera.h"
 #include "RenderringData.h"
-Rendering::Rendering() :
-	mRenderCamera(nullptr),
-	mRenderAxis(nullptr),
-	mRenderQuad(nullptr)
-{
+#include "ModelResources.h"
+#include "GraphicsEngine.h"
 
+#include "BindingClass.h"
+#include "BindingCamera.h"
+#include "BindingQuad.h"
+
+#include <limits>
+#include <string>
+#include <bitset>
+#include <iostream>
+
+Rendering::Rendering()
+{
+	renderingList = std::map<Handle64, std::vector<RenderingData*>>();
+	bindingClassList = std::vector<BindingClass*>();
 }
 
 Rendering::~Rendering()
@@ -18,42 +26,129 @@ Rendering::~Rendering()
 
 }
 
-void Rendering::Initialize()
+void Rendering::Initialize(GraphicsEngine* engine)
 {
-	mRenderCamera	= new Render_Camera();
-	mRenderAxis		= new Render_Axis();
-	mRenderQuad		= new Render_Quad();
+	graphicsEngine = engine;
+	bindingClassList.resize(10);
+	bindingClassList[RENDER_TYPE::CAMERA] = new BindingCamera();
+	bindingClassList[RENDER_TYPE::QUAD] = new BindingQuad();
+
+
+	for (int i = 0; i < bindingClassList.size(); i++)
+	{
+		if (bindingClassList[i] == nullptr) { continue; }
+		bindingClassList[i]->SetEngine(engine);
+		bindingClassList[i]->Initialize();
+	}
 }
 
 void Rendering::Release()
 {
-	delete mRenderCamera;
-	delete mRenderAxis;
-	delete mRenderQuad;
+	for (auto K : renderingList)
+	{
+		for (int i = 0; i < K.second.size(); i++)
+		{
+			auto value = K.second[i];
+			delete value;
+			K.second[i] = nullptr;
+		}
+		K.second.clear();
+	}
+	renderingList.clear();
 }
 
 void Rendering::Update()
 {
-	for(auto& K : mRendering_List)
+	for (auto& K : renderingList)
 	{
-		if (K == nullptr)continue;
-
-		switch (K->Type)
+		if (K.first == maxHandle64)
 		{
-		case RENDER_TYPE::NONE:
-			break;
-		case RENDER_TYPE::DEBUG:
-			mRenderAxis->Binding(K);
-			break;
-		case RENDER_TYPE::CAMERA:
-			mRenderCamera->Binding(K);
-			break;
-		case RENDER_TYPE::QUAD:
-			mRenderQuad->Binding(K);
-			break;
-		default:
-			break;
+			for (int i = (int)K.second.size() - 1; i >= 0; i--)
+			{
+				auto& value = K.second[i];
+				SettingData(value);
+				K.second.erase(K.second.begin() + i);
+				PushBack(value);
+			}
+			K.second.clear();
 		}
+	}
 
+	prevValue = maxHandle64;
+	for (auto& K : renderingList) 
+	{
+		for (int i = 0; i < K.second.size(); i++)  
+		{
+			switch (K.second[i]->Type)
+			{
+			case QUAD:
+				bindingClassList[QUAD]->Binding(K.second[i], prevValue);
+				break;
+			case CAMERA:
+				bindingClassList[CAMERA]->Binding(K.second[i], prevValue);
+				break;
+			}
+			prevValue = K.second[i]->master_key;
+		}
 	}
 }
+void Rendering::SettingData(RenderingData* data)
+{
+	data->master_key = 0;
+	switch (data->Type)
+	{
+	case QUAD:
+	{
+		auto model = graphicsEngine->Get<DirectModel>("Quad");
+		auto shader = graphicsEngine->Get<ShaderResources>("Static");
+		data->model_key = model->key;
+		data->shader_key = shader->key;
+		break;
+	}
+	default:
+	{
+		return;
+	}
+	}
+
+	Handle64 model = (Handle64)data->model_key;
+	Handle64 shader = (Handle64)data->shader_key;
+	Handle64 texture = (Handle64)data->texture_key;
+	model <<= 0;
+	shader <<= 16;
+	texture <<= 32;
+	data->master_key |= model;
+	data->master_key |= shader;
+	data->master_key |= texture;
+	std::cout << "Binary Log: " << std::bitset<64>(data->master_key) << std::endl;
+}
+
+void Rendering::SetRendering(RenderingData* data)
+{
+	auto find = renderingList.find(data->master_key);
+	if (find == renderingList.end())
+	{
+		data->master_key = maxHandle64;
+		renderingList.insert({ data->master_key,std::vector<RenderingData*>()});
+		renderingList[data->master_key].push_back(data);
+	}
+	else 
+	{
+		renderingList[data->master_key].push_back(data);
+	}
+}
+
+void Rendering::PushBack(RenderingData* data) 
+{
+	auto find = renderingList.find(data->master_key);
+	if (find == renderingList.end())
+	{
+		renderingList.insert({ data->master_key,std::vector<RenderingData*>() });
+		renderingList[data->master_key].push_back(data);
+	}
+	else
+	{
+		renderingList[data->master_key].push_back(data);
+	}
+}
+

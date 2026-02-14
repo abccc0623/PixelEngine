@@ -190,13 +190,24 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BindingClass.h" />
+    <ClInclude Include="BindingQuad.h" />
+    <ClInclude Include="BufferFactory.h" />
+    <ClInclude Include="DefaultShaderLoader.h" />
+    <ClInclude Include="ModelFactory.h" />
+    <ClInclude Include="PixelResources.h" />
+    <ClInclude Include="RenderingFactory.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="Export\PixelGraphicsAPI.h" />
     <ClInclude Include="Export\PixelGraphicsDLL.h" />
     <ClInclude Include="Export\RenderringData.h" />
     <ClInclude Include="inc\VertexData.h" />
+    <ClInclude Include="KeyAllocator.h" />
+    <ClInclude Include="RasterizerStateFactory.h" />
     <ClInclude Include="Render_Axis.h" />
     <ClInclude Include="CBufferResources.h" />
-    <ClInclude Include="CompileShaderManager.h" />
+    <ClInclude Include="ShaderFactory.h" />
     <ClInclude Include="Factory.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GraphicsCore.h" />
@@ -206,16 +217,25 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelGraphicsLib.h" />
     <ClInclude Include="Rendering.h" />
-    <ClInclude Include="Render_Camera.h" />
-    <ClInclude Include="Render_Quad.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="ShaderResources.h" />
+    <ClInclude Include="BindingCamera.h" />
+    <ClInclude Include="ResourceFactory.h" />
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="TextureFactory.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BindingClass.cpp" />
+    <ClCompile Include="BindingQuad.cpp" />
+    <ClCompile Include="BufferFactory.cpp" />
+    <ClCompile Include="DefaultShaderLoader.cpp" />
+    <ClCompile Include="ModelFactory.cpp" />
+    <ClCompile Include="RenderingFactory.cpp" />
+    <ClCompile Include="ResourceFactory.cpp" />
+    <ClCompile Include="ShaderLoader.cpp" />
+    <ClCompile Include="KeyAllocator.cpp" />
+    <ClCompile Include="RasterizerStateFactory.cpp" />
     <ClCompile Include="Render_Axis.cpp" />
-    <ClCompile Include="CompileShaderManager.cpp" />
+    <ClCompile Include="ShaderFactory.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GraphicsCore.cpp" />
@@ -228,8 +248,8 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
     </ClCompile>
     <ClCompile Include="PixelGraphicsAPI.cpp" />
     <ClCompile Include="Rendering.cpp" />
-    <ClCompile Include="Render_Camera.cpp" />
-    <ClCompile Include="Render_Quad.cpp" />
+    <ClCompile Include="BindingCamera.cpp" />
+    <ClCompile Include="TextureFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -260,18 +280,21 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\Static_ps.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
     </FxCompile>
     <FxCompile Include="Shaders\Static_vs.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PixelGraphics.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Texture\test.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

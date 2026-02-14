@@ -7,7 +7,7 @@
 #include "ResourceManager.h"
 
 extern PixelEngine* Engine;
-Renderer2D::Renderer2D():
+Renderer2D::Renderer2D() :
 	transform(nullptr),
 	rendering(nullptr),
 	textureName(""),
@@ -15,7 +15,6 @@ Renderer2D::Renderer2D():
 {
 	rendering = GetRenderingData();
 	rendering->Type = QUAD;
-	rendering->Texture_ID = textureID;
 }
 
 Renderer2D::~Renderer2D()
@@ -35,16 +34,18 @@ void Renderer2D::Start()
 
 void Renderer2D::Update()
 {
-	
+
 }
 
 void Renderer2D::LastUpdate()
 {
+	rendering->changeTransform = false;
 	Matrix m = transform->GetWorldMatrix();
 	for (int i = 0; i < 16; i++)
 	{
 		rendering->World[i] = m._m[i];
 	}
+	rendering->changeTransform = true;
 }
 
 void Renderer2D::SetTexture(const std::string& name)
@@ -53,14 +54,15 @@ void Renderer2D::SetTexture(const std::string& name)
 	textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
 	if (rendering != nullptr)
 	{
-		rendering->Texture_ID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE,textureName);
+		rendering->Clear();
+		rendering->texture_key = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
 	}
 }
 
 void Renderer2D::RegisterLua()
 {
 	auto lua = GetLua();
-	lua->new_usertype<Renderer2D>("Renderer2D",sol::base_classes, sol::bases<Module, BaseModule>(),
+	lua->new_usertype<Renderer2D>("Renderer2D", sol::base_classes, sol::bases<Module, BaseModule>(),
 		"SetTexture", [](Renderer2D& obj, std::string name) {obj.SetTexture(name); }
 	);
 }

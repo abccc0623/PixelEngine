@@ -64,6 +64,8 @@ public:
 	bool LoadLuaScript(const std::string& path);
 	bool CreateLuaAPIPath(const std::string& path);
 	void RegisterFunction(GameObject* obj, Module* module, int type);
+
+	
 private:
 };
 

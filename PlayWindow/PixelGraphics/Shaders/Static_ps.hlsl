@@ -1,4 +1,22 @@
 
+//카메라 관련 버퍼
+cbuffer CameraBuffer : register(b0)
+{
+    float4x4 view;
+    float4x4 proj;
+    float4x4 view_proj;
+};
+
+//오브젝트 관련 버퍼
+cbuffer ObjectBuffer : register(b1)
+{
+    float4x4    world;
+    float4x4    TexMatrix;
+};
+
+Texture2D MainTexture   : register(t0);
+SamplerState SampleType : register(s0);
+
 struct PixelInputType
 {
     float4 posH		    : SV_POSITION;

@@ -31,6 +31,39 @@
     <Filter Include="PicnicGraphics\Manager\BindingClass">
       <UniqueIdentifier>{43ad01ee-16bf-4e17-b517-61ac7b4371c7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PicnicGraphics\Manager\ResourceFactory">
+      <UniqueIdentifier>{e1d16e73-2550-4dad-b60f-11be9d71386f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\ResourceFactory\RasterizerStateFactory">
+      <UniqueIdentifier>{5724764b-1701-4a48-a8ad-58876644f4e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\ResourceFactory\ShaderFactory">
+      <UniqueIdentifier>{d7a91e49-e8b9-423b-9de4-89c9d283fd78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\ResourceFactory\ShaderFactory\ShaderLoader">
+      <UniqueIdentifier>{d0bf7ad1-5eb5-4f00-9775-5abb076a21e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\ResourceFactory\ShaderFactory\DefaultShaderLoader">
+      <UniqueIdentifier>{86f8fef4-aaf7-4364-a9de-174880b21812}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\ResourceFactory\TextureFactory">
+      <UniqueIdentifier>{6614b325-26fc-4a6b-95f0-78e17d57d375}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\ResourceFactory\ModelFactory">
+      <UniqueIdentifier>{20cd7bf5-7a25-4c05-b2fb-ab0b7252eac8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\ResourceFactory\RenderingFactory">
+      <UniqueIdentifier>{b3065e3a-262a-4f49-9a64-a8f06f05d4b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\BindingClass\BindingCamera">
+      <UniqueIdentifier>{d8d1e901-fd13-4aee-8c8a-ff5ff67ec3eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\ResourceFactory\BufferFactory">
+      <UniqueIdentifier>{54853a4f-2f5a-42f5-882e-e4ce0e8f1c22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PicnicGraphics\Manager\BindingClass\BindingQuad">
+      <UniqueIdentifier>{89ccd8a2-344c-4f31-aebd-580f2c2f7f39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -41,9 +74,6 @@
     </ClInclude>
     <ClInclude Include="GraphicsCore.h">
       <Filter>PicnicGraphics\GraphicsCore</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderResources.h">
-      <Filter>PicnicGraphics\Resources</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsEngine.h">
       <Filter>PicnicGraphics\GraphicsCore</Filter>
@@ -69,12 +99,6 @@
     <ClInclude Include="InputLayout.h">
       <Filter>PicnicGraphics\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="CompileShaderManager.h">
-      <Filter>PicnicGraphics\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Render_Camera.h">
-      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
-    </ClInclude>
     <ClInclude Include="Render_Axis.h">
       <Filter>PicnicGraphics\Manager\BindingClass</Filter>
     </ClInclude>
@@ -87,17 +111,56 @@
     <ClInclude Include="Export\PixelGraphicsDLL.h">
       <Filter>PicnicGraphics\GraphicsAPI</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Render_Quad.h">
-      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
-    </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>PicnicGraphics\Resources</Filter>
     </ClInclude>
     <ClInclude Include="Export\RenderringData.h">
       <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceFactory.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizerStateFactory.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\RasterizerStateFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyAllocator.h">
+      <Filter>PicnicGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderFactory.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\ShaderFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderLoader.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\ShaderFactory\ShaderLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="DefaultShaderLoader.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\ShaderFactory\DefaultShaderLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureFactory.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\TextureFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelResources.h">
+      <Filter>PicnicGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingFactory.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\RenderingFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelFactory.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\ModelFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="BindingClass.h">
+      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
+    </ClInclude>
+    <ClInclude Include="BindingCamera.h">
+      <Filter>PicnicGraphics\Manager\BindingClass\BindingCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferFactory.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\BufferFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="BindingQuad.h">
+      <Filter>PicnicGraphics\Manager\BindingClass\BindingQuad</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -122,17 +185,47 @@
     <ClCompile Include="Factory.cpp">
       <Filter>PicnicGraphics\Manager</Filter>
     </ClCompile>
-    <ClCompile Include="CompileShaderManager.cpp">
-      <Filter>PicnicGraphics\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="Render_Camera.cpp">
-      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
-    </ClCompile>
     <ClCompile Include="Render_Axis.cpp">
       <Filter>PicnicGraphics\Manager\BindingClass</Filter>
     </ClCompile>
-    <ClCompile Include="Render_Quad.cpp">
+    <ClCompile Include="RasterizerStateFactory.cpp">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\RasterizerStateFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyAllocator.cpp">
+      <Filter>PicnicGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderFactory.cpp">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\ShaderFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderLoader.cpp">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\ShaderFactory\ShaderLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="DefaultShaderLoader.cpp">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\ShaderFactory\DefaultShaderLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureFactory.cpp">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\TextureFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingFactory.cpp">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\RenderingFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelFactory.cpp">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\ModelFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="BindingClass.cpp">
       <Filter>PicnicGraphics\Manager\BindingClass</Filter>
+    </ClCompile>
+    <ClCompile Include="BindingCamera.cpp">
+      <Filter>PicnicGraphics\Manager\BindingClass\BindingCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="BufferFactory.cpp">
+      <Filter>PicnicGraphics\Manager\ResourceFactory\BufferFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="BindingQuad.cpp">
+      <Filter>PicnicGraphics\Manager\BindingClass\BindingQuad</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceFactory.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -168,5 +261,10 @@
     <ResourceCompile Include="PixelGraphics.rc">
       <Filter>리소스 파일</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Texture\test.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>
