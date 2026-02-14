@@ -3,6 +3,9 @@
 #include <windows.h>
 #include <vector>
 #include <sol/forward.hpp>
+#include <typeindex>
+#include <unordered_map>
+#include "FactoryManager.h"
 typedef unsigned char byte;
 using ObjectID = size_t;
 enum RESOURCE_TYPE;
@@ -66,6 +69,26 @@ public:
 	void RegisterFunction(GameObject* obj, Module* module, int type);
 
 	
+
+	template<std::derived_from<EngineManager> T>
+	void BindFactory()
+	{
+		std::type_index key = typeid(T);
+		factoryMap.insert({ key ,new T()});
+	};
+
+	template<std::derived_from<EngineManager> T>
+	T* GetFactory()
+	{
+		std::type_index key = typeid(T);
+		auto target = factoryMap.find(key);
+		if (target != factoryMap.end())
+		{
+			return static_cast<T*>(target->second);
+		}
+		return nullptr;
+	}
 private:
+	std::unordered_map<std::type_index, EngineManager*> factoryMap;
 };
 

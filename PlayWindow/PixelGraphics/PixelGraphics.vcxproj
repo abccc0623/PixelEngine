@@ -208,7 +208,6 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
     <ClInclude Include="Render_Axis.h" />
     <ClInclude Include="CBufferResources.h" />
     <ClInclude Include="ShaderFactory.h" />
-    <ClInclude Include="Factory.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GraphicsCore.h" />
     <ClInclude Include="GraphicsEngine.h" />
@@ -237,7 +236,6 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
     <ClCompile Include="Render_Axis.cpp" />
     <ClCompile Include="ShaderFactory.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Factory.cpp" />
     <ClCompile Include="GraphicsCore.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="pch.cpp">

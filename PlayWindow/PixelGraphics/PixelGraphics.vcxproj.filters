@@ -84,9 +84,6 @@
     <ClInclude Include="Rendering.h">
       <Filter>PicnicGraphics\Manager</Filter>
     </ClInclude>
-    <ClInclude Include="Factory.h">
-      <Filter>PicnicGraphics\Manager</Filter>
-    </ClInclude>
     <ClInclude Include="ModelResources.h">
       <Filter>PicnicGraphics\Resources</Filter>
     </ClInclude>
@@ -180,9 +177,6 @@
       <Filter>PicnicGraphics\GraphicsCore</Filter>
     </ClCompile>
     <ClCompile Include="Rendering.cpp">
-      <Filter>PicnicGraphics\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="Factory.cpp">
       <Filter>PicnicGraphics\Manager</Filter>
     </ClCompile>
     <ClCompile Include="Render_Axis.cpp">

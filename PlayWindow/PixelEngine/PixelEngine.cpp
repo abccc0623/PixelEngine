@@ -1,18 +1,18 @@
 #include "PixelEngine.h"
-#include "KeyInputManager.h"
-#include "TimeManager.h"
-#include "FactoryManager.h"
 #include "PixelGraphicsAPI.h"
+#include "Module.h"
+#include "Scene.h"
+#include <iostream>
+#include <Windows.h>
+#include "TimeManager.h"
+
+#include "FactoryManager.h"
+#include "KeyInputManager.h"
 #include "LuaManager.h"
 #include "FunctionManager.h"
 #include "SceneManager.h"
 #include "TextureManager.h"
-#include "Module.h"
-#include "Scene.h"
-#include <iostream>
 #include "ResourceManager.h"
-#include <Windows.h>
-
 
 #include "ModuleTypeList.h"
 extern std::unordered_map<std::string, std::function<void(GameObject*)>> moduleFactories;
@@ -27,6 +27,18 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	functionManager = new FunctionManager();
 	resourceManager = new ResourceManager();
 
+	BindFactory<KeyInputManager>();
+	BindFactory<TimeManager>();
+	BindFactory<FactoryManager>();
+	BindFactory<LuaManager>();
+	BindFactory<SceneManager>();
+	BindFactory<FunctionManager>();
+	BindFactory<ResourceManager>();
+
+	auto k =  GetFactory<TimeManager>();
+
+
+
 	ManagerList.push_back(keyInputManager);
 	ManagerList.push_back(timeManager);
 	ManagerList.push_back(factoryManager);
@@ -36,9 +48,10 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	ManagerList.push_back(resourceManager);
 
 	PixelGraphicsInitialize(hWnd, width, height);
-	for (int i = 0; i < ManagerList.size(); i++)
+
+	for (auto& k : factoryMap)
 	{
-		ManagerList[i]->Initialize();
+		k.second->Initialize();
 	}
 	ModuleRegister();
 }
@@ -55,9 +68,9 @@ void PixelEngine::ClientUpdate()
 
 void PixelEngine::EngineUpdate()
 {
-	for (int i = 0; i < managerArraySize; i++)
+	for (auto& k : factoryMap)
 	{
-		ManagerList[i]->Update();
+		k.second->Update();
 	}
 	PixelGraphicsRendering(0.25f, 0.25f, 0.25f, 1.0f);
 }

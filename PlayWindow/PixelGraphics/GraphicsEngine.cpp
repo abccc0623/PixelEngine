@@ -1,7 +1,6 @@
 #include "GraphicsEngine.h"
 #include "GraphicsCore.h"
 #include "Rendering.h"
-#include "Factory.h"
 #include "ResourceFactory.h"
 
 #include "PixelResources.h"
@@ -81,7 +80,8 @@ void GraphicsEngine::SetRenderCamera(float* m)
 
 ObjectID GraphicsEngine::LoadTexture(const char* filePath)
 {
-	return Set<TextureResources>(filePath);
+		//Set<TextureResources>(filePath);
+	return 0;
 }
 
 RenderingData* GraphicsEngine::GetRenderingData()

@@ -2,11 +2,11 @@
 #include "TextureFactory.h"
 #include <d3d11.h>
 #include "GraphicsCore.h"
-#include "stb_image.h"
 #include <unordered_map>
 #include "PixelGraphicsLib.h"
 #include <iostream>
-
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 TextureFactory::TextureFactory()
 {
 	textureMap = std::unordered_map<Handle16, TextureResources*>();
