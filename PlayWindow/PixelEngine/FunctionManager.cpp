@@ -11,6 +11,7 @@ FunctionManager::FunctionManager()
 	matrixFunction  = std::unordered_map<std::string, Action*>();
 	physicsFunction = std::unordered_map<std::string, Action*>();
 	lastFunction	= std::unordered_map<std::string, Action*>();
+	RemoveList		= std::queue<GameObject*>();
 }
 
 FunctionManager::~FunctionManager()
@@ -27,6 +28,7 @@ void FunctionManager::Update()
 {
 	Action::StartReady();
 
+	isAwakeCall = true;
 	while (awakeFunction.empty() == false)
 	{
 		auto a = awakeFunction.front();
@@ -34,6 +36,7 @@ void FunctionManager::Update()
 		awakeFunction.pop();
 		Action::Delete(a);
 	};
+	isAwakeCall = false;
 
 	while (startFunction.empty() == false)
 	{
@@ -47,30 +50,41 @@ void FunctionManager::Update()
 	for (const auto& pair : matrixFunction)  pair.second->Play();
 	for (const auto& pair : physicsFunction) pair.second->Play();
 	for (const auto& pair : lastFunction)	 pair.second->Play();
+
+
+	while (RemoveList.empty() == false)
+	{
+		auto a = RemoveList.front();
+		auto list = a->GetModules();
+		for (auto K : list)
+		{
+			std::string key = std::to_string(a->GetHashCode()) + "_" + K->GetClassNameString();
+			RemoveFunction(updateFunction, key);
+			RemoveFunction(matrixFunction, key);
+			RemoveFunction(physicsFunction, key);
+			RemoveFunction(lastFunction, key);
+		}
+		RemoveList.pop();
+	};
 }
 
 void FunctionManager::Release()
 {
-	Action::StartReady();
-
 	while (awakeFunction.empty() == false)
 	{
-		auto a = awakeFunction.front();
-		delete a;
 		awakeFunction.pop();
 	};
 
 	while (startFunction.empty() == false)
 	{
-		auto a = startFunction.front();
-		delete a;
 		startFunction.pop();
 	};
 
-	for (const auto& pair : updateFunction)  delete pair.second;
-	for (const auto& pair : matrixFunction)  delete pair.second;
-	for (const auto& pair : physicsFunction) delete pair.second;
-	for (const auto& pair : lastFunction)	 delete pair.second;
+	updateFunction.clear();
+	matrixFunction.clear();
+	physicsFunction.clear();
+	lastFunction.clear();
+	Action::Release();
 }
 
 void FunctionManager::RegisterFunction(GameObject* obj, Module* module, int type)
@@ -79,6 +93,10 @@ void FunctionManager::RegisterFunction(GameObject* obj, Module* module, int type
 	module->GetClassNameString();
 	std::string key = std::to_string(obj->GetHashCode()) + "_" + module->GetClassNameString();
 	auto a = Action::Create();
+	
+	//Awake에서 추가된 모듈들은 함수 호출이 가능하도록 
+	if (isAwakeCall){a->isReady = true;}
+
 	switch (type)
 	{
 	case AWAKE_FUNCTION :
@@ -105,5 +123,20 @@ void FunctionManager::RegisterFunction(GameObject* obj, Module* module, int type
 		a->Setting(obj, module, key, [module] {module->LastUpdate(); });
 		lastFunction.insert({ key, a });
 		break;
+	}
+}
+
+void FunctionManager::RemoveFunction(GameObject* obj)
+{
+	RemoveList.push(obj);
+}
+
+void FunctionManager::RemoveFunction(std::unordered_map<std::string, Action*>& remove, std::string key)
+{
+	auto it = remove.find(key);
+	if (it != remove.end())
+	{
+		Action::Delete(it->second);
+		remove.erase(it);
 	}
 }

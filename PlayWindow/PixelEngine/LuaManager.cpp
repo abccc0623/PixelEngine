@@ -1,6 +1,6 @@
 #include "LuaManager.h"
-#include "LuaWrapper.h"
 #include "PixelEngine.h"
+#include "PixelEngineAPI.h"
 #include "GameObject.h"
 #include "BaseModule.h"
 #include "Module.h"
@@ -23,7 +23,7 @@ LuaManager::LuaManager()
 
 LuaManager::~LuaManager()
 {
-    delete lua;
+   
 }
 void LuaManager::Initialize()
 {
@@ -78,7 +78,12 @@ void LuaManager::Initialize()
 
     //Engine°ü·Ã
     sol::table engine = lua->create_named_table("Engine");
-    engine["CreateGameObject"] = []() {return Engine->CreateGameObject(); };
+    engine["CreateGameObject"] = []() 
+        {
+            PPointer<GameObject> p = Engine->CreateGameObject();
+            p.AddRef();
+            return p.GetPtr();
+        };
     engine["LoadTexture"] = [](std::string path) {return LoadTexture(path);};
     functionName.clear();
     functionName.push_back("function Engine.CreateGameObject(...)");
@@ -107,11 +112,16 @@ void LuaManager::Initialize()
         {
             auto bind = Engine->GetFactory<BindManager>();
             return bind->GetLua(s, obj,name);
+        },
+        "Destroy", [](GameObject& obj)
+        {
+            obj.Destroy();
         }
     );
     functionName.clear();
     functionName.push_back("function GameObject.AddModule(...)");
     functionName.push_back("function GameObject.GetModule(...)");
+    functionName.push_back("function GameObject.Destroy(...)");
     AddLuaAPI("GameObject", functionName);
 }
 
@@ -220,5 +230,5 @@ void LuaManager::Update()
 
 void LuaManager::Release()
 {
-
+    delete lua;
 }

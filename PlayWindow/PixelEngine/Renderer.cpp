@@ -82,11 +82,9 @@ void Renderer::Update()
 
 void Renderer::LastUpdate()
 {
-	rendering->changeTransform = false;
 	Matrix m = transform->GetWorldMatrix();
 	for (int i = 0; i < 16; i++)
 	{
 		rendering->World[i] = m._m[i];
 	}
-	rendering->changeTransform = true;
 }

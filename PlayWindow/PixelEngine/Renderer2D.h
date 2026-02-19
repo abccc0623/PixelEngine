@@ -10,9 +10,7 @@ public:
 	Renderer2D();
 	~Renderer2D();
 
-	void Awake() override;
 	void Start() override;
-	void Update() override;
 	void LastUpdate() override;
 
 	void SetTexture(const std::string& name);

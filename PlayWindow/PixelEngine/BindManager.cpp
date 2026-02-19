@@ -21,9 +21,6 @@ void TryRegister(std::string name) {
 	if constexpr (CanRegisterLua<T>) {
 		T::RegisterLua();
 	}
-	else {
-		std::cout << name + "Not Find Function [RegisterLua]\n";
-	}
 }
 
 #define BIND_MODULE(Type) \

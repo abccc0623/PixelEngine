@@ -5,8 +5,14 @@ enum RENDER_TYPE : int
 	DEBUG,
 	CAMERA,
 	QUAD,
+	BOX2D,
 };
 
+enum class ProjectionType
+{
+	Perspective, // 원근
+	Orthographic // 직교
+};
 
 using ObjectID = size_t;
 struct CameraOption
@@ -22,25 +28,37 @@ struct CameraOption
 using Handle16 = unsigned short;
 using Handle32 = unsigned int;
 using Handle64 = unsigned long long;
+
+struct MeshData
+{
+	Handle16 model_key;
+	Handle16 texture_key;
+	Handle16 shader_key;
+};
+
+struct CameraData
+{
+	ProjectionType Projection;
+};
+
+struct BoxCollision2DData
+{
+	float sizeX;
+	float sizeY;      
+	float offsetX;  
+	float offsetY;  
+};
+
 struct RenderingData
 {
 public:
-	bool changeTransform = false;
-	float World[16];
-
 	RENDER_TYPE Type = RENDER_TYPE::NONE;
-	CameraOption cameraOption;
-
-	Handle16 model_key = 0;
-	Handle16 texture_key = 0;
-	Handle16 shader_key = 0;
+	float World[16];
 	Handle64 master_key = 0;
-
-	void Clear()
+	union
 	{
-		model_key = 0;
-		texture_key = 0;
-		shader_key = 0;
-		master_key = ~0ULL;
-	}
+		MeshData mesh;
+		CameraData camera;
+		BoxCollision2DData collision;
+	};
 };

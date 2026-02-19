@@ -21,14 +21,7 @@ public:
 	void Release() override;
 
 	void RegisterFunction(GameObject* obj,Module* module,int type);
-	
-	template <std::derived_from<Module> T>
-	void RemoveFunction(GameObject* obj)
-	{
-
-
-
-	}
+	void RemoveFunction(GameObject* obj);
 private:
 	std::queue<Action*> awakeFunction;
 	std::queue<Action*> startFunction;
@@ -36,5 +29,8 @@ private:
 	std::unordered_map<std::string, Action*> matrixFunction;
 	std::unordered_map<std::string, Action*> physicsFunction;
 	std::unordered_map<std::string, Action*> lastFunction;
+	bool isAwakeCall = false;
+	void RemoveFunction(std::unordered_map<std::string, Action*>& remove, std::string key);
+	std::queue<GameObject*> RemoveList;
 };
 

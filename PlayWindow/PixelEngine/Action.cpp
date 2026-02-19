@@ -96,9 +96,9 @@ void Action::Release()
 	}
 	while (!IdleAcionQueue.empty())
 	{
-		auto a = RunAciontQueue.front();
+		auto a = IdleAcionQueue.front();
 		delete a;
-		RunAciontQueue.pop();
+		IdleAcionQueue.pop();
 	}
 }
 

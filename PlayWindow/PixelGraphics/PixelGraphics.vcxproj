@@ -192,6 +192,7 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
   <ItemGroup>
     <ClInclude Include="BindingClass.h" />
     <ClInclude Include="BindingQuad.h" />
+    <ClInclude Include="BindingRect.h" />
     <ClInclude Include="BufferFactory.h" />
     <ClInclude Include="DefaultShaderLoader.h" />
     <ClInclude Include="ModelFactory.h" />
@@ -224,6 +225,7 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
   <ItemGroup>
     <ClCompile Include="BindingClass.cpp" />
     <ClCompile Include="BindingQuad.cpp" />
+    <ClCompile Include="BindingRect.cpp" />
     <ClCompile Include="BufferFactory.cpp" />
     <ClCompile Include="DefaultShaderLoader.cpp" />
     <ClCompile Include="ModelFactory.cpp" />
@@ -258,12 +260,12 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
     <FxCompile Include="Shaders\Debug_ps.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\Debug_vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\Skinning_ps.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

@@ -15,6 +15,8 @@ bool PixelGraphicsInitialize(HWND hwnd, int Width, int Height)
 void PixelGraphicsRelease()
 {
 	mEngine->Release();
+	delete mEngine;
+	mEngine = nullptr;
 }
 
 void PixelGraphicsRendering(float R, float G, float B, float A)

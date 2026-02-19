@@ -1,4 +1,6 @@
 #include "Module.h"
+#include "PixelObject.h"
+#include "GameObject.h"
 #include <string>
 #include <iostream>
 #include "PixelEngine.h"
@@ -8,7 +10,7 @@ extern PixelEngine* Engine;
 LuaManager* Module::lua = nullptr;
 Module::Module()
 {
-	targetObject = nullptr;
+	targetObject = PPointer<GameObject>();
 }
 Module::~Module()
 {

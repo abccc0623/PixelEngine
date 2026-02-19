@@ -1,4 +1,5 @@
 #pragma once
+#include "PixelObject.h"
 #include "BaseModule.h"
 #include <string>
 #include <sol/forward.hpp>
@@ -21,7 +22,7 @@ public:
 	std::string GetClassNameString();
 	
 protected:
-	GameObject* targetObject;
+	PPointer<GameObject> targetObject;
 	std::string className;
 	friend GameObject;
 	static sol::state* GetLuaState();

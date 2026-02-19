@@ -37,7 +37,8 @@ void BindingCamera::Binding(RenderingData* mData, Handle64 prev)
 	DirectX::SimpleMath::Matrix mProj;
 	
 	//mProj = DirectX::XMMatrixPerspectiveFovLH(mFovY, mAspect, mNearZ, mFarZ);
-	if (mData->cameraOption.Projection == CameraOption::ProjectionType::Perspective)
+
+	if (mData->camera.Projection == ProjectionType::Perspective)
 	{
 		mProj = DirectX::XMMatrixPerspectiveFovLH(mFovY, mAspect, mNearZ, mFarZ);
 	}

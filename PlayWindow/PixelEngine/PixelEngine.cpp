@@ -69,6 +69,7 @@ void PixelEngine::Release()
 		k.second = nullptr;
 	}
 	factoryMap.clear();
+	PixelGraphicsRelease();
 }
 
 void PixelEngine::Resize(int width, int height)
@@ -82,7 +83,7 @@ void PixelEngine::QuitWindow()
 }
 
 
-GameObject* PixelEngine::CreateGameObject()
+PPointer<GameObject> PixelEngine::CreateGameObject()
 {
 	auto factory = GetFactory<ObjectManager>();
 	return factory->Get();

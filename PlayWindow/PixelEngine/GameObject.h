@@ -1,5 +1,5 @@
 #pragma once
-#include "Object.h"
+#include "PixelObject.h"
 #include "Module.h"
 #include <typeinfo>
 #include <type_traits>
@@ -16,12 +16,14 @@
 #define LAST_UPDATE_FUNCTION 5
 
 class BindManager;
+class FunctionManager;
+class ObjectManager;
 class Module;
-class GameObject :public Object
+class GameObject :public PixelObject
 {
 public:
 	GameObject();
-	~GameObject();
+	virtual ~GameObject();
 public:
 	size_t GetHashCode();
 
@@ -45,7 +47,7 @@ public:
 		if constexpr (check[PHYSICS_UPDATE_FUNCTION]) { AddFunction(target, PHYSICS_UPDATE_FUNCTION); }
 		if constexpr (check[LAST_UPDATE_FUNCTION]) {AddFunction(target, LAST_UPDATE_FUNCTION);}
 		auto name = target->GetClassNameString();
-		target->targetObject = this;
+		target->targetObject = GetPointer();
 		ModuleMap.insert({ target->GetClassNameString(),target });
 		return target;
 	}
@@ -64,10 +66,19 @@ public:
 	}
 	Module* AddModule(std::string name);
 	Module* GetModule(std::string name);
+	std::vector<Module*> GetModules();
+	void Destroy();
+	void ClearModules();
+	PPointer<GameObject> GetPointer()
+	{
+		return PPointer<GameObject>(this);
+	}
 private:
 	size_t hashCode;
 	void AddFunction(Module* target, int Type);
 	std::unordered_map<std::string,Module*> ModuleMap;
-	BindManager* bindManager;
+	static BindManager* bindManager;
+	static FunctionManager* functionManager;
+	static ObjectManager* objectManager;
 };
 

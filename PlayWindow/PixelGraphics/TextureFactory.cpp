@@ -27,6 +27,7 @@ void TextureFactory::Release()
 	for (auto& k : textureMap)
 	{
 		k.second->Texture->Release();
+		delete k.second;
 		k.second = nullptr;
 	}
 	textureMap.clear();
@@ -35,6 +36,7 @@ void TextureFactory::Release()
 	{
 		k.second->Texture->Release();
 		delete k.second;
+		k.second = nullptr;
 	}
 	defaulttextureMap.clear();
 }

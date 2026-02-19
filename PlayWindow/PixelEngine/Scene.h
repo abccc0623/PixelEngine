@@ -1,7 +1,8 @@
 #pragma once
+#include "PixelObject.h"
 struct RenderingData;
 class FunctionManager;
-class Scene
+class Scene : public PixelObject
 {
 public:
 	Scene();

@@ -32,7 +32,6 @@ public:
 	void EndRender();
 	
 	RenderingData* GetRenderingData();
-	RenderingData* GetRenderingDataQuid();
 	void DeleteRenderingData(RenderingData* mData);
 	ObjectID LoadTexture(const char* filePath);
 	ObjectID Model_Debug(float* VertexList, int VertexSize, int* IndexList, int indexSize);

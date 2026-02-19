@@ -1,7 +1,7 @@
 #include "Rendering.h"
 
 //Binding 클래스들
-//#include "Render_Camera.h"
+
 #include "RenderringData.h"
 #include "ModelResources.h"
 #include "GraphicsEngine.h"
@@ -9,12 +9,13 @@
 #include "BindingClass.h"
 #include "BindingCamera.h"
 #include "BindingQuad.h"
+#include "BindingRect.h"
 
 #include <limits>
 #include <string>
 #include <bitset>
 #include <iostream>
-
+#include <algorithm>
 Rendering::Rendering()
 {
 	renderingList = std::map<Handle64, std::vector<RenderingData*>>();
@@ -23,7 +24,15 @@ Rendering::Rendering()
 
 Rendering::~Rendering()
 {
-
+	for (auto& K : renderingList)
+	{
+		for (auto& Q : K.second)
+		{
+			delete Q;
+			Q = nullptr;
+		}
+	}
+	renderingList.clear();
 }
 
 void Rendering::Initialize(GraphicsEngine* engine)
@@ -32,6 +41,7 @@ void Rendering::Initialize(GraphicsEngine* engine)
 	bindingClassList.resize(10);
 	bindingClassList[RENDER_TYPE::CAMERA] = new BindingCamera();
 	bindingClassList[RENDER_TYPE::QUAD] = new BindingQuad();
+	bindingClassList[RENDER_TYPE::BOX2D] = new BindingRect();
 
 
 	for (int i = 0; i < bindingClassList.size(); i++)
@@ -68,7 +78,7 @@ void Rendering::Update()
 				auto& value = K.second[i];
 				SettingData(value);
 				K.second.erase(K.second.begin() + i);
-				PushBack(value);
+				ChangePushBack(value);
 			}
 			K.second.clear();
 		}
@@ -87,6 +97,9 @@ void Rendering::Update()
 			case CAMERA:
 				bindingClassList[CAMERA]->Binding(K.second[i], prevValue);
 				break;
+			case BOX2D:
+				bindingClassList[BOX2D]->Binding(K.second[i], prevValue);
+				break;
 			}
 			prevValue = K.second[i]->master_key;
 		}
@@ -101,8 +114,16 @@ void Rendering::SettingData(RenderingData* data)
 	{
 		auto model = graphicsEngine->Get<DirectModel>("Quad");
 		auto shader = graphicsEngine->Get<ShaderResources>("Static");
-		data->model_key = model->key;
-		data->shader_key = shader->key;
+		data->mesh.model_key = model->key;
+		data->mesh.shader_key = shader->key;
+		break;
+	}
+	case BOX2D:
+	{
+		auto model = graphicsEngine->Get<DirectModel>("Box2D");
+		auto shader = graphicsEngine->Get<ShaderResources>("Debug");
+		data->mesh.model_key = model->key;
+		data->mesh.shader_key = shader->key;
 		break;
 	}
 	default:
@@ -110,10 +131,9 @@ void Rendering::SettingData(RenderingData* data)
 		return;
 	}
 	}
-
-	Handle64 model = (Handle64)data->model_key;
-	Handle64 shader = (Handle64)data->shader_key;
-	Handle64 texture = (Handle64)data->texture_key;
+	Handle64 model = (Handle64)data->mesh.model_key;
+	Handle64 shader = (Handle64)data->mesh.shader_key;
+	Handle64 texture = (Handle64)data->mesh.texture_key;
 	model <<= 0;
 	shader <<= 16;
 	texture <<= 32;
@@ -138,7 +158,16 @@ void Rendering::SetRendering(RenderingData* data)
 	}
 }
 
-void Rendering::PushBack(RenderingData* data) 
+void Rendering::DeleteRendering(RenderingData* data)
+{
+	auto find = renderingList.find(data->master_key);
+	if (find != renderingList.end())
+	{
+		std::erase(renderingList[data->master_key], data);
+	}
+}
+
+void Rendering::ChangePushBack(RenderingData* data) 
 {
 	auto find = renderingList.find(data->master_key);
 	if (find == renderingList.end())

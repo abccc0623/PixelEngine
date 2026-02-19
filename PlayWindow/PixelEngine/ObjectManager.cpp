@@ -7,8 +7,8 @@
 
 ObjectManager::ObjectManager()
 {
-	Object_Run = std::vector<GameObject*>();
-	Object_Idle = std::queue<GameObject*>();
+	Object_Run = std::vector<PPointer<GameObject>>();
+	Object_Idle = std::queue<PPointer<GameObject>>();
 }
 
 ObjectManager::~ObjectManager()
@@ -20,7 +20,7 @@ void ObjectManager::Initialize()
 {
 	for(int  i = 0; i < 20; i++)
 	{
-		GameObject* target = CreateGameObject();
+		PPointer<GameObject> target = MakePixel<GameObject>();
 		Object_Idle.push(target);
 	}
 }
@@ -32,42 +32,32 @@ void ObjectManager::Update()
 
 void ObjectManager::Release()
 {
-	while (Object_Idle.empty() == false)
-	{
-		GameObject* Obj = Object_Idle.front();
-		Object_Idle.pop();
-		delete Obj;
-	}
+
 }
 
-GameObject* ObjectManager::Get()
+PPointer<GameObject> ObjectManager::Get()
 {
 	if (Object_Idle.empty())
 	{
 		for (int i = 0; i < 10; i++)
 		{
-			GameObject* Object = CreateGameObject();
-			Object_Idle.push(Object);
+			Object_Idle.push(MakePixel<GameObject>());
 		}
 	}
-	GameObject* Object = Object_Idle.front();
+	PPointer<GameObject> PixelObject = Object_Idle.front();
 	Object_Idle.pop();
-	Object_Run.push_back(Object);
-	Object->AddModule<Transform>();
-	return Object;
+	Object_Run.push_back(PixelObject);
+	PixelObject->AddModule<Transform>();
+	return PixelObject;
 }
 
-void ObjectManager::Set(GameObject* target)
+void ObjectManager::Set(PPointer<GameObject> target)
 {
 	auto it = std::find(Object_Run.begin(), Object_Run.end(), target);
 	if (it != Object_Run.end())
 	{
 		Object_Run.erase(it);
+		Object_Idle.push(target);
 	}
 }
 
-GameObject* ObjectManager::CreateGameObject()
-{
-	GameObject* target = new GameObject();
-	return target;
-}

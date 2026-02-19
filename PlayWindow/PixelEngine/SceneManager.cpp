@@ -15,7 +15,8 @@ SceneManager::~SceneManager()
 
 void SceneManager::Initialize()
 {
-	
+	//PPointer<Scene> target = PPointer(new Scene);
+
 }
 
 void SceneManager::Update()

@@ -74,8 +74,8 @@ void LuaScript::RegisterFile(std::string fileName)
     if (result.valid())
     {
         selfTable = result;
-        selfTable["this"] = this->targetObject;
-        luaStart = selfTable["Awake"];
+        selfTable["this"] = this->targetObject.GetPtr();
+        luaAwake = selfTable["Awake"];
         luaStart = selfTable["Start"];
         luaUpdate = selfTable["Update"];
     }

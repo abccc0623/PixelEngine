@@ -54,6 +54,7 @@ void GraphicsEngine::Release()
 	factoryMap.clear();
 	mRender->Release();
 	delete mRender;
+	GraphicsCore::GraphicsRelease();
 }
 
 void GraphicsEngine::BeginRender(float R, float G, float B, float A)
@@ -71,7 +72,7 @@ void GraphicsEngine::EndRender()
 
 ObjectID GraphicsEngine::LoadTexture(const char* filePath)
 {
-	return Set<TextureResources>(filePath);;
+	return Set<TextureResources>(filePath);
 }
 
 RenderingData* GraphicsEngine::GetRenderingData()
@@ -83,7 +84,8 @@ RenderingData* GraphicsEngine::GetRenderingData()
 
 void GraphicsEngine::DeleteRenderingData(RenderingData* mData)
 {
-	//mFactory->DeleteRenderingData(mData);
+	mRender->DeleteRendering(mData);
+	delete mData;
 }
 
 ObjectID GraphicsEngine::Model_Debug(float* VertexList, int VertexSize, int* IndexList, int indexSize)

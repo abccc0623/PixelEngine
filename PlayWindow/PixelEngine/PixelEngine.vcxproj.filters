@@ -123,7 +123,7 @@
     <ClInclude Include="TimeManager.h">
       <Filter>EngineAPI\Manager\TimeManager</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h">
+    <ClInclude Include="PixelObject.h">
       <Filter>EngineAPI\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
@@ -151,9 +151,6 @@
       <Filter>EngineAPI\Module\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="LuaManager.h">
-      <Filter>EngineAPI\Manager\LuaManager</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaWrapper.h">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClInclude>
     <ClInclude Include="FunctionManager.h">
@@ -224,7 +221,7 @@
     <ClCompile Include="TimeManager.cpp">
       <Filter>EngineAPI\Manager\TimeManager</Filter>
     </ClCompile>
-    <ClCompile Include="Object.cpp">
+    <ClCompile Include="PixelObject.cpp">
       <Filter>EngineAPI\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">

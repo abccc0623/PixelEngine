@@ -64,6 +64,9 @@
     <Filter Include="PicnicGraphics\Manager\BindingClass\BindingQuad">
       <UniqueIdentifier>{89ccd8a2-344c-4f31-aebd-580f2c2f7f39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PicnicGraphics\Manager\BindingClass\BindingRect">
+      <UniqueIdentifier>{59260eb4-0031-4738-8482-58c1dbcfa99b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -156,6 +159,9 @@
     <ClInclude Include="BindingQuad.h">
       <Filter>PicnicGraphics\Manager\BindingClass\BindingQuad</Filter>
     </ClInclude>
+    <ClInclude Include="BindingRect.h">
+      <Filter>PicnicGraphics\Manager\BindingClass\BindingRect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -214,6 +220,9 @@
     </ClCompile>
     <ClCompile Include="ResourceFactory.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="BindingRect.cpp">
+      <Filter>PicnicGraphics\Manager\BindingClass\BindingRect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

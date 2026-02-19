@@ -1,3 +1,19 @@
+
+//카메라 관련 버퍼
+cbuffer CameraBuffer : register(b0)
+{
+    float4x4 view;
+    float4x4 proj;
+    float4x4 view_proj;
+};
+
+//오브젝트 관련 버퍼
+cbuffer ObjectBuffer : register(b1)
+{
+    float4x4 world;
+    float4x4 TexMatrix;
+};
+
 struct VertexInputType
 {
 	float3 PosL			: POSITION;
@@ -17,7 +33,6 @@ PixelInputType main(VertexInputType input)
 
     float4 worldPos = mul(float4(input.PosL, 1.0f), world);
 
-    // 2. 월드 좌표를 화면(NDC) 좌표로 변환 (View & Projection)
     output.posH = mul(worldPos, view_proj);
     output.Tex = input.Color;
     return output;

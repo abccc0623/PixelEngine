@@ -18,12 +18,12 @@ public:
 	static void Delete(Action* action);
 	static void StartReady();
 	static void Release();
+	bool isReady = false;
 private:
 	std::function<void(void)> fun;
 	std::string key;
 	GameObject* target;
 	Module* targetMoudle;
-	bool isReady = false;
 
 	static std::queue<Action*> IdleAcionQueue;
 	static std::queue<Action*> RunAciontQueue;

@@ -35,6 +35,11 @@ void ShaderFactory::Initialize()
 	auto static_Shader = defaultShaderLoader->CompileShader("STATIC");
 	static_Shader->key = keyAllocator.GetKey16();
 	defaultshaderMap.insert({ "Static" ,static_Shader});
+
+	//Debug ½¦ÀÌ´õ
+	auto debug_Shader = defaultShaderLoader->CompileShader("DEBUG");
+	debug_Shader->key = keyAllocator.GetKey16();
+	defaultshaderMap.insert({ "Debug" ,debug_Shader });
 }
 
 
@@ -48,7 +53,16 @@ void ShaderFactory::Release()
 		K.second->mLayout->Release();
 		K.second->mPixelShader->Release();
 		K.second->mVertexShader->Release();
+		delete K.second;
 	}
+	for (auto& K : defaultshaderMap)
+	{
+		K.second->mLayout->Release();
+		K.second->mPixelShader->Release();
+		K.second->mVertexShader->Release();
+		delete K.second;
+	}
+	defaultshaderMap.clear();
 	shaderMap.clear();
 	delete shaderLoader;
 	delete defaultShaderLoader;

@@ -33,7 +33,7 @@ void Camera::OrthographicProjection()
 {
 	if (rendering != nullptr)
 	{
-		rendering->cameraOption.Projection = CameraOption::ProjectionType::Orthographic;
+		rendering->camera.Projection = ProjectionType::Orthographic;
 	}
 }
 
@@ -41,7 +41,7 @@ void Camera::PerspectiveProjection()
 {
 	if (rendering != nullptr)
 	{
-		rendering->cameraOption.Projection = CameraOption::ProjectionType::Perspective;
+		rendering->camera.Projection = ProjectionType::Perspective;
 	}
 }
 

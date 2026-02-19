@@ -43,9 +43,7 @@ private:
 	static void CreateBlend();
 	friend GraphicsEngine;
 protected:
-	ObjectID SetModel(DirectModel* Model);
 	static ID3D11BlendState* pAlphaBlendState;
-	static std::unordered_map<ObjectID, std::vector<RenderingData*>> mRendering_List;
 public:
 	static ID3D11Device* GetDevice();
 	static ID3D11DeviceContext* GetDeviceContext();

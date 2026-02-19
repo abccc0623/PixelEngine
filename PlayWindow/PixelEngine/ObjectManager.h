@@ -1,9 +1,10 @@
 #pragma once
+#include "PixelObject.h"
 #include "EngineManager.h"
 #include <vector>
 #include <queue>
 class GameObject;
-class ObjectManager : public EngineManager
+class ObjectManager : public EngineManager, PixelObject
 {
 public:
 	ObjectManager();
@@ -13,12 +14,11 @@ public:
 	void Update() override;
 	void Release() override;
 
-	GameObject* Get();
-	void Set(GameObject* target);
+	PPointer<GameObject> Get();
+	void Set(PPointer<GameObject> target);
 private:
-	std::vector<GameObject*> Object_Run;
-	std::queue<GameObject*> Object_Idle;
-	GameObject* CreateGameObject();
+	std::vector<PPointer<GameObject>> Object_Run;
+	std::queue<PPointer<GameObject>> Object_Idle;
 	size_t hashCode;
 };
 

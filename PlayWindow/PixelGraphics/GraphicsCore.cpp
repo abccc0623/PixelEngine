@@ -22,7 +22,7 @@ GraphicsCore::GraphicsCore()
 
 GraphicsCore::~GraphicsCore()
 {
-
+	
 }
 
 void GraphicsCore::GraphicsReSize(int Width, int Height)
@@ -158,11 +158,13 @@ void GraphicsCore::GraphicsInitialize(HWND WindowHandle, int Width, int Height)
 void GraphicsCore::GraphicsRelease()
 {
 	/** Direct자원 삭제 */
-	mRenderTargetView->Release();
+	pAlphaBlendState->Release();
 	mDepthStencilView->Release();
-	mDevice->Release();
-	mDeviceContext->Release();
+	mRenderTargetView->Release();
 	mSwapChain->Release();
+	mDeviceContext->Release();
+	mDevice->Release();
+
 
 	/** 삭제시 메모리값 초기화 */
 	mRenderTargetView	= nullptr;
@@ -292,4 +294,5 @@ void GraphicsCore::Resize(int width, int height)
 	// 6. 타겟 다시 바인딩
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 }
+
 

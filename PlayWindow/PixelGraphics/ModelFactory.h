@@ -18,6 +18,7 @@ protected:
 	virtual void* GetResource(std::string name);
 
 	DirectModel* CreateQuad();
+	DirectModel* Create2DBox();
 	std::unordered_map<Handle16, DirectModel*> ModelMap;
 	std::unordered_map<std::string, DirectModel*> defaultModelMap;
 

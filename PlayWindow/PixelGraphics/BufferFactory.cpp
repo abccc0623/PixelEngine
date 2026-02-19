@@ -17,7 +17,11 @@ void BufferFactory::Initialize()
 
 void BufferFactory::Release()
 {
-
+	for (auto K : ShaderLoader::mContextBufferMap)
+	{
+		K.second->buffer->Release();
+		delete K.second;
+	}
 }
 
 void* BufferFactory::GetResource(std::string name)

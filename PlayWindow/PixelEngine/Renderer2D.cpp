@@ -23,30 +23,21 @@ Renderer2D::~Renderer2D()
 	DeleteRenderingData(rendering);
 }
 
-void Renderer2D::Awake()
-{
-
-}
-
 void Renderer2D::Start()
 {
 	transform = targetObject->GetModule<Transform>();
 }
 
-void Renderer2D::Update()
-{
-
-}
-
 void Renderer2D::LastUpdate()
 {
-	rendering->changeTransform = false;
+	//rendering->changeTransform = false;
+	if (transform == nullptr) return;
 	Matrix m = transform->GetWorldMatrix();
 	for (int i = 0; i < 16; i++)
 	{
 		rendering->World[i] = m._m[i];
 	}
-	rendering->changeTransform = true;
+	//rendering->changeTransform = true;
 }
 
 void Renderer2D::SetTexture(const std::string& name)
@@ -55,8 +46,8 @@ void Renderer2D::SetTexture(const std::string& name)
 	textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
 	if (rendering != nullptr)
 	{
-		rendering->Clear();
-		rendering->texture_key = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
+		//rendering->Clear();
+		rendering->mesh.texture_key = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
 	}
 }
 

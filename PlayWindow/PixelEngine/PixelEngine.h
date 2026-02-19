@@ -1,4 +1,5 @@
 #pragma once
+#include "PixelObject.h"
 #include <string>
 #include <windows.h>
 #include <vector>
@@ -36,7 +37,7 @@ public:
 	bool RunningCheck();
 
 	sol::state* GetLua();
-	GameObject* CreateGameObject();
+	PPointer<GameObject> CreateGameObject();
 	Scene* CreateScene(std::string name);
 
 	ObjectID GetResourceID(RESOURCE_TYPE type,const std::string& path);
