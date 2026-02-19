@@ -205,7 +205,6 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
     <ClInclude Include="inc\VertexData.h" />
     <ClInclude Include="KeyAllocator.h" />
     <ClInclude Include="RasterizerStateFactory.h" />
-    <ClInclude Include="Render_Axis.h" />
     <ClInclude Include="CBufferResources.h" />
     <ClInclude Include="ShaderFactory.h" />
     <ClInclude Include="framework.h" />
@@ -233,7 +232,6 @@ copy/Y "$(ProjectDir)inc\*.h" "$(SolutionDir)inc"</Command>
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="KeyAllocator.cpp" />
     <ClCompile Include="RasterizerStateFactory.cpp" />
-    <ClCompile Include="Render_Axis.cpp" />
     <ClCompile Include="ShaderFactory.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="GraphicsCore.cpp" />

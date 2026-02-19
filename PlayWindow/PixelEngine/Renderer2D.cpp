@@ -5,6 +5,7 @@
 #include "PixelGraphicsAPI.h"
 #include "PixelEngine.h"
 #include "ResourceManager.h"
+#include "LuaManager.h"
 
 extern PixelEngine* Engine;
 Renderer2D::Renderer2D() :
@@ -61,8 +62,12 @@ void Renderer2D::SetTexture(const std::string& name)
 
 void Renderer2D::RegisterLua()
 {
-	auto lua = GetLua();
-	lua->new_usertype<Renderer2D>("Renderer2D", sol::base_classes, sol::bases<Module, BaseModule>(),
+	auto state = GetLuaState();
+	state->new_usertype<Renderer2D>("Renderer2D", sol::base_classes, sol::bases<Module, BaseModule>(),
 		"SetTexture", [](Renderer2D& obj, std::string name) {obj.SetTexture(name); }
 	);
+
+	std::vector<std::string> functionName = std::vector<std::string>();
+	functionName.push_back("function Renderer2D.SetTexture(...)");
+	AddLuaAPI("Renderer2D", functionName);
 }

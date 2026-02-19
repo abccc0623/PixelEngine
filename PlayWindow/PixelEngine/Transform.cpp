@@ -1,6 +1,6 @@
 #include "Transform.h"
 #include "GameObject.h"
-//#include "PicnicGraphicsAPI.h"
+#include "LuaManager.h"
 #include <iostream>
 Transform::Transform():
 	Rotation_Pitch(),
@@ -28,7 +28,6 @@ Transform::~Transform()
 
 void Transform::Start()
 {
-	std::cout << GetClassNameString() << std::endl;
 	WorldMatrixUpdate();
 }
 
@@ -302,28 +301,35 @@ void Transform::WorldMatrixUpdate()
 
 void Transform::RegisterLua()
 {
-	auto lua = GetLua();
-	lua->new_usertype<Vector3>("Vector3",
+	auto state = GetLuaState();
+	state->new_usertype<Vector3>("Vector3",
 		"x", &Vector3::X,
 		"y", &Vector3::Y,
 		"z", &Vector3::Z
 	);
 
-	lua->new_usertype<Transform>("Transform",
+	state->new_usertype<Transform>("Transform",
 		sol::base_classes, sol::bases<Module, BaseModule>(),
 		"SetPosition", [](Transform& obj, float x, float y, float z) {obj.SetPosition(x, y, z); },
 		"AddPosition", [](Transform& obj, float x, float y, float z) {obj.AddPosition(x, y, z); },
+		"GetPosition", [](Transform& obj) { return obj.Position;},
 		"SetRotation", [](Transform& obj, float x, float y, float z) {obj.SetRotation(x, y, z); },
 		"AddRotation", [](Transform& obj, float x, float y, float z) {obj.AddRotation(x, y, z); },
-		"GetPosition", [](Transform& obj) { return obj.Position;},
 		"GetRotation", [](Transform& obj) { return obj.Rotation;},
 		"GetScale", [](Transform& obj) { return obj.Scale;},
 		"SetScale", [](Transform& obj, float x, float y, float z) {obj.SetScale(x, y, z); },
 		"AddScale", [](Transform& obj, float x, float y, float z) {obj.AddScale(x, y, z); }
 	);
-}
 
-void Transform::Update()
-{
-	
+	std::vector<std::string> functionName = std::vector<std::string>();
+	functionName.push_back("function Transform.SetPosition(...)");
+	functionName.push_back("function Transform.AddPosition(...)");
+	functionName.push_back("function Transform.GetPosition(...)");
+	functionName.push_back("function Transform.SetRotation(...)");
+	functionName.push_back("function Transform.AddRotation(...)");
+	functionName.push_back("function Transform.GetRotation(...)");
+	functionName.push_back("function Transform.SetScale(...)");
+	functionName.push_back("function Transform.AddScale(...)");
+	functionName.push_back("function Transform.GetScale(...)");
+	AddLuaAPI("Transform", functionName);
 }

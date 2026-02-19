@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #define PE_NEW new(__FILE__, __LINE__)
+
 LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) 
@@ -22,8 +23,9 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_KILLFOCUS:
         break;
     case WM_SIZE:
-        //WindowPlatform::width = LOWORD(lParam);
-        //WindowPlatform::height = HIWORD(lParam);
+        ResizeEngine(LOWORD(lParam), HIWORD(lParam));
+        break;
+    case WM_EXITSIZEMOVE:
         break;
     }
     return DefWindowProc(hWnd, message, wParam, lParam);
@@ -47,7 +49,7 @@ int main()
     EngineInitialize(hWnd,800,600);
 
     LoadLuaScript("./Asset/Setting.Lua");
-    CreateLuaAPIPath("./Assets/PixelEngine_API.lua");
+    CreateLuaAPIPath("./Asset/PixelEngine_API.lua");
 
     MSG msg = { 0 };
     while (true)

@@ -15,16 +15,6 @@ int GraphicsCore::ClientHeight = 0;
 int GraphicsCore::ClientWidth  = 0;
 HWND GraphicsCore::mHwnd;
 
-std::unordered_map<ObjectID, ID3D11ShaderResourceView*>			 GraphicsCore::mTexture_Map;
-std::unordered_map<ObjectID, std::vector<RenderingData*>>		 GraphicsCore::mRendering_List;
-
-//std::vector<RenderingData*>						 GraphicsCore::mRendering_List;
-std::unordered_map<ObjectID, DirectModel*>		 GraphicsCore::mModelBuffer_Map;
-std::map<std::string, DirectModel*>				 GraphicsCore::mModelBufferList;
-std::map<std::string, ShaderResources*>			 GraphicsCore::mShaderResources_List;
-std::map<std::string, ID3D11SamplerState*>		 GraphicsCore::mShaderSampler_List;
-std::map<std::string, ID3D11Buffer*>			 GraphicsCore::mContextBuffer_List;
-std::map<std::string, ID3D11RasterizerState*>	 GraphicsCore::mRasterizer_List;
 GraphicsCore::GraphicsCore()
 {
 
@@ -241,11 +231,65 @@ int GraphicsCore::GetClientHeight()
 	return ClientHeight;
 }
 
-ObjectID GraphicsCore::SetModel(DirectModel* Model)
+void GraphicsCore::Resize(int width, int height)
 {
-	ObjectID id = std::hash<DirectModel*>{}(Model);
-	mModelBuffer_Map.insert({ id ,Model });
-	return id;
-}
+	ClientWidth = width;
+	ClientHeight = height;
 
+	if (!mDevice || !mSwapChain) return;
+
+	ClientWidth = width;
+	ClientHeight = height;
+
+	// 1. 기존에 연결된 뷰들을 모두 해제해야 합니다. (핵심!)
+	mDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+	if (mRenderTargetView) mRenderTargetView->Release();
+	if (mDepthStencilView) mDepthStencilView->Release();
+
+	// 2. 스왑 체인의 버퍼 크기를 변경합니다.
+	// DXGI_SWAP_CHAIN_DESC에 설정했던 포맷과 동일하게 맞춰줍니다.
+	HRESULT hr = mSwapChain->ResizeBuffers(2, ClientWidth, ClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
+	if (FAILED(hr)) { /* 에러 처리 */ return; }
+
+	// 3. 변경된 백버퍼로부터 렌더 타겟 뷰를 다시 생성합니다.
+	ID3D11Texture2D* pBackBuffer = nullptr;
+	mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+	mDevice->CreateRenderTargetView(pBackBuffer, NULL, &mRenderTargetView);
+	pBackBuffer->Release();
+
+	// 4. 뎁스 스텐실 버퍼와 뷰도 새로운 크기로 다시 생성합니다.
+	// (Initialize에 있던 뎁스 버퍼 생성 로직을 여기에도 적용)
+	D3D11_TEXTURE2D_DESC depthDesc;
+	// ... (Initialize의 설정과 동일하게 하되 Width, Height만 새 값으로)
+	depthDesc.Width = ClientWidth;
+	depthDesc.Height = ClientHeight;
+	// ... 
+	mDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+
+	ID3D11Texture2D* mDepthStencilBuffer = nullptr;
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	depthStencilDesc.Width = ClientWidth;								//텍스쳐의 너비
+	depthStencilDesc.Height = ClientHeight;								//텍스쳐의 높이 
+	depthStencilDesc.MipLevels = 1;										//밉맵수준의 개수
+	depthStencilDesc.ArraySize = 1;										//택스처 배열의 텍스처 개수*깊이*스텐실 버퍼의 경우 텍스처 하나만필요
+	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.SampleDesc.Count = 1;								//SampleDesc = 다중표본 개수와 품질수듄을 서술하는 구조체
+	depthStencilDesc.SampleDesc.Quality = 0;
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;						//텍스처의 용도를 뜻하는 필드
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;				//자원을 파이프라인에 어떤식으로 묶을것인지
+	depthStencilDesc.CPUAccessFlags = 0;								//CPU가 자원을 접근하는 방식을 결정하는 플래그를 지정
+	depthStencilDesc.MiscFlags = 0;
+	mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer);
+	hr = mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView);
+	if (FAILED(hr)) { return; }
+	mDepthStencilBuffer->Release();
+
+	// 5. 뷰포트 설정
+	mScreenViewport.Width = (float)ClientWidth;
+	mScreenViewport.Height = (float)ClientHeight;
+	mDeviceContext->RSSetViewports(1, &mScreenViewport);
+
+	// 6. 타겟 다시 바인딩
+	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+}
 

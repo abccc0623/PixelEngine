@@ -96,9 +96,6 @@
     <ClInclude Include="InputLayout.h">
       <Filter>PicnicGraphics\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="Render_Axis.h">
-      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
-    </ClInclude>
     <ClInclude Include="inc\VertexData.h">
       <Filter>PicnicGraphics\Resources</Filter>
     </ClInclude>
@@ -178,9 +175,6 @@
     </ClCompile>
     <ClCompile Include="Rendering.cpp">
       <Filter>PicnicGraphics\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="Render_Axis.cpp">
-      <Filter>PicnicGraphics\Manager\BindingClass</Filter>
     </ClCompile>
     <ClCompile Include="RasterizerStateFactory.cpp">
       <Filter>PicnicGraphics\Manager\ResourceFactory\RasterizerStateFactory</Filter>

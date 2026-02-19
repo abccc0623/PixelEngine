@@ -1,11 +1,10 @@
 #pragma once
 #include "Module.h"
-#include "BindLua.h"
 #include <string>
 class Transform;
 struct RenderingData;
 using ObjectID = size_t;
-class Renderer2D :public Module ,public BindLua<Renderer2D>
+class Renderer2D :public Module
 {
 public:
 	Renderer2D();

@@ -152,13 +152,15 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Action.h" />
-    <ClInclude Include="BindLua.h" />
+    <ClInclude Include="BindManager.h" />
+    <ClInclude Include="BoxCollision2D.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="DebugCamera.h" />
     <ClInclude Include="EngineManager.h" />
     <ClInclude Include="Export\PixelEngineAPI.h" />
     <ClInclude Include="Export\PixelEngineDLL.h" />
-    <ClInclude Include="FactoryManager.h" />
+    <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="FunctionManager.h" />
     <ClInclude Include="GameObject.h" />
@@ -168,12 +170,11 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClInclude Include="LuaScript.h" />
     <ClInclude Include="LuaWrapper.h" />
     <ClInclude Include="Module.h" />
-    <ClInclude Include="ModuleTypeList.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelEngine.h" />
-    <ClInclude Include="Platform.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="Rect.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Renderer2D.h" />
     <ClInclude Include="resource.h" />
@@ -184,16 +185,17 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Transform.h" />
-    <ClInclude Include="WindowPlatform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Action.cpp" />
-    <ClCompile Include="BindLua.cpp" />
+    <ClCompile Include="BindManager.cpp" />
+    <ClCompile Include="BoxCollision2D.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="DebugCamera.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EngineManager.cpp" />
-    <ClCompile Include="FactoryManager.cpp" />
+    <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="FunctionManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="KeyInputManager.cpp" />
@@ -201,7 +203,6 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClCompile Include="LuaManager.cpp" />
     <ClCompile Include="LuaScript.cpp" />
     <ClCompile Include="Module.cpp" />
-    <ClCompile Include="ModuleTypeList.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PixelEngine.cpp" />
     <ClCompile Include="PixelEngineAPI.cpp" />
@@ -221,7 +222,6 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="WindowPlatform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Setting.lua" />

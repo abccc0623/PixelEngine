@@ -1,9 +1,8 @@
 #pragma once
 #include "Module.h"
-#include "BindLua.h"
 class Transform;
 struct RenderingData;
-class Camera :public Module , public BindLua<Camera>
+class Camera :public Module
 {
 public:
 	Camera();

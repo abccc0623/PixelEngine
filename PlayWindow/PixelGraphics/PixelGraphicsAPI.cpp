@@ -1,6 +1,6 @@
 #include "PixelGraphicsAPI.h"
 #include "GraphicsEngine.h"
-
+#include "GraphicsCore.h"
 extern GraphicsEngine* mEngine = nullptr;
 bool PixelGraphicsInitialize(HWND hwnd, int Width, int Height)
 {
@@ -24,14 +24,9 @@ void PixelGraphicsRendering(float R, float G, float B, float A)
 	mEngine->EndRender();
 }
 
-void SetRenderCamera(float m[16])
+void PixelGraphicsResize(int Width, int Height)
 {
-	mEngine->SetRenderCamera(m);
-}
-
-void SetDebugCamera(float m[16])
-{
-	mEngine->SetDebugCamera(m);
+	GraphicsCore::Resize(Width, Height);
 }
 
 RenderingData* GetRenderingData()

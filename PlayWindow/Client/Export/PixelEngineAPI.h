@@ -7,6 +7,7 @@ extern "C" PIXEL_ENGINEDLL void UpdateEngine();
 extern "C" PIXEL_ENGINEDLL bool RunningEngineCheck();
 extern "C" PIXEL_ENGINEDLL void ReleaseEngine();							
 extern "C" PIXEL_ENGINEDLL void QuitWindow();
+extern "C" PIXEL_ENGINEDLL bool ResizeEngine(int width,int height);
 
 //KeyInput
 extern "C" PIXEL_ENGINEDLL bool GetKeyDown(char number);		

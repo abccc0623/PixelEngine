@@ -2,11 +2,13 @@
 #include <string>
 #include <iostream>
 #include "PixelEngine.h"
+#include "LuaManager.h"
 
 extern PixelEngine* Engine;
+LuaManager* Module::lua = nullptr;
 Module::Module()
 {
-	
+	targetObject = nullptr;
 }
 Module::~Module()
 {
@@ -37,9 +39,20 @@ std::string Module::GetClassNameString()
 	return className;
 }
 
-sol::state* Module::GetLua()
+sol::state* Module::GetLuaState()
 {
-	return Engine->GetLua();
+	if (lua == nullptr)
+	{
+		lua = Engine->GetFactory<LuaManager>();
+	}
+	return lua->GetLua();
 }
 
-
+void Module::AddLuaAPI(std::string className, std::vector<std::string> functionName)
+{
+	if (lua == nullptr)
+	{
+		lua = Engine->GetFactory<LuaManager>();
+	}
+	lua->AddLuaAPI(className, functionName);
+}

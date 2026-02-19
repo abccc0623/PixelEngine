@@ -2,7 +2,9 @@
 #include "BaseModule.h"
 #include <string>
 #include <sol/forward.hpp>
+#include <vector>
 class GameObject;
+class LuaManager;
 class Module : public BaseModule
 {
 public:
@@ -17,11 +19,14 @@ public:
 	virtual void LastUpdate();
 
 	std::string GetClassNameString();
-protected:
-	static sol::state* GetLua();
+	
 protected:
 	GameObject* targetObject;
 	std::string className;
 	friend GameObject;
+	static sol::state* GetLuaState();
+	static void AddLuaAPI(std::string className, std::vector<std::string> functionName);
+private:
+	static LuaManager* lua;
 };
 

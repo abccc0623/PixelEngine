@@ -68,20 +68,10 @@ void GraphicsEngine::EndRender()
 	GraphicsCore::EndRender();
 }
 
-void GraphicsEngine::SetDebugCamera(float* m)
-{
-	//mRender->DebugCameraMatrix = m;
-}
-
-void GraphicsEngine::SetRenderCamera(float* m)
-{
-	//mRender->MainCameraMatrix = m;
-}
 
 ObjectID GraphicsEngine::LoadTexture(const char* filePath)
 {
-		//Set<TextureResources>(filePath);
-	return 0;
+	return Set<TextureResources>(filePath);;
 }
 
 RenderingData* GraphicsEngine::GetRenderingData()

@@ -14,6 +14,8 @@
 #define MATRIX_UPDATE_FUNCTION 3
 #define PHYSICS_UPDATE_FUNCTION 4
 #define LAST_UPDATE_FUNCTION 5
+
+class BindManager;
 class Module;
 class GameObject :public Object
 {
@@ -66,5 +68,6 @@ private:
 	size_t hashCode;
 	void AddFunction(Module* target, int Type);
 	std::unordered_map<std::string,Module*> ModuleMap;
+	BindManager* bindManager;
 };
 

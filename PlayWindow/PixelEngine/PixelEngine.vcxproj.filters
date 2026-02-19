@@ -19,12 +19,6 @@
     <Filter Include="EngineAPI\pch">
       <UniqueIdentifier>{3d8fb4b2-2b35-4b0a-9a0c-15c5b73be8e7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Platform">
-      <UniqueIdentifier>{bf365fef-644d-46e1-a5d7-fc90075a7a8a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EngineAPI\Platform\Window">
-      <UniqueIdentifier>{af612e66-de86-4e39-8f0e-b4558bb99f60}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Manager">
       <UniqueIdentifier>{01a425fe-f48f-4f21-a628-dd34d9a56cc5}</UniqueIdentifier>
     </Filter>
@@ -58,9 +52,6 @@
     <Filter Include="EngineAPI\Module\Module">
       <UniqueIdentifier>{313a14e0-ecd1-4ed4-a4bf-bb4c5358dd87}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Manager\FactoryManager">
-      <UniqueIdentifier>{c250685d-9e98-4160-94a0-d6dcfa200ff4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Module\Renderer">
       <UniqueIdentifier>{a63a91de-52cd-4300-bd7c-6a629bf674d0}</UniqueIdentifier>
     </Filter>
@@ -91,8 +82,20 @@
     <Filter Include="EngineAPI\Manager\ResourceManager">
       <UniqueIdentifier>{d6f518e3-501d-4b3a-b189-73aef13abd36}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Bind">
-      <UniqueIdentifier>{4b734d7e-1996-4362-9fd3-ba7577f2c807}</UniqueIdentifier>
+    <Filter Include="EngineAPI\Manager\BindManager">
+      <UniqueIdentifier>{3bdc39e6-20c2-4ee3-bb49-4ae3d6cd2564}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\CollisionManager">
+      <UniqueIdentifier>{9840a7a7-5341-4ad2-b197-d24b25780d09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Module\Collision2D">
+      <UniqueIdentifier>{a8cbb97f-5bb8-46a6-9e44-fba35d72d292}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Types\Rect">
+      <UniqueIdentifier>{29cb6009-607d-4171-a3f9-9be0701c3c35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\ObjectManager">
+      <UniqueIdentifier>{c250685d-9e98-4160-94a0-d6dcfa200ff4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -107,12 +110,6 @@
     </ClInclude>
     <ClInclude Include="Export\PixelEngineAPI.h">
       <Filter>EngineAPI</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowPlatform.h">
-      <Filter>EngineAPI\Platform\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform.h">
-      <Filter>EngineAPI\Platform</Filter>
     </ClInclude>
     <ClInclude Include="PixelEngine.h">
       <Filter>EngineAPI</Filter>
@@ -147,8 +144,8 @@
     <ClInclude Include="Module.h">
       <Filter>EngineAPI\Module\Module</Filter>
     </ClInclude>
-    <ClInclude Include="FactoryManager.h">
-      <Filter>EngineAPI\Manager\FactoryManager</Filter>
+    <ClInclude Include="ObjectManager.h">
+      <Filter>EngineAPI\Manager\ObjectManager</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>EngineAPI\Module\Renderer</Filter>
@@ -177,9 +174,6 @@
     <ClInclude Include="LuaScript.h">
       <Filter>EngineAPI\Module\LuaScript</Filter>
     </ClInclude>
-    <ClInclude Include="ModuleTypeList.h">
-      <Filter>EngineAPI\Types</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -192,11 +186,20 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
     </ClInclude>
-    <ClInclude Include="BindLua.h">
-      <Filter>EngineAPI\Bind</Filter>
-    </ClInclude>
     <ClInclude Include="Action.h">
       <Filter>EngineAPI\Manager\FunctionManager</Filter>
+    </ClInclude>
+    <ClInclude Include="BindManager.h">
+      <Filter>EngineAPI\Manager\BindManager</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionManager.h">
+      <Filter>EngineAPI\Manager\CollisionManager</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxCollision2D.h">
+      <Filter>EngineAPI\Module\Collision2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Rect.h">
+      <Filter>EngineAPI\Types\Rect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -208,9 +211,6 @@
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>EngineAPI\pch</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowPlatform.cpp">
-      <Filter>EngineAPI\Platform\Window</Filter>
     </ClCompile>
     <ClCompile Include="PixelEngine.cpp">
       <Filter>EngineAPI</Filter>
@@ -245,8 +245,8 @@
     <ClCompile Include="Module.cpp">
       <Filter>EngineAPI\Module\Module</Filter>
     </ClCompile>
-    <ClCompile Include="FactoryManager.cpp">
-      <Filter>EngineAPI\Manager\FactoryManager</Filter>
+    <ClCompile Include="ObjectManager.cpp">
+      <Filter>EngineAPI\Manager\ObjectManager</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>EngineAPI\Module\Renderer</Filter>
@@ -272,9 +272,6 @@
     <ClCompile Include="LuaScript.cpp">
       <Filter>EngineAPI\Module\LuaScript</Filter>
     </ClCompile>
-    <ClCompile Include="ModuleTypeList.cpp">
-      <Filter>EngineAPI\Types</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>EngineAPI\Module\Camera</Filter>
     </ClCompile>
@@ -284,11 +281,17 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
     </ClCompile>
-    <ClCompile Include="BindLua.cpp">
-      <Filter>EngineAPI\Bind</Filter>
-    </ClCompile>
     <ClCompile Include="Action.cpp">
       <Filter>EngineAPI\Manager\FunctionManager</Filter>
+    </ClCompile>
+    <ClCompile Include="BindManager.cpp">
+      <Filter>EngineAPI\Manager\BindManager</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionManager.cpp">
+      <Filter>EngineAPI\Manager\CollisionManager</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxCollision2D.cpp">
+      <Filter>EngineAPI\Module\Collision2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

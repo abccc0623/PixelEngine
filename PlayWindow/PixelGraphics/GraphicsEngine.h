@@ -31,9 +31,6 @@ public:
 	void BeginRender(float R, float G, float B, float A);
 	void EndRender();
 	
-	void SetDebugCamera(float* m);
-	void SetRenderCamera(float* m);
-
 	RenderingData* GetRenderingData();
 	RenderingData* GetRenderingDataQuid();
 	void DeleteRenderingData(RenderingData* mData);

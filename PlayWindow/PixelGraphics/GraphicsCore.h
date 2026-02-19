@@ -45,21 +45,12 @@ private:
 protected:
 	ObjectID SetModel(DirectModel* Model);
 	static ID3D11BlendState* pAlphaBlendState;
-
 	static std::unordered_map<ObjectID, std::vector<RenderingData*>> mRendering_List;
-
-	//static std::vector<RenderingData*>							mRendering_List;
-	static std::unordered_map<ObjectID, DirectModel*>			 mModelBuffer_Map;
-	static std::unordered_map<ObjectID, ID3D11ShaderResourceView*> mTexture_Map;
-	static std::map<std::string, DirectModel*>					mModelBufferList;
-	static std::map<std::string, ShaderResources*>				mShaderResources_List;
-	static std::map<std::string, ID3D11SamplerState*>			mShaderSampler_List;
-	static std::map<std::string, ID3D11Buffer*>					mContextBuffer_List;
-	static std::map<std::string, ID3D11RasterizerState*>		mRasterizer_List;
 public:
 	static ID3D11Device* GetDevice();
 	static ID3D11DeviceContext* GetDeviceContext();
 	static int GetClientWidth();
 	static int GetClientHeight();
+	static void Resize(int width, int height);
 };
 

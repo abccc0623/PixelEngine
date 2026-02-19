@@ -2,6 +2,7 @@
 #include "Transform.h"
 #include "GameObject.h"
 #include "PixelGraphicsAPI.h"
+#include "LuaManager.h"
 Camera::Camera():
 	rendering(nullptr)
 {
@@ -46,9 +47,13 @@ void Camera::PerspectiveProjection()
 
 void Camera::RegisterLua()
 {
-	auto lua = GetLua();
-	lua->new_usertype<Camera>("Camera", sol::base_classes, sol::bases<Module, BaseModule>(),
+	auto state = GetLuaState();
+	state->new_usertype<Camera>("Camera", sol::base_classes, sol::bases<Module, BaseModule>(),
 		"OrthographicProjection", [](Camera& obj) {obj.OrthographicProjection();},
 		"PerspectiveProjection", [](Camera& obj) {obj.PerspectiveProjection();}
 	);
+	std::vector<std::string> functionName = std::vector<std::string>();
+	functionName.push_back("function Camera.OrthographicProjection(...)");
+	functionName.push_back("function Camera.PerspectiveProjection(...)");
+	AddLuaAPI("Camera", functionName);
 }

@@ -1,11 +1,9 @@
 #pragma once
-
-#include "BindLua.h"
 #include "Module.h"
 #include "Vector3.h"
 #include "Matrix.h"
 
-class Transform : public Module ,public BindLua<Transform>
+class Transform : public Module
 {
 public:
 	Transform();
@@ -13,7 +11,6 @@ public:
 public:
 	void MatrixUpdate() override;
 	void Start() override;
-	void Update() override;
 public:
 	void SetPosition(Vector3& mPos);
 	void SetPosition(Vector3&& mPos);

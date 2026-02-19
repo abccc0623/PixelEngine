@@ -4,17 +4,17 @@
 #include "GameObject.h"
 #include "BaseModule.h"
 #include "Module.h"
-#include <filesystem>
 #include "resource.h"
 #include "sol.hpp"
+#include <filesystem>
 #include <fstream>
 #include "ResourceManager.h"
 #include "LuaScript.h"
 #include "Transform.h"
-
+#include "BindManager.h"
 #define SOL_ALL_SAFETIES_ON 1 // 안전장치 활성화 (권장)
 
-extern std::unordered_map<std::string, std::function<sol::object(sol::state_view, Module*)>> moduleLuaFactories;
+//extern std::unordered_map<std::string, std::function<sol::object(sol::state_view, Module*)>> moduleLuaFactories;
 extern PixelEngine* Engine;
 LuaManager::LuaManager()
 {
@@ -46,6 +46,9 @@ void LuaManager::Initialize()
     //    "D", 68
     //);
 
+    bind = Engine->GetFactory<BindManager>();
+   
+
     //Key관련 등록
     sol::table input = lua->create_named_table("Input");
     input["GetKey"] = GetKey;
@@ -53,15 +56,35 @@ void LuaManager::Initialize()
     input["GetKeyUp"] = GetKeyUp;
     input["GetMousePosition_X"] = GetMousePosition_X;
     input["GetMousePosition_Y"] = GetMousePosition_Y;
+    std::vector<std::string> functionName = std::vector<std::string>();
+    functionName.push_back("function Input.GetKey(...)");
+    functionName.push_back("function Input.GetKeyDown(...)");
+    functionName.push_back("function Input.GetKeyUp(...)");
+    functionName.push_back("function Input.GetMousePosition_X(...)");
+    functionName.push_back("function Input.GetMousePosition_Y(...)");
+    AddLuaAPI("Input", functionName);
+
     //Time관련
     sol::table time = lua->create_named_table("Time");
     time["GetDeltaTime"] = GetDeltaTime;
     time["GetTotalTime"] = GetTotalTime;
     time["GetFPS"] = GetFPS;
+    functionName.clear();
+    functionName.push_back("function Time.GetDeltaTime(...)");
+    functionName.push_back("function Time.GetTotalTime(...)");
+    functionName.push_back("function Time.GetFPS(...)");
+    AddLuaAPI("Time", functionName);
+
+
     //Engine관련
     sol::table engine = lua->create_named_table("Engine");
     engine["CreateGameObject"] = []() {return Engine->CreateGameObject(); };
-    engine["LoadTexture"] = [](std::string path) {return Engine->Load(RESOURCE_TYPE::TEXTURE,path); };
+    engine["LoadTexture"] = [](std::string path) {return LoadTexture(path);};
+    functionName.clear();
+    functionName.push_back("function Engine.CreateGameObject(...)");
+    functionName.push_back("function Engine.LoadTexture(...)");
+    AddLuaAPI("Engine", functionName);
+
 
     //생성
     lua->new_usertype<BaseModule>("BaseModule");
@@ -76,30 +99,20 @@ void LuaManager::Initialize()
     lua->new_usertype<GameObject>("GameObject",
         "AddModule", [](GameObject& obj, std::string name, sol::this_state s) ->sol::object
         {
-            Module* mod = obj.AddModule(name);
-            if (!mod) return sol::nil;
-            auto it = moduleLuaFactories.find(name);
-            if (it != moduleLuaFactories.end())
-            {
-                return it->second(s, mod);
-            }
-            return sol::make_object(s, mod);
+            auto bind = Engine->GetFactory<BindManager>();
+            obj.AddModule(name);
+            return bind->GetLua(s, obj, name);
         },
         "GetModule", [](GameObject& obj, std::string name, sol::this_state s) -> sol::object
         {
-            Module* mod = obj.GetModule(name);
-            if (!mod) return sol::nil;
-            auto it = moduleLuaFactories.find(name);
-            if (it != moduleLuaFactories.end())
-            {
-                return it->second(s, mod);
-            }
-            return sol::make_object(s, mod);
+            auto bind = Engine->GetFactory<BindManager>();
+            return bind->GetLua(s, obj,name);
         }
     );
-
-    //만약 에셋폴더의 Setting Lua라는 파일이 없을떄 DLL에서 제공하는 파일을 사용함
-    LoadDefaultSettingFile();
+    functionName.clear();
+    functionName.push_back("function GameObject.AddModule(...)");
+    functionName.push_back("function GameObject.GetModule(...)");
+    AddLuaAPI("GameObject", functionName);
 }
 
 
@@ -123,6 +136,19 @@ sol::state* LuaManager::GetLua()
 {
     if (lua != nullptr){return lua;}
     return nullptr;
+}
+
+void LuaManager::AddLuaAPI(std::string className, std::vector<std::string> functionName)
+{
+    apiDefinitions += "\n";
+    apiDefinitions += "---@class " + className + "\n";
+    apiDefinitions += className + "= {} \n";
+    for (int i = 0; i < functionName.size(); i++)
+    {
+        apiDefinitions += functionName[i];
+        apiDefinitions += " end \n";
+    }
+    apiDefinitions += "\n";
 }
 
 bool LuaManager::CreateLuaAPIPath(const std::string& filePath)
@@ -168,59 +194,22 @@ void LuaManager::LoadDefaultSettingFile()
 }
 void LuaManager::GenerateSimpleStubs(sol::state* lua)
 {
-    // 파일 생성 경로 (프로젝트 루트 혹은 API 폴더)
-    std::ofstream file(apiExportPath);
-    file << "---@meta PixelEngine API\n\n";
-
-    // 자동완성을 뽑고 싶은 Usertype(클래스) 목록
-    std::vector<std::string> classes = { "Transform", "GameObject", "LuaScript", "BaseModule", "Module" };
-    // 전역 테이블 목록
-    std::vector<std::string> globals = { "Input", "Time", "Engine" };
-
-    // 1. 클래스(Usertype) 순회
-    for (const auto& className : classes) {
-        sol::optional<sol::table> typeTable = (*lua)[className];
-        if (!typeTable) continue;
-
-        file << "---@class " << className << "\n";
-        file << className << " = {}\n";
-
-        // 클래스의 메타테이블(함수들이 들어있는 곳)을 가져옴
-        sol::metatable mt = (*lua)[className];
-        if (mt.valid()) {
-            mt.for_each([&](sol::object const& key, sol::object const& value) {
-                if (key.is<std::string>()) {
-                    std::string funcName = key.as<std::string>();
-                    // 루아 내부 함수(__index 등)는 제외
-                    if (funcName.find("__") != 0 && (value.is<sol::function>() || value.is<sol::protected_function>())) {
-                        file << "function " << className << ":" << funcName << "(...) end\n";
-                    }
-                }
-                });
-        }
-        file << "\n";
+    std::filesystem::path p(apiExportPath);
+    if (p.has_parent_path()) {
+        std::filesystem::create_directories(p.parent_path());
     }
 
-    // 2. 전역 테이블(Input, Time 등) 순회
-    for (const auto& tableName : globals) {
-        sol::optional<sol::table> table = (*lua)[tableName];
-        if (!table) continue;
-
-        file << "---@class " << tableName << "\n";
-        file << tableName << " = {}\n";
-
-        table->for_each([&](sol::object const& key, sol::object const& value) {
-            if (key.is<std::string>()) {
-                std::string funcName = key.as<std::string>();
-                if (value.is<sol::function>() || value.is<sol::protected_function>()) {
-                    file << "function " << tableName << "." << funcName << "(...) end\n";
-                }
-            }
-            });
+    std::ofstream file(apiExportPath, std::ios::out | std::ios::trunc);
+    if (file.is_open()) {
+        file << "---@meta PixelEngine API\n\n";
+        file << apiDefinitions;
         file << "\n";
+        file.close();
     }
-
-    file.close();
+    else {
+        // 경로가 잘못되었거나 파일이 사용 중일 때에 대한 예외 처리
+        std::cerr << "Failed to open file: " << apiExportPath << std::endl;
+    }
 }
 
 
