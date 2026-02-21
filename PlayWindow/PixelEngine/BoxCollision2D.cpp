@@ -48,14 +48,14 @@ void BoxCollision2D::SetRect(float offsetX, float offsetY, float sizeX, float si
 
 void BoxCollision2D::RegisterLua()
 {
-	auto state = GetLuaState();
-	state->new_usertype<BoxCollision2D>("BoxCollision2D", sol::base_classes, sol::bases<Module, BaseModule>(),
-		"SetRect", [](BoxCollision2D& obj, float offsetX, float offsetY, float sizeX, float sizeY) {obj.SetRect(offsetX, offsetY, sizeX, sizeY); }
-	);
-
-	std::vector<std::string> functionName = std::vector<std::string>();
-	functionName.push_back("function BoxCollision2D.SetRect(...)");
-	AddLuaAPI("BoxCollision2D", functionName);
+	//auto state = GetLuaState();
+	//state->new_usertype<BoxCollision2D>("BoxCollision2D", sol::base_classes, sol::bases<Module, PixelObject>(),
+	//	"SetRect", [](BoxCollision2D& obj, float offsetX, float offsetY, float sizeX, float sizeY) {obj.SetRect(offsetX, offsetY, sizeX, sizeY); }
+	//);
+	//
+	//std::vector<std::string> functionName = std::vector<std::string>();
+	//functionName.push_back("function BoxCollision2D.SetRect(...)");
+	//AddLuaAPI("BoxCollision2D", functionName);
 
 }
 

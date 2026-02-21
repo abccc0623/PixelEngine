@@ -160,6 +160,7 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClInclude Include="EngineManager.h" />
     <ClInclude Include="Export\PixelEngineAPI.h" />
     <ClInclude Include="Export\PixelEngineDLL.h" />
+    <ClInclude Include="GlobalBind.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="FunctionManager.h" />

@@ -26,11 +26,18 @@ public:
 	virtual ~GameObject();
 public:
 	size_t GetHashCode();
+	std::string name;
 
 	template <std::derived_from<Module> T>
-	T* AddModule() 
+	PPointer<T> AddModule()
 	{
-		T* target = new T();
+		//이미 있다면 
+		if (HasModule<T>())
+		{
+			return GetModule<T>();
+		}
+
+		PPointer<T> target = MakePixel<T>();
 		constexpr bool check[6] =
 		{
 			!std::is_same_v<decltype(&T::Awake), decltype(&Module::Awake)>,
@@ -47,36 +54,41 @@ public:
 		if constexpr (check[PHYSICS_UPDATE_FUNCTION]) { AddFunction(target, PHYSICS_UPDATE_FUNCTION); }
 		if constexpr (check[LAST_UPDATE_FUNCTION]) {AddFunction(target, LAST_UPDATE_FUNCTION);}
 		auto name = target->GetClassNameString();
-		target->targetObject = GetPointer();
+		target->targetObject = this;
 		ModuleMap.insert({ target->GetClassNameString(),target });
 		return target;
 	}
 
 	template <std::derived_from<Module> T>
-	T* GetModule()
+	PPointer<T> GetModule()
 	{
 		std::string nameKey = typeid(T).name();
 		if (nameKey.find("class ") == 0) nameKey = nameKey.substr(6);
 		auto findTarget = ModuleMap.find(nameKey);
-
+		
 		if (findTarget == ModuleMap.end()) return nullptr;
 		
-		Module* basePtr = findTarget->second;
-		return static_cast<T*>(basePtr);
+		T* newModule = static_cast<T*>(findTarget->second.GetPtr());
+		return PPointer<T>(newModule);
 	}
-	Module* AddModule(std::string name);
-	Module* GetModule(std::string name);
-	std::vector<Module*> GetModules();
+
+	template <std::derived_from<Module> T>
+	bool HasModule()
+	{
+		std::string nameKey = typeid(T).name();
+		if (nameKey.find("class ") == 0) nameKey = nameKey.substr(6);
+		auto findTarget = ModuleMap.find(nameKey);
+		return (findTarget == ModuleMap.end()) ? false : true;
+	}
+
+	std::vector<PPointer<Module>> GetModules();
 	void Destroy();
 	void ClearModules();
-	PPointer<GameObject> GetPointer()
-	{
-		return PPointer<GameObject>(this);
-	}
 private:
 	size_t hashCode;
-	void AddFunction(Module* target, int Type);
-	std::unordered_map<std::string,Module*> ModuleMap;
+	void AddFunction(PPointer<Module> target, int Type);
+	std::unordered_map<std::string,PPointer<Module>> ModuleMap;
+private:
 	static BindManager* bindManager;
 	static FunctionManager* functionManager;
 	static ObjectManager* objectManager;

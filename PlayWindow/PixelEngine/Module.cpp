@@ -10,7 +10,7 @@ extern PixelEngine* Engine;
 LuaManager* Module::lua = nullptr;
 Module::Module()
 {
-	targetObject = PPointer<GameObject>();
+	targetObject = nullptr;
 }
 Module::~Module()
 {
@@ -47,7 +47,7 @@ sol::state* Module::GetLuaState()
 	{
 		lua = Engine->GetFactory<LuaManager>();
 	}
-	return lua->GetLua();
+	return lua->GetModuleCall_Lua();
 }
 
 void Module::AddLuaAPI(std::string className, std::vector<std::string> functionName)

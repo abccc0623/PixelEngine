@@ -72,5 +72,5 @@ public:
 	bool IsChange_Rotation;
 	bool IsChange_Scale;
 
-	static void RegisterLua();
+	static std::string RegisterLua();
 };

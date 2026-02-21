@@ -44,9 +44,17 @@ void BindingCamera::Binding(RenderingData* mData, Handle64 prev)
 	}
 	else
 	{
-		mNearZ = 1.0f; // 직교 투영은 0부터 시작해도 무방합니다.
+		float width = (float)GraphicsCore::GetClientWidth();
+		float height = (float)GraphicsCore::GetClientHeight();
+
+		float zoomLevel = 100.0f;
+
+		float viewWidth = width / zoomLevel;
+		float viewHeight = height / zoomLevel;
+
+		mNearZ = 0.1f; // 너무 1.0f이면 카메라 바로 앞 객체가 잘릴 수 있으니 살짝 낮춤
 		mFarZ = 4000.0f;
-		mProj = DirectX::XMMatrixOrthographicLH((float)GraphicsCore::GetClientWidth(), (float)GraphicsCore::GetClientHeight(), mNearZ, mFarZ);
+		mProj = DirectX::XMMatrixOrthographicLH(viewWidth, viewHeight, mNearZ, mFarZ);
 	}
 	
 	mCamBuffer.view			= DirectX::XMMatrixTranspose(mView);

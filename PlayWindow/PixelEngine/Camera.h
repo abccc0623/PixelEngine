@@ -13,9 +13,9 @@ public:
 	void OrthographicProjection();
 	void PerspectiveProjection();
 
-	static void RegisterLua();
+	static std::string RegisterLua();
 private:
-	Transform* transform;
+	PPointer<Transform> transform;
 	RenderingData* rendering;
 };
 

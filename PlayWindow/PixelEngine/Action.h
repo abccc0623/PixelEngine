@@ -1,16 +1,17 @@
 #pragma once
+#include "PixelObject.h"
 #include <functional>
 #include <string>
 #include <queue>
 class GameObject;
 class Module;
-class Action
+class Action : public PixelObject
 {
 public:
 	Action();
 	~Action();
 
-	void Setting(GameObject* obj, Module* module, std::string targetKey, std::function<void(void)> function);
+	void Setting(GameObject* obj,std::string targetKey, std::function<void(void)> function);
 	void Play();
 	void Ready();
 	void Clear();

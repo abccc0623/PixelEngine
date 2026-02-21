@@ -4,6 +4,7 @@
 #include <string>
 #include <functional>
 #include <algorithm>
+#include "LuaScript.h"
 
 ObjectManager::ObjectManager()
 {
@@ -18,11 +19,7 @@ ObjectManager::~ObjectManager()
 
 void ObjectManager::Initialize()
 {
-	for(int  i = 0; i < 20; i++)
-	{
-		PPointer<GameObject> target = MakePixel<GameObject>();
-		Object_Idle.push(target);
-	}
+	
 }
 
 void ObjectManager::Update()
@@ -35,19 +32,17 @@ void ObjectManager::Release()
 
 }
 
-PPointer<GameObject> ObjectManager::Get()
+PPointer<GameObject> ObjectManager::Get(std::string name)
 {
 	if (Object_Idle.empty())
 	{
-		for (int i = 0; i < 10; i++)
-		{
-			Object_Idle.push(MakePixel<GameObject>());
-		}
+		Object_Idle.push(MakePixel<GameObject>());
 	}
 	PPointer<GameObject> PixelObject = Object_Idle.front();
 	Object_Idle.pop();
 	Object_Run.push_back(PixelObject);
 	PixelObject->AddModule<Transform>();
+	PixelObject->name = name;
 	return PixelObject;
 }
 
@@ -57,7 +52,18 @@ void ObjectManager::Set(PPointer<GameObject> target)
 	if (it != Object_Run.end())
 	{
 		Object_Run.erase(it);
-		Object_Idle.push(target);
+	}
+}
+
+void ObjectManager::ReloadLuaScript()
+{
+	for (auto K : Object_Run)
+	{
+		if (K->HasModule<LuaScript>())
+		{
+			auto lua = K->GetModule<LuaScript>();
+			lua->Reload();
+		}
 	}
 }
 

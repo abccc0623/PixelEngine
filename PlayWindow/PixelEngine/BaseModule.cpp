@@ -2,7 +2,7 @@
 #include <type_traits>
 BaseModule::BaseModule()
 {
-	hasCode = std::hash<BaseModule*>{}(this);
+	//hasCode = std::hash<BaseModule*>{}(this);
 }
 
 BaseModule::~BaseModule()
@@ -10,7 +10,7 @@ BaseModule::~BaseModule()
 
 }
 
-size_t BaseModule::GetHashCode()
-{
-	return hasCode;
-}
+//size_t BaseModule::GetHashCode()
+//{
+//	return hasCode;
+//}

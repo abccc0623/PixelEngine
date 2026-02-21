@@ -1,6 +1,7 @@
 #include "Transform.h"
 #include "GameObject.h"
 #include "LuaManager.h"
+#include "BindManager.h"
 #include <iostream>
 Transform::Transform():
 	Rotation_Pitch(),
@@ -17,7 +18,7 @@ Transform::Transform():
 	IsChange_Rotation(true),
 	IsChange_Scale(true)
 {
-	//Order = TRANSFORM_UPDATE_ORDER;
+	
 }
 
 Transform::~Transform()
@@ -299,7 +300,7 @@ void Transform::WorldMatrixUpdate()
 	}
 }
 
-void Transform::RegisterLua()
+std::string Transform::RegisterLua()
 {
 	auto state = GetLuaState();
 	state->new_usertype<Vector3>("Vector3",
@@ -307,29 +308,47 @@ void Transform::RegisterLua()
 		"y", &Vector3::Y,
 		"z", &Vector3::Z
 	);
-
+	
 	state->new_usertype<Transform>("Transform",
-		sol::base_classes, sol::bases<Module, BaseModule>(),
+		sol::base_classes, sol::bases<Module, PixelObject>(),
 		"SetPosition", [](Transform& obj, float x, float y, float z) {obj.SetPosition(x, y, z); },
 		"AddPosition", [](Transform& obj, float x, float y, float z) {obj.AddPosition(x, y, z); },
 		"GetPosition", [](Transform& obj) { return obj.Position;},
 		"SetRotation", [](Transform& obj, float x, float y, float z) {obj.SetRotation(x, y, z); },
 		"AddRotation", [](Transform& obj, float x, float y, float z) {obj.AddRotation(x, y, z); },
 		"GetRotation", [](Transform& obj) { return obj.Rotation;},
-		"GetScale", [](Transform& obj) { return obj.Scale;},
 		"SetScale", [](Transform& obj, float x, float y, float z) {obj.SetScale(x, y, z); },
-		"AddScale", [](Transform& obj, float x, float y, float z) {obj.AddScale(x, y, z); }
+		"AddScale", [](Transform& obj, float x, float y, float z) {obj.AddScale(x, y, z); },
+		"GetScale", [](Transform& obj) { return obj.Scale;}
 	);
 
-	std::vector<std::string> functionName = std::vector<std::string>();
-	functionName.push_back("function Transform.SetPosition(...)");
-	functionName.push_back("function Transform.AddPosition(...)");
-	functionName.push_back("function Transform.GetPosition(...)");
-	functionName.push_back("function Transform.SetRotation(...)");
-	functionName.push_back("function Transform.AddRotation(...)");
-	functionName.push_back("function Transform.GetRotation(...)");
-	functionName.push_back("function Transform.SetScale(...)");
-	functionName.push_back("function Transform.AddScale(...)");
-	functionName.push_back("function Transform.GetScale(...)");
-	AddLuaAPI("Transform", functionName);
+	std::string main = "";
+	{
+		main += BindManager::ExportLuaAPIHeader<Transform>();
+		auto func1 = static_cast<void(Transform::*)(float, float, float)>(&Transform::SetPosition);
+		auto func2 = static_cast<void(Transform::*)(float, float, float)>(&Transform::AddPosition);
+		auto func3 = static_cast<Vector3&(Transform::*)()>(&Transform::GetPosition);
+		main += BindManager::ExportLuaAPIFromFunc("SetPosition", func1, "x, y, z");
+		main += BindManager::ExportLuaAPIFromFunc("AddPosition", func2, "x, y, z");
+		main += BindManager::ExportLuaAPIFromFunc("GetPosition", func3,"");
+	}
+
+	{
+		auto func1 = static_cast<void(Transform::*)(float, float, float)>(&Transform::SetRotation);
+		auto func2 = static_cast<void(Transform::*)(float, float, float)>(&Transform::AddRotation);
+		auto func3 = static_cast<Vector3 & (Transform::*)()>(&Transform::GetRotation);
+		main += BindManager::ExportLuaAPIFromFunc("SetRotation", func1, "x, y, z");
+		main += BindManager::ExportLuaAPIFromFunc("AddRotation", func2, "x, y, z");
+		main += BindManager::ExportLuaAPIFromFunc("GetRotation", func3, "");
+	}
+
+	{
+		auto func1 = static_cast<void(Transform::*)(float, float, float)>(&Transform::SetScale);
+		auto func2 = static_cast<void(Transform::*)(float, float, float)>(&Transform::AddScale);
+		auto func3 = static_cast<Vector3 & (Transform::*)()>(&Transform::GetScale);
+		main += BindManager::ExportLuaAPIFromFunc("SetScale", func1, "x, y, z");
+		main += BindManager::ExportLuaAPIFromFunc("AddScale", func2, "x, y, z");
+		main += BindManager::ExportLuaAPIFromFunc("GetScale", func3, "");
+	}
+	return main;
 }

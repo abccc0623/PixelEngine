@@ -20,7 +20,7 @@ public:
 	void Update() override;
 	void Release() override;
 
-	void RegisterFunction(GameObject* obj,Module* module,int type);
+	void AddFunction(GameObject* obj, PPointer<Module> module,int type);
 	void RemoveFunction(GameObject* obj);
 private:
 	std::queue<Action*> awakeFunction;
@@ -32,5 +32,7 @@ private:
 	bool isAwakeCall = false;
 	void RemoveFunction(std::unordered_map<std::string, Action*>& remove, std::string key);
 	std::queue<GameObject*> RemoveList;
+
+	std::queue<Action*> nextStartFunction;
 };
 

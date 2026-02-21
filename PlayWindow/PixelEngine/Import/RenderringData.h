@@ -61,4 +61,8 @@ public:
 		CameraData camera;
 		BoxCollision2DData collision;
 	};
+	void Clear()
+	{
+		master_key = ~0ULL;
+	}
 };

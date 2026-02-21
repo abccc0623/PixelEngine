@@ -198,6 +198,9 @@
     <ClInclude Include="Rect.h">
       <Filter>EngineAPI\Types\Rect</Filter>
     </ClInclude>
+    <ClInclude Include="GlobalBind.h">
+      <Filter>EngineAPI\Manager\BindManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

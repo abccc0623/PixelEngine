@@ -41,6 +41,7 @@ void ReleaseEngine()
 	{
 		Engine->Release();
 	}
+	delete Engine;
 }
 
 void QuitWindow()

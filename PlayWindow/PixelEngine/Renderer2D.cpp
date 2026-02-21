@@ -6,6 +6,7 @@
 #include "PixelEngine.h"
 #include "ResourceManager.h"
 #include "LuaManager.h"
+#include "BindManager.h"
 
 extern PixelEngine* Engine;
 Renderer2D::Renderer2D() :
@@ -46,19 +47,20 @@ void Renderer2D::SetTexture(const std::string& name)
 	textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
 	if (rendering != nullptr)
 	{
-		//rendering->Clear();
 		rendering->mesh.texture_key = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
+		ChangeRenderingData(rendering);
 	}
 }
 
-void Renderer2D::RegisterLua()
+std::string Renderer2D::RegisterLua()
 {
 	auto state = GetLuaState();
-	state->new_usertype<Renderer2D>("Renderer2D", sol::base_classes, sol::bases<Module, BaseModule>(),
+	state->new_usertype<Renderer2D>("Renderer2D", sol::base_classes, sol::bases<Module, PixelObject>(),
 		"SetTexture", [](Renderer2D& obj, std::string name) {obj.SetTexture(name); }
 	);
-
-	std::vector<std::string> functionName = std::vector<std::string>();
-	functionName.push_back("function Renderer2D.SetTexture(...)");
-	AddLuaAPI("Renderer2D", functionName);
+	
+	std::string main = "";
+	main += BindManager::ExportLuaAPIHeader<Renderer2D>();
+	main += BindManager::ExportLuaAPIFromFunc("SetTexture",&Renderer2D::SetTexture,"string");
+	return main;
 }

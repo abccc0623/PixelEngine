@@ -6,6 +6,7 @@
 #include "ObjectManager.h"
 #include <functional>
 #include <iostream>
+#include "Transform.h"
 extern PixelEngine* Engine;
 BindManager* GameObject::bindManager = nullptr;
 FunctionManager* GameObject::functionManager = nullptr;
@@ -13,7 +14,7 @@ ObjectManager* GameObject::objectManager = nullptr;
 
 GameObject::GameObject()
 {
-	ModuleMap = std::unordered_map<std::string, Module*>();
+	ModuleMap = std::unordered_map<std::string, PPointer<Module>>();
 	hashCode = std::hash<GameObject*>{}(this);
 
 	if (bindManager == nullptr)
@@ -31,10 +32,8 @@ GameObject::GameObject()
 }
 GameObject::~GameObject()
 {
-	for (const auto& pair : ModuleMap)
-	{
-		delete pair.second;
-	}
+	//해당 게임 오브젝트가 지워질때 내부의 모듈도 깨끗이 삭제
+	functionManager->RemoveFunction(this);
 	ModuleMap.clear();
 }
 
@@ -43,20 +42,9 @@ size_t GameObject::GetHashCode()
 	return hashCode;
 }
 
-Module* GameObject::AddModule(std::string name)
+std::vector<PPointer<Module>> GameObject::GetModules()
 {
-	bindManager->AddModuleCall(name,this);
-	return GetModule(name);
-}
-
-Module* GameObject::GetModule(std::string name)
-{
-	return bindManager->GetModuleCall(name, this);
-}
-
-std::vector<Module*> GameObject::GetModules()
-{
-	std::vector<Module*> list = std::vector<Module*>();
+	std::vector<PPointer<Module>> list = std::vector<PPointer<Module>>();
 	for (auto K : ModuleMap)
 	{
 		list.push_back(K.second);
@@ -66,7 +54,7 @@ std::vector<Module*> GameObject::GetModules()
 
 void GameObject::Destroy()
 {
-	functionManager->RemoveFunction(this);
+	objectManager->Set(this);
 }
 
 void GameObject::ClearModules()
@@ -74,7 +62,7 @@ void GameObject::ClearModules()
 	ModuleMap.clear();
 }
 
-void GameObject::AddFunction(Module* target, int Type)
+void GameObject::AddFunction(PPointer<Module> target, int Type)
 {
-	functionManager->RegisterFunction(this, target, Type);
+	functionManager->AddFunction(this, target, Type);
 }

@@ -6,7 +6,7 @@
 #include <vector>
 class GameObject;
 class LuaManager;
-class Module : public BaseModule
+class Module : public PixelObject
 {
 public:
 	Module();
@@ -22,7 +22,7 @@ public:
 	std::string GetClassNameString();
 	
 protected:
-	PPointer<GameObject> targetObject;
+	GameObject* targetObject;
 	std::string className;
 	friend GameObject;
 	static sol::state* GetLuaState();

@@ -11,7 +11,9 @@ public:
 	void Start() override;
 	void Update() override;
 
+	void Reload();
 	void RegisterFile(std::string fileName);
+	static std::string RegisterLua();
 private:
 	bool updateLog = false;
 	std::string path;

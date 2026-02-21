@@ -36,13 +36,13 @@ public:
 	void EngineUpdate();
 	bool RunningCheck();
 
-	sol::state* GetLua();
-	PPointer<GameObject> CreateGameObject();
+	sol::state* GetModuleCall_Lua();
+	PPointer<GameObject> CreateGameObject(std::string name = "GameObject");
 	Scene* CreateScene(std::string name);
 
 	ObjectID GetResourceID(RESOURCE_TYPE type,const std::string& path);
 
-	void RegisterFunction(GameObject* obj, Module* module, int type);
+	void AddFunction(GameObject* obj, Module* module, int type);
 
 	template<std::derived_from<EngineManager> T>
 	void BindFactory()

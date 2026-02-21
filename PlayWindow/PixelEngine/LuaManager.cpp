@@ -12,9 +12,10 @@
 #include "LuaScript.h"
 #include "Transform.h"
 #include "BindManager.h"
+#include "KeyInputManager.h"
+#include "ObjectManager.h"
 #define SOL_ALL_SAFETIES_ON 1 // 안전장치 활성화 (권장)
 
-//extern std::unordered_map<std::string, std::function<sol::object(sol::state_view, Module*)>> moduleLuaFactories;
 extern PixelEngine* Engine;
 LuaManager::LuaManager()
 {
@@ -37,92 +38,108 @@ void LuaManager::Initialize()
         sol::lib::os,      // 시간(os.time) 등 시스템 함수
         sol::lib::debug    // 디버깅 툴
     );
-    ///Global함수 등록
-    //
-    //lua->new_enum("Key",
-    //    "W", 87,
-    //    "A", 65,
-    //    "S", 83,
-    //    "D", 68
-    //);
-
     bind = Engine->GetFactory<BindManager>();
-   
+    input = Engine->GetFactory<KeyInputManager>();
+    obj = Engine->GetFactory<ObjectManager>();
 
     //Key관련 등록
     sol::table input = lua->create_named_table("Input");
-    input["GetKey"] = GetKey;
-    input["GetKeyDown"] = GetKeyDown;
-    input["GetKeyUp"] = GetKeyUp;
+    input["GetKey"] = [](int keyNumber)->bool { return GetKey(keyNumber); };
+    input["GetKeyDown"] = [](int keyNumber)->bool {return GetKeyDown(keyNumber); };
+    input["GetKeyUp"] = [](int keyNumber)->bool { return GetKeyUp(keyNumber); };
     input["GetMousePosition_X"] = GetMousePosition_X;
     input["GetMousePosition_Y"] = GetMousePosition_Y;
-    std::vector<std::string> functionName = std::vector<std::string>();
-    functionName.push_back("function Input.GetKey(...)");
-    functionName.push_back("function Input.GetKeyDown(...)");
-    functionName.push_back("function Input.GetKeyUp(...)");
-    functionName.push_back("function Input.GetMousePosition_X(...)");
-    functionName.push_back("function Input.GetMousePosition_Y(...)");
-    AddLuaAPI("Input", functionName);
 
     //Time관련
     sol::table time = lua->create_named_table("Time");
     time["GetDeltaTime"] = GetDeltaTime;
     time["GetTotalTime"] = GetTotalTime;
     time["GetFPS"] = GetFPS;
-    functionName.clear();
-    functionName.push_back("function Time.GetDeltaTime(...)");
-    functionName.push_back("function Time.GetTotalTime(...)");
-    functionName.push_back("function Time.GetFPS(...)");
-    AddLuaAPI("Time", functionName);
 
 
     //Engine관련
     sol::table engine = lua->create_named_table("Engine");
-    engine["CreateGameObject"] = []() 
+    engine["CreateGameObject"] = sol::overload
+    (
+        [](std::string name = "GameObject")
+        {
+            PPointer<GameObject> p = Engine->CreateGameObject(name);
+            return p.GetPtr();
+        },
+        []()
         {
             PPointer<GameObject> p = Engine->CreateGameObject();
-            p.AddRef();
             return p.GetPtr();
-        };
-    engine["LoadTexture"] = [](std::string path) {return LoadTexture(path);};
-    functionName.clear();
-    functionName.push_back("function Engine.CreateGameObject(...)");
-    functionName.push_back("function Engine.LoadTexture(...)");
-    AddLuaAPI("Engine", functionName);
-
-
-    //생성
-    lua->new_usertype<BaseModule>("BaseModule");
-    lua->new_usertype<Module>("Module",
-        sol::base_classes, sol::bases<BaseModule>());
-    lua->new_usertype<LuaScript>("LuaScript",
-        sol::base_classes, sol::bases<Module, BaseModule>(),
-        "RegisterFile", &LuaScript::RegisterFile
+        }
     );
 
-    //게임 오브젝트 추가
+    engine["LoadTexture"] = [](std::string path) {return LoadTexture(path);};
+
+
+    ////게임 오브젝트 추가
     lua->new_usertype<GameObject>("GameObject",
         "AddModule", [](GameObject& obj, std::string name, sol::this_state s) ->sol::object
         {
             auto bind = Engine->GetFactory<BindManager>();
-            obj.AddModule(name);
-            return bind->GetLua(s, obj, name);
+            bind->AddModuleCall(name, &obj);
+            return bind->GetModuleCall_Lua(s, obj, name);
         },
         "GetModule", [](GameObject& obj, std::string name, sol::this_state s) -> sol::object
         {
             auto bind = Engine->GetFactory<BindManager>();
-            return bind->GetLua(s, obj,name);
+            return bind->GetModuleCall_Lua(s, obj,name);
         },
-        "Destroy", [](GameObject& obj)
-        {
-            obj.Destroy();
-        }
-    );
-    functionName.clear();
-    functionName.push_back("function GameObject.AddModule(...)");
-    functionName.push_back("function GameObject.GetModule(...)");
-    functionName.push_back("function GameObject.Destroy(...)");
-    AddLuaAPI("GameObject", functionName);
+        "Destroy", [](GameObject& obj) {obj.Destroy(); });
+
+    std::string main = "";
+    main += "---@class Time \n";
+    main += "Time = {} \n\n";
+    main += "---@return number \n";
+    main += "function Time.GetDeltaTime() end \n\n";
+    main += "---@return number \n";
+    main += "function Time.GetTotalTime() end \n\n";
+    main += "---@return number \n";
+    main += "function Time.GetFPS() end \n\n";
+
+    main += "---@class Input \n";
+    main += "Input = {} \n\n";
+    main += "---@param key number \n";
+    main += "---@return boolean \n";
+    main += "function Input.GetKey(key) end \n\n";
+    main += "---@param key number \n";
+    main += "---@return boolean \n";
+    main += "function Input.GetKeyDown(key) end \n\n";
+    main += "---@param key number \n";
+    main += "---@return boolean \n";
+    main += "function Input.GetKeyUp(key) end \n\n";
+    main += "---@return number \n";
+    main += "function Input.GetMousePosition_X() end \n\n";
+    main += "---@return number \n";
+    main += "function Input.GetMousePosition_Y() end \n\n";
+
+    main += "---@class Engine \n";
+    main += "Engine = {} \n\n";
+    main += "---@param name? string \n";
+    main += "---@return GameObject \n";
+    main += "function Engine.CreateGameObject(name) end \n\n";
+    main += "---@param texturePath string \n";
+    main += "---@return void \n";
+    main += "function Engine.LoadTexture(texturePath) end \n\n";
+
+    main += "---@class GameObject \n";
+    main += "GameObject = {} \n\n";
+    main += "---@generic T \n";
+    main += "---@param moduleName `T` \n";
+    main += "---@return T \n";
+    main += "function GameObject:GetModule(moduleName) end \n\n";
+    main += "---@generic T \n";
+    main += "---@param moduleName `T` \n";
+    main += "---@return T \n";
+    main += "function GameObject:AddModule(moduleName) end \n\n";
+    main += "---@return void \n";
+    main += "function GameObject:Destroy() end \n\n";
+    main += SettingKeyEnum();
+    BindManager::apiDefinitions += main;
 }
 
 
@@ -142,7 +159,7 @@ bool LuaManager::LoadLuaScript(const std::string& fileName)
 	return true;
 }
 
-sol::state* LuaManager::GetLua()
+sol::state* LuaManager::GetModuleCall_Lua()
 {
     if (lua != nullptr){return lua;}
     return nullptr;
@@ -164,7 +181,7 @@ void LuaManager::AddLuaAPI(std::string className, std::vector<std::string> funct
 bool LuaManager::CreateLuaAPIPath(const std::string& filePath)
 {
     apiExportPath = filePath;
-    GenerateSimpleStubs(lua);
+    //GenerateSimpleStubs(lua);
     return true;
 }
 
@@ -202,33 +219,57 @@ void LuaManager::LoadDefaultSettingFile()
         }
     }
 }
-void LuaManager::GenerateSimpleStubs(sol::state* lua)
+
+std::string LuaManager::SettingKeyEnum()
 {
-    std::filesystem::path p(apiExportPath);
-    if (p.has_parent_path()) {
-        std::filesystem::create_directories(p.parent_path());
-    }
+    std::string main = "";
+    main += "---@enum KeyCode\n"; // EmmyLua 자동완성을 위한 어노테이션
+    main += "KeyCode = {\n";
 
-    std::ofstream file(apiExportPath, std::ios::out | std::ios::trunc);
-    if (file.is_open()) {
-        file << "---@meta PixelEngine API\n\n";
-        file << apiDefinitions;
-        file << "\n";
-        file.close();
-    }
-    else {
-        // 경로가 잘못되었거나 파일이 사용 중일 때에 대한 예외 처리
-        std::cerr << "Failed to open file: " << apiExportPath << std::endl;
-    }
+    // 마우스 및 특수키
+    main += "    LButton = 0x01, RButton = 0x02, Cancel = 0x03, MButton = 0x04, \n";
+    main += "    Backspace = 0x08, Tab = 0x09, Clear = 0x0C, Enter = 0x0D, \n";
+    main += "    Shift = 0x10, Control = 0x11, Alt = 0x12, Pause = 0x13, CapsLock = 0x14, \n";
+    main += "    Escape = 0x1B, Space = 0x20, PageUp = 0x21, PageDown = 0x22, End = 0x23, Home = 0x24, \n";
+
+    // 방향키
+    main += "    Left = 0x25, Up = 0x26, Right = 0x27, Down = 0x28, \n";
+    main += "    Select = 0x29, Print = 0x2A, Execute = 0x2B, PrintScreen = 0x2C, Insert = 0x2D, Delete = 0x2E, \n";
+
+    // 숫자키 (0-9)
+    main += "    Alpha0 = 0x30, Alpha1 = 0x31, Alpha2 = 0x32, Alpha3 = 0x33, Alpha4 = 0x34, \n";
+    main += "    Alpha5 = 0x35, Alpha6 = 0x36, Alpha7 = 0x37, Alpha8 = 0x38, Alpha9 = 0x39, \n";
+
+    // 알파벳 (A-Z)
+    main += "    A = 0x41, B = 0x42, C = 0x43, D = 0x44, E = 0x45, F = 0x46, G = 0x47, H = 0x48, \n";
+    main += "    I = 0x49, J = 0x4A, K = 0x4B, L = 0x4C, M = 0x4D, N = 0x4E, O = 0x4F, P = 0x50, \n";
+    main += "    Q = 0x51, R = 0x52, S = 0x53, T = 0x54, U = 0x55, V = 0x56, W = 0x57, X = 0x58, \n";
+    main += "    Y = 0x59, Z = 0x5A, \n";
+
+    // 넘패드
+    main += "    Numpad0 = 0x60, Numpad1 = 0x61, Numpad2 = 0x62, Numpad3 = 0x63, Numpad4 = 0x64, \n";
+    main += "    Numpad5 = 0x65, Numpad6 = 0x66, Numpad7 = 0x67, Numpad8 = 0x68, Numpad9 = 0x69, \n";
+    main += "    Multiply = 0x6A, Add = 0x6B, Separator = 0x6C, Subtract = 0x6D, Decimal = 0x6E, Divide = 0x6F, \n";
+
+    // 기능키 (F1-F12)
+    main += "    F1 = 0x70, F2 = 0x71, F3 = 0x72, F4 = 0x73, F5 = 0x74, F6 = 0x75, \n";
+    main += "    F7 = 0x76, F8 = 0x77, F9 = 0x78, F10 = 0x79, F11 = 0x7A, F12 = 0x7B, \n";
+
+    main += "}\n\n";
+    lua->script(main);
+    return main;
 }
-
 
 void LuaManager::Update()
 {
-
+    if (input->GetKeyDown(VK_OEM_3))
+    {
+        obj->ReloadLuaScript();
+    }
 }
 
 void LuaManager::Release()
 {
+    lua->collect_garbage();
     delete lua;
 }

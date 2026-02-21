@@ -88,6 +88,11 @@ void GraphicsEngine::DeleteRenderingData(RenderingData* mData)
 	delete mData;
 }
 
+void GraphicsEngine::ChangeRenderingData(RenderingData* mData)
+{
+	mRender->ChangeRendering(mData);
+}
+
 ObjectID GraphicsEngine::Model_Debug(float* VertexList, int VertexSize, int* IndexList, int indexSize)
 {
 	auto f = GetFactory<DirectModel, ModelFactory>();

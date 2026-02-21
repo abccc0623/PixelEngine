@@ -64,6 +64,15 @@ void Rendering::Release()
 		}
 		K.second.clear();
 	}
+	for (auto K : bindingClassList)
+	{
+		if (K != nullptr)
+		{
+			delete K;
+			K = nullptr;
+		}
+	}
+	bindingClassList.clear();
 	renderingList.clear();
 }
 
@@ -164,6 +173,32 @@ void Rendering::DeleteRendering(RenderingData* data)
 	if (find != renderingList.end())
 	{
 		std::erase(renderingList[data->master_key], data);
+	}
+}
+
+void Rendering::ChangeRendering(RenderingData* data)
+{
+	auto find = renderingList.find(data->master_key);
+	if (data->master_key == maxHandle64)return;
+
+
+	if (find == renderingList.end())
+	{
+		SettingData(data);
+		renderingList.insert({ data->master_key,std::vector<RenderingData*>() });
+		renderingList[data->master_key].push_back(data);
+	}
+	else 
+	{
+		auto& list = renderingList[data->master_key];
+		std::erase(list, data);
+		SettingData(data);
+		auto find2 = renderingList.find(data->master_key);
+		if (find2 == renderingList.end())
+		{
+			renderingList.insert({ data->master_key,std::vector<RenderingData*>() });
+		}
+		renderingList[data->master_key].push_back(data);
 	}
 }
 

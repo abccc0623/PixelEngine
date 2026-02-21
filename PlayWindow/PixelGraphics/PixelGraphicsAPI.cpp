@@ -41,6 +41,11 @@ void DeleteRenderingData(RenderingData* mData)
 	mEngine->DeleteRenderingData(mData);
 }
 
+void ChangeRenderingData(RenderingData* mData)
+{
+	mEngine->ChangeRenderingData(mData);
+}
+
 ObjectID LoadGraphicsTexture(const char* filePath)
 {
 	return mEngine->LoadTexture(filePath);

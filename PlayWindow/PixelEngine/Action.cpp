@@ -20,10 +20,9 @@ Action::~Action()
 
 }
 
-void Action::Setting(GameObject* obj, Module* module,std::string targetKey, std::function<void(void)> function)
+void Action::Setting(GameObject* obj,std::string targetKey, std::function<void(void)> function)
 {
 	target = obj;
-	targetMoudle = module;
 	fun = function;
 	key = targetKey;
 }

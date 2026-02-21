@@ -14,9 +14,9 @@ public:
 	void LastUpdate() override;
 
 	void SetTexture(const std::string& name);
-	static void RegisterLua();
+	static std::string RegisterLua();
 private:
-	Transform* transform;
+	PPointer<Transform> transform;
 	RenderingData* rendering;
 	std::string textureName;
 	ObjectID textureID = -1;

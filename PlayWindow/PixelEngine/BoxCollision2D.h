@@ -19,6 +19,6 @@ public:
 private:
 	CollisionManager* collision;
 	RenderingData* rendering;
-	Transform* transform;
+	PPointer<Transform> transform;
 };
 

@@ -2,6 +2,8 @@
 #include "GameObject.h"
 #include <iostream>
 #include "Action.h"
+#include "PixelObject.h"
+#include "Module.h"
 
 FunctionManager::FunctionManager()
 {
@@ -28,6 +30,7 @@ void FunctionManager::Update()
 {
 	Action::StartReady();
 
+	//Awake에서 생성된 객체들은 그냥 다넣어줌
 	isAwakeCall = true;
 	while (awakeFunction.empty() == false)
 	{
@@ -38,34 +41,34 @@ void FunctionManager::Update()
 	};
 	isAwakeCall = false;
 
+	//Start에서 생성된 객체들은 다음 프레임에 호출되어야 하기때문에 대기 큐에 잠시 넣어주고 실행
+	while (nextStartFunction.empty() == false)
+	{
+		auto a = nextStartFunction.front();
+		startFunction.push(a);
+		nextStartFunction.pop();
+	}
 	while (startFunction.empty() == false)
 	{
 		auto a = startFunction.front();
-		a->Play();
-		startFunction.pop();
-		Action::Delete(a);
+		if (a->isReady == false)
+		{
+			nextStartFunction.push(a);
+			startFunction.pop();
+		}
+		else
+		{
+			a->Play();
+			startFunction.pop();
+			Action::Delete(a);
+		}
 	};
 
+	//업데이트 함수에는 함수를 가지고있다가 준비된 애들만 호출
 	for (const auto& pair : updateFunction)  pair.second->Play();
 	for (const auto& pair : matrixFunction)  pair.second->Play();
 	for (const auto& pair : physicsFunction) pair.second->Play();
 	for (const auto& pair : lastFunction)	 pair.second->Play();
-
-
-	while (RemoveList.empty() == false)
-	{
-		auto a = RemoveList.front();
-		auto list = a->GetModules();
-		for (auto K : list)
-		{
-			std::string key = std::to_string(a->GetHashCode()) + "_" + K->GetClassNameString();
-			RemoveFunction(updateFunction, key);
-			RemoveFunction(matrixFunction, key);
-			RemoveFunction(physicsFunction, key);
-			RemoveFunction(lastFunction, key);
-		}
-		RemoveList.pop();
-	};
 }
 
 void FunctionManager::Release()
@@ -87,11 +90,11 @@ void FunctionManager::Release()
 	Action::Release();
 }
 
-void FunctionManager::RegisterFunction(GameObject* obj, Module* module, int type)
+void FunctionManager::AddFunction(GameObject* obj, PPointer<Module> targetModule, int type)
 {
 	obj->GetHashCode();
-	module->GetClassNameString();
-	std::string key = std::to_string(obj->GetHashCode()) + "_" + module->GetClassNameString();
+	targetModule->GetClassNameString();
+	std::string key = std::to_string(obj->GetHashCode()) + "_" + targetModule->GetClassNameString();
 	auto a = Action::Create();
 	
 	//Awake에서 추가된 모듈들은 함수 호출이 가능하도록 
@@ -100,27 +103,27 @@ void FunctionManager::RegisterFunction(GameObject* obj, Module* module, int type
 	switch (type)
 	{
 	case AWAKE_FUNCTION :
-		a->Setting(obj, module, key, [module] {module->Awake(); });
+		a->Setting(obj, key, [targetModule] {targetModule->Awake(); });
 		awakeFunction.push(a);
 		break;
 	case START_FUNCTION:
-		a->Setting(obj, module, key, [module] {module->Start(); });
+		a->Setting(obj,key, [targetModule] {targetModule->Start(); });
 		startFunction.push(a);
 		break;
 	case UPDATE_FUNCTION:
-		a->Setting(obj, module, key, [module] {module->Update(); });
+		a->Setting(obj,key, [targetModule] {targetModule->Update(); });
 		updateFunction.insert({ key, a});
 		break;
 	case MATRIX_UPDATE_FUNCTION:
-		a->Setting(obj, module, key, [module] {module->MatrixUpdate(); });
+		a->Setting(obj,key, [targetModule] {targetModule->MatrixUpdate(); });
 		matrixFunction.insert({ key, a });
 		break;
 	case PHYSICS_UPDATE_FUNCTION:
-		a->Setting(obj, module, key, [module] {module->PhysicsUpdate(); });
+		a->Setting(obj,key, [targetModule] {targetModule->PhysicsUpdate(); });
 		physicsFunction.insert({ key, a });
 		break;
 	case LAST_UPDATE_FUNCTION:
-		a->Setting(obj, module, key, [module] {module->LastUpdate(); });
+		a->Setting(obj,key, [targetModule] {targetModule->LastUpdate(); });
 		lastFunction.insert({ key, a });
 		break;
 	}
@@ -128,7 +131,16 @@ void FunctionManager::RegisterFunction(GameObject* obj, Module* module, int type
 
 void FunctionManager::RemoveFunction(GameObject* obj)
 {
-	RemoveList.push(obj);
+	auto list = obj->GetModules();
+	for (auto K : list)
+	{
+		std::string key = std::to_string(obj->GetHashCode()) + "_" + K->GetClassNameString();
+		RemoveFunction(updateFunction, key);
+		RemoveFunction(matrixFunction, key);
+		RemoveFunction(physicsFunction, key);
+		RemoveFunction(lastFunction, key);
+	}
+	//RemoveList.pop();
 }
 
 void FunctionManager::RemoveFunction(std::unordered_map<std::string, Action*>& remove, std::string key)

@@ -23,6 +23,7 @@ public:
 	void SettingData(RenderingData* data);
 	void SetRendering(RenderingData* data);
 	void DeleteRendering(RenderingData* data);
+	void ChangeRendering(RenderingData* data);
 private:
 	void ChangePushBack(RenderingData* data);
 	const Handle64 maxHandle64 = ~0ULL;

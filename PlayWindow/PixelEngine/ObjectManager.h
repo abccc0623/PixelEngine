@@ -14,8 +14,10 @@ public:
 	void Update() override;
 	void Release() override;
 
-	PPointer<GameObject> Get();
+	PPointer<GameObject> Get(std::string name);
 	void Set(PPointer<GameObject> target);
+
+	void ReloadLuaScript();
 private:
 	std::vector<PPointer<GameObject>> Object_Run;
 	std::queue<PPointer<GameObject>> Object_Idle;

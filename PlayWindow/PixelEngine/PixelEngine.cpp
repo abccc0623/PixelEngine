@@ -83,10 +83,10 @@ void PixelEngine::QuitWindow()
 }
 
 
-PPointer<GameObject> PixelEngine::CreateGameObject()
+PPointer<GameObject> PixelEngine::CreateGameObject(std::string name)
 {
 	auto factory = GetFactory<ObjectManager>();
-	return factory->Get();
+	return factory->Get(name);
 }
 
 Scene* PixelEngine::CreateScene(std::string name)
@@ -102,16 +102,16 @@ ObjectID PixelEngine::GetResourceID(RESOURCE_TYPE type, const std::string& path)
 	return resource->Get(type, path);
 }
 
-sol::state* PixelEngine::GetLua()
+sol::state* PixelEngine::GetModuleCall_Lua()
 {
 	auto lua = GetFactory<LuaManager>();
-	return lua->GetLua();
+	return lua->GetModuleCall_Lua();
 }
 
-void PixelEngine::RegisterFunction(GameObject* obj, Module* module, int type)
+void PixelEngine::AddFunction(GameObject* obj, Module* module, int type)
 {
 	auto func = GetFactory<FunctionManager>();
-	func->RegisterFunction(obj, module, type);
+	func->AddFunction(obj, module, type);
 }
 
 

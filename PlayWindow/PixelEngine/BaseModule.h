@@ -6,8 +6,8 @@ public:
 	virtual ~BaseModule();
 
 
-	size_t GetHashCode();
+	//size_t GetHashCode();
 private:
-	size_t hasCode;
+	//size_t hasCode;
 };
 
