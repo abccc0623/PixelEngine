@@ -32,10 +32,7 @@ public:
 	PPointer<T> AddModule()
 	{
 		//이미 있다면 
-		if (HasModule<T>())
-		{
-			return GetModule<T>();
-		}
+		if (HasModule<T>()){return GetModule<T>();}
 
 		PPointer<T> target = MakePixel<T>();
 		constexpr bool check[6] =
@@ -67,9 +64,7 @@ public:
 		auto findTarget = ModuleMap.find(nameKey);
 		
 		if (findTarget == ModuleMap.end()) return nullptr;
-		
-		T* newModule = static_cast<T*>(findTarget->second.GetPtr());
-		return PPointer<T>(newModule);
+		return PPointer<T>(findTarget->second);
 	}
 
 	template <std::derived_from<Module> T>
@@ -84,6 +79,7 @@ public:
 	std::vector<PPointer<Module>> GetModules();
 	void Destroy();
 	void ClearModules();
+	void OnCollision2D(WPointer<GameObject> target);
 private:
 	size_t hashCode;
 	void AddFunction(PPointer<Module> target, int Type);

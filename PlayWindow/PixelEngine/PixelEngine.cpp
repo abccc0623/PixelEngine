@@ -111,7 +111,7 @@ sol::state* PixelEngine::GetModuleCall_Lua()
 void PixelEngine::AddFunction(GameObject* obj, Module* module, int type)
 {
 	auto func = GetFactory<FunctionManager>();
-	func->AddFunction(obj, module, type);
+	func->AddFunction(obj,MakePixel<Module>(module), type);
 }
 
 

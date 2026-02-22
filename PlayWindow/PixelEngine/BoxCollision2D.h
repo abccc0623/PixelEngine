@@ -1,9 +1,11 @@
 #pragma once
-#include "Module.h"
+#include "Collision2D.h"
+#include "Rect.h"
+class GameObject;
 class CollisionManager;
 class Transform;
 struct RenderingData;
-class BoxCollision2D : public Module
+class BoxCollision2D : public Collision2D
 {
 public:
 	BoxCollision2D();
@@ -14,11 +16,20 @@ public:
 	void PhysicsUpdate() override;
 	void LastUpdate() override;
 
+	void OnCollisionEnter2D(WPointer<GameObject> target) override;
+	void OnCollision2D(WPointer<GameObject> target) override;
+	void OnCollisionExit2D(WPointer<GameObject> target) override;
+	
+
 	void SetRect(float offsetX, float offsetY, float sizeX, float sizeY);
-	static void RegisterLua();
+	Rect GetRect();
+	static std::string RegisterLua();
 private:
 	CollisionManager* collision;
 	RenderingData* rendering;
-	PPointer<Transform> transform;
+	Transform* transform;
+	
+	Rect rect;
+	Rect originalRect;
 };
 

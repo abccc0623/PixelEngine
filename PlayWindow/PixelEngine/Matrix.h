@@ -29,6 +29,8 @@ public:
 	inline Matrix operator+= (const Matrix& M);
 	inline Matrix operator-= (const Matrix& M);
 
+
+
 	//위치 행렬
 	Matrix CreateTranslation(const Vector3& Position);
 	//크기 행렬

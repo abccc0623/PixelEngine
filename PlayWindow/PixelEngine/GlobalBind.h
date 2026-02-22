@@ -7,6 +7,8 @@ class GameObject;
 class Camera;
 class Renderer2D;
 class LuaScript;
+class BoxCollision2D;
+class Collision2D;
 
 #define BIND_TYPE_NAME(Type,Name) \
 template <> struct TypeName<Type> { static std::string Get() { return Name; } }; 
@@ -30,3 +32,5 @@ BIND_TYPE_NAME(GameObject, "GameObject")
 BIND_TYPE_NAME(Camera, "Camera")
 BIND_TYPE_NAME(Renderer2D, "Renderer2D")
 BIND_TYPE_NAME(LuaScript, "LuaScript")
+BIND_TYPE_NAME(BoxCollision2D, "BoxCollision2D")
+BIND_TYPE_NAME(Collision2D, "Collision2D")

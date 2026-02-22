@@ -69,6 +69,32 @@ void LuaScript::Update()
     }
 }
 
+//void LuaScript::OnCollisionEnter2D(WPointer<GameObject> target)
+//{
+//
+//}
+
+void LuaScript::OnCollision2D(WPointer<GameObject> target)
+{
+    if (OnCollision2DFunc.valid())
+    {
+        auto result = OnCollision2DFunc(selfTable, target);
+        if (!result.valid())
+        {
+            sol::error err = result;
+            std::string what = err.what();
+            std::cout << "--- LUA ONCOLLISION ERROR ---" << std::endl;
+            std::cout << what << std::endl;
+            std::cout << "-----------------------" << std::endl;
+        }
+    }
+}
+
+//void LuaScript::OnCollisionExit2D(WPointer<GameObject> target)
+//{
+//
+//}
+
 void LuaScript::Reload()
 {
     if (!path.empty())
@@ -95,6 +121,10 @@ void LuaScript::RegisterFile(std::string fileName)
         luaAwake = selfTable["Awake"];
         luaStart = selfTable["Start"];
         luaUpdate = selfTable["Update"];
+
+        OnCollision2DFunc = selfTable["OnCollision2D"];
+        OnCollision2DEnterFunc = selfTable["OnCollision2DEnter"];
+        OnCollision2DExitFunc = selfTable["OnCollision2DExit"];
     }
     else 
     {

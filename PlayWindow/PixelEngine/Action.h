@@ -5,7 +5,7 @@
 #include <queue>
 class GameObject;
 class Module;
-class Action : public PixelObject
+class Action
 {
 public:
 	Action();

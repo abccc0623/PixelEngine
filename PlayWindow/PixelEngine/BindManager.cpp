@@ -62,6 +62,7 @@ void BindManager::Initialize()
 	BIND_MODULE(Camera);
 	BIND_MODULE(Renderer2D);
 	BIND_MODULE(DebugCamera);
+	BIND_MODULE(Collision2D);
 	BIND_MODULE(BoxCollision2D);
 	CreateLuaAPI_File();
 }

@@ -7,19 +7,10 @@ PixelObject::PixelObject()
 
 PixelObject::~PixelObject()
 {
-
-}
-
-void PixelObject::AddRef()
-{
-	mRefCount++;
-}
-
-void PixelObject::Release()
-{
-	mRefCount--;
-	if (mRefCount <= 0)
+	if (cBlock != nullptr)
 	{
-		delete this;
+		cBlock->target = nullptr;
 	}
 }
+
+

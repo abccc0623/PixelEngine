@@ -54,12 +54,22 @@ std::vector<PPointer<Module>> GameObject::GetModules()
 
 void GameObject::Destroy()
 {
-	objectManager->Set(this);
+	objectManager->Set(MakePixel<GameObject>(this));
+	functionManager->RemoveFunction(this);
 }
 
 void GameObject::ClearModules()
 {
 	ModuleMap.clear();
+}
+
+void GameObject::OnCollision2D(WPointer<GameObject> target)
+{
+	for (auto& K : ModuleMap)
+	{
+		if (K.second->isCollisionModule == true)continue;
+		K.second->OnCollision2D(target);
+	}
 }
 
 void GameObject::AddFunction(PPointer<Module> target, int Type)

@@ -2,7 +2,6 @@
 #include "PixelEngine.h"
 #include "PixelEngineAPI.h"
 #include "GameObject.h"
-#include "BaseModule.h"
 #include "Module.h"
 #include "resource.h"
 #include "sol.hpp"
@@ -73,7 +72,14 @@ void LuaManager::Initialize()
         }
     );
 
+
     engine["LoadTexture"] = [](std::string path) {return LoadTexture(path);};
+    engine["Find"] = [](std::string name)-> GameObject*
+        {
+            auto objManager = Engine->GetFactory<ObjectManager>();
+            auto find = objManager->Find(name);
+            return (find != nullptr) ? find.GetPtr() : nullptr;
+        };
 
 
     ////게임 오브젝트 추가
@@ -87,7 +93,7 @@ void LuaManager::Initialize()
         "GetModule", [](GameObject& obj, std::string name, sol::this_state s) -> sol::object
         {
             auto bind = Engine->GetFactory<BindManager>();
-            return bind->GetModuleCall_Lua(s, obj,name);
+            return bind->GetModuleCall_Lua(s, obj, name);
         },
         "Destroy", [](GameObject& obj) {obj.Destroy(); });
 
@@ -125,6 +131,10 @@ void LuaManager::Initialize()
     main += "---@param texturePath string \n";
     main += "---@return void \n";
     main += "function Engine.LoadTexture(texturePath) end \n\n";
+    main += "---@param FindName string \n";
+    main += "---@return GameObject \n";
+    main += "function Engine.Find(FindName) end \n\n";
+
 
     main += "---@class GameObject \n";
     main += "GameObject = {} \n\n";

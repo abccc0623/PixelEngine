@@ -34,7 +34,7 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 int main() 
 {
-    //_CrtSetBreakAlloc(548);
+    //_CrtSetBreakAlloc(3046);
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     // 2. 윈도우 클래스 등록 및 창 생성
     HINSTANCE hInst = GetModuleHandle(NULL);

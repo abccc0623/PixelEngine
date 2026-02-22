@@ -3,8 +3,11 @@
 #include <iostream>
 #include "Action.h"
 #include "PixelObject.h"
+#include "PixelEngine.h"
 #include "Module.h"
-
+#include "CollisionManager.h"
+#include "ObjectManager.h"
+extern PixelEngine* Engine;
 FunctionManager::FunctionManager()
 {
 	awakeFunction   = std::queue<Action*>();
@@ -23,11 +26,13 @@ FunctionManager::~FunctionManager()
 
 void FunctionManager::Initialize()
 {
-
+	collisionManager = Engine->GetFactory<CollisionManager>();
+	objectManager = Engine->GetFactory<ObjectManager>();
 }
 
 void FunctionManager::Update()
 {
+	objectManager->DeleteCheck();
 	Action::StartReady();
 
 	//Awake에서 생성된 객체들은 그냥 다넣어줌
@@ -68,6 +73,11 @@ void FunctionManager::Update()
 	for (const auto& pair : updateFunction)  pair.second->Play();
 	for (const auto& pair : matrixFunction)  pair.second->Play();
 	for (const auto& pair : physicsFunction) pair.second->Play();
+
+	//충돌 매니저 업데이트
+	collisionManager->CollisionUpdate();
+
+	//마지막 렌더링 넘기기 전 정리 업데이트
 	for (const auto& pair : lastFunction)	 pair.second->Play();
 }
 

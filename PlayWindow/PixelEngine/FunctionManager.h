@@ -9,6 +9,8 @@
 class Action;
 class GameObject;
 class Module;
+class CollisionManager;
+class ObjectManager;
 
 class FunctionManager : public EngineManager
 {
@@ -32,7 +34,8 @@ private:
 	bool isAwakeCall = false;
 	void RemoveFunction(std::unordered_map<std::string, Action*>& remove, std::string key);
 	std::queue<GameObject*> RemoveList;
-
 	std::queue<Action*> nextStartFunction;
+	CollisionManager* collisionManager;
+	ObjectManager* objectManager;
 };
 

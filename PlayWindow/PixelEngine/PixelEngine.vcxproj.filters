@@ -138,9 +138,6 @@
     <ClInclude Include="Matrix.h">
       <Filter>EngineAPI\Types\Matrix</Filter>
     </ClInclude>
-    <ClInclude Include="BaseModule.h">
-      <Filter>EngineAPI\Module\Module</Filter>
-    </ClInclude>
     <ClInclude Include="Module.h">
       <Filter>EngineAPI\Module\Module</Filter>
     </ClInclude>
@@ -201,6 +198,18 @@
     <ClInclude Include="GlobalBind.h">
       <Filter>EngineAPI\Manager\BindManager</Filter>
     </ClInclude>
+    <ClInclude Include="PtrControlBlock.h">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="PPointer.h">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="WPointer.h">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision2D.h">
+      <Filter>EngineAPI\Module\Collision2D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -238,9 +247,6 @@
     </ClCompile>
     <ClCompile Include="Matrix.cpp">
       <Filter>EngineAPI\Types\Matrix</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseModule.cpp">
-      <Filter>EngineAPI\Module\Module</Filter>
     </ClCompile>
     <ClCompile Include="Module.cpp">
       <Filter>EngineAPI\Module\Module</Filter>
@@ -291,6 +297,12 @@
       <Filter>EngineAPI\Manager\CollisionManager</Filter>
     </ClCompile>
     <ClCompile Include="BoxCollision2D.cpp">
+      <Filter>EngineAPI\Module\Collision2D</Filter>
+    </ClCompile>
+    <ClCompile Include="PtrControlBlock.cpp">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision2D.cpp">
       <Filter>EngineAPI\Module\Collision2D</Filter>
     </ClCompile>
   </ItemGroup>

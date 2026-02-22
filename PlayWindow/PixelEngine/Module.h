@@ -1,6 +1,5 @@
 #pragma once
 #include "PixelObject.h"
-#include "BaseModule.h"
 #include <string>
 #include <sol/forward.hpp>
 #include <vector>
@@ -18,11 +17,14 @@ public:
 	virtual void MatrixUpdate();
 	virtual void PhysicsUpdate();
 	virtual void LastUpdate();
-
-	std::string GetClassNameString();
+	virtual void OnCollisionEnter2D(WPointer<GameObject> target);
+	virtual void OnCollision2D(WPointer<GameObject> target);
+	virtual void OnCollisionExit2D(WPointer<GameObject> target);
 	
-protected:
+	std::string GetClassNameString();
 	GameObject* targetObject;
+	bool isCollisionModule = false;
+protected:
 	std::string className;
 	friend GameObject;
 	static sol::state* GetLuaState();
