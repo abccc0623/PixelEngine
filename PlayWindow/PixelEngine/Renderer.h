@@ -15,7 +15,7 @@ public:
 	void LastUpdate() override;
 private:
 	RenderingData* rendering;
-	PPointer<Transform> transform;
+	SPointer<Transform> transform;
 	ObjectID index;
 };
 

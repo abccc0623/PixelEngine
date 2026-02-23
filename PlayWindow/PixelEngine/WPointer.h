@@ -9,7 +9,7 @@ public:
     {
         cBlock = nullptr;
     }
-    WPointer(const PPointer<T>& other)
+    WPointer(const SPointer<T>& other)
     {
         cBlock = other.cBlock;
         if (cBlock)
@@ -26,7 +26,7 @@ public:
         }
     }
 
-    WPointer(PPointer<T>&& other)
+    WPointer(SPointer<T>&& other)
     {
         cBlock = other.cBlock;
         if (cBlock)
@@ -60,10 +60,13 @@ public:
         if (cBlock->strongCount <= 0) return false;
         return true;
     }
-    PPointer<T> Lock() const
+
+    SPointer<T> Lock() const
     {
-        return MakePixel<T>(static_cast<T*>(cBlock->target));
+        if (!IsValid()) return nullptr; // 안전장치 추가
+        return SPointer<T>(static_cast<T*>(cBlock->target));
     }
+    
 
     ~WPointer()
     {
@@ -74,3 +77,4 @@ public:
     }
     PtrControlBlock* cBlock = nullptr;
 };
+

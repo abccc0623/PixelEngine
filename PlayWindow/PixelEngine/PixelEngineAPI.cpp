@@ -39,7 +39,7 @@ void ReleaseEngine()
 {
 	if (Engine != nullptr) 
 	{
-		Engine->Release();
+		Engine->ReleaseShared();
 	}
 	delete Engine;
 }

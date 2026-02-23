@@ -72,7 +72,7 @@ void BindManager::Update()
 
 }
 
-void BindManager::Release()
+void BindManager::ReleaseShared()
 {
 
 }

@@ -15,7 +15,7 @@ public:
 
     void Update() override;
     void Initialize() override;
-    void Release() override;
+    void ReleaseShared() override;
 private:
     using Clock = ::std::chrono::high_resolution_clock;
     using TimePoint = ::std::chrono::time_point<Clock>;

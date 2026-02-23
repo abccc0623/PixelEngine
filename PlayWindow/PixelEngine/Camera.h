@@ -15,7 +15,7 @@ public:
 
 	static std::string RegisterLua();
 private:
-	PPointer<Transform> transform;
+	SPointer<Transform> transform;
 	RenderingData* rendering;
 };
 

@@ -15,7 +15,7 @@ public:
 	// EngineManager을(를) 통해 상속됨
 	void Initialize() override;
 	void Update() override;
-	void Release() override;
+	void ReleaseShared() override;
 	bool LoadLuaScript(const std::string& fileName);
 	bool CreateLuaAPIPath(const std::string& filePath);
 	sol::state* GetModuleCall_Lua();

@@ -12,7 +12,7 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void Release() override;
+	void ReleaseShared() override;
 public:
 	void Load(const std::string& path);
 	ObjectID Get(const std::string& name);

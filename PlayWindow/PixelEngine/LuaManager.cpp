@@ -62,12 +62,12 @@ void LuaManager::Initialize()
     (
         [](std::string name = "GameObject")
         {
-            PPointer<GameObject> p = Engine->CreateGameObject(name);
+            SPointer<GameObject> p = Engine->CreateGameObject(name);
             return p.GetPtr();
         },
         []()
         {
-            PPointer<GameObject> p = Engine->CreateGameObject();
+            SPointer<GameObject> p = Engine->CreateGameObject();
             return p.GetPtr();
         }
     );
@@ -278,7 +278,7 @@ void LuaManager::Update()
     }
 }
 
-void LuaManager::Release()
+void LuaManager::ReleaseShared()
 {
     lua->collect_garbage();
     delete lua;

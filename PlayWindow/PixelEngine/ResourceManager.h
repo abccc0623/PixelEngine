@@ -15,7 +15,7 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void Release() override;
+	void ReleaseShared() override;
 
 	void Load(RESOURCE_TYPE type,const std::string& filePath);
 	ObjectID Get(RESOURCE_TYPE type, const std::string& name);

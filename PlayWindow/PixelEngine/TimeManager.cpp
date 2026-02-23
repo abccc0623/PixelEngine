@@ -43,7 +43,7 @@ void TimeManager::Update()
 }
 
 
-void TimeManager::Release()
+void TimeManager::ReleaseShared()
 {
 
 }

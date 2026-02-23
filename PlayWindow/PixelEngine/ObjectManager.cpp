@@ -6,10 +6,16 @@
 #include <algorithm>
 #include "LuaScript.h"
 
+
+#include "PixelEngine.h"
+#include "FunctionManager.h"
+#include "SceneManager.h"
+
+extern PixelEngine* Engine;
 ObjectManager::ObjectManager()
 {
-	Object_Run = std::vector<PPointer<GameObject>>();
-	Object_Idle = std::queue<PPointer<GameObject>>();
+	Object_Run = std::vector<SPointer<GameObject>>();
+	Object_Idle = std::queue<SPointer<GameObject>>();
 }
 
 ObjectManager::~ObjectManager()
@@ -19,41 +25,42 @@ ObjectManager::~ObjectManager()
 
 void ObjectManager::Initialize()
 {
-	
+	functionManager = Engine->GetFactory<FunctionManager>();
+	sceneManager	= Engine->GetFactory<SceneManager>();
 }
 
 void ObjectManager::Update()
 {
-	
+	functionManager->FunctionUpdate();
 }
 
-void ObjectManager::Release()
+void ObjectManager::ReleaseShared()
 {
-	while (Object_Delete.empty() == false) 
-	{
-		Object_Delete.pop();
-	}
-	while (Object_Idle.empty() == false)
-	{
-		Object_Idle.pop();
-	}
+	//while (Object_Delete.empty() == false) 
+	//{
+	//	Object_Delete.pop();
+	//}
+	//while (Object_Idle.empty() == false)
+	//{
+	//	Object_Idle.pop();
+	//}
 }
 
-PPointer<GameObject> ObjectManager::Get(std::string name)
+SPointer<GameObject> ObjectManager::Get(std::string name)
 {
 	if (Object_Idle.empty())
 	{
-		Object_Idle.push(MakePixel<GameObject>());
+		Object_Idle.push(SPointer<GameObject>::Make_SPointer());
 	}
-	PPointer<GameObject> PixelObject = Object_Idle.front();
+	SPointer<GameObject> PixelObject = Object_Idle.front();
 	Object_Idle.pop();
 	Object_Run.push_back(PixelObject);
-	PixelObject->AddModule<Transform>();
+	//PixelObject->AddModule<Transform>();
 	PixelObject->name = name;
 	return PixelObject;
 }
 
-void ObjectManager::Set(PPointer<GameObject> target)
+void ObjectManager::Set(SPointer<GameObject> target)
 {
 	auto it = std::find(Object_Run.begin(), Object_Run.end(), target);
 	if (it != Object_Run.end())
@@ -75,9 +82,9 @@ void ObjectManager::ReloadLuaScript()
 	}
 }
 
-PPointer<GameObject> ObjectManager::Find(std::string name)
+SPointer<GameObject> ObjectManager::Find(std::string name)
 {
-	auto it = std::find_if(Object_Run.begin(), Object_Run.end(), [&](const PPointer<GameObject>& target)
+	auto it = std::find_if(Object_Run.begin(), Object_Run.end(), [&](const SPointer<GameObject>& target)
 		{
 			return target->name == name;
 		});
@@ -99,5 +106,16 @@ void ObjectManager::DeleteCheck()
 	{
 		Object_Delete.pop();
 	}
+}
+
+SPointer<GameObject>& ObjectManager::Create(std::string name)
+{
+	//새로운 게임 오브젝트 생성
+	SPointer<GameObject> p = SPointer<GameObject>::Make_SPointer();
+	//기본 모듈인 Transform 추가
+	functionManager->Register<Transform>(p.GetPtr());
+	//씬 매니저에 등록
+	sceneManager->Register(p);
+	return p;
 }
 

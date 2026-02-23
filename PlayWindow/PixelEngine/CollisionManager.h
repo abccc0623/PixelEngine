@@ -1,6 +1,6 @@
 #pragma once
 #include "EngineManager.h"
-#include "PPointer.h"
+#include "SPointer.h"
 #include "WPointer.h"
 #include <vector>
 class BoxCollision2D;
@@ -12,11 +12,11 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void Release() override;
+	void ReleaseShared() override;
 
 	void CollisionUpdate();
 
-	void Push(PPointer<BoxCollision2D> target);
+	void Push(SPointer<BoxCollision2D> target);
 private:
 	std::vector<WPointer<BoxCollision2D>> CollisionList;
 

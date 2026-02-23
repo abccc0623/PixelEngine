@@ -3,6 +3,9 @@
 #include "EngineManager.h"
 #include <vector>
 #include <queue>
+class FunctionManager;
+class SceneManager;
+
 class GameObject;
 class ObjectManager : public EngineManager
 {
@@ -12,18 +15,23 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void Release() override;
+	void ReleaseShared() override;
 
-	PPointer<GameObject> Get(std::string name);
-	void Set(PPointer<GameObject> target);
+	SPointer<GameObject> Get(std::string name);
+	void Set(SPointer<GameObject> target);
 	void ReloadLuaScript();
-	PPointer<GameObject> Find(std::string name);
-
+	SPointer<GameObject> Find(std::string name);
 	void DeleteCheck();
+
+
+	SPointer<GameObject>& Create(std::string name = "GameObject");
 private:
-	std::vector<PPointer<GameObject>> Object_Run;
-	std::queue<PPointer<GameObject>> Object_Idle;
-	std::queue<PPointer<GameObject>> Object_Delete;
+	std::vector<SPointer<GameObject>> Object_Run;
+	std::queue<SPointer<GameObject>> Object_Idle;
+	std::queue<SPointer<GameObject>> Object_Delete;
 	size_t hashCode;
+
+	FunctionManager* functionManager = nullptr;
+	SceneManager* sceneManager = nullptr;
 };
 

@@ -97,6 +97,9 @@
     <Filter Include="EngineAPI\Manager\ObjectManager">
       <UniqueIdentifier>{c250685d-9e98-4160-94a0-d6dcfa200ff4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\SmartPointer">
+      <UniqueIdentifier>{2c28ed61-3fef-4644-a1f0-5afc614173e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -198,17 +201,20 @@
     <ClInclude Include="GlobalBind.h">
       <Filter>EngineAPI\Manager\BindManager</Filter>
     </ClInclude>
-    <ClInclude Include="PtrControlBlock.h">
-      <Filter>EngineAPI\GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="PPointer.h">
-      <Filter>EngineAPI\GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="WPointer.h">
-      <Filter>EngineAPI\GameObject</Filter>
-    </ClInclude>
     <ClInclude Include="Collision2D.h">
       <Filter>EngineAPI\Module\Collision2D</Filter>
+    </ClInclude>
+    <ClInclude Include="WPointer.h">
+      <Filter>EngineAPI\SmartPointer</Filter>
+    </ClInclude>
+    <ClInclude Include="PtrControlBlock.h">
+      <Filter>EngineAPI\SmartPointer</Filter>
+    </ClInclude>
+    <ClInclude Include="SPointer.h">
+      <Filter>EngineAPI\SmartPointer</Filter>
+    </ClInclude>
+    <ClInclude Include="UPointer.h">
+      <Filter>EngineAPI\SmartPointer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -299,11 +305,11 @@
     <ClCompile Include="BoxCollision2D.cpp">
       <Filter>EngineAPI\Module\Collision2D</Filter>
     </ClCompile>
-    <ClCompile Include="PtrControlBlock.cpp">
-      <Filter>EngineAPI\GameObject</Filter>
-    </ClCompile>
     <ClCompile Include="Collision2D.cpp">
       <Filter>EngineAPI\Module\Collision2D</Filter>
+    </ClCompile>
+    <ClCompile Include="PtrControlBlock.cpp">
+      <Filter>EngineAPI\SmartPointer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

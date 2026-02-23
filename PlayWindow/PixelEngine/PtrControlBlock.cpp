@@ -13,12 +13,12 @@ void PtrControlBlock::AddRefWeak()
 {
 	weakCount++;
 }
-void PtrControlBlock::AddRef()
+void PtrControlBlock::AddRefShared()
 {
 	strongCount++;
 }
 
-void PtrControlBlock::Release()
+void PtrControlBlock::ReleaseShared()
 {
 	strongCount--;
 	if (strongCount <= 0 && target != nullptr)

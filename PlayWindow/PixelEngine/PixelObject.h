@@ -1,10 +1,11 @@
 #pragma once
 #include"PtrControlBlock.h"
-#include "PPointer.h"
+#include "SPointer.h"
 #include "WPointer.h"
+#include "UPointer.h"
 #include <iostream>
 #include <type_traits>
-template <typename T> class PPointer;
+template <typename T> class SPointer;
 class PixelObject
 {
 public:
@@ -14,10 +15,10 @@ private:
 	PtrControlBlock* cBlock = nullptr;
 		
 	template <typename T>
-	friend class PPointer;
+	friend class SPointer;
 	template <typename U>
-	friend PPointer<U> MakePixel();
+	friend SPointer<U> MakePixel();
 	template <typename U>
-	friend PPointer<U> MakePixel(U* target);
+	friend SPointer<U> MakePixel(U* target);
 };
 

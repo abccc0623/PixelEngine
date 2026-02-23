@@ -13,7 +13,7 @@ public:
 	void Update() override;
 	void LastUpdate() override;
 private:
-	PPointer<Transform> transform;
+	SPointer<Transform> transform;
 	RenderingData* rendering;
 	float moveSpeed;
 	float RotationSpeed;

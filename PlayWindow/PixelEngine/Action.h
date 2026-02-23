@@ -18,7 +18,7 @@ public:
 	static Action* Create();
 	static void Delete(Action* action);
 	static void StartReady();
-	static void Release();
+	static void ReleaseShared();
 	bool isReady = false;
 private:
 	std::function<void(void)> fun;

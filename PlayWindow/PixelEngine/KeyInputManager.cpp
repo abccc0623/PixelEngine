@@ -34,7 +34,7 @@ void KeyInputManager::Update()
 	}
 }
 
-void KeyInputManager::Release()
+void KeyInputManager::ReleaseShared()
 {
 	for (int i = 0; i < arraySize; i++)
 	{

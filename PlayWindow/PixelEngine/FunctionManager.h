@@ -1,17 +1,26 @@
 #pragma once
 #include "EngineManager.h"
-#include"GameObject.h"
-#include <unordered_set>
-#include <string>
+#include <map>
 #include <functional>
 #include <queue>
+#include <typeinfo>
+#include <concepts>
+#include <type_traits>
+#include "Module.h"
+#include <vector>
 
-class Action;
+
+#define AWAKE_FUNCTION 0
+#define START_FUNCTION 1
+#define UPDATE_FUNCTION 2
+#define MATRIX_UPDATE_FUNCTION 3
+#define PHYSICS_UPDATE_FUNCTION 4
+#define LAST_UPDATE_FUNCTION 5
+
 class GameObject;
 class Module;
 class CollisionManager;
 class ObjectManager;
-
 class FunctionManager : public EngineManager
 {
 public:
@@ -20,22 +29,20 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void Release() override;
+	void ReleaseShared() override;
 
-	void AddFunction(GameObject* obj, PPointer<Module> module,int type);
-	void RemoveFunction(GameObject* obj);
+	template <std::derived_from<Module> T>
+	void Register(GameObject* target);
+	
+	void FunctionUpdate();
 private:
-	std::queue<Action*> awakeFunction;
-	std::queue<Action*> startFunction;
-	std::unordered_map<std::string, Action*> updateFunction;
-	std::unordered_map<std::string, Action*> matrixFunction;
-	std::unordered_map<std::string, Action*> physicsFunction;
-	std::unordered_map<std::string, Action*> lastFunction;
-	bool isAwakeCall = false;
-	void RemoveFunction(std::unordered_map<std::string, Action*>& remove, std::string key);
-	std::queue<GameObject*> RemoveList;
-	std::queue<Action*> nextStartFunction;
-	CollisionManager* collisionManager;
-	ObjectManager* objectManager;
-};
+	void AddOneTimeFunction(SPointer<Module> module,int type);
+	void AddTickFunction(SPointer<Module> module,int type);
 
+	std::map<int,std::queue <std::function<bool()>>> oneTime;
+	std::map<int,std::vector <std::function<bool()>>> tickUpdate;
+
+	bool isAwakeRun = false;
+	bool isStartRun = false;
+	bool isUpdateRun = false;
+};

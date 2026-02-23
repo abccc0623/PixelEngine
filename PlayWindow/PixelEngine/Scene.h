@@ -10,7 +10,7 @@ public:
 	void Initialize();
 	void Start();
 	void Update();
-	void Release();
+	void ReleaseShared();
 private:
 	FunctionManager* manager;
 

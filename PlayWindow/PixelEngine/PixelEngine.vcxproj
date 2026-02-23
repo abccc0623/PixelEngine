@@ -174,7 +174,7 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelEngine.h" />
     <ClInclude Include="Matrix.h" />
-    <ClInclude Include="PPointer.h" />
+    <ClInclude Include="SPointer.h" />
     <ClInclude Include="PtrControlBlock.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Renderer.h" />
@@ -184,6 +184,7 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="UPointer.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Transform.h" />

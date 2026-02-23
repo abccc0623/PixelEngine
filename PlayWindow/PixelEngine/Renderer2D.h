@@ -16,7 +16,7 @@ public:
 	void SetTexture(const std::string& name);
 	static std::string RegisterLua();
 private:
-	PPointer<Transform> transform;
+	SPointer<Transform> transform;
 	RenderingData* rendering;
 	std::string textureName;
 	ObjectID textureID = -1;

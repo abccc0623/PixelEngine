@@ -85,7 +85,7 @@ void Action::StartReady()
 	}
 }
 
-void Action::Release()
+void Action::ReleaseShared()
 {
 	while (!RunAciontQueue.empty())
 	{

@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include "Scene.h"
+#include "GameObject.h"
 #include <iostream>
 SceneManager::SceneManager() :
 	targetScene(nullptr),
@@ -15,7 +16,7 @@ SceneManager::~SceneManager()
 
 void SceneManager::Initialize()
 {
-	//PPointer<Scene> target = PPointer(new Scene);
+	//SPointer<Scene> target = SPointer(new Scene);
 
 }
 
@@ -28,7 +29,7 @@ void SceneManager::Update()
 
 }
 
-void SceneManager::Release()
+void SceneManager::ReleaseShared()
 {
 
 }
@@ -60,4 +61,9 @@ void SceneManager::CreateScene(const std::string& name)
 		Scene* newScene = new Scene();
 		sceneMap.insert({ name, newScene });
 	}
+}
+
+void SceneManager::Register(SPointer<GameObject> newObject)
+{
+	ObjectList.insert({newObject->GetHashCode(),newObject});
 }

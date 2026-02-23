@@ -16,7 +16,7 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void Release() override;
+	void ReleaseShared() override;
 
 	bool GetKey(byte keyNumber);
 	bool GetKeyDown(byte keyNumber);

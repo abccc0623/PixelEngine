@@ -44,7 +44,7 @@ void TextureManager::Update()
 
 }
 
-void TextureManager::Release()
+void TextureManager::ReleaseShared()
 {
 
 }

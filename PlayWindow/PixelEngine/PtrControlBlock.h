@@ -7,13 +7,13 @@ public:
 	~PtrControlBlock();
 
 	void AddRefWeak();
-	void AddRef();
-	void Release();
+	void AddRefShared();
+	void ReleaseShared();
 	void ReleaseWeak();
 
-
-	PixelObject* target = nullptr;
 	int strongCount = 0;        
 	int weakCount = 0;
+
+	PixelObject* target = nullptr;
 };
 

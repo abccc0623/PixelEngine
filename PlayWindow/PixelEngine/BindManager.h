@@ -18,7 +18,7 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void Release() override;
+	void ReleaseShared() override;
 
 	void AddModuleCall(std::string typeName, GameObject* obj);
 	sol::object GetModuleCall_Lua(sol::this_state s, GameObject& obj, std::string name);

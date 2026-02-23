@@ -28,7 +28,7 @@ public:
 	~PixelEngine() = default;
 	void Initialize(HWND hWnd, int width, int height);
 	void Update();
-	void Release();
+	void ReleaseShared();
 	void Resize(int width, int height);
 public:
 	void QuitWindow();
@@ -37,7 +37,7 @@ public:
 	bool RunningCheck();
 
 	sol::state* GetModuleCall_Lua();
-	PPointer<GameObject> CreateGameObject(std::string name = "GameObject");
+	SPointer<GameObject>& CreateGameObject(std::string name = "GameObject");
 	Scene* CreateScene(std::string name);
 
 	ObjectID GetResourceID(RESOURCE_TYPE type,const std::string& path);

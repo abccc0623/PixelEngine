@@ -36,7 +36,7 @@ void Scene::Update()
    
 }
 
-void Scene::Release()
+void Scene::ReleaseShared()
 {
 
 }

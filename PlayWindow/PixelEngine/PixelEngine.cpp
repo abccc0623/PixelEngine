@@ -60,11 +60,11 @@ bool PixelEngine::RunningCheck()
 	return true;
 }
 
-void PixelEngine::Release()
+void PixelEngine::ReleaseShared()
 {
 	for (auto& k : factoryMap)
 	{
-		k.second->Release();
+		k.second->ReleaseShared();
 		delete k.second;
 		k.second = nullptr;
 	}
@@ -83,10 +83,10 @@ void PixelEngine::QuitWindow()
 }
 
 
-PPointer<GameObject> PixelEngine::CreateGameObject(std::string name)
+SPointer<GameObject>& PixelEngine::CreateGameObject(std::string name)
 {
 	auto factory = GetFactory<ObjectManager>();
-	return factory->Get(name);
+	return factory->Create();
 }
 
 Scene* PixelEngine::CreateScene(std::string name)
@@ -110,8 +110,8 @@ sol::state* PixelEngine::GetModuleCall_Lua()
 
 void PixelEngine::AddFunction(GameObject* obj, Module* module, int type)
 {
-	auto func = GetFactory<FunctionManager>();
-	func->AddFunction(obj,MakePixel<Module>(module), type);
+	//auto func = GetFactory<FunctionManager>();
+	//func->AddFunction(obj,MakePixel<Module>(module), type);
 }
 
 

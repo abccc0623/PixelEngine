@@ -1,3 +1,4 @@
+
 #include "GameObject.h"
 #include "Module.h"
 #include "PixelEngine.h"
@@ -14,7 +15,7 @@ ObjectManager* GameObject::objectManager = nullptr;
 
 GameObject::GameObject()
 {
-	ModuleMap = std::unordered_map<std::string, PPointer<Module>>();
+	ModuleMap = std::unordered_map<std::string, SPointer<Module>>();
 	hashCode = std::hash<GameObject*>{}(this);
 
 	if (bindManager == nullptr)
@@ -32,8 +33,6 @@ GameObject::GameObject()
 }
 GameObject::~GameObject()
 {
-	//해당 게임 오브젝트가 지워질때 내부의 모듈도 깨끗이 삭제
-	functionManager->RemoveFunction(this);
 	ModuleMap.clear();
 }
 
@@ -42,9 +41,9 @@ size_t GameObject::GetHashCode()
 	return hashCode;
 }
 
-std::vector<PPointer<Module>> GameObject::GetModules()
+std::vector<SPointer<Module>> GameObject::GetModules()
 {
-	std::vector<PPointer<Module>> list = std::vector<PPointer<Module>>();
+	std::vector<SPointer<Module>> list = std::vector<SPointer<Module>>();
 	for (auto K : ModuleMap)
 	{
 		list.push_back(K.second);
@@ -54,8 +53,7 @@ std::vector<PPointer<Module>> GameObject::GetModules()
 
 void GameObject::Destroy()
 {
-	objectManager->Set(MakePixel<GameObject>(this));
-	functionManager->RemoveFunction(this);
+	
 }
 
 void GameObject::ClearModules()
@@ -72,7 +70,3 @@ void GameObject::OnCollision2D(WPointer<GameObject> target)
 	}
 }
 
-void GameObject::AddFunction(PPointer<Module> target, int Type)
-{
-	functionManager->AddFunction(this, target, Type);
-}
