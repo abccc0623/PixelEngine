@@ -13,6 +13,7 @@
 #include "BindManager.h"
 #include "KeyInputManager.h"
 #include "ObjectManager.h"
+#include "SceneManager.h"
 #define SOL_ALL_SAFETIES_ON 1 // 안전장치 활성화 (권장)
 
 extern PixelEngine* Engine;
@@ -37,9 +38,9 @@ void LuaManager::Initialize()
         sol::lib::os,      // 시간(os.time) 등 시스템 함수
         sol::lib::debug    // 디버깅 툴
     );
-    bind = Engine->GetFactory<BindManager>();
+    bind  = Engine->GetFactory<BindManager>();
     input = Engine->GetFactory<KeyInputManager>();
-    obj = Engine->GetFactory<ObjectManager>();
+    obj   = Engine->GetFactory<ObjectManager>();
 
     //Key관련 등록
     sol::table input = lua->create_named_table("Input");
@@ -54,6 +55,19 @@ void LuaManager::Initialize()
     time["GetDeltaTime"] = GetDeltaTime;
     time["GetTotalTime"] = GetTotalTime;
     time["GetFPS"] = GetFPS;
+
+    //Setting 관련
+    sol::table setting = lua->create_named_table("Setting");
+    setting["ChangeScene"] = [](std::string name)
+        {
+            auto sceneManager = Engine->GetFactory<SceneManager>();
+            sceneManager->ChangeScene(name);
+        };
+    setting["CreateScene"] = [](std::string luaPath)
+        {
+            auto sceneManager = Engine->GetFactory<SceneManager>();
+            sceneManager->CreateScene(luaPath);
+        };
 
 
     //Engine관련
@@ -72,14 +86,15 @@ void LuaManager::Initialize()
         }
     );
 
-
-    engine["LoadTexture"] = [](std::string path) {return LoadTexture(path);};
     engine["Find"] = [](std::string name)-> GameObject*
         {
             auto objManager = Engine->GetFactory<ObjectManager>();
             auto find = objManager->Find(name);
             return (find != nullptr) ? find.GetPtr() : nullptr;
         };
+    engine["LoadTexture"] = [](std::string path) {return LoadTexture(path);};
+
+
 
 
     ////게임 오브젝트 추가
@@ -106,6 +121,16 @@ void LuaManager::Initialize()
     main += "function Time.GetTotalTime() end \n\n";
     main += "---@return number \n";
     main += "function Time.GetFPS() end \n\n";
+
+    main += "---@class Setting \n";
+    main += "Setting = {} \n\n";
+    main += "---@param SceneName string \n";
+    main += "---@return void \n";
+    main += "function Setting.ChangeScene(SceneName) end \n\n";
+    main += "---@param LuaPath string \n";
+    main += "---@return void \n";
+    main += "function Setting.CreateScene(LuaPath) end \n\n";
+
 
     main += "---@class Input \n";
     main += "Input = {} \n\n";

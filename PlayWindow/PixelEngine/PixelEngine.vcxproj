@@ -151,7 +151,6 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Action.h" />
     <ClInclude Include="BindManager.h" />
     <ClInclude Include="BoxCollision2D.h" />
     <ClInclude Include="Camera.h" />
@@ -191,7 +190,6 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClInclude Include="WPointer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Action.cpp" />
     <ClCompile Include="BindManager.cpp" />
     <ClCompile Include="BoxCollision2D.cpp" />
     <ClCompile Include="Camera.cpp" />

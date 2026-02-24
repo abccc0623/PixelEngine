@@ -183,9 +183,6 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
     </ClInclude>
-    <ClInclude Include="Action.h">
-      <Filter>EngineAPI\Manager\FunctionManager</Filter>
-    </ClInclude>
     <ClInclude Include="BindManager.h">
       <Filter>EngineAPI\Manager\BindManager</Filter>
     </ClInclude>
@@ -292,9 +289,6 @@
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Action.cpp">
-      <Filter>EngineAPI\Manager\FunctionManager</Filter>
     </ClCompile>
     <ClCompile Include="BindManager.cpp">
       <Filter>EngineAPI\Manager\BindManager</Filter>

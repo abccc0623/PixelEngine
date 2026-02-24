@@ -26,7 +26,7 @@ BoxCollision2D::~BoxCollision2D()
 void BoxCollision2D::Awake()
 {
 	collision = Engine->GetFactory<CollisionManager>();
-	collision->Push(SPointer<BoxCollision2D>::Make_SPointer());
+	//collision->Push(SPointer<BoxCollision2D>::Make_SPointer());
 }
 
 void BoxCollision2D::Start()

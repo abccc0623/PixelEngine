@@ -1,6 +1,7 @@
 #pragma once
 #include "EngineManager.h"
 #include "SPointer.h"
+#include "WPointer.h"
 #include <unordered_map>
 #include <string>
 class Scene;
@@ -15,16 +16,13 @@ public:
 	void Update() override;
 	void ReleaseShared() override;
 
-	void ChangeScene(std::string name);
-	void CreateScene(const std::string& name);
+	void Register(SPointer<GameObject>& newObject);
 
-	void Register(SPointer<GameObject> newObject);
+	void CreateScene(const std::string& luaPath);
+	void ChangeScene(std::string SceneName);
 private:
-	Scene* targetScene;
-	std::unordered_map<std::string, Scene*> sceneMap;
-
-
-
+	WPointer<Scene> nowScene = WPointer<Scene>(nullptr);
 	std::unordered_map<size_t, SPointer<GameObject>> ObjectList;
+	std::unordered_map<std::string, SPointer<Scene>> SceneMap;
 };
 

@@ -91,8 +91,8 @@ SPointer<GameObject>& PixelEngine::CreateGameObject(std::string name)
 
 Scene* PixelEngine::CreateScene(std::string name)
 {
-	auto scene = GetFactory<SceneManager>();
-	scene->CreateScene(name);
+	//auto scene = GetFactory<SceneManager>();
+	//scene->CreateScene(name);
 	return nullptr;
 }
 

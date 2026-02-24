@@ -35,6 +35,7 @@ public:
 	void Register(GameObject* target);
 	
 	void FunctionUpdate();
+	void Clear();
 private:
 	void AddOneTimeFunction(SPointer<Module> module,int type);
 	void AddTickFunction(SPointer<Module> module,int type);
@@ -42,7 +43,7 @@ private:
 	std::map<int,std::queue <std::function<bool()>>> oneTime;
 	std::map<int,std::vector <std::function<bool()>>> tickUpdate;
 
-	bool isAwakeRun = false;
-	bool isStartRun = false;
-	bool isUpdateRun = false;
+	std::map<int, std::queue <std::function<bool()>>> pendingTickUpdate;
+	bool isRun = false;
+	bool isClear = false;
 };

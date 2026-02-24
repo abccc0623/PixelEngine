@@ -1,21 +1,27 @@
 #include "FunctionManager.h"
 #include "GameObject.h"
-#include <iostream>
 #include <algorithm>
 #include "PixelObject.h"
 #include "PixelEngine.h"
 #include "Module.h"
-#include "CollisionManager.h"
-#include "ObjectManager.h"
 
 FunctionManager::FunctionManager()
 {
+	
 	oneTime.insert({ AWAKE_FUNCTION , std::queue<std::function<bool()>>() });
 	oneTime.insert({ START_FUNCTION , std::queue<std::function<bool()>>() });
 	tickUpdate.insert({ UPDATE_FUNCTION ,std::vector <std::function<bool()>>() });
 	tickUpdate.insert({ MATRIX_UPDATE_FUNCTION ,std::vector <std::function<bool()>>() });
 	tickUpdate.insert({ PHYSICS_UPDATE_FUNCTION ,std::vector <std::function<bool()>>() });
 	tickUpdate.insert({ LAST_UPDATE_FUNCTION ,std::vector <std::function<bool()>>() });
+
+	//지연처리를 위한 데이터
+	pendingTickUpdate.insert({ AWAKE_FUNCTION , std::queue<std::function<bool()>>() });
+	pendingTickUpdate.insert({ START_FUNCTION , std::queue<std::function<bool()>>() });
+	pendingTickUpdate.insert({ UPDATE_FUNCTION , std::queue<std::function<bool()>>() });
+	pendingTickUpdate.insert({ MATRIX_UPDATE_FUNCTION , std::queue<std::function<bool()>>() });
+	pendingTickUpdate.insert({ PHYSICS_UPDATE_FUNCTION , std::queue<std::function<bool()>>() });
+	pendingTickUpdate.insert({ LAST_UPDATE_FUNCTION , std::queue<std::function<bool()>>() });
 }
 
 FunctionManager::~FunctionManager()
@@ -25,29 +31,40 @@ FunctionManager::~FunctionManager()
 
 void FunctionManager::Initialize(){}
 void FunctionManager::Update(){}
-void FunctionManager::ReleaseShared()
-{
-	oneTime.clear();
-	tickUpdate.clear();
-}
+void FunctionManager::ReleaseShared(){}
 
 void FunctionManager::FunctionUpdate()
 {
+	//지연처리
+	for (auto& [priority, funcQueue] : pendingTickUpdate)
+	{
+		while (!funcQueue.empty())
+		{
+			auto func = std::move(funcQueue.front()); // std::move로 성능 최적화
+			funcQueue.pop();
+
+			if (priority == AWAKE_FUNCTION || priority == START_FUNCTION)
+			{
+				oneTime[priority].push(func);
+			}
+			else 
+			{
+				tickUpdate[priority].push_back(func);
+			}
+		}
+	}
+
+	//실제 업데이트
+	isRun = true;
 	for (auto& [priority, funcQueue] : oneTime)
 	{
-		if (priority == AWAKE_FUNCTION){isAwakeRun = true;}
-		if (priority == START_FUNCTION){isStartRun = true;}
-
 		while (!funcQueue.empty())
 		{
 			funcQueue.front()();
 			funcQueue.pop();
 		}
-		isAwakeRun = false;
-		isStartRun = false;
 	}
 
-	isUpdateRun = true;
 	for (auto& [priority, funcVector] : tickUpdate)
 	{
 		std::remove_if(funcVector.begin(), funcVector.end(),
@@ -57,7 +74,19 @@ void FunctionManager::FunctionUpdate()
 			}),
 			funcVector.end();
 	}
-	isUpdateRun = false;
+	isRun = false;
+
+	if (isClear == true)
+	{
+		oneTime.clear();
+		tickUpdate.clear();
+		isClear = false;
+	}
+}
+
+void FunctionManager::Clear()
+{
+	isClear = true;
 }
 
 void FunctionManager::AddOneTimeFunction(SPointer<Module> module, int type)
@@ -83,7 +112,14 @@ void FunctionManager::AddOneTimeFunction(SPointer<Module> module, int type)
 			return false;
 		};
 	
-	oneTime[type].push(OneTimeFunction);
+	if (isRun == false)
+	{
+		oneTime[type].push(OneTimeFunction);
+	}
+	else 
+	{
+		pendingTickUpdate[type].push(OneTimeFunction);
+	}
 }
 
 void FunctionManager::AddTickFunction(SPointer<Module> module, int type)
@@ -115,6 +151,14 @@ void FunctionManager::AddTickFunction(SPointer<Module> module, int type)
 			}
 			return false;
 		};
-	tickUpdate[type].push_back(TickFunction);
+	
+	if (isRun == false)
+	{
+		tickUpdate[type].push_back(TickFunction);
+	}
+	else
+	{
+		pendingTickUpdate[type].push(TickFunction);
+	}
 }
 

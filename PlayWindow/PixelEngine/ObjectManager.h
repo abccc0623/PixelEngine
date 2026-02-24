@@ -26,11 +26,6 @@ public:
 
 	SPointer<GameObject>& Create(std::string name = "GameObject");
 private:
-	std::vector<SPointer<GameObject>> Object_Run;
-	std::queue<SPointer<GameObject>> Object_Idle;
-	std::queue<SPointer<GameObject>> Object_Delete;
-	size_t hashCode;
-
 	FunctionManager* functionManager = nullptr;
 	SceneManager* sceneManager = nullptr;
 };
