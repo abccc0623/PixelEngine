@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PixelTool": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

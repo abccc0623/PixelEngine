@@ -92,7 +92,7 @@ void LuaManager::Initialize()
             auto find = objManager->Find(name);
             return (find != nullptr) ? find.GetPtr() : nullptr;
         };
-    engine["LoadTexture"] = [](std::string path) {return LoadTexture(path);};
+    engine["LoadTexture"] = [](std::string path) {return LoadTexture(path.c_str());};
 
 
 

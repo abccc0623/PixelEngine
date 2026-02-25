@@ -23,7 +23,10 @@ bool EngineInitialize(HWND hWnd, int width, int height)
 
 void UpdateEngine()
 {
-	Engine->Update();
+	if (Engine != nullptr)
+	{
+		Engine->Update();
+	}
 }
 
 bool RunningEngineCheck()
@@ -138,31 +141,34 @@ int GetFPS()
 	return -1;
 }
 
-bool LoadLuaScript(const std::string& path)
+bool LoadLuaScript(const char* path)
 {
+	std::string strPath(path);
 	if (Engine != nullptr)
 	{
 		auto lua = Engine->GetFactory<LuaManager>();
-		return lua->LoadLuaScript(path);
+		return lua->LoadLuaScript(strPath);
 	}
 }
 
-bool LoadTexture(const std::string& path)
+bool LoadTexture(const char* path)
 {
+	std::string strPath(path);
 	if (Engine != nullptr)
 	{
 		auto resource = Engine->GetFactory<ResourceManager>();
-		resource->Load(TEXTURE, path);
+		resource->Load(TEXTURE, strPath);
 		return true;
 	}
 }
 
-bool CreateLuaAPIPath(const std::string& path)
+bool CreateLuaAPIPath(const char* path)
 {
+	std::string strPath(path);
 	if (Engine != nullptr)
 	{
 		auto lua = Engine->GetFactory<LuaManager>();
-		return lua->CreateLuaAPIPath(path);
+		return lua->CreateLuaAPIPath(strPath);
 	}
 }
 
