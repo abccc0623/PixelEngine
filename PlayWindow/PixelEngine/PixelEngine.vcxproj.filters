@@ -310,6 +310,9 @@
     <None Include="Setting.lua">
       <Filter>리소스 파일</Filter>
     </None>
+    <None Include="PixelEngineC#.i">
+      <Filter>EngineAPI</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PixelEngine.rc">

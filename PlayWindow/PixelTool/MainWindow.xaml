@@ -32,8 +32,8 @@
                 <dock:LayoutPanel Orientation="Horizontal">
 
                     <dock:LayoutAnchorablePane DockWidth="300">
-                        <dock:LayoutAnchorable Title="Inspector">
-                            <ScrollViewer x:Name="PropertyFileView"/>
+                        <dock:LayoutAnchorable Title="Asset">
+                            <local:FolderWindow></local:FolderWindow>
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
 
@@ -52,12 +52,12 @@
 
                     </dock:LayoutPanel>
 
-
                     <dock:LayoutAnchorablePane DockWidth="300">
                         <dock:LayoutAnchorable Title="Inspector">
-                            <local:FolderWindow></local:FolderWindow>
+                            <ScrollViewer x:Name="PropertyFileView"/>
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
+
                 </dock:LayoutPanel>
                 
             </dock:LayoutRoot>

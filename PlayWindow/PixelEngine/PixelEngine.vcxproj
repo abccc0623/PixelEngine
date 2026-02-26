@@ -131,6 +131,9 @@ copy /Y "$(ProjectDir)Library\*lib" "$(SolutionDir)Library"
 copy /Y "$(ProjectDir)Library\*dll" "$(SolutionDir)Library"
 copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>"$(ProjectDir)Import\swigwin-4.4.1\swig.exe" -csharp -c++ -outdir "$(SolutionDir)Generated" -o "$(ProjectDir)PixelEngine_wrap.cpp" "$(ProjectDir)PixelEngineC#.i"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -227,6 +230,7 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="PixelEngineC#.i" />
     <None Include="Setting.lua" />
   </ItemGroup>
   <ItemGroup>
