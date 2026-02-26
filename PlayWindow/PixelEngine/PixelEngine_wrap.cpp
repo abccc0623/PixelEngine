@@ -361,15 +361,226 @@ template <typename T> T SwigValueInit() {
 
 
 /* 생성된 래퍼 파일에 포함될 헤더들 */
+#include <windows.h>
+#include "Export/PixelEngineAPI.h"
 #include "Vector3.h"
+#include "GameObject.h"
 
 
-#include <memory>
+#include <string>
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_EngineInitialize(void * jarg1, int jarg2, int jarg3) {
+  unsigned int jresult ;
+  HWND arg1 ;
+  int arg2 ;
+  int arg3 ;
+  bool result;
+  
+  arg1 = (HWND)jarg1; 
+  arg2 = (int)jarg2; 
+  arg3 = (int)jarg3; 
+  result = (bool)EngineInitialize(SWIG_STD_MOVE(arg1),arg2,arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_UpdateEngine() {
+  UpdateEngine();
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_ReleaseEngine() {
+  ReleaseEngine();
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_QuitWindow() {
+  QuitWindow();
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_ResizeEngine(int jarg1, int jarg2) {
+  unsigned int jresult ;
+  int arg1 ;
+  int arg2 ;
+  bool result;
+  
+  arg1 = (int)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (bool)ResizeEngine(arg1,arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_GetKeyDown(char jarg1) {
+  unsigned int jresult ;
+  char arg1 ;
+  bool result;
+  
+  arg1 = (char)jarg1; 
+  result = (bool)GetKeyDown(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_GetKeyUp(char jarg1) {
+  unsigned int jresult ;
+  char arg1 ;
+  bool result;
+  
+  arg1 = (char)jarg1; 
+  result = (bool)GetKeyUp(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_GetKey(char jarg1) {
+  unsigned int jresult ;
+  char arg1 ;
+  bool result;
+  
+  arg1 = (char)jarg1; 
+  result = (bool)GetKey(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_GetMousePosition_X() {
+  int jresult ;
+  int result;
+  
+  result = (int)GetMousePosition_X();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_GetMousePosition_Y() {
+  int jresult ;
+  int result;
+  
+  result = (int)GetMousePosition_Y();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT float SWIGSTDCALL CSharp_GetDeltaTime() {
+  float jresult ;
+  float result;
+  
+  result = (float)GetDeltaTime();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT double SWIGSTDCALL CSharp_GetTotalTime() {
+  double jresult ;
+  double result;
+  
+  result = (double)GetTotalTime();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_GetFPS() {
+  int jresult ;
+  int result;
+  
+  result = (int)GetFPS();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_LoadLuaScript(char * jarg1) {
+  unsigned int jresult ;
+  char *arg1 = 0 ;
+  bool result;
+  
+  arg1 = (char *)jarg1; 
+  result = (bool)LoadLuaScript((char const *)arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_LoadTexture(char * jarg1) {
+  unsigned int jresult ;
+  char *arg1 = 0 ;
+  bool result;
+  
+  arg1 = (char *)jarg1; 
+  result = (bool)LoadTexture((char const *)arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_CreateLuaAPIPath(char * jarg1) {
+  unsigned int jresult ;
+  char *arg1 = 0 ;
+  bool result;
+  
+  arg1 = (char *)jarg1; 
+  result = (bool)CreateLuaAPIPath((char const *)arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_CreateGameObject(char * jarg1) {
+  void * jresult ;
+  char *arg1 = (char *)"" ;
+  GameObject *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (GameObject *)CreateGameObject((char const *)arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_CreateScene(char * jarg1) {
+  unsigned int jresult ;
+  char *arg1 = 0 ;
+  bool result;
+  
+  arg1 = (char *)jarg1; 
+  result = (bool)CreateScene((char const *)arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_ChangeScene(char * jarg1) {
+  unsigned int jresult ;
+  char *arg1 = 0 ;
+  bool result;
+  
+  arg1 = (char *)jarg1; 
+  result = (bool)ChangeScene((char const *)arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_SaveScene() {
+  SaveScene();
+}
+
 
 SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector3__SWIG_0() {
   void * jresult ;
@@ -398,40 +609,6 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector3__SWIG_1(float jarg1, float jarg
   temp3 = (float)jarg3; 
   arg3 = &temp3; 
   result = (Vector3 *)new Vector3((float const &)*arg1,(float const &)*arg2,(float const &)*arg3);
-  jresult = (void *)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_Vector3__SWIG_2(void * jarg1, void * jarg2, void * jarg3) {
-  void * jresult ;
-  float *arg1 = 0 ;
-  float *arg2 = 0 ;
-  float *arg3 = 0 ;
-  std::unique_ptr< float > rvrdeleter1 ;
-  std::unique_ptr< float > rvrdeleter2 ;
-  std::unique_ptr< float > rvrdeleter3 ;
-  Vector3 *result = 0 ;
-  
-  arg1 = (float *)jarg1;
-  if (!arg1) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "float const && is null", 0);
-    return 0;
-  }
-  rvrdeleter1.reset(arg1); 
-  arg2 = (float *)jarg2;
-  if (!arg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "float const && is null", 0);
-    return 0;
-  }
-  rvrdeleter2.reset(arg2); 
-  arg3 = (float *)jarg3;
-  if (!arg3) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "float const && is null", 0);
-    return 0;
-  }
-  rvrdeleter3.reset(arg3); 
-  result = (Vector3 *)new Vector3((float const &&)*arg1,(float const &&)*arg2,(float const &&)*arg3);
   jresult = (void *)result; 
   return jresult;
 }
@@ -768,6 +945,113 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_Vector3(void * jarg1) {
   
   arg1 = (Vector3 *)jarg1; 
   delete arg1;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_GameObject() {
+  void * jresult ;
+  GameObject *result = 0 ;
+  
+  result = (GameObject *)new GameObject();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_GameObject(void * jarg1) {
+  GameObject *arg1 = 0 ;
+  
+  arg1 = (GameObject *)jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_GameObject_GetHashCode(void * jarg1) {
+  unsigned int jresult ;
+  GameObject *arg1 = 0 ;
+  size_t result;
+  
+  arg1 = (GameObject *)jarg1; 
+  result = (arg1)->GetHashCode();
+  jresult = (unsigned int)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_GameObject_name_set(void * jarg1, const char * jarg2) {
+  GameObject *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (GameObject *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->name = *arg2;
+}
+
+
+SWIGEXPORT const char * SWIGSTDCALL CSharp_GameObject_name_get(void * jarg1) {
+  const char * jresult ;
+  GameObject *arg1 = 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (GameObject *)jarg1; 
+  result = (std::string *) & ((arg1)->name);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_GameObject_GetModules(void * jarg1) {
+  void * jresult ;
+  GameObject *arg1 = 0 ;
+  SwigValueWrapper< std::vector< SPointer< Module > > > result;
+  
+  arg1 = (GameObject *)jarg1; 
+  result = (arg1)->GetModules();
+  jresult = new std::vector< SPointer< Module > >(result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_GameObject_Destroy(void * jarg1) {
+  GameObject *arg1 = 0 ;
+  
+  arg1 = (GameObject *)jarg1; 
+  (arg1)->Destroy();
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_GameObject_OnCollision2D(void * jarg1, void * jarg2) {
+  GameObject *arg1 = 0 ;
+  SwigValueWrapper< WPointer< GameObject > > arg2 ;
+  WPointer< GameObject > *argp2 ;
+  
+  arg1 = (GameObject *)jarg1; 
+  argp2 = (WPointer< GameObject > *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null WPointer< GameObject >", 0);
+    return ;
+  }
+  arg2 = *argp2; 
+  (arg1)->OnCollision2D(SWIG_STD_MOVE(arg2));
+}
+
+
+SWIGEXPORT const char * SWIGSTDCALL CSharp_GameObject_Save(void * jarg1, int jarg2) {
+  const char * jresult ;
+  GameObject *arg1 = 0 ;
+  int arg2 ;
+  std::string result;
+  
+  arg1 = (GameObject *)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (arg1)->Save(arg2);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
 }
 
 

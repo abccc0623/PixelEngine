@@ -20,6 +20,8 @@ public:
 	virtual void OnCollisionEnter2D(WPointer<GameObject> target);
 	virtual void OnCollision2D(WPointer<GameObject> target);
 	virtual void OnCollisionExit2D(WPointer<GameObject> target);
+
+	virtual std::string Save(int tab);
 	
 	std::string GetClassNameString();
 	GameObject* targetObject;

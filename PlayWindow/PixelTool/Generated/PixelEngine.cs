@@ -10,4 +10,101 @@
 
 
 public class PixelEngine {
+  public static bool EngineInitialize(IntPtr hWnd, int width, int height) {
+    bool ret = PixelEnginePINVOKE.EngineInitialize(hWnd, width, height);
+    return ret;
+  }
+
+  public static void UpdateEngine() {
+    PixelEnginePINVOKE.UpdateEngine();
+  }
+
+  public static void ReleaseEngine() {
+    PixelEnginePINVOKE.ReleaseEngine();
+  }
+
+  public static void QuitWindow() {
+    PixelEnginePINVOKE.QuitWindow();
+  }
+
+  public static bool ResizeEngine(int width, int height) {
+    bool ret = PixelEnginePINVOKE.ResizeEngine(width, height);
+    return ret;
+  }
+
+  public static bool GetKeyDown(char number) {
+    bool ret = PixelEnginePINVOKE.GetKeyDown(number);
+    return ret;
+  }
+
+  public static bool GetKeyUp(char number) {
+    bool ret = PixelEnginePINVOKE.GetKeyUp(number);
+    return ret;
+  }
+
+  public static bool GetKey(char number) {
+    bool ret = PixelEnginePINVOKE.GetKey(number);
+    return ret;
+  }
+
+  public static int GetMousePosition_X() {
+    int ret = PixelEnginePINVOKE.GetMousePosition_X();
+    return ret;
+  }
+
+  public static int GetMousePosition_Y() {
+    int ret = PixelEnginePINVOKE.GetMousePosition_Y();
+    return ret;
+  }
+
+  public static float GetDeltaTime() {
+    float ret = PixelEnginePINVOKE.GetDeltaTime();
+    return ret;
+  }
+
+  public static double GetTotalTime() {
+    double ret = PixelEnginePINVOKE.GetTotalTime();
+    return ret;
+  }
+
+  public static int GetFPS() {
+    int ret = PixelEnginePINVOKE.GetFPS();
+    return ret;
+  }
+
+  public static bool LoadLuaScript(string path) {
+    bool ret = PixelEnginePINVOKE.LoadLuaScript(path);
+    return ret;
+  }
+
+  public static bool LoadTexture(string path) {
+    bool ret = PixelEnginePINVOKE.LoadTexture(path);
+    return ret;
+  }
+
+  public static bool CreateLuaAPIPath(string path) {
+    bool ret = PixelEnginePINVOKE.CreateLuaAPIPath(path);
+    return ret;
+  }
+
+  public static GameObject CreateGameObject(string name) {
+    global::System.IntPtr cPtr = PixelEnginePINVOKE.CreateGameObject(name);
+    GameObject ret = (cPtr == global::System.IntPtr.Zero) ? null : new GameObject(cPtr, false);
+    return ret;
+  }
+
+  public static bool CreateScene(string sceneName) {
+    bool ret = PixelEnginePINVOKE.CreateScene(sceneName);
+    return ret;
+  }
+
+  public static bool ChangeScene(string sceneName) {
+    bool ret = PixelEnginePINVOKE.ChangeScene(sceneName);
+    return ret;
+  }
+
+  public static void SaveScene() {
+    PixelEnginePINVOKE.SaveScene();
+  }
+
 }

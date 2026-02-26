@@ -51,8 +51,9 @@ public:
 
 	std::vector<SPointer<Module>> GetModules();
 	void Destroy();
-	void ClearModules();
 	void OnCollision2D(WPointer<GameObject> target);
+
+	std::string Save(int tab);
 private:
 	size_t hashCode;
 	std::unordered_map<std::string,SPointer<Module>> ModuleMap;
@@ -60,7 +61,6 @@ private:
 	static BindManager* bindManager;
 	static FunctionManager* functionManager;
 	static ObjectManager* objectManager;
-
 	friend FunctionManager;
 };
 

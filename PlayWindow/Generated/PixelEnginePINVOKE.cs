@@ -224,14 +224,71 @@ class PixelEnginePINVOKE {
   }
 
 
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_EngineInitialize")]
+  public static extern bool EngineInitialize(IntPtr jarg1, int jarg2, int jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_UpdateEngine")]
+  public static extern void UpdateEngine();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_ReleaseEngine")]
+  public static extern void ReleaseEngine();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_QuitWindow")]
+  public static extern void QuitWindow();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_ResizeEngine")]
+  public static extern bool ResizeEngine(int jarg1, int jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetKeyDown")]
+  public static extern bool GetKeyDown(char jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetKeyUp")]
+  public static extern bool GetKeyUp(char jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetKey")]
+  public static extern bool GetKey(char jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetMousePosition_X")]
+  public static extern int GetMousePosition_X();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetMousePosition_Y")]
+  public static extern int GetMousePosition_Y();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetDeltaTime")]
+  public static extern float GetDeltaTime();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetTotalTime")]
+  public static extern double GetTotalTime();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetFPS")]
+  public static extern int GetFPS();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LoadLuaScript")]
+  public static extern bool LoadLuaScript(string jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LoadTexture")]
+  public static extern bool LoadTexture(string jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_CreateLuaAPIPath")]
+  public static extern bool CreateLuaAPIPath(string jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_CreateGameObject")]
+  public static extern global::System.IntPtr CreateGameObject(string jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_CreateScene")]
+  public static extern bool CreateScene(string jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_ChangeScene")]
+  public static extern bool ChangeScene(string jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_SaveScene")]
+  public static extern void SaveScene();
+
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_Vector3__SWIG_0")]
   public static extern global::System.IntPtr new_Vector3__SWIG_0();
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_Vector3__SWIG_1")]
   public static extern global::System.IntPtr new_Vector3__SWIG_1(float jarg1, float jarg2, float jarg3);
-
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_Vector3__SWIG_2")]
-  public static extern global::System.IntPtr new_Vector3__SWIG_2(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2, global::System.Runtime.InteropServices.HandleRef jarg3);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Dot__SWIG_0")]
   public static extern float Vector3_Dot__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
@@ -319,4 +376,31 @@ class PixelEnginePINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_Vector3")]
   public static extern void delete_Vector3(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_GameObject")]
+  public static extern global::System.IntPtr new_GameObject();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_GameObject")]
+  public static extern void delete_GameObject(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_GetHashCode")]
+  public static extern uint GameObject_GetHashCode(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_name_set")]
+  public static extern void GameObject_name_set(global::System.Runtime.InteropServices.HandleRef jarg1, string jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_name_get")]
+  public static extern string GameObject_name_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_GetModules")]
+  public static extern global::System.IntPtr GameObject_GetModules(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_Destroy")]
+  public static extern void GameObject_Destroy(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_OnCollision2D")]
+  public static extern void GameObject_OnCollision2D(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_Save")]
+  public static extern string GameObject_Save(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2);
 }

@@ -14,8 +14,6 @@ Vector3 Vector3::Back	= { 0.0f,0.0f,-1.0f };
 //기본 생성자, 복사 생성자, 이동 생성자
 Vector3::Vector3() :X(0.0f), Y(0.0f), Z(0.0f){}
 Vector3::Vector3(const float& X, const float& Y, const float& Z) : X(X), Y(Y), Z(Z) {}
-Vector3::Vector3(const float&& X, const float&& Y, const float&& Z) : X(X), Y(Y), Z(Z) {}
-
 
 float Vector3::Dot(const Vector3& V1, const Vector3 V2)
 {

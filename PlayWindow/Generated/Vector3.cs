@@ -62,10 +62,6 @@ public class Vector3 : global::System.IDisposable {
   public Vector3(float X, float Y, float Z) : this(PixelEnginePINVOKE.new_Vector3__SWIG_1(X, Y, Z), true) {
   }
 
-  public Vector3(SWIGTYPE_p_float X, SWIGTYPE_p_float Y, SWIGTYPE_p_float Z) : this(PixelEnginePINVOKE.new_Vector3__SWIG_2(SWIGTYPE_p_float.swigRelease(X), SWIGTYPE_p_float.swigRelease(Y), SWIGTYPE_p_float.swigRelease(Z)), true) {
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-  }
-
   public static float Dot(Vector3 V1, Vector3 V2) {
     float ret = PixelEnginePINVOKE.Vector3_Dot__SWIG_0(Vector3.getCPtr(V1), Vector3.getCPtr(V2));
     if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();

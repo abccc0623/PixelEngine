@@ -213,6 +213,9 @@
     <ClInclude Include="UPointer.h">
       <Filter>EngineAPI\SmartPointer</Filter>
     </ClInclude>
+    <ClInclude Include="SerializeHelper.h">
+      <Filter>EngineAPI\Manager\LuaManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -304,6 +307,12 @@
     </ClCompile>
     <ClCompile Include="PtrControlBlock.cpp">
       <Filter>EngineAPI\SmartPointer</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelEngine_wrap.cpp">
+      <Filter>헤더 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SerializeHelper.cpp">
+      <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

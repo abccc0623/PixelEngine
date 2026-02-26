@@ -25,8 +25,8 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <dock:DockingManager x:Name="dockManager" Theme="{StaticResource Vs2013DarkTheme}">
+    <DockPanel>
+        <dock:DockingManager x:Name="dockManager" Theme="{StaticResource Vs2013DarkTheme}" Grid.Row="1">
             
             <dock:LayoutRoot>
                 <dock:LayoutPanel Orientation="Horizontal">
@@ -62,5 +62,5 @@
                 
             </dock:LayoutRoot>
         </dock:DockingManager>
-    </Grid>
+    </DockPanel>
 </Window>

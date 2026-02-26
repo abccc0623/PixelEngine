@@ -236,5 +236,16 @@ namespace PixelTool
                 Process.Start("explorer.exe", $"/select,\"{selectedItem.FullPath}\"");
             }
         }
+
+        private void CreateObject_Click(object sender, RoutedEventArgs e)
+        {
+            PixelEngine.CreateScene("./Asset/Scene/StartScene.lua");
+            PixelEngine.ChangeScene("StartScene");
+        }
+
+        private void CreateScene_Click(object sender, RoutedEventArgs e)
+        {
+            PixelEngine.SaveScene();
+        }
     }
 }

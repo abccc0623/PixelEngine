@@ -16,6 +16,9 @@ public:
 	void Update();
 	void Release();
 	void CreateGameObject(SPointer<GameObject>& Obj);
+
+
+	std::string Save(int tab);
 private:
 	std::string sceneName;
 	std::string path;

@@ -176,6 +176,7 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelEngine.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="SerializeHelper.h" />
     <ClInclude Include="SPointer.h" />
     <ClInclude Include="PtrControlBlock.h" />
     <ClInclude Include="Rect.h" />
@@ -208,6 +209,7 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClCompile Include="LuaManager.cpp" />
     <ClCompile Include="LuaScript.cpp" />
     <ClCompile Include="Module.cpp" />
+    <ClCompile Include="PixelEngine_wrap.cpp" />
     <ClCompile Include="PixelObject.cpp" />
     <ClCompile Include="PixelEngine.cpp" />
     <ClCompile Include="PixelEngineAPI.cpp" />
@@ -224,6 +226,7 @@ copy /Y "$(ProjectDir)Library\*pdb" "$(SolutionDir)Library"</Command>
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="SerializeHelper.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="TimeManager.cpp" />

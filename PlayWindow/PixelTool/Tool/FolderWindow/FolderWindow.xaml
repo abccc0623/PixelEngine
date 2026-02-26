@@ -14,6 +14,8 @@
             <MenuItem Header="파일 삭제" Click="MenuDelete_Click"/>
             <Separator/>
             <MenuItem Header="탐색기에서 보기" Click="MenuShowInExplorer_Click"/>
+            <MenuItem Header="CreateObject" Click="CreateObject_Click"/>
+            <MenuItem Header="CreateScene" Click="CreateScene_Click"/>
         </ContextMenu>
     </UserControl.Resources>
 

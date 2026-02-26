@@ -4,7 +4,7 @@
 #include "FunctionManager.h"
 #include "GameObject.h"
 #include "sol.hpp"
-#include <iostream>
+#include "SerializeHelper.h"
 extern PixelEngine* Engine;
 Scene::Scene()
 {
@@ -64,4 +64,20 @@ void Scene::Release()
 void Scene::CreateGameObject(SPointer<GameObject>& Obj)
 {
     ObjectList.insert({ Obj->GetHashCode(),Obj});
+}
+
+std::string Scene::Save(int tab)
+{
+    std::string content = BeginBlock(tab); // { 시작
+    content += AddEntry(tab + 1, "Name", sceneName);
+
+    content += BeginBlock(tab + 1, "GameObjects"); // GameObjects = { 시작
+    for (auto& K : ObjectList)
+    {
+        content += K.second->Save(tab + 2);
+    }
+    content += EndBlock(tab + 1); // GameObjects = } 닫기
+
+    content += EndBlock(tab, false); // SceneData 전체 } 닫기 (마지막이라 쉼표 생략)
+    return content;
 }

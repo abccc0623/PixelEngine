@@ -70,7 +70,7 @@ SPointer<GameObject>& ObjectManager::Create(std::string name)
 	//기본 모듈인 Transform 추가
 	functionManager->Register<Transform>(p.GetPtr());
 	//씬 매니저에 등록
-	sceneManager->Register(p);
+	sceneManager->RegisterGameObject(p);
 	return p;
 }
 

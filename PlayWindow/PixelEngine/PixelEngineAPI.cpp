@@ -10,7 +10,8 @@
 #include "TextureManager.h"
 #include "ResourceManager.h"
 #include "TimeManager.h"
-
+#include "SceneManager.h"
+#include "GameObject.h"
 
 
 PixelEngine* Engine = nullptr;
@@ -170,6 +171,48 @@ bool CreateLuaAPIPath(const char* path)
 		auto lua = Engine->GetFactory<LuaManager>();
 		return lua->CreateLuaAPIPath(strPath);
 	}
+}
+
+GameObject* CreateGameObject(const char* name)
+{
+	if (Engine != nullptr)
+	{
+		auto objManager = Engine->GetFactory<ObjectManager>();
+		SPointer<GameObject> target = objManager->Create(name);
+		return target.GetPtr();
+	}
+	return nullptr;
+}
+
+bool CreateScene(const char* sceneName)
+{
+	std::string strPath(sceneName);
+	if (Engine != nullptr)
+	{
+		SceneManager* scene = Engine->GetFactory<SceneManager>();
+		scene->CreateScene(strPath);
+	}
+	return true;
+}
+
+void SaveScene()
+{
+	if (Engine != nullptr)
+	{
+		SceneManager* scene = Engine->GetFactory<SceneManager>();
+		scene->SaveScene();
+	}
+}
+
+bool ChangeScene(const char* sceneName)
+{
+	std::string strPath(sceneName);
+	if (Engine != nullptr)
+	{
+		SceneManager* scene = Engine->GetFactory<SceneManager>();
+		scene->ChangeScene(strPath);
+	}
+	return true;
 }
 
 						

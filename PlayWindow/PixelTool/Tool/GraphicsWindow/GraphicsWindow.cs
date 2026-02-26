@@ -1,6 +1,4 @@
-﻿using PixelTool.EngineAPI;
-using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Windows.Media; // CompositionTarget 사용을 위해 필요
 
@@ -31,7 +29,6 @@ namespace PixelTool
         public GraphicsWindow()
         {
             // 상용 엔진의 'Game Loop'처럼 매 프레임마다 Update를 호출하기 위해 등록
-            CompositionTarget.Rendering += OnRender;
         }
 
         private const int WS_CHILD = 0x40000000;
@@ -61,17 +58,17 @@ namespace PixelTool
             );
 
             // 2. 이 자식 창 핸들을 PixelEngine에 전달하여 초기화
-            PixelEngineAPI.EngineInitialize(childHwnd, w, h);
-            PixelEngineAPI.LoadLuaScript("./Asset/Setting.Lua");
-            PixelEngineAPI.CreateLuaAPIPath("./Asset/PixelEngine_API.lua");
-
+            PixelEngine.EngineInitialize(childHwnd, w, h);
+            PixelEngine.LoadLuaScript("./Asset/Setting.Lua");
+            PixelEngine.CreateLuaAPIPath("./Asset/PixelEngine_API.lua");
+            CompositionTarget.Rendering += OnRender;
             // 3. 자식 창 핸들을 HandleRef로 감싸서 반환 (에러 방지 핵심)
             return new HandleRef(this, childHwnd);
         }
 
         private void OnRender(object sender, EventArgs e)
         {
-            PixelEngineAPI.UpdateEngine();
+            PixelEngine.UpdateEngine();
         }
 
         protected override void OnRenderSizeChanged(System.Windows.SizeChangedInfo sizeInfo)
@@ -79,7 +76,7 @@ namespace PixelTool
             base.OnRenderSizeChanged(sizeInfo);
             if (sizeInfo.NewSize.Width > 0 && sizeInfo.NewSize.Height > 0)
             {
-                PixelEngineAPI.ResizeEngine((int)sizeInfo.NewSize.Width, (int)sizeInfo.NewSize.Height);
+                PixelEngine.ResizeEngine((int)sizeInfo.NewSize.Width, (int)sizeInfo.NewSize.Height);
             }
         }
 
@@ -88,7 +85,7 @@ namespace PixelTool
             // 렌더링 이벤트 해제
             CompositionTarget.Rendering -= OnRender;
             // 엔진 자원 해제
-            PixelEngineAPI.ReleaseEngine();
+            PixelEngine.ReleaseEngine();
             // 생성한 Win32 창 파괴
             DestroyWindow(hwnd.Handle);
         }

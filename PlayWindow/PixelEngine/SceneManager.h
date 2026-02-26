@@ -16,10 +16,11 @@ public:
 	void Update() override;
 	void ReleaseShared() override;
 
-	void Register(SPointer<GameObject>& newObject);
+	void RegisterGameObject(SPointer<GameObject>& newObject);
 
 	void CreateScene(const std::string& luaPath);
 	void ChangeScene(std::string SceneName);
+	void SaveScene();
 private:
 	WPointer<Scene> nowScene = WPointer<Scene>(nullptr);
 	std::unordered_map<size_t, SPointer<GameObject>> ObjectList;
