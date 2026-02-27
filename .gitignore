@@ -1,6 +1,4 @@
-.vs/
-.idea/
-x64/
-.bin/
-Output/
-obj/
+.vs
+.idea
+.bin
+obj
