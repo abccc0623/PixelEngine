@@ -20,4 +20,7 @@
 #include <Windows.h>
 #include <unordered_map>
 #include "stb_image.h"
+#include <d3dcompiler.h>
+#include "WICTextureLoader.h"
+#include "DirectXTex.h"
 #endif //PCH_H
