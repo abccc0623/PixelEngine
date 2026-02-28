@@ -1,5 +1,5 @@
 #pragma once
-#include "Module.h"
+#include "Core/Module.h"
 struct RenderingData;
 class Transform;
 using ObjectID = size_t;
@@ -15,7 +15,7 @@ public:
 	void LastUpdate() override;
 private:
 	RenderingData* rendering;
-	SPointer<Transform> transform;
+	//SPointer<Transform> transform;
 	ObjectID index;
 };
 

@@ -11,7 +11,7 @@
 #include "TextureManager.h"
 #include "ResourceManager.h"
 #include "TimeManager.h"
-#include "GameObject.h"
+#include "Core/GameObject.h"
 
 
 PixelEngine* Engine = nullptr;
@@ -142,13 +142,13 @@ int GetFPS()
 	return -1;
 }
 
-bool LoadLuaScript(const char* path)
+bool LoadLuaFile(const char* path)
 {
 	std::string strPath(path);
 	if (Engine != nullptr)
 	{
 		auto lua = Engine->GetFactory<LuaManager>();
-		return lua->LoadLuaScript(strPath);
+		return lua->Load(strPath);
 	}
 }
 

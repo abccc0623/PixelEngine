@@ -8,6 +8,7 @@
     <UseWPF>true</UseWPF>
     <BaseOutputPath>..\bin\</BaseOutputPath>
     <Platforms>AnyCPU;x64</Platforms>
+    <Configurations>Debug;Release;Editor_d</Configurations>
   </PropertyGroup>
 
  <PropertyGroup>
@@ -27,6 +28,10 @@
   <ItemGroup>
     <ProjectReference Include="..\PixelEngine\PixelEngine.vcxproj" />
     <ProjectReference Include="..\PixelGraphics\PixelGraphics.vcxproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Generated\" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

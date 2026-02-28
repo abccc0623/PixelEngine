@@ -100,6 +100,9 @@
     <Filter Include="EngineAPI\SmartPointer">
       <UniqueIdentifier>{2c28ed61-3fef-4644-a1f0-5afc614173e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Types\Enum">
+      <UniqueIdentifier>{45623185-d5f3-41eb-90a1-6af096f462a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -107,9 +110,6 @@
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>EngineAPI\pch</Filter>
-    </ClInclude>
-    <ClInclude Include="Export\PixelEngineDLL.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Export\PixelEngineAPI.h">
       <Filter>EngineAPI</Filter>
@@ -125,24 +125,6 @@
     </ClInclude>
     <ClInclude Include="TimeManager.h">
       <Filter>EngineAPI\Manager\TimeManager</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelObject.h">
-      <Filter>EngineAPI\GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>EngineAPI\GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>EngineAPI\Module\Transform</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector3.h">
-      <Filter>EngineAPI\Types\Vector3</Filter>
-    </ClInclude>
-    <ClInclude Include="Matrix.h">
-      <Filter>EngineAPI\Types\Matrix</Filter>
-    </ClInclude>
-    <ClInclude Include="Module.h">
-      <Filter>EngineAPI\Module\Module</Filter>
     </ClInclude>
     <ClInclude Include="ObjectManager.h">
       <Filter>EngineAPI\Manager\ObjectManager</Filter>
@@ -162,20 +144,11 @@
     <ClInclude Include="Scene.h">
       <Filter>EngineAPI\Manager\SceneManager</Filter>
     </ClInclude>
-    <ClInclude Include="DebugCamera.h">
-      <Filter>EngineAPI\Module\DebugCamera</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer2D.h">
       <Filter>EngineAPI\Module\Renderer2D</Filter>
     </ClInclude>
-    <ClInclude Include="LuaScript.h">
-      <Filter>EngineAPI\Module\LuaScript</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>EngineAPI\Module\Camera</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
       <Filter>EngineAPI\Manager\TextureManager</Filter>
@@ -216,6 +189,42 @@
     <ClInclude Include="SerializeHelper.h">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClInclude>
+    <ClInclude Include="Export\PixelEngineDLL.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Core\GameObject.h">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Type\GlobalEnum.h">
+      <Filter>EngineAPI\Types\Enum</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Core\PixelObject.h">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Core\Module.h">
+      <Filter>EngineAPI\Module\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Type\PVector3.h">
+      <Filter>EngineAPI\Types\Vector3</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Type\PMatrix.h">
+      <Filter>EngineAPI\Types\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Module\Transform.h">
+      <Filter>EngineAPI\Module\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Module\Camera.h">
+      <Filter>EngineAPI\Module\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Module\DebugCamera.h">
+      <Filter>EngineAPI\Module\DebugCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaClassInfo.h">
+      <Filter>EngineAPI\Manager\LuaManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Module\LuaScript.h">
+      <Filter>EngineAPI\Module\LuaScript</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -239,24 +248,6 @@
     <ClCompile Include="TimeManager.cpp">
       <Filter>EngineAPI\Manager\TimeManager</Filter>
     </ClCompile>
-    <ClCompile Include="PixelObject.cpp">
-      <Filter>EngineAPI\GameObject</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>EngineAPI\GameObject</Filter>
-    </ClCompile>
-    <ClCompile Include="Transform.cpp">
-      <Filter>EngineAPI\Module\Transform</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector3.cpp">
-      <Filter>EngineAPI\Types\Vector3</Filter>
-    </ClCompile>
-    <ClCompile Include="Matrix.cpp">
-      <Filter>EngineAPI\Types\Matrix</Filter>
-    </ClCompile>
-    <ClCompile Include="Module.cpp">
-      <Filter>EngineAPI\Module\Module</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectManager.cpp">
       <Filter>EngineAPI\Manager\ObjectManager</Filter>
     </ClCompile>
@@ -275,17 +266,8 @@
     <ClCompile Include="Scene.cpp">
       <Filter>EngineAPI\Manager\SceneManager</Filter>
     </ClCompile>
-    <ClCompile Include="DebugCamera.cpp">
-      <Filter>EngineAPI\Module\DebugCamera</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer2D.cpp">
       <Filter>EngineAPI\Module\Renderer2D</Filter>
-    </ClCompile>
-    <ClCompile Include="LuaScript.cpp">
-      <Filter>EngineAPI\Module\LuaScript</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>EngineAPI\Module\Camera</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
       <Filter>EngineAPI\Manager\TextureManager</Filter>
@@ -314,6 +296,39 @@
     <ClCompile Include="SerializeHelper.cpp">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClCompile>
+    <ClCompile Include="Export\Core\GameObject.cpp">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Core\PixelObject.cpp">
+      <Filter>EngineAPI\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalBind.cpp">
+      <Filter>EngineAPI\Manager\BindManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Core\Module.cpp">
+      <Filter>EngineAPI\Module\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Type\PVector3.cpp">
+      <Filter>EngineAPI\Types\Vector3</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Type\PMatrix.cpp">
+      <Filter>EngineAPI\Types\Matrix</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Module\Transform.cpp">
+      <Filter>EngineAPI\Module\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Module\Camera.cpp">
+      <Filter>EngineAPI\Module\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Module\DebugCamera.cpp">
+      <Filter>EngineAPI\Module\DebugCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaClassInfo.cpp">
+      <Filter>EngineAPI\Manager\LuaManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Module\LuaScript.cpp">
+      <Filter>EngineAPI\Module\LuaScript</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Setting.lua">
@@ -322,6 +337,7 @@
     <None Include="PixelEngineC#.i">
       <Filter>EngineAPI</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PixelEngine.rc">

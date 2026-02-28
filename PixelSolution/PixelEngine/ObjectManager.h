@@ -1,12 +1,14 @@
 #pragma once
-#include "PixelObject.h"
+#include "Core/PixelObject.h"
 #include "EngineManager.h"
 #include <vector>
 #include <queue>
+
+template <typename T> class SPointer;
 class FunctionManager;
 class SceneManager;
-
 class GameObject;
+
 class ObjectManager : public EngineManager
 {
 public:
@@ -24,7 +26,7 @@ public:
 	void DeleteCheck();
 
 
-	SPointer<GameObject>& Create(std::string name = "GameObject");
+	SPointer<GameObject> Create(std::string name = "GameObject");
 private:
 	FunctionManager* functionManager = nullptr;
 	SceneManager* sceneManager = nullptr;

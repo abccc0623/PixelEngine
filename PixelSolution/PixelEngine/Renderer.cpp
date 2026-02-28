@@ -1,14 +1,13 @@
 #include "pch.h"
 #include "Renderer.h"
-#include "GameObject.h"
-#include "Transform.h"
-#include "Matrix.h"
+#include "Core/GameObject.h"
+#include "Module/Transform.h"
+#include "Type/PMatrix.h"
 #include "PixelGraphicsAPI.h"
 #include "PixelEngineAPI.h"
 Renderer::Renderer() :
 	index(-1),
-	rendering(nullptr),
-	transform(nullptr)
+	rendering(nullptr)
 {
 
 }
@@ -72,7 +71,7 @@ void Renderer::Awake()
 
 void Renderer::Start()
 {
-	transform = targetObject->GetModule<Transform>();
+	//transform = targetObject->GetModule<Transform>();
 }
 
 void Renderer::Update()
@@ -82,9 +81,9 @@ void Renderer::Update()
 
 void Renderer::LastUpdate()
 {
-	Matrix m = transform->GetWorldMatrix();
-	for (int i = 0; i < 16; i++)
-	{
-		rendering->World[i] = m._m[i];
-	}
+	//PMatrix m = transform->GetWorldMatrix();
+	//for (int i = 0; i < 16; i++)
+	//{
+	//	rendering->World[i] = m._m[i];
+	//}
 }

@@ -16,9 +16,9 @@ public:
 	void PhysicsUpdate() override;
 	void LastUpdate() override;
 
-	void OnCollisionEnter2D(WPointer<GameObject> target) override;
-	void OnCollision2D(WPointer<GameObject> target) override;
-	void OnCollisionExit2D(WPointer<GameObject> target) override;
+	//void OnCollisionEnter2D(WPointer<GameObject> target) override;
+	//void OnCollision2D(WPointer<GameObject> target) override;
+	//void OnCollisionExit2D(WPointer<GameObject> target) override;
 	
 
 	void SetRect(float offsetX, float offsetY, float sizeX, float sizeY);

@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "SceneManager.h"
 #include "Scene.h"
-#include "PixelObject.h"
-#include "GameObject.h"
+#include "Core/PixelObject.h"
+#include "Core/GameObject.h"
 
 SceneManager::SceneManager() 
 {
@@ -117,11 +117,13 @@ void SceneManager::CreateScene(const std::string& luaPath)
 	}
 }
 
-void SceneManager::RegisterGameObject(SPointer<GameObject>& newObject)
+void SceneManager::RegisterGameObject(SPointer<GameObject> newObject)
 {
-	if (nowScene.IsValid())
+	if (nowScene.IsValid() == false)
 	{
-		auto block = nowScene.Lock();
-		block->CreateGameObject(newObject);
+		CreateScene("NewScene");
+		ChangeScene("NewScene");
 	}
+	auto block = nowScene.Lock();
+	block->CreateGameObject(newObject);
 }

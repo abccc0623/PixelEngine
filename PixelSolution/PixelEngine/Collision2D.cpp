@@ -3,7 +3,7 @@
 
 Collision2D::Collision2D()
 {
-	isCollisionModule = true;
+	//isCollisionModule = true;
 }
 
 Collision2D::~Collision2D()

@@ -1,9 +1,13 @@
 #include "PixelEngineAPI.h"
+#include "PixelEngineDLL.h"
 #include <windows.h>
 #include <functional>
 #include <vector>
 #include <string>
 #include <iostream>
+
+#include "Core/GameObject.h"
+#include "Module/Transform.h"
 #define PE_NEW new(__FILE__, __LINE__)
 
 LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -50,10 +54,21 @@ int main()
     ShowWindow(hWnd, SW_SHOW);
     EngineInitialize(hWnd,800,600);
 
-    LoadLuaScript("./Asset/Setting.Lua");
+    //LoadLuaScript("./Asset/Setting.Lua");
+    LoadLuaFile("./Asset/Player.lua");
     CreateLuaAPIPath("./Asset/PixelEngine_API.lua");
+  
 
-    
+    GameObject* Obj = CreateGameObject("test");
+    if (Obj->HasModule(MODULE_TYPE::Transform))
+    {
+        auto k = Obj->GetModule(MODULE_TYPE::Transform);
+        auto type = k->GetType();
+        std::cout<< "" << std::endl;
+    }
+
+    //CreateGameObject();
+    //test.GetModule();
 
     MSG msg = { 0 };
     while (true)
@@ -76,3 +91,4 @@ int main()
 
     return (int)msg.wParam;
 }
+

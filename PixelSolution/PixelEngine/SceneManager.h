@@ -16,7 +16,7 @@ public:
 	void Update() override;
 	void ReleaseShared() override;
 
-	void RegisterGameObject(SPointer<GameObject>& newObject);
+	void RegisterGameObject(SPointer<GameObject> newObject);
 
 	void CreateScene(const std::string& luaPath);
 	void ChangeScene(std::string SceneName);

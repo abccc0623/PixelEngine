@@ -3,3 +3,17 @@
 bin/
 obj/
 .user/
+x64/
+Debug/
+Release/
+*.pch
+*.pdb
+*.ipch
+*.sdf
+*.opensdf
+*.VC.db
+
+**/swigwin-*/Doc/         # 수백 개의 HTML 문서 파일 (매우 많음)
+**/swigwin-*/Examples/    # 언어별 예제 코드 (불필요)
+**/swigwin-*/Lib/test/    # 내부 테스트용 파일
+**/swigwin-*/Source/      # SWIG 자체의 소스 코드 (exe가 있다면 불필요)

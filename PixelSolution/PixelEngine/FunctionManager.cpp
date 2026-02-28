@@ -1,9 +1,11 @@
 #include "pch.h"
 #include "FunctionManager.h"
-#include "GameObject.h"
-#include "PixelObject.h"
+#include "Core/GameObject.h"
+#include "Core/PixelObject.h"
 #include "PixelEngine.h"
-#include "Module.h"
+#include "Core/Module.h"
+#include "SPointer.h"
+#include "WPointer.h"
 
 FunctionManager::FunctionManager()
 {
@@ -64,17 +66,16 @@ void FunctionManager::FunctionUpdate()
 			funcQueue.pop();
 		}
 	}
-
 	for (auto& [priority, funcVector] : tickUpdate)
 	{
-		std::remove_if(funcVector.begin(), funcVector.end(),
-			[](std::function<bool()>& func)
+		std::erase_if(funcVector, [](auto& func) 
 			{
 				return !func();
-			}),
-			funcVector.end();
+			});
 	}
 	isRun = false;
+
+
 
 	if (isClear == true)
 	{

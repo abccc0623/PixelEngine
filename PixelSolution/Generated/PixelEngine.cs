@@ -72,8 +72,8 @@ public class PixelEngine {
     return ret;
   }
 
-  public static bool LoadLuaScript(string path) {
-    bool ret = PixelEnginePINVOKE.LoadLuaScript(path);
+  public static bool LoadLuaFile(string path) {
+    bool ret = PixelEnginePINVOKE.LoadLuaFile(path);
     return ret;
   }
 

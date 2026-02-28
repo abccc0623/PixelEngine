@@ -1,5 +1,5 @@
 #pragma once
-#include "Module.h"
+#include "Core/Module.h"
 #include <string>
 class Transform;
 struct RenderingData;
@@ -16,7 +16,7 @@ public:
 	void SetTexture(const std::string& name);
 	static std::string RegisterLua();
 private:
-	SPointer<Transform> transform;
+	//SPointer<Transform> transform;
 	RenderingData* rendering;
 	std::string textureName;
 	ObjectID textureID = -1;

@@ -1,5 +1,5 @@
 #pragma once
-#include "Vector3.h"
+#include "Type/PVector3.h"
 class Rect
 {
 public:
@@ -11,12 +11,12 @@ public:
     float width = 0.0f;
     float height = 0.0f;
 
-    Vector3 GetCenter() const
+    PVector3 GetCenter() const
     {
-        return  Vector3(x + width * 0.5f, y + height * 0.5f, 0.0f);
+        return  PVector3(x + width * 0.5f, y + height * 0.5f, 0.0f);
     }
     
-    bool Contains(const Vector3& point) const 
+    bool Contains(const PVector3& point) const 
     {
         return (point.X >= Left() && point.X <= Right() &&
             point.Y >= Top() && point.Y <= Bottom());

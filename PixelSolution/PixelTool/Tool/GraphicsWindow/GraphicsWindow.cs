@@ -59,7 +59,7 @@ namespace PixelTool
 
             // 2. 이 자식 창 핸들을 PixelEngine에 전달하여 초기화
             PixelEngine.EngineInitialize(childHwnd, w, h);
-            PixelEngine.LoadLuaScript("./Asset/Setting.Lua");
+            PixelEngine.LoadLuaFile("./Asset/Setting.Lua");
             PixelEngine.CreateLuaAPIPath("./Asset/PixelEngine_API.lua");
             CompositionTarget.Rendering += OnRender;
             // 3. 자식 창 핸들을 HandleRef로 감싸서 반환 (에러 방지 핵심)

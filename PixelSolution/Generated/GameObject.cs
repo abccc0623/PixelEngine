@@ -9,12 +9,10 @@
 //------------------------------------------------------------------------------
 
 
-public class GameObject : global::System.IDisposable {
+public class GameObject : PixelObject {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
-  protected bool swigCMemOwn;
 
-  internal GameObject(global::System.IntPtr cPtr, bool cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
+  internal GameObject(global::System.IntPtr cPtr, bool cMemoryOwn) : base(PixelEnginePINVOKE.GameObject_SWIGUpcast(cPtr), cMemoryOwn) {
     swigCPtr = new global::System.Runtime.InteropServices.HandleRef(this, cPtr);
   }
 
@@ -35,16 +33,7 @@ public class GameObject : global::System.IDisposable {
     }
   }
 
-  ~GameObject() {
-    Dispose(false);
-  }
-
-  public void Dispose() {
-    Dispose(true);
-    global::System.GC.SuppressFinalize(this);
-  }
-
-  protected virtual void Dispose(bool disposing) {
+  protected override void Dispose(bool disposing) {
     lock(this) {
       if (swigCPtr.Handle != global::System.IntPtr.Zero) {
         if (swigCMemOwn) {
@@ -53,14 +42,34 @@ public class GameObject : global::System.IDisposable {
         }
         swigCPtr = new global::System.Runtime.InteropServices.HandleRef(null, global::System.IntPtr.Zero);
       }
+      base.Dispose(disposing);
     }
   }
 
   public GameObject() : this(PixelEnginePINVOKE.new_GameObject(), true) {
   }
 
-  public uint GetHashCode() {
-    uint ret = PixelEnginePINVOKE.GameObject_GetHashCode(swigCPtr);
+  public void Destroy() {
+    PixelEnginePINVOKE.GameObject_Destroy(swigCPtr);
+  }
+
+  public void AddModule(MODULE_TYPE type) {
+    PixelEnginePINVOKE.GameObject_AddModule(swigCPtr, (int)type);
+  }
+
+  public bool HasModule(MODULE_TYPE type) {
+    bool ret = PixelEnginePINVOKE.GameObject_HasModule(swigCPtr, (int)type);
+    return ret;
+  }
+
+  public Module GetModule(MODULE_TYPE type) {
+    global::System.IntPtr cPtr = PixelEnginePINVOKE.GameObject_GetModule(swigCPtr, (int)type);
+    Module ret = (cPtr == global::System.IntPtr.Zero) ? null : new Module(cPtr, false);
+    return ret;
+  }
+
+  public uint GetHash() {
+    uint ret = PixelEnginePINVOKE.GameObject_GetHash(swigCPtr);
     return ret;
   }
 
@@ -74,25 +83,6 @@ public class GameObject : global::System.IDisposable {
       if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
       return ret;
     } 
-  }
-
-  public SWIGTYPE_p_std__vectorT_SPointerT_Module_t_t GetModules() {
-    SWIGTYPE_p_std__vectorT_SPointerT_Module_t_t ret = new SWIGTYPE_p_std__vectorT_SPointerT_Module_t_t(PixelEnginePINVOKE.GameObject_GetModules(swigCPtr), true);
-    return ret;
-  }
-
-  public void Destroy() {
-    PixelEnginePINVOKE.GameObject_Destroy(swigCPtr);
-  }
-
-  public void OnCollision2D(SWIGTYPE_p_WPointerT_GameObject_t target) {
-    PixelEnginePINVOKE.GameObject_OnCollision2D(swigCPtr, SWIGTYPE_p_WPointerT_GameObject_t.getCPtr(target));
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-  }
-
-  public string Save(int tab) {
-    string ret = PixelEnginePINVOKE.GameObject_Save(swigCPtr, tab);
-    return ret;
   }
 
 }

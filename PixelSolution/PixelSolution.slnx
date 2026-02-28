@@ -1,21 +1,32 @@
 <Solution>
   <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Editor_d" />
+    <BuildType Name="Release" />
     <Platform Name="Any CPU" />
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
   <Project Path="Client/Client.vcxproj" Id="4d1d0bc9-bb1c-4dd0-a628-e0d684e2fd21">
     <BuildDependency Project="PixelEngine/PixelEngine.vcxproj" />
+    <BuildType Solution="Editor_d|Any CPU" Project="Debug" />
+    <BuildType Solution="Editor_d|x86" Project="Debug" />
     <Build Solution="*|x86" Project="false" />
   </Project>
   <Project Path="PixelEngine/PixelEngine.vcxproj" Id="ebc5deec-a4e3-441f-b2c2-75bb520403b5">
     <BuildDependency Project="PixelGraphics/PixelGraphics.vcxproj" />
+    <BuildType Solution="Editor_d|x86" Project="Debug" />
     <Build Solution="*|x86" Project="false" />
   </Project>
   <Project Path="PixelGraphics/PixelGraphics.vcxproj" Id="90a09673-cd57-47dd-92b7-d8dfdfb3fbf0">
+    <BuildType Solution="Editor_d|Any CPU" Project="Debug" />
+    <BuildType Solution="Editor_d|x86" Project="Debug" />
     <Build Solution="*|x86" Project="false" />
   </Project>
   <Project Path="PixelTool/PixelTool.csproj" Id="92a9001b-3885-4616-8c8b-4e2dd7ffcc8d">
-    <Platform Solution="Debug|x64" Project="x64" />
+    <BuildType Solution="Editor_d|Any CPU" Project="Debug" />
+    <BuildType Solution="Editor_d|x86" Project="Debug" />
+    <Platform Solution="*|Any CPU" Project="x64" />
+    <Platform Solution="*|x64" Project="x64" />
   </Project>
 </Solution>

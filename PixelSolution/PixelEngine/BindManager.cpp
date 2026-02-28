@@ -1,15 +1,17 @@
 #include "pch.h"
 #include "BindManager.h"
 #include <iostream>
-#include "GameObject.h"
-#include "Transform.h"
-#include "LuaScript.h"
+#include "Core/GameObject.h"
+#include "Type/GlobalEnum.h"
 #include "Renderer.h"
 #include "Renderer2D.h"
-#include "DebugCamera.h"
-#include "Camera.h"
-#include "Module.h"
 #include "BoxCollision2D.h"
+#include "GlobalBind.h"
+
+#include "Module/Transform.h"
+#include "Module/LuaScript.h"
+#include "Module/DebugCamera.h"
+#include "Module/Camera.h"
 std::string BindManager::apiDefinitions = "";
 std::vector<std::string> BindManager::bindClassName = std::vector<std::string>();
 
@@ -55,13 +57,17 @@ BindManager::~BindManager()
 
 void BindManager::Initialize()
 {
-	BIND_MODULE(Transform);
-	BIND_MODULE(LuaScript);
-	BIND_MODULE(Camera);
-	BIND_MODULE(Renderer2D);
-	BIND_MODULE(DebugCamera);
-	BIND_MODULE(Collision2D);
-	BIND_MODULE(BoxCollision2D);
+	ModuleTypeBind<Transform>::Bind(MODULE_TYPE::Transform);
+	ModuleTypeBind<Camera>::Bind(MODULE_TYPE::Camera);
+	ModuleTypeBind<DebugCamera>::Bind(MODULE_TYPE::DebugCamera);
+
+	//BIND_MODULE(Transform);
+	//BIND_MODULE(LuaScript);
+	//BIND_MODULE(Camera);
+	//BIND_MODULE(Renderer2D);
+	//BIND_MODULE(DebugCamera);
+	//BIND_MODULE(Collision2D);
+	//BIND_MODULE(BoxCollision2D);
 	CreateLuaAPI_File();
 }
 

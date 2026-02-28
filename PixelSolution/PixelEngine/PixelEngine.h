@@ -1,5 +1,5 @@
 #pragma once
-#include "PixelObject.h"
+#include "Core/PixelObject.h"
 #include <string>
 #include <windows.h>
 #include <vector>
@@ -9,18 +9,15 @@
 typedef unsigned char byte;
 using ObjectID = size_t;
 enum RESOURCE_TYPE;
-class EngineManager; 
-class KeyInputManager;
-class TimeManager;
-class ObjectManager;
-class LuaManager;
-class FunctionManager;
+class EngineManager;
 class SceneManager;
 class GameObject;
 class Module;
 class Scene;
 class TextureManager;
 class ResourceManager;
+
+template <typename T> class SPointer;
 class PixelEngine
 {
 public:
@@ -37,7 +34,7 @@ public:
 	bool RunningCheck();
 
 	sol::state* GetModuleCall_Lua();
-	SPointer<GameObject>& CreateGameObject(std::string name = "GameObject");
+	SPointer<GameObject> CreateGameObject(std::string name = "GameObject");
 	Scene* CreateScene(std::string name);
 
 	ObjectID GetResourceID(RESOURCE_TYPE type,const std::string& path);

@@ -5,6 +5,10 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Editor_d|x64">
+      <Configuration>Editor_d</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -24,6 +28,12 @@
     <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -38,14 +48,19 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\PixelEngine_Shared.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\PixelEngine_Shared.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -56,7 +71,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Export;$(ProjectDir)Import;$(ProjectDir)Import\sol;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir)include\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -67,12 +82,44 @@
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>"$(ProjectDir)Import\swigwin-4.4.1\swig.exe" -csharp -c++ -outdir "$(SolutionDir)Generated" -o "$(ProjectDir)PixelEngine_wrap.cpp" "$(ProjectDir)PixelEngineC#.i"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent />
     <PreBuildEvent>
-      <Command> copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"
-xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header\" /Y /D</Command>
+      <Command>xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
+"D:\PixelEngine\PixelSolution\PixelEngine\Import\swigwin-4.4.1\swig.exe" -csharp -c++ -outdir "D:\PixelEngine\PixelSolution\Generated" -o "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngine_wrap.cpp" "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngineC#.i"
+copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>PIXEL_EDITOR;_DEBUG;PIXELENGINE_EXPORTS;_WINDOWS;_USRDLL;ENGINE_INTERFACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir)include\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>$(ProjectDir)Library\lua5.1.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent />
+    <PreBuildEvent>
+      <Command>xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
+"D:\PixelEngine\PixelSolution\PixelEngine\Import\swigwin-4.4.1\swig.exe" -csharp -c++ -outdir "D:\PixelEngine\PixelSolution\Generated" -o "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngine_wrap.cpp" "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngineC#.i"
+copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -87,7 +134,7 @@ xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header\"
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)Export;$(ProjectDir)Import;$(ProjectDir)Import\sol;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir)include\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -97,36 +144,42 @@ xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header\"
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>"$(ProjectDir)Import\swigwin-4.4.1\swig.exe" -csharp -c++ -outdir "$(SolutionDir)Generated" -o "$(ProjectDir)PixelEngine_wrap.cpp" "$(ProjectDir)PixelEngineC#.i"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command> copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"
-xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header\" /Y /D</Command>
+      <Command>xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
+"D:\PixelEngine\PixelSolution\PixelEngine\Import\swigwin-4.4.1\swig.exe" -csharp -c++ -outdir "D:\PixelEngine\PixelSolution\Generated" -o "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngine_wrap.cpp" "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngineC#.i"
+copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Export\Core\GameObject.h" />
     <ClInclude Include="BindManager.h" />
     <ClInclude Include="BoxCollision2D.h" />
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="Collision2D.h" />
     <ClInclude Include="CollisionManager.h" />
-    <ClInclude Include="DebugCamera.h" />
     <ClInclude Include="EngineManager.h" />
+    <ClInclude Include="Export\Core\Module.h" />
+    <ClInclude Include="Export\Core\PixelObject.h" />
+    <ClInclude Include="Export\Module\Camera.h" />
+    <ClInclude Include="Export\Module\DebugCamera.h" />
+    <ClInclude Include="Export\Module\LuaScript.h" />
+    <ClInclude Include="Export\Module\Transform.h" />
     <ClInclude Include="Export\PixelEngineAPI.h" />
     <ClInclude Include="Export\PixelEngineDLL.h" />
+    <ClInclude Include="Export\Type\GlobalEnum.h" />
+    <ClInclude Include="Export\Type\PMatrix.h" />
+    <ClInclude Include="Export\Type\PVector3.h" />
     <ClInclude Include="GlobalBind.h" />
+    <ClInclude Include="LuaClassInfo.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="FunctionManager.h" />
-    <ClInclude Include="GameObject.h" />
     <ClInclude Include="KeyInputManager.h" />
     <ClInclude Include="LuaManager.h" />
-    <ClInclude Include="LuaScript.h" />
-    <ClInclude Include="Module.h" />
-    <ClInclude Include="PixelObject.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelEngine.h" />
-    <ClInclude Include="Matrix.h" />
     <ClInclude Include="SerializeHelper.h" />
     <ClInclude Include="SPointer.h" />
     <ClInclude Include="PtrControlBlock.h" />
@@ -139,39 +192,43 @@ xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header\"
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="UPointer.h" />
-    <ClInclude Include="Vector3.h" />
     <ClInclude Include="TimeManager.h" />
-    <ClInclude Include="Transform.h" />
     <ClInclude Include="WPointer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BindManager.cpp" />
     <ClCompile Include="BoxCollision2D.cpp" />
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collision2D.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
-    <ClCompile Include="DebugCamera.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EngineManager.cpp" />
+    <ClCompile Include="Export\Core\GameObject.cpp" />
+    <ClCompile Include="Export\Core\Module.cpp" />
+    <ClCompile Include="Export\Core\PixelObject.cpp" />
+    <ClCompile Include="Export\Module\Camera.cpp" />
+    <ClCompile Include="Export\Module\DebugCamera.cpp" />
+    <ClCompile Include="Export\Module\LuaScript.cpp" />
+    <ClCompile Include="Export\Module\Transform.cpp" />
+    <ClCompile Include="Export\Type\PMatrix.cpp" />
+    <ClCompile Include="Export\Type\PVector3.cpp" />
+    <ClCompile Include="GlobalBind.cpp" />
+    <ClCompile Include="LuaClassInfo.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="FunctionManager.cpp" />
-    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="KeyInputManager.cpp" />
     <ClCompile Include="LuaManager.cpp" />
-    <ClCompile Include="LuaScript.cpp" />
-    <ClCompile Include="Module.cpp" />
     <ClCompile Include="PixelEngine_wrap.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PixelObject.cpp" />
     <ClCompile Include="PixelEngine.cpp" />
     <ClCompile Include="PixelEngineAPI.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="PtrControlBlock.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Renderer2D.cpp" />
@@ -180,11 +237,10 @@ xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header\"
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SerializeHelper.cpp" />
     <ClCompile Include="TextureManager.cpp" />
-    <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="TimeManager.cpp" />
-    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="PixelEngineC#.i" />
     <None Include="Setting.lua" />
   </ItemGroup>

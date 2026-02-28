@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "PtrControlBlock.h"
-#include "PixelObject.h"
+#include "Core/PixelObject.h"
 PtrControlBlock::PtrControlBlock()
 {
 

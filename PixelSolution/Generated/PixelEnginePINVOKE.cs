@@ -263,8 +263,8 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetFPS")]
   public static extern int GetFPS();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LoadLuaScript")]
-  public static extern bool LoadLuaScript(string jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LoadLuaFile")]
+  public static extern bool LoadLuaFile(string jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LoadTexture")]
   public static extern bool LoadTexture(string jarg1);
@@ -284,98 +284,206 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_SaveScene")]
   public static extern void SaveScene();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_Vector3__SWIG_0")]
-  public static extern global::System.IntPtr new_Vector3__SWIG_0();
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_PVector3__SWIG_0")]
+  public static extern global::System.IntPtr new_PVector3__SWIG_0();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_Vector3__SWIG_1")]
-  public static extern global::System.IntPtr new_Vector3__SWIG_1(float jarg1, float jarg2, float jarg3);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_PVector3__SWIG_1")]
+  public static extern global::System.IntPtr new_PVector3__SWIG_1(float jarg1, float jarg2, float jarg3);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Dot__SWIG_0")]
-  public static extern float Vector3_Dot__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Add__SWIG_0")]
+  public static extern global::System.IntPtr PVector3_Add__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Cross__SWIG_0")]
-  public static extern global::System.IntPtr Vector3_Cross__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Sub__SWIG_0")]
+  public static extern global::System.IntPtr PVector3_Sub__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Normalize__SWIG_0")]
-  public static extern global::System.IntPtr Vector3_Normalize__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Mul__SWIG_0")]
+  public static extern global::System.IntPtr PVector3_Mul__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Distance__SWIG_0")]
-  public static extern float Vector3_Distance__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Div__SWIG_0")]
+  public static extern global::System.IntPtr PVector3_Div__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Distance__SWIG_1")]
-  public static extern float Vector3_Distance__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Add__SWIG_1")]
+  public static extern global::System.IntPtr PVector3_Add__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Lerp")]
-  public static extern global::System.IntPtr Vector3_Lerp(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2, float jarg3);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Sub__SWIG_1")]
+  public static extern global::System.IntPtr PVector3_Sub__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Zero_set")]
-  public static extern void Vector3_Zero_set(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Mul__SWIG_1")]
+  public static extern global::System.IntPtr PVector3_Mul__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Zero_get")]
-  public static extern global::System.IntPtr Vector3_Zero_get();
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Div__SWIG_1")]
+  public static extern global::System.IntPtr PVector3_Div__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_One_set")]
-  public static extern void Vector3_One_set(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_AddAssign")]
+  public static extern global::System.IntPtr PVector3_AddAssign(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_One_get")]
-  public static extern global::System.IntPtr Vector3_One_get();
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_SubAssign")]
+  public static extern global::System.IntPtr PVector3_SubAssign(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Up_set")]
-  public static extern void Vector3_Up_set(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_MulAssign")]
+  public static extern global::System.IntPtr PVector3_MulAssign(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Up_get")]
-  public static extern global::System.IntPtr Vector3_Up_get();
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_DivAssign")]
+  public static extern global::System.IntPtr PVector3_DivAssign(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Down_set")]
-  public static extern void Vector3_Down_set(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_DotStatic")]
+  public static extern float PVector3_DotStatic(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Down_get")]
-  public static extern global::System.IntPtr Vector3_Down_get();
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Dot")]
+  public static extern float PVector3_Dot(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Right_set")]
-  public static extern void Vector3_Right_set(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_CrossStatic")]
+  public static extern global::System.IntPtr PVector3_CrossStatic(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Right_get")]
-  public static extern global::System.IntPtr Vector3_Right_get();
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Cross")]
+  public static extern global::System.IntPtr PVector3_Cross(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Left_set")]
-  public static extern void Vector3_Left_set(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Normalize")]
+  public static extern global::System.IntPtr PVector3_Normalize(global::System.Runtime.InteropServices.HandleRef jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Left_get")]
-  public static extern global::System.IntPtr Vector3_Left_get();
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_NormalizeStatic")]
+  public static extern global::System.IntPtr PVector3_NormalizeStatic(global::System.Runtime.InteropServices.HandleRef jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Front_set")]
-  public static extern void Vector3_Front_set(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Distance__SWIG_0")]
+  public static extern float PVector3_Distance__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Front_get")]
-  public static extern global::System.IntPtr Vector3_Front_get();
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Distance__SWIG_1")]
+  public static extern float PVector3_Distance__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Back_set")]
-  public static extern void Vector3_Back_set(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Lerp")]
+  public static extern global::System.IntPtr PVector3_Lerp(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2, float jarg3);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Back_get")]
-  public static extern global::System.IntPtr Vector3_Back_get();
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Zero_get")]
+  public static extern global::System.IntPtr PVector3_Zero_get();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_X_set")]
-  public static extern void Vector3_X_set(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_One_get")]
+  public static extern global::System.IntPtr PVector3_One_get();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_X_get")]
-  public static extern float Vector3_X_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Up_get")]
+  public static extern global::System.IntPtr PVector3_Up_get();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Y_set")]
-  public static extern void Vector3_Y_set(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Down_get")]
+  public static extern global::System.IntPtr PVector3_Down_get();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Y_get")]
-  public static extern float Vector3_Y_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Right_get")]
+  public static extern global::System.IntPtr PVector3_Right_get();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Z_set")]
-  public static extern void Vector3_Z_set(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Left_get")]
+  public static extern global::System.IntPtr PVector3_Left_get();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Vector3_Z_get")]
-  public static extern float Vector3_Z_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Front_get")]
+  public static extern global::System.IntPtr PVector3_Front_get();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_Vector3")]
-  public static extern void delete_Vector3(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Back_get")]
+  public static extern global::System.IntPtr PVector3_Back_get();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_X_set")]
+  public static extern void PVector3_X_set(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_X_get")]
+  public static extern float PVector3_X_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Y_set")]
+  public static extern void PVector3_Y_set(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Y_get")]
+  public static extern float PVector3_Y_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Z_set")]
+  public static extern void PVector3_Z_set(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Z_get")]
+  public static extern float PVector3_Z_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_PVector3")]
+  public static extern void delete_PVector3(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_PMatrix")]
+  public static extern global::System.IntPtr new_PMatrix();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_PMatrix")]
+  public static extern void delete_PMatrix(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_Multiply")]
+  public static extern global::System.IntPtr PMatrix_Multiply(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_MultiplyScalar")]
+  public static extern global::System.IntPtr PMatrix_MultiplyScalar(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_AddAssign")]
+  public static extern global::System.IntPtr PMatrix_AddAssign(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_SubAssign")]
+  public static extern global::System.IntPtr PMatrix_SubAssign(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_Identity")]
+  public static extern global::System.IntPtr PMatrix_Identity();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_CreateTranslation")]
+  public static extern global::System.IntPtr PMatrix_CreateTranslation(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_CreateScale")]
+  public static extern global::System.IntPtr PMatrix_CreateScale(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_CreateRotationRoll")]
+  public static extern global::System.IntPtr PMatrix_CreateRotationRoll(float jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_CreateRotationPitch")]
+  public static extern global::System.IntPtr PMatrix_CreateRotationPitch(float jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_CreateRotationYaw")]
+  public static extern global::System.IntPtr PMatrix_CreateRotationYaw(float jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix_Invert")]
+  public static extern bool PMatrix_Invert(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix__m_set")]
+  public static extern void PMatrix__m_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix__m_get")]
+  public static extern global::System.IntPtr PMatrix__m_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_PixelObject")]
+  public static extern global::System.IntPtr new_PixelObject();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_PixelObject")]
+  public static extern void delete_PixelObject(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PixelObject_cBlock_set")]
+  public static extern void PixelObject_cBlock_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PixelObject_cBlock_get")]
+  public static extern global::System.IntPtr PixelObject_cBlock_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_Module")]
+  public static extern global::System.IntPtr new_Module();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_Module")]
+  public static extern void delete_Module(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_Awake")]
+  public static extern void Module_Awake(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_Start")]
+  public static extern void Module_Start(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_Update")]
+  public static extern void Module_Update(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_MatrixUpdate")]
+  public static extern void Module_MatrixUpdate(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_PhysicsUpdate")]
+  public static extern void Module_PhysicsUpdate(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_LastUpdate")]
+  public static extern void Module_LastUpdate(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_GetType")]
+  public static extern int Module_GetType(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_GetGameObject")]
+  public static extern global::System.IntPtr Module_GetGameObject(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_GameObject")]
   public static extern global::System.IntPtr new_GameObject();
@@ -383,8 +491,20 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_GameObject")]
   public static extern void delete_GameObject(global::System.Runtime.InteropServices.HandleRef jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_GetHashCode")]
-  public static extern uint GameObject_GetHashCode(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_Destroy")]
+  public static extern void GameObject_Destroy(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_AddModule")]
+  public static extern void GameObject_AddModule(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_HasModule")]
+  public static extern bool GameObject_HasModule(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_GetModule")]
+  public static extern global::System.IntPtr GameObject_GetModule(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_GetHash")]
+  public static extern uint GameObject_GetHash(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_name_set")]
   public static extern void GameObject_name_set(global::System.Runtime.InteropServices.HandleRef jarg1, string jarg2);
@@ -392,15 +512,198 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_name_get")]
   public static extern string GameObject_name_get(global::System.Runtime.InteropServices.HandleRef jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_GetModules")]
-  public static extern global::System.IntPtr GameObject_GetModules(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_Camera")]
+  public static extern global::System.IntPtr new_Camera();
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_Destroy")]
-  public static extern void GameObject_Destroy(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_Camera")]
+  public static extern void delete_Camera(global::System.Runtime.InteropServices.HandleRef jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_OnCollision2D")]
-  public static extern void GameObject_OnCollision2D(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Camera_Start")]
+  public static extern void Camera_Start(global::System.Runtime.InteropServices.HandleRef jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_Save")]
-  public static extern string GameObject_Save(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2);
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Camera_LastUpdate")]
+  public static extern void Camera_LastUpdate(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Camera_OrthographicProjection")]
+  public static extern void Camera_OrthographicProjection(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Camera_PerspectiveProjection")]
+  public static extern void Camera_PerspectiveProjection(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_DebugCamera")]
+  public static extern global::System.IntPtr new_DebugCamera();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_DebugCamera")]
+  public static extern void delete_DebugCamera(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_DebugCamera_Start")]
+  public static extern void DebugCamera_Start(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_DebugCamera_Update")]
+  public static extern void DebugCamera_Update(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_DebugCamera_LastUpdate")]
+  public static extern void DebugCamera_LastUpdate(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_Transform")]
+  public static extern global::System.IntPtr new_Transform();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_Transform")]
+  public static extern void delete_Transform(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_MatrixUpdate")]
+  public static extern void Transform_MatrixUpdate(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_Start")]
+  public static extern void Transform_Start(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SetPosition__SWIG_0")]
+  public static extern void Transform_SetPosition__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SetPosition__SWIG_1")]
+  public static extern void Transform_SetPosition__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2, float jarg3, float jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SetPosition__SWIG_2")]
+  public static extern void Transform_SetPosition__SWIG_2(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2, int jarg3, int jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_AddPosition__SWIG_0")]
+  public static extern void Transform_AddPosition__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_AddPosition__SWIG_1")]
+  public static extern void Transform_AddPosition__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2, float jarg3, float jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_AddPosition__SWIG_2")]
+  public static extern void Transform_AddPosition__SWIG_2(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2, int jarg3, int jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_GetPosition")]
+  public static extern global::System.IntPtr Transform_GetPosition(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SetRotation__SWIG_0")]
+  public static extern void Transform_SetRotation__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SetRotation__SWIG_1")]
+  public static extern void Transform_SetRotation__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2, float jarg3, float jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SetRotation__SWIG_2")]
+  public static extern void Transform_SetRotation__SWIG_2(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2, int jarg3, int jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_AddRotation__SWIG_0")]
+  public static extern void Transform_AddRotation__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_AddRotation__SWIG_1")]
+  public static extern void Transform_AddRotation__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2, float jarg3, float jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_AddRotation__SWIG_2")]
+  public static extern void Transform_AddRotation__SWIG_2(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2, int jarg3, int jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_GetRotation")]
+  public static extern global::System.IntPtr Transform_GetRotation(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SetScale__SWIG_0")]
+  public static extern void Transform_SetScale__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SetScale__SWIG_1")]
+  public static extern void Transform_SetScale__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2, float jarg3, float jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SetScale__SWIG_2")]
+  public static extern void Transform_SetScale__SWIG_2(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2, int jarg3, int jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_AddScale__SWIG_0")]
+  public static extern void Transform_AddScale__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_AddScale__SWIG_1")]
+  public static extern void Transform_AddScale__SWIG_1(global::System.Runtime.InteropServices.HandleRef jarg1, float jarg2, float jarg3, float jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_AddScale__SWIG_2")]
+  public static extern void Transform_AddScale__SWIG_2(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2, int jarg3, int jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_GetScale")]
+  public static extern global::System.IntPtr Transform_GetScale(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_GetWorldMatrix")]
+  public static extern global::System.IntPtr Transform_GetWorldMatrix(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_GetLookVector")]
+  public static extern global::System.IntPtr Transform_GetLookVector(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_GetRightVector")]
+  public static extern global::System.IntPtr Transform_GetRightVector(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_GetUpVector")]
+  public static extern global::System.IntPtr Transform_GetUpVector(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_GetLocal")]
+  public static extern global::System.IntPtr Transform_GetLocal(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_World_Matrix_set")]
+  public static extern void Transform_World_Matrix_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_World_Matrix_get")]
+  public static extern global::System.IntPtr Transform_World_Matrix_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_Local_Matrix_set")]
+  public static extern void Transform_Local_Matrix_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_Local_Matrix_get")]
+  public static extern global::System.IntPtr Transform_Local_Matrix_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_IsChange_Postion_set")]
+  public static extern void Transform_IsChange_Postion_set(global::System.Runtime.InteropServices.HandleRef jarg1, bool jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_IsChange_Postion_get")]
+  public static extern bool Transform_IsChange_Postion_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_IsChange_Rotation_set")]
+  public static extern void Transform_IsChange_Rotation_set(global::System.Runtime.InteropServices.HandleRef jarg1, bool jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_IsChange_Rotation_get")]
+  public static extern bool Transform_IsChange_Rotation_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_IsChange_Scale_set")]
+  public static extern void Transform_IsChange_Scale_set(global::System.Runtime.InteropServices.HandleRef jarg1, bool jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_IsChange_Scale_get")]
+  public static extern bool Transform_IsChange_Scale_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_RegisterLua")]
+  public static extern string Transform_RegisterLua();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_LuaScript")]
+  public static extern global::System.IntPtr new_LuaScript();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_LuaScript")]
+  public static extern void delete_LuaScript(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LuaScript_Awake")]
+  public static extern void LuaScript_Awake(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LuaScript_Start")]
+  public static extern void LuaScript_Start(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LuaScript_Update")]
+  public static extern void LuaScript_Update(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LuaScript_Reload")]
+  public static extern void LuaScript_Reload(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LuaScript_Register")]
+  public static extern void LuaScript_Register(global::System.Runtime.InteropServices.HandleRef jarg1, string jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_SWIGUpcast")]
+  public static extern global::System.IntPtr Module_SWIGUpcast(global::System.IntPtr jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_SWIGUpcast")]
+  public static extern global::System.IntPtr GameObject_SWIGUpcast(global::System.IntPtr jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Camera_SWIGUpcast")]
+  public static extern global::System.IntPtr Camera_SWIGUpcast(global::System.IntPtr jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_DebugCamera_SWIGUpcast")]
+  public static extern global::System.IntPtr DebugCamera_SWIGUpcast(global::System.IntPtr jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SWIGUpcast")]
+  public static extern global::System.IntPtr Transform_SWIGUpcast(global::System.IntPtr jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LuaScript_SWIGUpcast")]
+  public static extern global::System.IntPtr LuaScript_SWIGUpcast(global::System.IntPtr jarg1);
 }

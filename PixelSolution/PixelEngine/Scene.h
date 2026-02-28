@@ -1,7 +1,9 @@
 #pragma once
-#include "PixelObject.h"
+#include "Core/PixelObject.h"
 #include "sol.hpp"
 #include <unordered_map>
+
+template <typename T> class SPointer;
 struct RenderingData;
 class GameObject;
 class LuaManager;
@@ -15,7 +17,7 @@ public:
 	void Start();
 	void Update();
 	void Release();
-	void CreateGameObject(SPointer<GameObject>& Obj);
+	void CreateGameObject(SPointer<GameObject> Obj);
 
 
 	std::string Save(int tab);

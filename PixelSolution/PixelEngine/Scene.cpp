@@ -3,9 +3,10 @@
 #include "PixelEngine.h"
 #include "LuaManager.h"
 #include "FunctionManager.h"
-#include "GameObject.h"
+#include "Core/GameObject.h"
 #include "sol.hpp"
 #include "SerializeHelper.h"
+#include "SPointer.h"
 extern PixelEngine* Engine;
 Scene::Scene()
 {
@@ -62,23 +63,23 @@ void Scene::Release()
     ObjectList.clear();
 }
 
-void Scene::CreateGameObject(SPointer<GameObject>& Obj)
+void Scene::CreateGameObject(SPointer<GameObject> Obj)
 {
-    ObjectList.insert({ Obj->GetHashCode(),Obj});
+    ObjectList.insert({ Obj->GetHash(),Obj});
 }
 
 std::string Scene::Save(int tab)
 {
     std::string content = BeginBlock(tab); // { 시작
-    content += AddEntry(tab + 1, "Name", sceneName);
-
-    content += BeginBlock(tab + 1, "GameObjects"); // GameObjects = { 시작
-    for (auto& K : ObjectList)
-    {
-        content += K.second->Save(tab + 2);
-    }
-    content += EndBlock(tab + 1); // GameObjects = } 닫기
-
-    content += EndBlock(tab, false); // SceneData 전체 } 닫기 (마지막이라 쉼표 생략)
+    //content += AddEntry(tab + 1, "Name", sceneName);
+    //
+    //content += BeginBlock(tab + 1, "GameObjects"); // GameObjects = { 시작
+    //for (auto& K : ObjectList)
+    //{
+    //    content += K.second->Save(tab + 2);
+    //}
+    //content += EndBlock(tab + 1); // GameObjects = } 닫기
+    //
+    //content += EndBlock(tab, false); // SceneData 전체 } 닫기 (마지막이라 쉼표 생략)
     return content;
 }

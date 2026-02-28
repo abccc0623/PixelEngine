@@ -97,9 +97,6 @@ public class Vector3 : global::System.IDisposable {
   }
 
   public static Vector3 Zero {
-    set {
-      PixelEnginePINVOKE.Vector3_Zero_set(Vector3.getCPtr(value));
-    } 
     get {
       global::System.IntPtr cPtr = PixelEnginePINVOKE.Vector3_Zero_get();
       Vector3 ret = (cPtr == global::System.IntPtr.Zero) ? null : new Vector3(cPtr, false);
@@ -108,9 +105,6 @@ public class Vector3 : global::System.IDisposable {
   }
 
   public static Vector3 One {
-    set {
-      PixelEnginePINVOKE.Vector3_One_set(Vector3.getCPtr(value));
-    } 
     get {
       global::System.IntPtr cPtr = PixelEnginePINVOKE.Vector3_One_get();
       Vector3 ret = (cPtr == global::System.IntPtr.Zero) ? null : new Vector3(cPtr, false);
@@ -119,9 +113,6 @@ public class Vector3 : global::System.IDisposable {
   }
 
   public static Vector3 Up {
-    set {
-      PixelEnginePINVOKE.Vector3_Up_set(Vector3.getCPtr(value));
-    } 
     get {
       global::System.IntPtr cPtr = PixelEnginePINVOKE.Vector3_Up_get();
       Vector3 ret = (cPtr == global::System.IntPtr.Zero) ? null : new Vector3(cPtr, false);
@@ -130,9 +121,6 @@ public class Vector3 : global::System.IDisposable {
   }
 
   public static Vector3 Down {
-    set {
-      PixelEnginePINVOKE.Vector3_Down_set(Vector3.getCPtr(value));
-    } 
     get {
       global::System.IntPtr cPtr = PixelEnginePINVOKE.Vector3_Down_get();
       Vector3 ret = (cPtr == global::System.IntPtr.Zero) ? null : new Vector3(cPtr, false);
@@ -141,9 +129,6 @@ public class Vector3 : global::System.IDisposable {
   }
 
   public static Vector3 Right {
-    set {
-      PixelEnginePINVOKE.Vector3_Right_set(Vector3.getCPtr(value));
-    } 
     get {
       global::System.IntPtr cPtr = PixelEnginePINVOKE.Vector3_Right_get();
       Vector3 ret = (cPtr == global::System.IntPtr.Zero) ? null : new Vector3(cPtr, false);
@@ -152,9 +137,6 @@ public class Vector3 : global::System.IDisposable {
   }
 
   public static Vector3 Left {
-    set {
-      PixelEnginePINVOKE.Vector3_Left_set(Vector3.getCPtr(value));
-    } 
     get {
       global::System.IntPtr cPtr = PixelEnginePINVOKE.Vector3_Left_get();
       Vector3 ret = (cPtr == global::System.IntPtr.Zero) ? null : new Vector3(cPtr, false);
@@ -163,9 +145,6 @@ public class Vector3 : global::System.IDisposable {
   }
 
   public static Vector3 Front {
-    set {
-      PixelEnginePINVOKE.Vector3_Front_set(Vector3.getCPtr(value));
-    } 
     get {
       global::System.IntPtr cPtr = PixelEnginePINVOKE.Vector3_Front_get();
       Vector3 ret = (cPtr == global::System.IntPtr.Zero) ? null : new Vector3(cPtr, false);
@@ -174,9 +153,6 @@ public class Vector3 : global::System.IDisposable {
   }
 
   public static Vector3 Back {
-    set {
-      PixelEnginePINVOKE.Vector3_Back_set(Vector3.getCPtr(value));
-    } 
     get {
       global::System.IntPtr cPtr = PixelEnginePINVOKE.Vector3_Back_get();
       Vector3 ret = (cPtr == global::System.IntPtr.Zero) ? null : new Vector3(cPtr, false);

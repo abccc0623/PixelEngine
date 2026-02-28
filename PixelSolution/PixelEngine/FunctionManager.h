@@ -6,7 +6,7 @@
 #include <typeinfo>
 #include <concepts>
 #include <type_traits>
-#include "Module.h"
+#include "Core/Module.h"
 #include <vector>
 
 
@@ -17,6 +17,8 @@
 #define PHYSICS_UPDATE_FUNCTION 4
 #define LAST_UPDATE_FUNCTION 5
 
+
+template <typename T> class SPointer;
 class GameObject;
 class Module;
 class CollisionManager;
@@ -31,15 +33,14 @@ public:
 	void Update() override;
 	void ReleaseShared() override;
 
-	template <std::derived_from<Module> T>
-	void Register(GameObject* target);
+	//template <std::derived_from<Module> T>
+	//void Register(GameObject* target);
 	
 	void FunctionUpdate();
 	void Clear();
-private:
 	void AddOneTimeFunction(SPointer<Module> module,int type);
 	void AddTickFunction(SPointer<Module> module,int type);
-
+private:
 	std::map<int,std::queue <std::function<bool()>>> oneTime;
 	std::map<int,std::vector <std::function<bool()>>> tickUpdate;
 

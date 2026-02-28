@@ -2,16 +2,21 @@
 #include "LuaManager.h"
 #include "PixelEngine.h"
 #include "PixelEngineAPI.h"
-#include "GameObject.h"
-#include "Module.h"
+#include "Core/GameObject.h"
+#include "Core/Module.h"
 #include "resource.h"
 #include "ResourceManager.h"
-#include "LuaScript.h"
-#include "Transform.h"
+#include "Module/Transform.h"
 #include "BindManager.h"
 #include "KeyInputManager.h"
 #include "ObjectManager.h"
 #include "SceneManager.h"
+#include "SPointer.h"
+#include "LuaClassInfo.h"
+#include <iostream>
+#include <filesystem>
+
+#include "Module/LuaScript.h"
 #define SOL_ALL_SAFETIES_ON 1 // 안전장치 활성화 (권장)
 
 extern PixelEngine* Engine;
@@ -176,21 +181,40 @@ void LuaManager::Initialize()
 }
 
 
-bool LuaManager::LoadLuaScript(const std::string& fileName)
+bool LuaManager::Load(const std::string& filePath)
 {
-    if (!std::filesystem::exists(fileName)) {
-        std::cerr << "Error: Lua file not found at path: " << fileName << std::endl;
+    if (!std::filesystem::exists(filePath)) {
+        std::cerr << "Error: Lua file not found at path: " << filePath << std::endl;
         return false;
     }
 
-    auto result = lua->script_file(fileName);
-    if (!result.valid()) {
-        sol::error err = result;
+    sol::load_result script = lua->load_file(filePath);
+    if (!script.valid())
+    {
+        sol::error err = script;
         std::string what = err.what();
-        std::cout << "루아 로드 에러: " << what << std::endl;
+        return false;
     }
+    
+    std::filesystem::path p(filePath);
+
+    sol::table Proto = script();
+    LuaClassInfo* info = new LuaClassInfo(Proto);
+    luaTableMap.insert({p.stem().string(),info });
 	return true;
 }
+
+LuaClassInfo* LuaManager::GetLua(const std::string& fileName)
+{
+    auto k = luaTableMap.find(fileName);
+    if (k != luaTableMap.end())
+    {
+        return k->second;
+    }
+    return nullptr;
+}
+
+
 
 sol::state* LuaManager::GetModuleCall_Lua()
 {
@@ -210,6 +234,8 @@ void LuaManager::AddLuaAPI(std::string className, std::vector<std::string> funct
     }
     apiDefinitions += "\n";
 }
+
+
 
 bool LuaManager::CreateLuaAPIPath(const std::string& filePath)
 {
@@ -303,6 +329,10 @@ void LuaManager::Update()
 
 void LuaManager::ReleaseShared()
 {
+    for (auto& k : luaTableMap)
+    {
+        delete k.second;
+    }
     lua->collect_garbage();
     delete lua;
 }

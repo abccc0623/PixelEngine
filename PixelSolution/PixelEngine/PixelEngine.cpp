@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "PixelEngine.h"
 #include "PixelGraphicsAPI.h"
-#include "Module.h"
+#include "Core/Module.h"
 #include "Scene.h"
 #include <iostream>
 #include <Windows.h>
@@ -16,9 +16,13 @@
 #include "ResourceManager.h"
 #include "CollisionManager.h"
 #include "BindManager.h"
+#include "SPointer.h"
 
 void PixelEngine::Initialize(HWND hWnd, int width, int height)
 {
+
+
+
 	BindFactory<KeyInputManager>();
 	BindFactory<TimeManager>();
 	BindFactory<ObjectManager>();
@@ -84,7 +88,7 @@ void PixelEngine::QuitWindow()
 }
 
 
-SPointer<GameObject>& PixelEngine::CreateGameObject(std::string name)
+SPointer<GameObject> PixelEngine::CreateGameObject(std::string name)
 {
 	auto factory = GetFactory<ObjectManager>();
 	return factory->Create();

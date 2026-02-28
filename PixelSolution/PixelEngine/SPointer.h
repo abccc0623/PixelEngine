@@ -117,7 +117,7 @@ public:
     template <typename... Args>
     static SPointer<T> Make_SPointer(Args&&... args)
     {
-        return SPointer<T>(new T(std::forward<Args>(args)...));
+        return SPointer<T>(new T());
     }
 
     PtrControlBlock* cBlock = nullptr;

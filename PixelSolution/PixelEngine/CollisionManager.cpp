@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CollisionManager.h"
 #include "BoxCollision2D.h"
-#include "GameObject.h"
+#include "Core/GameObject.h"
 CollisionManager::CollisionManager()
 {
 	//CollisionList = std::vector<WPointer<BoxCollision2D>>();
