@@ -14,7 +14,7 @@
     <DockPanel Background="{StaticResource PixelBackgroundBrush}">
         <local:ToolbarWindow></local:ToolbarWindow>
 
-        <dock:DockingManager x:Name="dockManager" Grid.Row="1">
+        <dock:DockingManager x:Name="dockManager" Grid.Row="1" >
             
             <dock:LayoutRoot>
                 <dock:LayoutPanel Orientation="Horizontal">
@@ -22,6 +22,12 @@
                     <dock:LayoutAnchorablePane DockWidth="300">
                         <dock:LayoutAnchorable Title="Asset">
                             <local:FolderWindow></local:FolderWindow>
+                        </dock:LayoutAnchorable>
+                    </dock:LayoutAnchorablePane>
+
+                    <dock:LayoutAnchorablePane DockWidth="300" >
+                        <dock:LayoutAnchorable Title="Inspector" >
+                            <ScrollViewer x:Name="PropertyFileView"/>
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
 
@@ -39,14 +45,8 @@
                         </dock:LayoutAnchorablePane>
                     </dock:LayoutPanel>
 
-                    <dock:LayoutAnchorablePane DockWidth="300">
-                        <dock:LayoutAnchorable Title="Inspector">
-                            <ScrollViewer x:Name="PropertyFileView"/>
-                        </dock:LayoutAnchorable>
-                    </dock:LayoutAnchorablePane>
 
                 </dock:LayoutPanel>
-                
             </dock:LayoutRoot>
         </dock:DockingManager>
     </DockPanel>

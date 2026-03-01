@@ -16,17 +16,54 @@
         <SolidColorBrush x:Key="PixelButtonHoverBrush" Color="#444BB5"/>
         <SolidColorBrush x:Key="PixelButtonPressedBrush" Color="#373CA0"/>
         <SolidColorBrush x:Key="PixelButtonTextBrush" Color="#E1E1F0"/>
-
         <Color x:Key="PixelBackgroundColor">#1B1C2E</Color>
         <Color x:Key="PixelBorderColor">#3F3F5C</Color>
-
-        <Style TargetType="{x:Type dock:LayoutAnchorableControl}">
-            <Setter Property="Background" Value="{StaticResource PixelBorderBrush}"/>
-            <Setter Property="Foreground" Value="#D1D1E0"/>
-        </Style>
 
         <Style TargetType="{x:Type dock:DockingManager}">
             <Setter Property="Background" Value="{StaticResource PixelBackgroundBrush}"/>
         </Style>
+        
+        
+        
+        
+        <Style TargetType="{x:Type dock:LayoutAnchorablePaneControl}">
+            <Setter Property="Background" Value="Red"/>
+            <Setter Property="TabStripPlacement" Value="Top"/>
+        </Style>
+
+        <Style TargetType="{x:Type dock:LayoutAnchorableTabItem}">
+            <Setter Property="Background" Value="{StaticResource PixelBorderBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PixelTextBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0,0,2,0"/>
+            <Setter Property="Padding" Value="10,4"/>
+        </Style>
+
+        <Style TargetType="{x:Type dock:LayoutAnchorableControl}">
+            <Setter Property="Background" Value="{StaticResource PixelBorderBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PixelTextBrush}"/>
+        </Style>
+
+
+
+        
+        <Style TargetType="{x:Type dock:LayoutDocumentPaneControl}">
+            <Setter Property="Background" Value="Red"/>
+            <Setter Property="TabStripPlacement" Value="Top"/>
+        </Style>
+
+        <Style TargetType="{x:Type dock:LayoutDocumentTabItem}">
+            <Setter Property="Background" Value="{StaticResource PixelBorderBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PixelTextBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0,0,2,0"/>
+            <Setter Property="Padding" Value="10,4"/>
+        </Style>
+
+        <Style TargetType="{x:Type dock:LayoutDocumentControl}">
+            <Setter Property="Background" Value="{StaticResource PixelBorderBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PixelTextBrush}"/>
+        </Style>
+
     </Application.Resources>
 </Application>
