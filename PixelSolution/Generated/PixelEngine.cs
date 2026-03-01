@@ -10,6 +10,12 @@
 
 
 public class PixelEngine {
+  public static SWIGTYPE_p_p_GameObject GetAllSceneObjects(out int outCount) {
+    global::System.IntPtr cPtr = PixelEnginePINVOKE.GetAllSceneObjects(out outCount);
+    SWIGTYPE_p_p_GameObject ret = (cPtr == global::System.IntPtr.Zero) ? null : new SWIGTYPE_p_p_GameObject(cPtr, false);
+    return ret;
+  }
+
   public static bool EngineInitialize(IntPtr hWnd, int width, int height) {
     bool ret = PixelEnginePINVOKE.EngineInitialize(hWnd, width, height);
     return ret;
@@ -103,6 +109,10 @@ public class PixelEngine {
     return ret;
   }
 
+  public static void RegisterSceneObjectChange(SWIGTYPE_p_f___void callBack) {
+    PixelEnginePINVOKE.RegisterSceneObjectChange(SWIGTYPE_p_f___void.getCPtr(callBack));
+  }
+
   public static void SaveScene() {
     PixelEnginePINVOKE.SaveScene();
   }
@@ -116,4 +126,5 @@ public class PixelEngine {
   }
 
   public static readonly SWIGTYPE_p_f_p_q_const__char_int__void LogCallback = new SWIGTYPE_p_f_p_q_const__char_int__void(PixelEnginePINVOKE.LogCallback_get(), false);
+  public static readonly SWIGTYPE_p_f___void SceneChangeCallback = new SWIGTYPE_p_f___void(PixelEnginePINVOKE.SceneChangeCallback_get(), false);
 }

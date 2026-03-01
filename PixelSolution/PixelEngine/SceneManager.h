@@ -1,4 +1,5 @@
 #pragma once
+#include "PixelEngineAPI.h"
 #include "EngineManager.h"
 #include "SPointer.h"
 #include "WPointer.h"
@@ -20,6 +21,8 @@ public:
 
 	void CreateScene(const std::string& luaPath);
 	void ChangeScene(std::string SceneName);
+	GameObject** GetAllSceneObjects(int* outCount);
+	void DeleteGameObject(size_t targetObject);
 	void SaveScene();
 private:
 	WPointer<Scene> nowScene = WPointer<Scene>(nullptr);

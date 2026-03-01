@@ -176,3 +176,4 @@ Handle16 TextureFactory::SetResource(std::string name)
 	textureMap.insert({ value->key, value });
 	return value->key;
 }
+ 

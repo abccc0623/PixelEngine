@@ -49,7 +49,7 @@ namespace PixelTool
         }
         private void CameraObject(object sender, RoutedEventArgs e)
         {
-            var go = PixelEngine.CreateGameObject("DefaultLua");
+            var go = PixelEngine.CreateGameObject("Camera");
             go.AddModule(MODULE_TYPE.DebugCamera);
         }
     }

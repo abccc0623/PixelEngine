@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "PtrControlBlock.h"
 #include "Core/PixelObject.h"
+#include "Log.h"
 PtrControlBlock::PtrControlBlock()
 {
 
@@ -25,7 +26,7 @@ void PtrControlBlock::ReleaseShared()
 	{
 		if (target != nullptr)
 		{
-			printf("Release: S:%d, W:%d\n", strongCount, weakCount);
+			Log::Info("Release:" + std::to_string(strongCount) + "," + std::to_string(weakCount));
 			delete target;
 			target = nullptr;
 		}
@@ -42,7 +43,7 @@ void PtrControlBlock::ReleaseWeak()
 	weakCount--;
 	if (strongCount == 0 && weakCount == 0)
 	{
-		printf("Release: S:%d, W:%d\n", strongCount, weakCount);
+		Log::Info("Release:" + std::to_string(strongCount) + "," + std::to_string(weakCount));
 		delete this;
 	}
 }

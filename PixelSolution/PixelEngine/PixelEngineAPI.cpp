@@ -15,7 +15,9 @@
 
 
 PixelEngine* Engine = nullptr;
-static LogCallbackFunc g_logCallback = nullptr;
+LogCallbackFunc g_logCallback = nullptr;
+SceneChangeCallbackFunc g_SceneObjectChangeCallBack = nullptr;
+
 bool EngineInitialize(HWND hWnd, int width, int height)
 {
 	Engine = new PixelEngine();
@@ -230,6 +232,21 @@ bool ChangeScene(const char* sceneName)
 		scene->ChangeScene(strPath);
 	}
 	return true;
+}
+
+GameObject** GetAllSceneObjects(int* outCount)
+{
+	if (Engine != nullptr)
+	{
+		SceneManager* scene = Engine->GetFactory<SceneManager>();
+		return scene->GetAllSceneObjects(outCount);
+	}
+	return 0;
+}
+
+void  RegisterSceneObjectChange(SceneChangeCallbackFunc callBack)
+{
+	g_SceneObjectChangeCallBack = callBack;
 }
 
 						

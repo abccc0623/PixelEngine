@@ -12,6 +12,7 @@
 #include "Module/Renderer2D.h"
 #define PE_NEW new(__FILE__, __LINE__)
 
+
 LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) 
@@ -65,7 +66,8 @@ int main()
     GameObject* Camera = CreateGameObject("Camera");
     Camera->AddModule(MODULE_TYPE::DebugCamera);
 
-
+  
+    Transform* tr = nullptr;
     GameObject* Obj = CreateGameObject("test");
     Obj->AddModule(MODULE_TYPE::LuaScript);
     Obj->AddModule(MODULE_TYPE::Renderer2D);
@@ -76,9 +78,8 @@ int main()
         auto r = Obj->GetModule(MODULE_TYPE::Renderer2D);
         LuaScript* lua = static_cast<LuaScript*>(i);
         Renderer2D* render = static_cast<Renderer2D*>(r);
+        tr= static_cast<Transform*>(k);
         render->SetTexture("test");
-
-        lua->Register("Player");
     }
 
     //CreateGameObject();

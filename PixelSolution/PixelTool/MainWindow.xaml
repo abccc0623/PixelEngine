@@ -11,40 +11,40 @@
         Opacity="1.0"
         Title="PixelTool" Width="1920" Height="1080">
 
-    <DockPanel Background="{StaticResource PixelBackgroundBrush}">
+    <DockPanel Background="{DynamicResource PixelBackgroundBrush}">
         <local:ToolbarWindow></local:ToolbarWindow>
 
-        <dock:DockingManager x:Name="dockManager" Grid.Row="1" >
-            
+        <dock:DockingManager x:Name="dockManager" Grid.Row="1" Background="#191B1C2E" OpacityMask="Black" Foreground="#00000000" BorderBrush="#00000000" Margin="0" >
+
             <dock:LayoutRoot>
                 <dock:LayoutPanel Orientation="Horizontal">
+                    
+                    <dock:LayoutDocumentPane DockWidth="0.15*">
+                        <dock:LayoutDocument Title="Asset">
+                            <local:FolderWindow/>
+                        </dock:LayoutDocument>
+                    </dock:LayoutDocumentPane>
 
-                    <dock:LayoutAnchorablePane DockWidth="300">
-                        <dock:LayoutAnchorable Title="Asset">
-                            <local:FolderWindow></local:FolderWindow>
-                        </dock:LayoutAnchorable>
-                    </dock:LayoutAnchorablePane>
-
-                    <dock:LayoutAnchorablePane DockWidth="300" >
-                        <dock:LayoutAnchorable Title="Inspector" >
-                            <ScrollViewer x:Name="PropertyFileView"/>
-                        </dock:LayoutAnchorable>
-                    </dock:LayoutAnchorablePane>
-
-                    <dock:LayoutPanel Orientation="Vertical">
-                        <dock:LayoutDocumentPane>
+                    <dock:LayoutPanel Orientation="Vertical" DockWidth="0.7*" DockHeight="1.0*">
+                        <dock:LayoutDocumentPane DockHeight="0.8*">
                             <dock:LayoutDocument Title="Scene View">
                                 <local:GraphicsWindow x:Name="GraphicsWindow" />
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
 
-                        <dock:LayoutAnchorablePane DockHeight="200">
-                            <dock:LayoutAnchorable Title="Console">
+                        <dock:LayoutDocumentPane DockHeight="0.15*">
+                            <dock:LayoutAnchorable Title="Inspector" >
                                 <local:ConsoleWindow x:Name="ConsoleWIndow" />
                             </dock:LayoutAnchorable>
-                        </dock:LayoutAnchorablePane>
+                        </dock:LayoutDocumentPane>
+
                     </dock:LayoutPanel>
 
+                    <dock:LayoutDocumentPane  DockWidth="0.15*" >
+                        <dock:LayoutDocument Title="ObjectList">
+                            <local:ObjectWindow></local:ObjectWindow>
+                        </dock:LayoutDocument>
+                    </dock:LayoutDocumentPane>
 
                 </dock:LayoutPanel>
             </dock:LayoutRoot>

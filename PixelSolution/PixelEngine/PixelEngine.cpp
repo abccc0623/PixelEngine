@@ -89,7 +89,7 @@ void PixelEngine::QuitWindow()
 SPointer<GameObject> PixelEngine::CreateGameObject(std::string name)
 {
 	auto factory = GetFactory<ObjectManager>();
-	return factory->Create();
+	return factory->Create(name);
 }
 
 Scene* PixelEngine::CreateScene(std::string name)

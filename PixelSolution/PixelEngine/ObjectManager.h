@@ -26,7 +26,7 @@ public:
 	void DeleteCheck();
 
 
-	SPointer<GameObject> Create(std::string name = "GameObject");
+	SPointer<GameObject> Create(std::string name);
 private:
 	FunctionManager* functionManager = nullptr;
 	SceneManager* sceneManager = nullptr;

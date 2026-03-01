@@ -217,9 +217,9 @@ void Transform::WorldMatrixUpdate()
 
 	if (IsChange_Rotation == true)
 	{
-		Rotation_Pitch.CreateRotationPitch(Rotation.X);
-		Rotation_Yaw.CreateRotationYaw(Rotation.Y);
-		Rotation_Roll.CreateRotationRoll(Rotation.Z);
+		Rotation_Pitch = Rotation_Pitch.CreateRotationPitch(Rotation.X);
+		Rotation_Yaw  = Rotation_Yaw.CreateRotationYaw(Rotation.Y);
+		Rotation_Roll = Rotation_Roll.CreateRotationRoll(Rotation.Z);
 
 		Rotation_Matrix = Rotation_Pitch * Rotation_Yaw * Rotation_Roll;
 	}
@@ -254,11 +254,6 @@ void Transform::WorldMatrixUpdate()
 		IsChange_Scale		= false;
 		IsChange_Rotation	= false;
 		IsChange_Postion	= false;
-
-		//for(int i = 0; i < 16;i++)
-		//{
-		//	LinkObject->mRenderData->World[i] = World_Matrix._m[i];
-		//}
 	}
 }
 

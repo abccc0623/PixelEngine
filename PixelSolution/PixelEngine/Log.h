@@ -1,5 +1,5 @@
 #pragma once
-
+#include <string>
 enum class LogLevel { INFO, WARN, ERR };
 class Log
 {

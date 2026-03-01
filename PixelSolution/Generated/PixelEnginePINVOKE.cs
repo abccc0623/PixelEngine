@@ -227,6 +227,12 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LogCallback_get")]
   public static extern global::System.IntPtr LogCallback_get();
 
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_SceneChangeCallback_get")]
+  public static extern global::System.IntPtr SceneChangeCallback_get();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetAllSceneObjects")]
+  public static extern global::System.IntPtr GetAllSceneObjects(out int jarg1);
+
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_EngineInitialize")]
   public static extern bool EngineInitialize(IntPtr jarg1, int jarg2, int jarg3);
 
@@ -283,6 +289,9 @@ class PixelEnginePINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_ChangeScene")]
   public static extern bool ChangeScene(string jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_RegisterSceneObjectChange")]
+  public static extern void RegisterSceneObjectChange(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_SaveScene")]
   public static extern void SaveScene();

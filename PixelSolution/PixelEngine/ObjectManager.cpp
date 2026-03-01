@@ -67,6 +67,7 @@ SPointer<GameObject> ObjectManager::Create(std::string name)
 {
 	//새로운 게임 오브젝트 생성
 	SPointer<GameObject> p = SPointer<GameObject>::Make_SPointer();
+	p->name = name;
 	//기본 모듈인 Transform 추가
 	p->AddModule(MODULE_TYPE::Transform);
 	//씬 매니저에 등록

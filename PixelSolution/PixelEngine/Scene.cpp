@@ -8,7 +8,9 @@
 #include "SerializeHelper.h"
 #include "SPointer.h"
 #include "Log.h"
+#include "Export/PixelEngineAPI.h"
 extern PixelEngine* Engine;
+extern SceneChangeCallbackFunc g_SceneObjectChangeCallBack;
 Scene::Scene()
 {
     sceneName = "";
@@ -18,7 +20,6 @@ Scene::Scene()
     ObjectList = std::unordered_map<size_t, SPointer<GameObject>>();
 }
 Scene::~Scene(){}
-
 void Scene::Initialize(const std::string& luaPath, const std::string& name)
 {
     sceneName = name;
@@ -67,6 +68,36 @@ void Scene::Release()
 void Scene::CreateGameObject(SPointer<GameObject> Obj)
 {
     ObjectList.insert({ Obj->GetHash(),Obj});
+    if (g_SceneObjectChangeCallBack != nullptr)
+    {
+        g_SceneObjectChangeCallBack();
+    }
+}
+
+void Scene::DeleteGameObject(size_t targetObject)
+{
+    auto find = ObjectList.find(targetObject);
+    if (find != ObjectList.end())
+    {
+        ObjectList.erase(targetObject);
+    }
+    if (g_SceneObjectChangeCallBack != nullptr) 
+    {
+        g_SceneObjectChangeCallBack();
+    }
+}
+
+GameObject** Scene::GetAllSceneObjects(int* maxCount)
+{
+    *maxCount = static_cast<int>(ObjectList.size());
+    Getter.clear();
+    Getter.reserve(*maxCount);
+
+    for (auto const& [key, sptr] : ObjectList)
+    {
+        Getter.push_back(sptr.GetPtr());
+    }
+    return Getter.empty() ? nullptr : Getter.data();
 }
 
 std::string Scene::Save(int tab)

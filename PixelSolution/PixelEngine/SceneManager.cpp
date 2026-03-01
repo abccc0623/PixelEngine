@@ -68,6 +68,30 @@ void SceneManager::ChangeScene(std::string name)
 	}
 }
 
+GameObject** SceneManager::GetAllSceneObjects(int* outCount)
+{
+	if (nowScene.IsValid())
+	{
+		auto block = nowScene.Lock();
+		Scene* targetScene = block.GetPtr();
+		return targetScene->GetAllSceneObjects(outCount);
+	}
+	else
+	{
+		Log::Error("Not Select Scene");
+		return 0;
+	}
+}
+
+void SceneManager::DeleteGameObject(size_t targetObject)
+{
+	if (nowScene.IsValid() == false)
+	{
+		auto block = nowScene.Lock();
+		block->DeleteGameObject(targetObject);
+	}
+}
+
 void SceneManager::SaveScene()
 {
 	// 1. 파일 열기 (파일이 없으면 생성됨)

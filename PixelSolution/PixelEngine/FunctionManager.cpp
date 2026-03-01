@@ -37,7 +37,7 @@ void FunctionManager::ReleaseShared(){}
 
 void FunctionManager::FunctionUpdate()
 {
-	//瘤楷贸府
+	//积己 瘤楷贸府
 	for (auto& [priority, funcQueue] : pendingTickUpdate)
 	{
 		while (!funcQueue.empty())

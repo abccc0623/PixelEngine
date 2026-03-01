@@ -386,6 +386,9 @@ template <typename T> T SwigValueInit() {
 
 typedef void (__stdcall * LogCallbackFunc)(const char *message, int level);
 
+
+typedef void (__stdcall * SceneChangeCallbackFunc)();
+
 SWIGINTERN Camera *Camera_SafeCast(Module *baseModule){ 
             return dynamic_cast<Camera*>(baseModule); 
         }
@@ -411,6 +414,28 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_LogCallback_get() {
   LogCallbackFunc result;
   
   result = (LogCallbackFunc)(0);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_SceneChangeCallback_get() {
+  void * jresult ;
+  SceneChangeCallbackFunc result;
+  
+  result = (SceneChangeCallbackFunc)(0);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_GetAllSceneObjects(int * jarg1) {
+  void * jresult ;
+  int *arg1 = 0 ;
+  GameObject **result = 0 ;
+  
+  arg1 = (int *)jarg1; 
+  result = (GameObject **)GetAllSceneObjects(arg1);
   jresult = (void *)result; 
   return jresult;
 }
@@ -585,7 +610,7 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_CreateLuaAPIPath(char * jarg1) {
 
 SWIGEXPORT void * SWIGSTDCALL CSharp_CreateGameObject(char * jarg1) {
   void * jresult ;
-  char *arg1 = (char *)"" ;
+  char *arg1 = (char *)"GameObject" ;
   GameObject *result = 0 ;
   
   arg1 = (char *)jarg1; 
@@ -616,6 +641,14 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_ChangeScene(char * jarg1) {
   result = (bool)ChangeScene((char const *)arg1);
   jresult = result; 
   return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_RegisterSceneObjectChange(void * jarg1) {
+  SceneChangeCallbackFunc arg1 = 0 ;
+  
+  arg1 = (SceneChangeCallbackFunc)jarg1; 
+  RegisterSceneObjectChange(arg1);
 }
 
 

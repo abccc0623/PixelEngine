@@ -8,6 +8,9 @@
     <Compile Update="Tool\FolderWindow\FolderWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Tool\ObjectWindow\ObjectWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Tool\ToolbarWindow\ToolbarButton.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

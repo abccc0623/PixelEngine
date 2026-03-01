@@ -3,6 +3,11 @@
 #include <string>
 #include <windows.h>
 class GameObject;
+
+typedef void(__stdcall* LogCallbackFunc)(const char* message, int level);
+typedef void(__stdcall* SceneChangeCallbackFunc)();
+
+
 extern "C" PIXEL_ENGINEDLL bool EngineInitialize(HWND hWnd,int width,int height);
 extern "C" PIXEL_ENGINEDLL void UpdateEngine();
 extern "C" PIXEL_ENGINEDLL void ReleaseEngine();							
@@ -27,11 +32,17 @@ extern "C" PIXEL_ENGINEDLL bool LoadTexture(const char* path);
 extern "C" PIXEL_ENGINEDLL bool CreateLuaAPIPath(const char* path);
 
 
-extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name = "");
+extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name = "GameObject");
+
+//Scene
 extern "C" PIXEL_ENGINEDLL bool CreateScene(const char* sceneName);
 extern "C" PIXEL_ENGINEDLL bool ChangeScene(const char* sceneName);
+extern "C" PIXEL_ENGINEDLL void RegisterSceneObjectChange(SceneChangeCallbackFunc callBack);
+extern "C" PIXEL_ENGINEDLL GameObject** GetAllSceneObjects(int* outCount);
+
+
 extern "C" PIXEL_ENGINEDLL void SaveScene();
 
-typedef void(__stdcall* LogCallbackFunc)(const char* message, int level);
+
 extern "C" PIXEL_ENGINEDLL void RegisterLogCallback(LogCallbackFunc callback);
 void DispatchNativeLog(const char* msg, int level);

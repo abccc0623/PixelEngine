@@ -21,11 +21,11 @@
 #include "Export/Module/Renderer2D.h"
 %}
 
-/* 1. 표준 라이브러리 지원 모듈 추가 */
+/*-------------------------------------- 1. 표준 라이브러리 지원 모듈 추가 */
 %include "windows.i"
 %include "std_string.i"
 
-/* 2. HWND 타이핑 (공백 오류 제거 및 IntPtr 연결) */
+/*-------------------------------------- 2. HWND 타이핑 (공백 오류 제거 및 IntPtr 연결) */
 %typemap(ctype) HWND "void *"
 %typemap(imtype) HWND "IntPtr"
 %typemap(cstype) HWND "IntPtr"
@@ -35,14 +35,23 @@
 %typemap(csout) HWND %{ return $imcall; %}
 
 #define PIXEL_ENGINEDLL
-/* SWIG가 파싱할 대상 헤더 파일들 */
+/*-------------------------------------- SWIG가 파싱할 대상 헤더 파일들 */
 %inline %{
 typedef void (__stdcall * LogCallbackFunc)(const char *message, int level);
 %}
+%inline %{
+typedef void (__stdcall * SceneChangeCallbackFunc)();
+%}
 %constant LogCallbackFunc LogCallback = 0;
+%constant SceneChangeCallbackFunc SceneChangeCallback = 0;
+
+%include "typemaps.i"
+//-------------------------------------- int* 타입을 C#의 out int로 변환하도록 지시
+%apply int *OUTPUT { int* outCount };
+extern "C" GameObject** GetAllSceneObjects(int* outCount);
 %include "Export/PixelEngineAPI.h"
 
-/* PVector3 */
+/*-------------------------------------- PVector3 */
 %include "Export/Type/PVector3.h"
 %ignore PVector3::operator=;
 %rename(Add) PVector3::operator+;
@@ -57,7 +66,7 @@ typedef void (__stdcall * LogCallbackFunc)(const char *message, int level);
 %rename(CrossStatic) PVector3::Cross(const PVector3&, const PVector3&);
 %rename(NormalizeStatic) PVector3::Normalize(const PVector3);
 
-/* PMatrix */
+/*-------------------------------------- PMatrix */
 %include "Export/Type/PMatrix.h"
 %rename(CreateTranslationStatic) Matrix::CreateTranslation(const PVector3&);
 %rename(CreateScaleStatic) Matrix::CreateScale(const PVector3&);
@@ -71,7 +80,7 @@ typedef void (__stdcall * LogCallbackFunc)(const char *message, int level);
 
 %include "Export/Type/GlobalEnum.h"
 
-/* GameObject */
+/*-------------------------------------- GameObject */
 %include "Export/Core/PixelObject.h"
 %include "Export/Core/Module.h"
 %include "Export/Core/GameObject.h"

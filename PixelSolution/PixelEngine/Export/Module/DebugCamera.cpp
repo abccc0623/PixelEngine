@@ -4,6 +4,7 @@
 #include "PixelEngineAPI.h"
 #include "Core/GameObject.h"
 #include "Module/Transform.h"
+#include "Log.h"
 
 DebugCamera::DebugCamera():
 	rendering(nullptr),
@@ -26,6 +27,7 @@ void DebugCamera::Start()
 	rendering = GetRenderingData();
 	rendering->Type = CAMERA;
 	transform->AddPosition(transform->GetLookVector() * -3);
+	Log::Info("Debug Camera Log");
 }
 
 void DebugCamera::Update()
@@ -56,6 +58,7 @@ void DebugCamera::Update()
 		float dx = (x - mLastMousePosX) * 3.141592f / 180.0f;
 		float dy = (y - mLastMousePosY) * 3.141592f / 180.0f;
 		PVector3 Rotation = { -dy * RotationSpeed, -dx * RotationSpeed, 0 };
+
 		transform->AddRotation(Rotation);
 		SetCursorPos((int)mLastMousePosX, (int)mLastMousePosY);
 		
