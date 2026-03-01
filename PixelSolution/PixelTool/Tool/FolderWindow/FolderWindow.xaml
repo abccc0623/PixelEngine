@@ -67,7 +67,7 @@
             Height="4" 
             HorizontalAlignment="Stretch" 
             VerticalAlignment="Center"
-            Background="{StaticResource PixelAccentBrush}"
+            Background="{StaticResource PixelBorderBrush}"
             ShowsPreview="True">
             <GridSplitter.Style>
                 <Style TargetType="{x:Type GridSplitter}">
