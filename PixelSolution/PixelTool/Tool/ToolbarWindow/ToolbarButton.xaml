@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="PixelTool.ToolbarButton"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixelTool"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+
+
+    <UserControl.Resources>
+        <Style x:Key="RoundedButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+
+    <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Button x:Name="MainHoverButton" 
+            Style="{StaticResource RoundedButtonStyle}"
+            Content="{Binding ButtonIcon, ElementName=Root}"
+            FontFamily="Segoe UI Emoji"
+            Width="40" Height="40"
+            Margin="5"
+            FontSize="20"
+            Background="#2D2E45" Foreground="#D1D1E0"
+            MouseEnter="MainHoverButton_MouseEnter"
+            MouseLeave="MainHoverButton_MouseLeave"/>
+
+        <Popup x:Name="SubMenuPopup" 
+           PlacementTarget="{Binding ElementName=MainHoverButton}" 
+           Placement="Right" 
+           HorizontalOffset="5" 
+           AllowsTransparency="True"
+           PopupAnimation="Fade">
+
+            <Border Background="#1B1C2E" 
+                BorderBrush="#5D67E8" 
+                BorderThickness="1" 
+                CornerRadius="4" 
+                Padding="15"
+                MouseEnter="SubMenuPopup_MouseEnter"
+                MouseLeave="SubMenuPopup_MouseLeave">
+                <StackPanel>
+                    <ContentPresenter Content="{Binding PopupContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                </StackPanel>
+            </Border>
+        </Popup>
+
+    </Grid>
+</UserControl>

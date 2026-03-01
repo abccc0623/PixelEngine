@@ -232,4 +232,10 @@ public class Transform : Module {
     return ret;
   }
 
+  public static Transform SafeCast(Module baseModule) {
+    global::System.IntPtr cPtr = PixelEnginePINVOKE.Transform_SafeCast(Module.getCPtr(baseModule));
+    Transform ret = (cPtr == global::System.IntPtr.Zero) ? null : new Transform(cPtr, false);
+    return ret;
+  }
+
 }

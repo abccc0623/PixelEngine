@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TextureManager.h"
 #include "PixelGraphicsAPI.h"
+#include "Log.h"
 
 TextureManager::TextureManager()
 {
@@ -28,7 +29,7 @@ ObjectID TextureManager::Get(const std::string& name)
 	}
 	else 
 	{
-		std::cout << "Not Find Texture : " + name << std::endl;
+		Log::Error("Not Find Texture : " + name);
 		return ObjectID();
 	}
 }

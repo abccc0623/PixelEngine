@@ -8,6 +8,8 @@
 
 #include "Core/GameObject.h"
 #include "Module/Transform.h"
+#include "Module/LuaScript.h"
+#include "Module/Renderer2D.h"
 #define PE_NEW new(__FILE__, __LINE__)
 
 LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -56,15 +58,27 @@ int main()
 
     //LoadLuaScript("./Asset/Setting.Lua");
     LoadLuaFile("./Asset/Player.lua");
+    LoadTexture("./Asset/test.png");
+
     CreateLuaAPIPath("./Asset/PixelEngine_API.lua");
   
+    GameObject* Camera = CreateGameObject("Camera");
+    Camera->AddModule(MODULE_TYPE::DebugCamera);
+
 
     GameObject* Obj = CreateGameObject("test");
+    Obj->AddModule(MODULE_TYPE::LuaScript);
+    Obj->AddModule(MODULE_TYPE::Renderer2D);
     if (Obj->HasModule(MODULE_TYPE::Transform))
     {
         auto k = Obj->GetModule(MODULE_TYPE::Transform);
-        auto type = k->GetType();
-        std::cout<< "" << std::endl;
+        auto i = Obj->GetModule(MODULE_TYPE::LuaScript);
+        auto r = Obj->GetModule(MODULE_TYPE::Renderer2D);
+        LuaScript* lua = static_cast<LuaScript*>(i);
+        Renderer2D* render = static_cast<Renderer2D*>(r);
+        render->SetTexture("test");
+
+        lua->Register("Player");
     }
 
     //CreateGameObject();

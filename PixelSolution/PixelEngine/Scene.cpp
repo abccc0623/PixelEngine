@@ -7,6 +7,7 @@
 #include "sol.hpp"
 #include "SerializeHelper.h"
 #include "SPointer.h"
+#include "Log.h"
 extern PixelEngine* Engine;
 Scene::Scene()
 {
@@ -35,7 +36,7 @@ void Scene::Initialize(const std::string& luaPath, const std::string& name)
     }
     else 
     {
-        std::cout << "Not Find SceneFile:" + path << std::endl;
+        Log::Error("Not Find SceneFile:" + path);
     }
 }
 

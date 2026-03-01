@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include "Type/GlobalEnum.h"
 #include "Core/Module.h"
+#include "Log.h"
+#include "Memory.h"
 
 class Transform;
 class PVector3;
@@ -47,9 +49,8 @@ struct ModuleTypeInfo
 	MODULE_TYPE type;
 	std::string TypeName;
 	std::string LuaTypeName;
-	bool functionCheck[6];
+	bool functionCheck[6] = { false, };
 	std::function<Module*(void)> CreateModule;
-	std::function<void(void)> GetModule;
 };
 
 class ModuleTypeManager
@@ -64,7 +65,7 @@ public:
 		}
 		else
 		{
-			std::cout << "Not Find ModuleType" << std::endl;
+			Log::Error("Not Find ModuleType");
 			return ModuleTypeInfo();
 		}
 	}
@@ -98,7 +99,7 @@ public:
 		for (size_t i = 0; i < 6; i++) info.functionCheck[i] = check[i];
 		info.CreateModule = []()
 			{
-				return new T();
+				return PE_NEW T();
 			};
 		ModuleTypeManager::bindMap.insert({ type ,info });
 	}

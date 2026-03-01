@@ -12,9 +12,10 @@ public:
 	void Start() override;
 	void Update() override;
 
-	void Reload();
-	void Register(std::string fileName);
+	PIXEL_ENGINEDLL void Reload();
+	PIXEL_ENGINEDLL void Register(std::string fileName);
 private:
+	std::string luaFileName;
 	LuaClassInfo* info;
 	static LuaManager* lua;
 };

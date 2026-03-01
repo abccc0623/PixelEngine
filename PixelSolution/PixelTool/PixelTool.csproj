@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="xcopy &quot;$(SolutionDir)Library\*.dll&quot; &quot;$(TargetDir)&quot; /Y /I&#xD;&#xA;xcopy &quot;$(SolutionDir)Library\*.pdb&quot; &quot;$(TargetDir)&quot; /Y /I&#xD;&#xA;xcopy &quot;$(SolutionDir)Generated\*.cs&quot; &quot;$(ProjectDir)Generated&quot; /Y /I" />
+    <Exec Command="xcopy &quot;$(SolutionDir)Library\*.dll&quot; &quot;$(TargetDir)&quot; /Y /I&#xD;&#xA;xcopy &quot;$(SolutionDir)Library\*.pdb&quot; &quot;$(TargetDir)&quot; /Y /I&#xD;&#xA;del /q /s &quot;$(ProjectDir)Generated\*.cs&quot;&#xD;&#xA;xcopy &quot;$(SolutionDir)Generated\*.cs&quot; &quot;$(ProjectDir)Generated&quot; /Y /I" />
   </Target>
 
 </Project>

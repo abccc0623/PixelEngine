@@ -20,9 +20,6 @@
 
 void PixelEngine::Initialize(HWND hWnd, int width, int height)
 {
-
-
-
 	BindFactory<KeyInputManager>();
 	BindFactory<TimeManager>();
 	BindFactory<ObjectManager>();
@@ -75,6 +72,7 @@ void PixelEngine::ReleaseShared()
 	}
 	factoryMap.clear();
 	PixelGraphicsRelease();
+	MemoryTracker::Get().ReportLeaks();
 }
 
 void PixelEngine::Resize(int width, int height)

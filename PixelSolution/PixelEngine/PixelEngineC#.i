@@ -18,6 +18,7 @@
 #include "Export/Module/DebugCamera.h"
 #include "Export/Module/Transform.h"
 #include "Export/Module/LuaScript.h"
+#include "Export/Module/Renderer2D.h"
 %}
 
 /* 1. 표준 라이브러리 지원 모듈 추가 */
@@ -35,9 +36,14 @@
 
 #define PIXEL_ENGINEDLL
 /* SWIG가 파싱할 대상 헤더 파일들 */
+%inline %{
+typedef void (__stdcall * LogCallbackFunc)(const char *message, int level);
+%}
+%constant LogCallbackFunc LogCallback = 0;
 %include "Export/PixelEngineAPI.h"
 
 /* PVector3 */
+%include "Export/Type/PVector3.h"
 %ignore PVector3::operator=;
 %rename(Add) PVector3::operator+;
 %rename(Sub) PVector3::operator-;
@@ -50,9 +56,9 @@
 %rename(DotStatic) PVector3::Dot(const PVector3&, const PVector3);
 %rename(CrossStatic) PVector3::Cross(const PVector3&, const PVector3&);
 %rename(NormalizeStatic) PVector3::Normalize(const PVector3);
-%include "Export/Type/PVector3.h"
 
 /* PMatrix */
+%include "Export/Type/PMatrix.h"
 %rename(CreateTranslationStatic) Matrix::CreateTranslation(const PVector3&);
 %rename(CreateScaleStatic) Matrix::CreateScale(const PVector3&);
 %ignore PMatrix::operator=;
@@ -62,7 +68,6 @@
 %rename(MultiplyScalar) PMatrix::operator*(float) const;
 %rename(AddAssign) PMatrix::operator+=;
 %rename(SubAssign) PMatrix::operator-=;
-%include "Export/Type/PMatrix.h"
 
 %include "Export/Type/GlobalEnum.h"
 
@@ -71,8 +76,19 @@
 %include "Export/Core/Module.h"
 %include "Export/Core/GameObject.h"
 
+
+%define MODULE_SAFE_CAST(ClassName)
+    %include "Export/Module/ClassName.h"
+    %extend ClassName 
+    {
+        static ClassName* SafeCast(Module* baseModule) { 
+            return dynamic_cast<ClassName*>(baseModule); 
+        }
+    }
+%enddef
 /* Module */
-%include "Export/Module/Camera.h"
-%include "Export/Module/DebugCamera.h"
-%include "Export/Module/Transform.h"
-%include "Export/Module/LuaScript.h"
+MODULE_SAFE_CAST(Camera)
+MODULE_SAFE_CAST(DebugCamera)
+MODULE_SAFE_CAST(Transform)
+MODULE_SAFE_CAST(LuaScript)
+MODULE_SAFE_CAST(Renderer2D)

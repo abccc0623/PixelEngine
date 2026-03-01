@@ -9,18 +9,18 @@
 //------------------------------------------------------------------------------
 
 
-public class DebugCamera : Module {
+public class Renderer2D : Module {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
 
-  internal DebugCamera(global::System.IntPtr cPtr, bool cMemoryOwn) : base(PixelEnginePINVOKE.DebugCamera_SWIGUpcast(cPtr), cMemoryOwn) {
+  internal Renderer2D(global::System.IntPtr cPtr, bool cMemoryOwn) : base(PixelEnginePINVOKE.Renderer2D_SWIGUpcast(cPtr), cMemoryOwn) {
     swigCPtr = new global::System.Runtime.InteropServices.HandleRef(this, cPtr);
   }
 
-  internal static global::System.Runtime.InteropServices.HandleRef getCPtr(DebugCamera obj) {
+  internal static global::System.Runtime.InteropServices.HandleRef getCPtr(Renderer2D obj) {
     return (obj == null) ? new global::System.Runtime.InteropServices.HandleRef(null, global::System.IntPtr.Zero) : obj.swigCPtr;
   }
 
-  internal static global::System.Runtime.InteropServices.HandleRef swigRelease(DebugCamera obj) {
+  internal static global::System.Runtime.InteropServices.HandleRef swigRelease(Renderer2D obj) {
     if (obj != null) {
       if (!obj.swigCMemOwn)
         throw new global::System.ApplicationException("Cannot release ownership as memory is not owned");
@@ -38,7 +38,7 @@ public class DebugCamera : Module {
       if (swigCPtr.Handle != global::System.IntPtr.Zero) {
         if (swigCMemOwn) {
           swigCMemOwn = false;
-          PixelEnginePINVOKE.delete_DebugCamera(swigCPtr);
+          PixelEnginePINVOKE.delete_Renderer2D(swigCPtr);
         }
         swigCPtr = new global::System.Runtime.InteropServices.HandleRef(null, global::System.IntPtr.Zero);
       }
@@ -46,24 +46,21 @@ public class DebugCamera : Module {
     }
   }
 
-  public DebugCamera() : this(PixelEnginePINVOKE.new_DebugCamera(), true) {
-  }
-
-  public override void Start() {
-    PixelEnginePINVOKE.DebugCamera_Start(swigCPtr);
-  }
-
-  public override void Update() {
-    PixelEnginePINVOKE.DebugCamera_Update(swigCPtr);
+  public Renderer2D() : this(PixelEnginePINVOKE.new_Renderer2D(), true) {
   }
 
   public override void LastUpdate() {
-    PixelEnginePINVOKE.DebugCamera_LastUpdate(swigCPtr);
+    PixelEnginePINVOKE.Renderer2D_LastUpdate(swigCPtr);
   }
 
-  public static DebugCamera SafeCast(Module baseModule) {
-    global::System.IntPtr cPtr = PixelEnginePINVOKE.DebugCamera_SafeCast(Module.getCPtr(baseModule));
-    DebugCamera ret = (cPtr == global::System.IntPtr.Zero) ? null : new DebugCamera(cPtr, false);
+  public void SetTexture(string name) {
+    PixelEnginePINVOKE.Renderer2D_SetTexture(swigCPtr, name);
+    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
+  }
+
+  public static Renderer2D SafeCast(Module baseModule) {
+    global::System.IntPtr cPtr = PixelEnginePINVOKE.Renderer2D_SafeCast(Module.getCPtr(baseModule));
+    Renderer2D ret = (cPtr == global::System.IntPtr.Zero) ? null : new Renderer2D(cPtr, false);
     return ret;
   }
 

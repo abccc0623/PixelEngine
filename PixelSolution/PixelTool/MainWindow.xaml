@@ -11,22 +11,12 @@
         Opacity="1.0"
         Title="PixelTool" Width="1920" Height="1080">
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/AvalonDock.Themes.VS2013;component/DarkBrushs.xaml" />
-            </ResourceDictionary.MergedDictionaries>
 
-            <dock:Vs2013DarkTheme x:Key="Vs2013DarkTheme"/>
 
-            <Style TargetType="{x:Type dock:LayoutDocumentTabItem}">
-                <Setter Property="BorderBrush" Value="#DA34AE"/>
-            </Style>
-        </ResourceDictionary>
-    </Window.Resources>
+    <DockPanel Background="{StaticResource PixelBackgroundBrush}">
+        <local:ToolbarWindow></local:ToolbarWindow>
 
-    <DockPanel>
-        <dock:DockingManager x:Name="dockManager" Theme="{StaticResource Vs2013DarkTheme}" Grid.Row="1">
+        <dock:DockingManager x:Name="dockManager" Grid.Row="1">
             
             <dock:LayoutRoot>
                 <dock:LayoutPanel Orientation="Horizontal">
@@ -46,10 +36,9 @@
 
                         <dock:LayoutAnchorablePane DockHeight="200">
                             <dock:LayoutAnchorable Title="Console">
-                                <ListBox x:Name="EngineLogView" Background="#1E1E1E" Foreground="White"/>
+                                <local:ConsoleWindow x:Name="ConsoleWIndow" />
                             </dock:LayoutAnchorable>
                         </dock:LayoutAnchorablePane>
-
                     </dock:LayoutPanel>
 
                     <dock:LayoutAnchorablePane DockWidth="300">

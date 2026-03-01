@@ -4,7 +4,7 @@
 class LuaClassInfo
 {
 public:
-	LuaClassInfo(sol::table table);
+	LuaClassInfo(sol::table table, sol::table mtTable);
 	~LuaClassInfo();
 
 	void Reload();
@@ -13,6 +13,8 @@ public:
 	void Update();
 private:
 	sol::table tabel;
+	sol::table instance;
+	sol::table mataTable;
 	sol::protected_function luaAwake;
 	sol::protected_function luaStart;
 	sol::protected_function luaUpdate;

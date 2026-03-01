@@ -1,7 +1,5 @@
 #pragma once
 #include "Core/Module.h"
-#include <string>
-class Transform;
 struct RenderingData;
 using ObjectID = size_t;
 class Renderer2D :public Module
@@ -10,16 +8,11 @@ public:
 	Renderer2D();
 	~Renderer2D();
 
-	void Start() override;
 	void LastUpdate() override;
-
-	void SetTexture(const std::string& name);
-	static std::string RegisterLua();
+	PIXEL_ENGINEDLL void SetTexture(const std::string& name);
 private:
-	//SPointer<Transform> transform;
 	RenderingData* rendering;
 	std::string textureName;
 	ObjectID textureID = -1;
-
 };
 

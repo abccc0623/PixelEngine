@@ -15,6 +15,7 @@
 
 
 PixelEngine* Engine = nullptr;
+static LogCallbackFunc g_logCallback = nullptr;
 bool EngineInitialize(HWND hWnd, int width, int height)
 {
 	Engine = new PixelEngine();
@@ -150,6 +151,7 @@ bool LoadLuaFile(const char* path)
 		auto lua = Engine->GetFactory<LuaManager>();
 		return lua->Load(strPath);
 	}
+	return false;
 }
 
 bool LoadTexture(const char* path)
@@ -161,6 +163,7 @@ bool LoadTexture(const char* path)
 		resource->Load(TEXTURE, strPath);
 		return true;
 	}
+	return false;
 }
 
 bool CreateLuaAPIPath(const char* path)
@@ -171,6 +174,7 @@ bool CreateLuaAPIPath(const char* path)
 		auto lua = Engine->GetFactory<LuaManager>();
 		return lua->CreateLuaAPIPath(strPath);
 	}
+	return false;
 }
 
 GameObject* CreateGameObject(const char* name)
@@ -201,6 +205,19 @@ void SaveScene()
 	{
 		SceneManager* scene = Engine->GetFactory<SceneManager>();
 		scene->SaveScene();
+	}
+}
+
+void RegisterLogCallback(LogCallbackFunc callback)
+{
+	g_logCallback = callback;
+}
+
+void DispatchNativeLog(const char* msg, int level)
+{
+	if (g_logCallback)
+	{
+		g_logCallback(msg, level);
 	}
 }
 

@@ -61,4 +61,10 @@ public class DebugCamera : Module {
     PixelEnginePINVOKE.DebugCamera_LastUpdate(swigCPtr);
   }
 
+  public static DebugCamera SafeCast(Module baseModule) {
+    global::System.IntPtr cPtr = PixelEnginePINVOKE.DebugCamera_SafeCast(Module.getCPtr(baseModule));
+    DebugCamera ret = (cPtr == global::System.IntPtr.Zero) ? null : new DebugCamera(cPtr, false);
+    return ret;
+  }
+
 }

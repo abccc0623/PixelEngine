@@ -24,21 +24,15 @@ Renderer2D::~Renderer2D()
 	DeleteRenderingData(rendering);
 }
 
-void Renderer2D::Start()
-{
-	//transform = targetObject->GetModule<Transform>();
-}
 
 void Renderer2D::LastUpdate()
 {
-	//rendering->changeTransform = false;
-	//if (transform == nullptr) return;
-	//PMatrix m = transform->GetWorldMatrix();
-	//for (int i = 0; i < 16; i++)
-	//{
-	//	rendering->World[i] = m._m[i];
-	//}
-	//rendering->changeTransform = true;
+	if (transform == nullptr) return;
+	PMatrix m = transform->GetWorldMatrix();
+	for (int i = 0; i < 16; i++)
+	{
+		rendering->World[i] = m._m[i];
+	}
 }
 
 void Renderer2D::SetTexture(const std::string& name)
@@ -52,15 +46,15 @@ void Renderer2D::SetTexture(const std::string& name)
 	}
 }
 
-std::string Renderer2D::RegisterLua()
-{
-	//auto state = GetLuaState();
-	//state->new_usertype<Renderer2D>("Renderer2D", sol::base_classes, sol::bases<Module, PixelObject>(),
-	//	"SetTexture", [](Renderer2D& obj, std::string name) {obj.SetTexture(name); }
-	//);
-	//
-	//std::string main = "";
-	//main += BindManager::ExportLuaAPIHeader<Renderer2D>();
-	//main += BindManager::ExportLuaAPIFromFunc("SetTexture",&Renderer2D::SetTexture,"string");
-	return "";
-}
+//std::string Renderer2D::RegisterLua()
+//{
+//	//auto state = GetLuaState();
+//	//state->new_usertype<Renderer2D>("Renderer2D", sol::base_classes, sol::bases<Module, PixelObject>(),
+//	//	"SetTexture", [](Renderer2D& obj, std::string name) {obj.SetTexture(name); }
+//	//);
+//	//
+//	//std::string main = "";
+//	//main += BindManager::ExportLuaAPIHeader<Renderer2D>();
+//	//main += BindManager::ExportLuaAPIFromFunc("SetTexture",&Renderer2D::SetTexture,"string");
+//	return "";
+//}

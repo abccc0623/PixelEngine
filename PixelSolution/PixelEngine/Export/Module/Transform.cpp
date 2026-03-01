@@ -27,7 +27,6 @@ Transform::~Transform()
 void Transform::Start()
 {
 	WorldMatrixUpdate();
-	std::cout << "Start È£Ãâ"<<std::endl;
 }
 
 void Transform::MatrixUpdate()

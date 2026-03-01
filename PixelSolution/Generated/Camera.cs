@@ -65,4 +65,10 @@ public class Camera : Module {
     PixelEnginePINVOKE.Camera_PerspectiveProjection(swigCPtr);
   }
 
+  public static Camera SafeCast(Module baseModule) {
+    global::System.IntPtr cPtr = PixelEnginePINVOKE.Camera_SafeCast(Module.getCPtr(baseModule));
+    Camera ret = (cPtr == global::System.IntPtr.Zero) ? null : new Camera(cPtr, false);
+    return ret;
+  }
+
 }

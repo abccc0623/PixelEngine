@@ -103,6 +103,9 @@
     <Filter Include="EngineAPI\Types\Enum">
       <UniqueIdentifier>{45623185-d5f3-41eb-90a1-6af096f462a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Log">
+      <UniqueIdentifier>{ffa2fbc2-4db7-4a13-b602-95a0900fe123}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -143,9 +146,6 @@
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>EngineAPI\Manager\SceneManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer2D.h">
-      <Filter>EngineAPI\Module\Renderer2D</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>헤더 파일</Filter>
@@ -225,6 +225,15 @@
     <ClInclude Include="Export\Module\LuaScript.h">
       <Filter>EngineAPI\Module\LuaScript</Filter>
     </ClInclude>
+    <ClInclude Include="Export\Module\Renderer2D.h">
+      <Filter>EngineAPI\Module\Renderer2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>EngineAPI\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory.h">
+      <Filter>EngineAPI\Log</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -265,9 +274,6 @@
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>EngineAPI\Manager\SceneManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer2D.cpp">
-      <Filter>EngineAPI\Module\Renderer2D</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
       <Filter>EngineAPI\Manager\TextureManager</Filter>
@@ -328,6 +334,15 @@
     </ClCompile>
     <ClCompile Include="Export\Module\LuaScript.cpp">
       <Filter>EngineAPI\Module\LuaScript</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Module\Renderer2D.cpp">
+      <Filter>EngineAPI\Module\Renderer2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>EngineAPI\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory.cpp">
+      <Filter>EngineAPI\Log</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

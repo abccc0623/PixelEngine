@@ -4,6 +4,18 @@
              xmlns:local="clr-namespace:PixelTool"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <SolidColorBrush x:Key="PixelBackgroundBrush" Color="#1B1C2E"/>
+        <SolidColorBrush x:Key="PixelPanelBrush" Color="#2B2D42"/>
+        <SolidColorBrush x:Key="PixelAccentBrush" Color="#5D67E8"/>
+        <SolidColorBrush x:Key="PixelBorderBrush" Color="#3F3F5C"/>
+        <SolidColorBrush x:Key="PixelTextBrush" Color="#D1D1E0"/>
+        <SolidColorBrush x:Key="PixelWhiteBrush" Color="#FFFFFF"/>
+
+        <SolidColorBrush x:Key="PixelButtonBrush" Color="#2D2E45"/>
+        <SolidColorBrush x:Key="PixelButtonHoverBrush" Color="#444BB5"/>
+        <SolidColorBrush x:Key="PixelButtonPressedBrush" Color="#373CA0"/>
+        <SolidColorBrush x:Key="PixelButtonTextBrush" Color="#E1E1F0"/>
+
+        
     </Application.Resources>
 </Application>

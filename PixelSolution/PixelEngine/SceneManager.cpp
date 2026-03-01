@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SceneManager.h"
 #include "Scene.h"
+#include "Log.h"
 #include "Core/PixelObject.h"
 #include "Core/GameObject.h"
 
@@ -63,7 +64,7 @@ void SceneManager::ChangeScene(std::string name)
 	}
 	else
 	{
-		std::cout << "Not Find Scene :"+ name << std::endl;
+		Log::Error("Not Find Scene :" + name);
 	}
 }
 
@@ -113,7 +114,7 @@ void SceneManager::CreateScene(const std::string& luaPath)
 	}
 	else 
 	{
-		std::cout << "This scene name is already in use :" + stem << std::endl;
+		Log::Error("This scene name is already in use :" + stem);
 	}
 }
 

@@ -6,6 +6,7 @@ enum class MODULE_TYPE
 	LuaScript,
 	Camera,
 	DebugCamera,
+	Renderer2D,
 };
 
 enum class MODULE_FUNC : int

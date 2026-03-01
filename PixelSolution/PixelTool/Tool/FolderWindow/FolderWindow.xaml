@@ -28,7 +28,7 @@
 
         <TreeView x:Name="FolderTreeView"  
           Grid.Row="0"
-          Background="#252526"
+          Background="{StaticResource PixelBackgroundBrush}"
           Foreground="White"
           BorderThickness="0"
           TreeViewItem.Expanded="FolderTreeView_Expanded"
@@ -67,7 +67,7 @@
             Height="4" 
             HorizontalAlignment="Stretch" 
             VerticalAlignment="Center"
-            Background="#333333"
+            Background="{StaticResource PixelAccentBrush}"
             ShowsPreview="True">
             <GridSplitter.Style>
                 <Style TargetType="{x:Type GridSplitter}">
@@ -87,7 +87,7 @@
         
         <ListView Grid.Row="2" 
           x:Name="FileListView"
-          Background="#252526" 
+          Background="{StaticResource PixelBackgroundBrush}"
           Foreground="White" 
           BorderThickness="0"
           ScrollViewer.HorizontalScrollBarVisibility="Disabled">

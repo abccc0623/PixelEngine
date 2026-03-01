@@ -59,29 +59,6 @@ public class PMatrix : global::System.IDisposable {
   public PMatrix() : this(PixelEnginePINVOKE.new_PMatrix(), true) {
   }
 
-  public PMatrix Multiply(PMatrix M) {
-    PMatrix ret = new PMatrix(PixelEnginePINVOKE.PMatrix_Multiply(swigCPtr, PMatrix.getCPtr(M)), true);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public PMatrix MultiplyScalar(float Number) {
-    PMatrix ret = new PMatrix(PixelEnginePINVOKE.PMatrix_MultiplyScalar(swigCPtr, Number), true);
-    return ret;
-  }
-
-  public PMatrix AddAssign(PMatrix M) {
-    PMatrix ret = new PMatrix(PixelEnginePINVOKE.PMatrix_AddAssign(swigCPtr, PMatrix.getCPtr(M)), false);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public PMatrix SubAssign(PMatrix M) {
-    PMatrix ret = new PMatrix(PixelEnginePINVOKE.PMatrix_SubAssign(swigCPtr, PMatrix.getCPtr(M)), false);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
   public static PMatrix Identity() {
     PMatrix ret = new PMatrix(PixelEnginePINVOKE.PMatrix_Identity(), true);
     return ret;

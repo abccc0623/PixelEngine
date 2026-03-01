@@ -378,14 +378,43 @@ template <typename T> T SwigValueInit() {
 #include "Export/Module/DebugCamera.h"
 #include "Export/Module/Transform.h"
 #include "Export/Module/LuaScript.h"
+#include "Export/Module/Renderer2D.h"
 
 
 #include <string>
 
 
+typedef void (__stdcall * LogCallbackFunc)(const char *message, int level);
+
+SWIGINTERN Camera *Camera_SafeCast(Module *baseModule){ 
+            return dynamic_cast<Camera*>(baseModule); 
+        }
+SWIGINTERN DebugCamera *DebugCamera_SafeCast(Module *baseModule){ 
+            return dynamic_cast<DebugCamera*>(baseModule); 
+        }
+SWIGINTERN Transform *Transform_SafeCast(Module *baseModule){ 
+            return dynamic_cast<Transform*>(baseModule); 
+        }
+SWIGINTERN LuaScript *LuaScript_SafeCast(Module *baseModule){ 
+            return dynamic_cast<LuaScript*>(baseModule); 
+        }
+SWIGINTERN Renderer2D *Renderer2D_SafeCast(Module *baseModule){ 
+            return dynamic_cast<Renderer2D*>(baseModule); 
+        }
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_LogCallback_get() {
+  void * jresult ;
+  LogCallbackFunc result;
+  
+  result = (LogCallbackFunc)(0);
+  jresult = (void *)result; 
+  return jresult;
+}
+
 
 SWIGEXPORT unsigned int SWIGSTDCALL CSharp_EngineInitialize(void * jarg1, int jarg2, int jarg3) {
   unsigned int jresult ;
@@ -595,6 +624,24 @@ SWIGEXPORT void SWIGSTDCALL CSharp_SaveScene() {
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_RegisterLogCallback(void * jarg1) {
+  LogCallbackFunc arg1 = 0 ;
+  
+  arg1 = (LogCallbackFunc)jarg1; 
+  RegisterLogCallback(arg1);
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_DispatchNativeLog(char * jarg1, int jarg2) {
+  char *arg1 = 0 ;
+  int arg2 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (int)jarg2; 
+  DispatchNativeLog((char const *)arg1,arg2);
+}
+
+
 SWIGEXPORT void * SWIGSTDCALL CSharp_new_PVector3__SWIG_0() {
   void * jresult ;
   PVector3 *result = 0 ;
@@ -627,215 +674,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_PVector3__SWIG_1(float jarg1, float jar
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Add__SWIG_0(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  PVector3 *arg2 = 0 ;
-  PVector3 result;
-  
-  arg1 = (PVector3 *)jarg1; 
-  arg2 = (PVector3 *)jarg2;
-  if (!arg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "PVector3 const & is null", 0);
-    return 0;
-  } 
-  result = ((PVector3 const *)arg1)->operator +((PVector3 const &)*arg2);
-  jresult = new PVector3(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Sub__SWIG_0(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  PVector3 *arg2 = 0 ;
-  PVector3 result;
-  
-  arg1 = (PVector3 *)jarg1; 
-  arg2 = (PVector3 *)jarg2;
-  if (!arg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "PVector3 const & is null", 0);
-    return 0;
-  } 
-  result = ((PVector3 const *)arg1)->operator -((PVector3 const &)*arg2);
-  jresult = new PVector3(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Mul__SWIG_0(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  PVector3 *arg2 = 0 ;
-  PVector3 result;
-  
-  arg1 = (PVector3 *)jarg1; 
-  arg2 = (PVector3 *)jarg2;
-  if (!arg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "PVector3 const & is null", 0);
-    return 0;
-  } 
-  result = ((PVector3 const *)arg1)->operator *((PVector3 const &)*arg2);
-  jresult = new PVector3(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Div__SWIG_0(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  PVector3 *arg2 = 0 ;
-  PVector3 result;
-  
-  arg1 = (PVector3 *)jarg1; 
-  arg2 = (PVector3 *)jarg2;
-  if (!arg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "PVector3 const & is null", 0);
-    return 0;
-  } 
-  result = ((PVector3 const *)arg1)->operator /((PVector3 const &)*arg2);
-  jresult = new PVector3(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Add__SWIG_1(void * jarg1, float jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  float arg2 ;
-  PVector3 result;
-  
-  arg1 = (PVector3 *)jarg1; 
-  arg2 = (float)jarg2; 
-  result = (arg1)->operator +(arg2);
-  jresult = new PVector3(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Sub__SWIG_1(void * jarg1, float jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  float arg2 ;
-  PVector3 result;
-  
-  arg1 = (PVector3 *)jarg1; 
-  arg2 = (float)jarg2; 
-  result = (arg1)->operator -(arg2);
-  jresult = new PVector3(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Mul__SWIG_1(void * jarg1, float jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  float arg2 ;
-  PVector3 result;
-  
-  arg1 = (PVector3 *)jarg1; 
-  arg2 = (float)jarg2; 
-  result = (arg1)->operator *(arg2);
-  jresult = new PVector3(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Div__SWIG_1(void * jarg1, float jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  float arg2 ;
-  PVector3 result;
-  
-  arg1 = (PVector3 *)jarg1; 
-  arg2 = (float)jarg2; 
-  result = (arg1)->operator /(arg2);
-  jresult = new PVector3(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_AddAssign(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  PVector3 arg2 ;
-  PVector3 *argp2 ;
-  PVector3 *result = 0 ;
-  
-  arg1 = (PVector3 *)jarg1; 
-  argp2 = (PVector3 *)jarg2; 
-  if (!argp2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null PVector3", 0);
-    return 0;
-  }
-  arg2 = *argp2; 
-  result = (PVector3 *) &(arg1)->operator +=(SWIG_STD_MOVE(arg2));
-  jresult = (void *)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_SubAssign(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  PVector3 arg2 ;
-  PVector3 *argp2 ;
-  PVector3 *result = 0 ;
-  
-  arg1 = (PVector3 *)jarg1; 
-  argp2 = (PVector3 *)jarg2; 
-  if (!argp2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null PVector3", 0);
-    return 0;
-  }
-  arg2 = *argp2; 
-  result = (PVector3 *) &(arg1)->operator -=(SWIG_STD_MOVE(arg2));
-  jresult = (void *)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_MulAssign(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  PVector3 arg2 ;
-  PVector3 *argp2 ;
-  PVector3 *result = 0 ;
-  
-  arg1 = (PVector3 *)jarg1; 
-  argp2 = (PVector3 *)jarg2; 
-  if (!argp2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null PVector3", 0);
-    return 0;
-  }
-  arg2 = *argp2; 
-  result = (PVector3 *) &(arg1)->operator *=(SWIG_STD_MOVE(arg2));
-  jresult = (void *)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_DivAssign(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  PVector3 arg2 ;
-  PVector3 *argp2 ;
-  PVector3 *result = 0 ;
-  
-  arg1 = (PVector3 *)jarg1; 
-  argp2 = (PVector3 *)jarg2; 
-  if (!argp2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null PVector3", 0);
-    return 0;
-  }
-  arg2 = *argp2; 
-  result = (PVector3 *) &(arg1)->operator /=(SWIG_STD_MOVE(arg2));
-  jresult = (void *)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT float SWIGSTDCALL CSharp_PVector3_DotStatic(void * jarg1, void * jarg2) {
+SWIGEXPORT float SWIGSTDCALL CSharp_PVector3_Dot__SWIG_0(void * jarg1, void * jarg2) {
   float jresult ;
   PVector3 *arg1 = 0 ;
   PVector3 arg2 ;
@@ -859,25 +698,7 @@ SWIGEXPORT float SWIGSTDCALL CSharp_PVector3_DotStatic(void * jarg1, void * jarg
 }
 
 
-SWIGEXPORT float SWIGSTDCALL CSharp_PVector3_Dot(void * jarg1, void * jarg2) {
-  float jresult ;
-  PVector3 *arg1 = 0 ;
-  PVector3 *arg2 = 0 ;
-  float result;
-  
-  arg1 = (PVector3 *)jarg1; 
-  arg2 = (PVector3 *)jarg2;
-  if (!arg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "PVector3 const & is null", 0);
-    return 0;
-  } 
-  result = (float)(arg1)->Dot((PVector3 const &)*arg2);
-  jresult = result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_CrossStatic(void * jarg1, void * jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Cross__SWIG_0(void * jarg1, void * jarg2) {
   void * jresult ;
   PVector3 *arg1 = 0 ;
   PVector3 *arg2 = 0 ;
@@ -899,49 +720,13 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_CrossStatic(void * jarg1, void * j
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Cross(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PVector3 *arg1 = 0 ;
-  PVector3 *arg2 = 0 ;
-  PVector3 result;
-  
-  arg1 = (PVector3 *)jarg1; 
-  arg2 = (PVector3 *)jarg2;
-  if (!arg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "PVector3 const & is null", 0);
-    return 0;
-  } 
-  result = (arg1)->Cross((PVector3 const &)*arg2);
-  jresult = new PVector3(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Normalize(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_Normalize__SWIG_0(void * jarg1) {
   void * jresult ;
   PVector3 *arg1 = 0 ;
   PVector3 result;
   
   arg1 = (PVector3 *)jarg1; 
   result = (arg1)->Normalize();
-  jresult = new PVector3(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PVector3_NormalizeStatic(void * jarg1) {
-  void * jresult ;
-  PVector3 arg1 ;
-  PVector3 const *argp1 ;
-  PVector3 result;
-  
-  argp1 = (PVector3 *)jarg1; 
-  if (!argp1) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null PVector3 const", 0);
-    return 0;
-  }
-  arg1 = *argp1; 
-  result = PVector3::Normalize(SWIG_STD_MOVE(arg1));
   jresult = new PVector3(result); 
   return jresult;
 }
@@ -1174,74 +959,6 @@ SWIGEXPORT void SWIGSTDCALL CSharp_delete_PMatrix(void * jarg1) {
   
   arg1 = (PMatrix *)jarg1; 
   delete arg1;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PMatrix_Multiply(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PMatrix *arg1 = 0 ;
-  PMatrix *arg2 = 0 ;
-  PMatrix result;
-  
-  arg1 = (PMatrix *)jarg1; 
-  arg2 = (PMatrix *)jarg2;
-  if (!arg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "PMatrix const & is null", 0);
-    return 0;
-  } 
-  result = ((PMatrix const *)arg1)->operator *((PMatrix const &)*arg2);
-  jresult = new PMatrix(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PMatrix_MultiplyScalar(void * jarg1, float jarg2) {
-  void * jresult ;
-  PMatrix *arg1 = 0 ;
-  float arg2 ;
-  PMatrix result;
-  
-  arg1 = (PMatrix *)jarg1; 
-  arg2 = (float)jarg2; 
-  result = ((PMatrix const *)arg1)->operator *(arg2);
-  jresult = new PMatrix(result); 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PMatrix_AddAssign(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PMatrix *arg1 = 0 ;
-  PMatrix *arg2 = 0 ;
-  PMatrix *result = 0 ;
-  
-  arg1 = (PMatrix *)jarg1; 
-  arg2 = (PMatrix *)jarg2;
-  if (!arg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "PMatrix const & is null", 0);
-    return 0;
-  } 
-  result = (PMatrix *) &(arg1)->operator +=((PMatrix const &)*arg2);
-  jresult = (void *)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void * SWIGSTDCALL CSharp_PMatrix_SubAssign(void * jarg1, void * jarg2) {
-  void * jresult ;
-  PMatrix *arg1 = 0 ;
-  PMatrix *arg2 = 0 ;
-  PMatrix *result = 0 ;
-  
-  arg1 = (PMatrix *)jarg1; 
-  arg2 = (PMatrix *)jarg2;
-  if (!arg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "PMatrix const & is null", 0);
-    return 0;
-  } 
-  result = (PMatrix *) &(arg1)->operator -=((PMatrix const &)*arg2);
-  jresult = (void *)result; 
-  return jresult;
 }
 
 
@@ -1650,6 +1367,18 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Camera_PerspectiveProjection(void * jarg1) {
 }
 
 
+SWIGEXPORT void * SWIGSTDCALL CSharp_Camera_SafeCast(void * jarg1) {
+  void * jresult ;
+  Module *arg1 = 0 ;
+  Camera *result = 0 ;
+  
+  arg1 = (Module *)jarg1; 
+  result = (Camera *)Camera_SafeCast(arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void * SWIGSTDCALL CSharp_new_DebugCamera() {
   void * jresult ;
   DebugCamera *result = 0 ;
@@ -1689,6 +1418,18 @@ SWIGEXPORT void SWIGSTDCALL CSharp_DebugCamera_LastUpdate(void * jarg1) {
   
   arg1 = (DebugCamera *)jarg1; 
   (arg1)->LastUpdate();
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_DebugCamera_SafeCast(void * jarg1) {
+  void * jresult ;
+  Module *arg1 = 0 ;
+  DebugCamera *result = 0 ;
+  
+  arg1 = (Module *)jarg1; 
+  result = (DebugCamera *)DebugCamera_SafeCast(arg1);
+  jresult = (void *)result; 
+  return jresult;
 }
 
 
@@ -2194,6 +1935,18 @@ SWIGEXPORT const char * SWIGSTDCALL CSharp_Transform_RegisterLua() {
 }
 
 
+SWIGEXPORT void * SWIGSTDCALL CSharp_Transform_SafeCast(void * jarg1) {
+  void * jresult ;
+  Module *arg1 = 0 ;
+  Transform *result = 0 ;
+  
+  arg1 = (Module *)jarg1; 
+  result = (Transform *)Transform_SafeCast(arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void * SWIGSTDCALL CSharp_new_LuaScript() {
   void * jresult ;
   LuaScript *result = 0 ;
@@ -2258,6 +2011,71 @@ SWIGEXPORT void SWIGSTDCALL CSharp_LuaScript_Register(void * jarg1, const char *
 }
 
 
+SWIGEXPORT void * SWIGSTDCALL CSharp_LuaScript_SafeCast(void * jarg1) {
+  void * jresult ;
+  Module *arg1 = 0 ;
+  LuaScript *result = 0 ;
+  
+  arg1 = (Module *)jarg1; 
+  result = (LuaScript *)LuaScript_SafeCast(arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_Renderer2D() {
+  void * jresult ;
+  Renderer2D *result = 0 ;
+  
+  result = (Renderer2D *)new Renderer2D();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_Renderer2D(void * jarg1) {
+  Renderer2D *arg1 = 0 ;
+  
+  arg1 = (Renderer2D *)jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Renderer2D_LastUpdate(void * jarg1) {
+  Renderer2D *arg1 = 0 ;
+  
+  arg1 = (Renderer2D *)jarg1; 
+  (arg1)->LastUpdate();
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Renderer2D_SetTexture(void * jarg1, const char * jarg2) {
+  Renderer2D *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (Renderer2D *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  (arg1)->SetTexture((std::string const &)*arg2);
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Renderer2D_SafeCast(void * jarg1) {
+  void * jresult ;
+  Module *arg1 = 0 ;
+  Renderer2D *result = 0 ;
+  
+  arg1 = (Module *)jarg1; 
+  result = (Renderer2D *)Renderer2D_SafeCast(arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT PixelObject * SWIGSTDCALL CSharp_Module_SWIGUpcast(Module *jarg1) {
     return (PixelObject *)jarg1;
 }
@@ -2279,6 +2097,10 @@ SWIGEXPORT Module * SWIGSTDCALL CSharp_Transform_SWIGUpcast(Transform *jarg1) {
 }
 
 SWIGEXPORT Module * SWIGSTDCALL CSharp_LuaScript_SWIGUpcast(LuaScript *jarg1) {
+    return (Module *)jarg1;
+}
+
+SWIGEXPORT Module * SWIGSTDCALL CSharp_Renderer2D_SWIGUpcast(Renderer2D *jarg1) {
     return (Module *)jarg1;
 }
 

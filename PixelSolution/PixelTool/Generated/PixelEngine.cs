@@ -107,4 +107,13 @@ public class PixelEngine {
     PixelEnginePINVOKE.SaveScene();
   }
 
+  public static void RegisterLogCallback(SWIGTYPE_p_f_p_q_const__char_int__void callback) {
+    PixelEnginePINVOKE.RegisterLogCallback(SWIGTYPE_p_f_p_q_const__char_int__void.getCPtr(callback));
+  }
+
+  public static void DispatchNativeLog(string msg, int level) {
+    PixelEnginePINVOKE.DispatchNativeLog(msg, level);
+  }
+
+  public static readonly SWIGTYPE_p_f_p_q_const__char_int__void LogCallback = new SWIGTYPE_p_f_p_q_const__char_int__void(PixelEnginePINVOKE.LogCallback_get(), false);
 }

@@ -14,5 +14,6 @@ public enum MODULE_TYPE {
   Transform,
   LuaScript,
   Camera,
-  DebugCamera
+  DebugCamera,
+  Renderer2D
 }

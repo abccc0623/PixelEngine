@@ -70,4 +70,10 @@ public class LuaScript : Module {
     if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
   }
 
+  public static LuaScript SafeCast(Module baseModule) {
+    global::System.IntPtr cPtr = PixelEnginePINVOKE.LuaScript_SafeCast(Module.getCPtr(baseModule));
+    LuaScript ret = (cPtr == global::System.IntPtr.Zero) ? null : new LuaScript(cPtr, false);
+    return ret;
+  }
+
 }

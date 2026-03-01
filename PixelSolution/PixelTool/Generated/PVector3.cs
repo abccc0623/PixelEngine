@@ -62,106 +62,20 @@ public class PVector3 : global::System.IDisposable {
   public PVector3(float X, float Y, float Z) : this(PixelEnginePINVOKE.new_PVector3__SWIG_1(X, Y, Z), true) {
   }
 
-  public PVector3 Add(PVector3 Vec) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Add__SWIG_0(swigCPtr, PVector3.getCPtr(Vec)), true);
+  public static float Dot(PVector3 V1, PVector3 V2) {
+    float ret = PixelEnginePINVOKE.PVector3_Dot__SWIG_0(PVector3.getCPtr(V1), PVector3.getCPtr(V2));
     if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
-  public PVector3 Sub(PVector3 Vec) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Sub__SWIG_0(swigCPtr, PVector3.getCPtr(Vec)), true);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public PVector3 Mul(PVector3 Vec) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Mul__SWIG_0(swigCPtr, PVector3.getCPtr(Vec)), true);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public PVector3 Div(PVector3 Vec) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Div__SWIG_0(swigCPtr, PVector3.getCPtr(Vec)), true);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public PVector3 Add(float f) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Add__SWIG_1(swigCPtr, f), true);
-    return ret;
-  }
-
-  public PVector3 Sub(float f) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Sub__SWIG_1(swigCPtr, f), true);
-    return ret;
-  }
-
-  public PVector3 Mul(float f) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Mul__SWIG_1(swigCPtr, f), true);
-    return ret;
-  }
-
-  public PVector3 Div(float f) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Div__SWIG_1(swigCPtr, f), true);
-    return ret;
-  }
-
-  public PVector3 AddAssign(PVector3 Vec) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_AddAssign(swigCPtr, PVector3.getCPtr(Vec)), false);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public PVector3 SubAssign(PVector3 Vec) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_SubAssign(swigCPtr, PVector3.getCPtr(Vec)), false);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public PVector3 MulAssign(PVector3 Vec) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_MulAssign(swigCPtr, PVector3.getCPtr(Vec)), false);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public PVector3 DivAssign(PVector3 Vec) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_DivAssign(swigCPtr, PVector3.getCPtr(Vec)), false);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public static float DotStatic(PVector3 V1, PVector3 V2) {
-    float ret = PixelEnginePINVOKE.PVector3_DotStatic(PVector3.getCPtr(V1), PVector3.getCPtr(V2));
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public float Dot(PVector3 V1) {
-    float ret = PixelEnginePINVOKE.PVector3_Dot(swigCPtr, PVector3.getCPtr(V1));
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public static PVector3 CrossStatic(PVector3 V1, PVector3 V2) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_CrossStatic(PVector3.getCPtr(V1), PVector3.getCPtr(V2)), true);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public PVector3 Cross(PVector3 V1) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Cross(swigCPtr, PVector3.getCPtr(V1)), true);
+  public static PVector3 Cross(PVector3 V1, PVector3 V2) {
+    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Cross__SWIG_0(PVector3.getCPtr(V1), PVector3.getCPtr(V2)), true);
     if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
   public PVector3 Normalize() {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Normalize(swigCPtr), true);
-    return ret;
-  }
-
-  public static PVector3 NormalizeStatic(PVector3 V1) {
-    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_NormalizeStatic(PVector3.getCPtr(V1)), true);
-    if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
+    PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Normalize__SWIG_0(swigCPtr), true);
     return ret;
   }
 

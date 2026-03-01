@@ -2,6 +2,7 @@
 #include "PtrControlBlock.h"
 #include <cstddef>
 #include <utility>
+#include "Memory.h"
 template <typename T>
 class SPointer
 {
@@ -117,7 +118,7 @@ public:
     template <typename... Args>
     static SPointer<T> Make_SPointer(Args&&... args)
     {
-        return SPointer<T>(new T());
+        return SPointer<T>(PE_NEW T());
     }
 
     PtrControlBlock* cBlock = nullptr;

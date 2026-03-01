@@ -22,6 +22,8 @@
 #include <sstream>
 #include <algorithm>
 #include <iostream>
+#include <ctime>
+#include <cstdlib>
 
 
 #include <sol/forward.hpp>

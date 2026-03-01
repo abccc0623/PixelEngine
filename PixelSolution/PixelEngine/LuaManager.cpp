@@ -22,7 +22,7 @@
 extern PixelEngine* Engine;
 LuaManager::LuaManager()
 {
-
+    luaTableMap = std::unordered_map<std::string, LuaClassInfo*>();
 }
 
 LuaManager::~LuaManager()
@@ -188,6 +188,7 @@ bool LuaManager::Load(const std::string& filePath)
         return false;
     }
 
+    //루아 파일 로드
     sol::load_result script = lua->load_file(filePath);
     if (!script.valid())
     {
@@ -195,12 +196,27 @@ bool LuaManager::Load(const std::string& filePath)
         std::string what = err.what();
         return false;
     }
-    
-    std::filesystem::path p(filePath);
 
-    sol::table Proto = script();
-    LuaClassInfo* info = new LuaClassInfo(Proto);
-    luaTableMap.insert({p.stem().string(),info });
+    //해당 스크립트 실행
+    sol::protected_function_result result = script();
+    if (!result.valid()) {
+        sol::error err = result;
+        // 실행 에러 로그: err.what()
+        return false;
+    }
+
+    if (result.return_count() > 0 && result[0].is<sol::table>())
+    {
+        sol::table Proto = result[0];
+        std::filesystem::path p(filePath);
+        sol::table mt = lua->create_table_with(sol::meta_function::index, Proto);
+
+
+        // 생성: 여기서 LuaClassInfo를 힙에 할당하여 관리
+        LuaClassInfo* info = new LuaClassInfo(Proto, mt);
+        luaTableMap.insert({ p.stem().string(), info });
+       
+    }
 	return true;
 }
 
@@ -269,7 +285,7 @@ void LuaManager::LoadDefaultSettingFile()
             {
                 sol::error err = result;
                 std::string what = err.what();
-                std::cout << "루아 리소스 실행 에러: " << what << std::endl;
+                Log::Error("루아 리소스 실행 에러: " + what);
             }
             else 
             {
