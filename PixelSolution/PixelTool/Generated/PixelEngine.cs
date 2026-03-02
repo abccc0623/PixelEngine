@@ -117,6 +117,10 @@ public class PixelEngine {
     PixelEnginePINVOKE.SaveScene();
   }
 
+  public static void LoadScene(string sceneName) {
+    PixelEnginePINVOKE.LoadScene(sceneName);
+  }
+
   public static void RegisterLogCallback(SWIGTYPE_p_f_p_q_const__char_int__void callback) {
     PixelEnginePINVOKE.RegisterLogCallback(SWIGTYPE_p_f_p_q_const__char_int__void.getCPtr(callback));
   }

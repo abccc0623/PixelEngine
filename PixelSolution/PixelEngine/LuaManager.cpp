@@ -101,83 +101,83 @@ void LuaManager::Initialize()
 
 
     ////게임 오브젝트 추가
-    lua->new_usertype<GameObject>("GameObject",
-        "AddModule", [](GameObject& obj, std::string name, sol::this_state s) ->sol::object
-        {
-            auto bind = Engine->GetFactory<BindManager>();
-            bind->AddModuleCall(name, &obj);
-            return bind->GetModuleCall_Lua(s, obj, name);
-        },
-        "GetModule", [](GameObject& obj, std::string name, sol::this_state s) -> sol::object
-        {
-            auto bind = Engine->GetFactory<BindManager>();
-            return bind->GetModuleCall_Lua(s, obj, name);
-        },
-        "Destroy", [](GameObject& obj) {obj.Destroy(); });
+    //lua->new_usertype<GameObject>("GameObject",
+    //    "AddModule", [](GameObject& obj, std::string name, sol::this_state s) ->sol::object
+    //    {
+    //        auto bind = Engine->GetFactory<BindManager>();
+    //        bind->AddModuleCall(name, &obj);
+    //        return bind->GetModuleCall_Lua(s, obj, name);
+    //    },
+    //    "GetModule", [](GameObject& obj, std::string name, sol::this_state s) -> sol::object
+    //    {
+    //        auto bind = Engine->GetFactory<BindManager>();
+    //        return bind->GetModuleCall_Lua(s, obj, name);
+    //    },
+    //    "Destroy", [](GameObject& obj) {obj.Destroy(); });
 
-    std::string main = "";
-    main += "---@class Time \n";
-    main += "Time = {} \n\n";
-    main += "---@return number \n";
-    main += "function Time.GetDeltaTime() end \n\n";
-    main += "---@return number \n";
-    main += "function Time.GetTotalTime() end \n\n";
-    main += "---@return number \n";
-    main += "function Time.GetFPS() end \n\n";
-
-    main += "---@class Setting \n";
-    main += "Setting = {} \n\n";
-    main += "---@param SceneName string \n";
-    main += "---@return void \n";
-    main += "function Setting.ChangeScene(SceneName) end \n\n";
-    main += "---@param LuaPath string \n";
-    main += "---@return void \n";
-    main += "function Setting.CreateScene(LuaPath) end \n\n";
-
-
-    main += "---@class Input \n";
-    main += "Input = {} \n\n";
-    main += "---@param key number \n";
-    main += "---@return boolean \n";
-    main += "function Input.GetKey(key) end \n\n";
-    main += "---@param key number \n";
-    main += "---@return boolean \n";
-    main += "function Input.GetKeyDown(key) end \n\n";
-    main += "---@param key number \n";
-    main += "---@return boolean \n";
-    main += "function Input.GetKeyUp(key) end \n\n";
-    main += "---@return number \n";
-    main += "function Input.GetMousePosition_X() end \n\n";
-    main += "---@return number \n";
-    main += "function Input.GetMousePosition_Y() end \n\n";
-
-    main += "---@class Engine \n";
-    main += "Engine = {} \n\n";
-    main += "---@param name? string \n";
-    main += "---@return GameObject \n";
-    main += "function Engine.CreateGameObject(name) end \n\n";
-    main += "---@param texturePath string \n";
-    main += "---@return void \n";
-    main += "function Engine.LoadTexture(texturePath) end \n\n";
-    main += "---@param FindName string \n";
-    main += "---@return GameObject \n";
-    main += "function Engine.Find(FindName) end \n\n";
-
-
-    main += "---@class GameObject \n";
-    main += "GameObject = {} \n\n";
-    main += "---@generic T \n";
-    main += "---@param moduleName `T` \n";
-    main += "---@return T \n";
-    main += "function GameObject:GetModule(moduleName) end \n\n";
-    main += "---@generic T \n";
-    main += "---@param moduleName `T` \n";
-    main += "---@return T \n";
-    main += "function GameObject:AddModule(moduleName) end \n\n";
-    main += "---@return void \n";
-    main += "function GameObject:Destroy() end \n\n";
-    main += SettingKeyEnum();
-    BindManager::apiDefinitions += main;
+    //std::string main = "";
+    //main += "---@class Time \n";
+    //main += "Time = {} \n\n";
+    //main += "---@return number \n";
+    //main += "function Time.GetDeltaTime() end \n\n";
+    //main += "---@return number \n";
+    //main += "function Time.GetTotalTime() end \n\n";
+    //main += "---@return number \n";
+    //main += "function Time.GetFPS() end \n\n";
+    //
+    //main += "---@class Setting \n";
+    //main += "Setting = {} \n\n";
+    //main += "---@param SceneName string \n";
+    //main += "---@return void \n";
+    //main += "function Setting.ChangeScene(SceneName) end \n\n";
+    //main += "---@param LuaPath string \n";
+    //main += "---@return void \n";
+    //main += "function Setting.CreateScene(LuaPath) end \n\n";
+    //
+    //
+    //main += "---@class Input \n";
+    //main += "Input = {} \n\n";
+    //main += "---@param key number \n";
+    //main += "---@return boolean \n";
+    //main += "function Input.GetKey(key) end \n\n";
+    //main += "---@param key number \n";
+    //main += "---@return boolean \n";
+    //main += "function Input.GetKeyDown(key) end \n\n";
+    //main += "---@param key number \n";
+    //main += "---@return boolean \n";
+    //main += "function Input.GetKeyUp(key) end \n\n";
+    //main += "---@return number \n";
+    //main += "function Input.GetMousePosition_X() end \n\n";
+    //main += "---@return number \n";
+    //main += "function Input.GetMousePosition_Y() end \n\n";
+    //
+    //main += "---@class Engine \n";
+    //main += "Engine = {} \n\n";
+    //main += "---@param name? string \n";
+    //main += "---@return GameObject \n";
+    //main += "function Engine.CreateGameObject(name) end \n\n";
+    //main += "---@param texturePath string \n";
+    //main += "---@return void \n";
+    //main += "function Engine.LoadTexture(texturePath) end \n\n";
+    //main += "---@param FindName string \n";
+    //main += "---@return GameObject \n";
+    //main += "function Engine.Find(FindName) end \n\n";
+    //
+    //
+    //main += "---@class GameObject \n";
+    //main += "GameObject = {} \n\n";
+    //main += "---@generic T \n";
+    //main += "---@param moduleName `T` \n";
+    //main += "---@return T \n";
+    //main += "function GameObject:GetModule(moduleName) end \n\n";
+    //main += "---@generic T \n";
+    //main += "---@param moduleName `T` \n";
+    //main += "---@return T \n";
+    //main += "function GameObject:AddModule(moduleName) end \n\n";
+    //main += "---@return void \n";
+    //main += "function GameObject:Destroy() end \n\n";
+    //main += SettingKeyEnum();
+    //BindManager::apiDefinitions += main;
 }
 
 

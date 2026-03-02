@@ -296,6 +296,9 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_SaveScene")]
   public static extern void SaveScene();
 
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_LoadScene")]
+  public static extern void LoadScene(string jarg1);
+
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_RegisterLogCallback")]
   public static extern void RegisterLogCallback(global::System.Runtime.InteropServices.HandleRef jarg1);
 
@@ -404,6 +407,30 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PMatrix__m_get")]
   public static extern global::System.IntPtr PMatrix__m_get(global::System.Runtime.InteropServices.HandleRef jarg1);
 
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_TransformMata_Position_set")]
+  public static extern void TransformMata_Position_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_TransformMata_Position_get")]
+  public static extern global::System.IntPtr TransformMata_Position_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_TransformMata_Rotation_set")]
+  public static extern void TransformMata_Rotation_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_TransformMata_Rotation_get")]
+  public static extern global::System.IntPtr TransformMata_Rotation_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_TransformMata_Scale_set")]
+  public static extern void TransformMata_Scale_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_TransformMata_Scale_get")]
+  public static extern global::System.IntPtr TransformMata_Scale_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_TransformMata")]
+  public static extern global::System.IntPtr new_TransformMata();
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_delete_TransformMata")]
+  public static extern void delete_TransformMata(global::System.Runtime.InteropServices.HandleRef jarg1);
+
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_PixelObject")]
   public static extern global::System.IntPtr new_PixelObject();
 
@@ -440,6 +467,12 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_LastUpdate")]
   public static extern void Module_LastUpdate(global::System.Runtime.InteropServices.HandleRef jarg1);
 
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_Save")]
+  public static extern string Module_Save(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_Load")]
+  public static extern void Module_Load(global::System.Runtime.InteropServices.HandleRef jarg1);
+
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Module_GetType")]
   public static extern int Module_GetType(global::System.Runtime.InteropServices.HandleRef jarg1);
 
@@ -466,6 +499,9 @@ class PixelEnginePINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_GetHash")]
   public static extern uint GameObject_GetHash(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_Save")]
+  public static extern string GameObject_Save(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_name_set")]
   public static extern void GameObject_name_set(global::System.Runtime.InteropServices.HandleRef jarg1, string jarg2);
@@ -523,6 +559,9 @@ class PixelEnginePINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_Start")]
   public static extern void Transform_Start(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_Save")]
+  public static extern string Transform_Save(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_Transform_SetPosition__SWIG_0")]
   public static extern void Transform_SetPosition__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);

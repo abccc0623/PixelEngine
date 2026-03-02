@@ -8,6 +8,7 @@
 #include "Type/GlobalEnum.h"
 #include "SPointer.h"
 #include "GlobalBind.h"
+#include "json.hpp"
 
 extern PixelEngine* Engine;
 FunctionManager* GameObject::functionManager = nullptr;
@@ -72,14 +73,27 @@ unsigned long GameObject::GetHash()
 	return hashCode;
 }
 
+std::string GameObject::Save()
+{
+	nlohmann::ordered_json j;
+	j["Name"] = name;
+	j["Hash"] = hashCode;
+	j["Modules"] = nlohmann::ordered_json::array();
+	for (auto& k : ModuleMap)
+	{
+		nlohmann::ordered_json childJson = nlohmann::ordered_json::parse(k.second->Save());
+		j["Modules"].push_back(childJson);
+	}
+	return j.dump(4);
+}
+
 void GameObject::Destroy()
 {
 	
 }
 
-#ifdef PIXEL_EDITOR
-std::string GameObject::Save(int tab)
-{
+//std::string GameObject::Save(int tab)
+//{
 	//std::string content = BeginBlock(tab); // 개별 오브젝트 { 시작
 	//content += AddEntry(tab + 1, "Name", name);
 	//content += AddEntry(tab + 1, "HashCode", (float)hashCode);
@@ -97,9 +111,8 @@ std::string GameObject::Save(int tab)
 	//
 	//content += EndBlock(tab); // 개별 오브젝트 } 닫기
 	//return content;
-	return "";
-}
-#endif // PIXEL_EDITOR
+	//return "";
+///}
 
 
 

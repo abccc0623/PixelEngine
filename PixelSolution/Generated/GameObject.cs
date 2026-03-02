@@ -73,6 +73,11 @@ public class GameObject : PixelObject {
     return ret;
   }
 
+  public string Save() {
+    string ret = PixelEnginePINVOKE.GameObject_Save(swigCPtr);
+    return ret;
+  }
+
   public string name {
     set {
       PixelEnginePINVOKE.GameObject_name_set(swigCPtr, value);

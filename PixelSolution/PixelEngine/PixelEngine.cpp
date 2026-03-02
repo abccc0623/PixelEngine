@@ -16,6 +16,7 @@
 #include "ResourceManager.h"
 #include "CollisionManager.h"
 #include "BindManager.h"
+#include "JsonManager.h"
 #include "SPointer.h"
 
 void PixelEngine::Initialize(HWND hWnd, int width, int height)
@@ -29,6 +30,7 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	BindFactory<ResourceManager>();
 	BindFactory<CollisionManager>();
 	BindFactory<BindManager>();
+	BindFactory<JsonManager>();
 
 	PixelGraphicsInitialize(hWnd, width, height);
 

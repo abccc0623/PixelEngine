@@ -373,6 +373,8 @@ template <typename T> T SwigValueInit() {
 #include "Export/Core/Module.h"
 #include "Export/Core/GameObject.h"
 
+#include "Export/Type/PMeta.h"
+
 /* Module */
 #include "Export/Module/Camera.h"
 #include "Export/Module/DebugCamera.h"
@@ -654,6 +656,14 @@ SWIGEXPORT void SWIGSTDCALL CSharp_RegisterSceneObjectChange(void * jarg1) {
 
 SWIGEXPORT void SWIGSTDCALL CSharp_SaveScene() {
   SaveScene();
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_LoadScene(char * jarg1) {
+  char *arg1 = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  LoadScene((char const *)arg1);
 }
 
 
@@ -1117,6 +1127,90 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_PMatrix__m_get(void * jarg1) {
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_TransformMata_Position_set(void * jarg1, void * jarg2) {
+  TransformMata *arg1 = 0 ;
+  PVector3 *arg2 = 0 ;
+  
+  arg1 = (TransformMata *)jarg1; 
+  arg2 = (PVector3 *)jarg2; 
+  if (arg1) (arg1)->Position = *arg2;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_TransformMata_Position_get(void * jarg1) {
+  void * jresult ;
+  TransformMata *arg1 = 0 ;
+  PVector3 *result = 0 ;
+  
+  arg1 = (TransformMata *)jarg1; 
+  result = (PVector3 *)& ((arg1)->Position);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_TransformMata_Rotation_set(void * jarg1, void * jarg2) {
+  TransformMata *arg1 = 0 ;
+  PVector3 *arg2 = 0 ;
+  
+  arg1 = (TransformMata *)jarg1; 
+  arg2 = (PVector3 *)jarg2; 
+  if (arg1) (arg1)->Rotation = *arg2;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_TransformMata_Rotation_get(void * jarg1) {
+  void * jresult ;
+  TransformMata *arg1 = 0 ;
+  PVector3 *result = 0 ;
+  
+  arg1 = (TransformMata *)jarg1; 
+  result = (PVector3 *)& ((arg1)->Rotation);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_TransformMata_Scale_set(void * jarg1, void * jarg2) {
+  TransformMata *arg1 = 0 ;
+  PVector3 *arg2 = 0 ;
+  
+  arg1 = (TransformMata *)jarg1; 
+  arg2 = (PVector3 *)jarg2; 
+  if (arg1) (arg1)->Scale = *arg2;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_TransformMata_Scale_get(void * jarg1) {
+  void * jresult ;
+  TransformMata *arg1 = 0 ;
+  PVector3 *result = 0 ;
+  
+  arg1 = (TransformMata *)jarg1; 
+  result = (PVector3 *)& ((arg1)->Scale);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_TransformMata() {
+  void * jresult ;
+  TransformMata *result = 0 ;
+  
+  result = (TransformMata *)new TransformMata();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_TransformMata(void * jarg1) {
+  TransformMata *arg1 = 0 ;
+  
+  arg1 = (TransformMata *)jarg1; 
+  delete arg1;
+}
+
+
 SWIGEXPORT void * SWIGSTDCALL CSharp_new_PixelObject() {
   void * jresult ;
   PixelObject *result = 0 ;
@@ -1223,6 +1317,26 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Module_LastUpdate(void * jarg1) {
 }
 
 
+SWIGEXPORT const char * SWIGSTDCALL CSharp_Module_Save(void * jarg1) {
+  const char * jresult ;
+  Module *arg1 = 0 ;
+  std::string result;
+  
+  arg1 = (Module *)jarg1; 
+  result = (arg1)->Save();
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_Module_Load(void * jarg1) {
+  Module *arg1 = 0 ;
+  
+  arg1 = (Module *)jarg1; 
+  (arg1)->Load();
+}
+
+
 SWIGEXPORT int SWIGSTDCALL CSharp_Module_GetType(void * jarg1) {
   int jresult ;
   Module *arg1 = 0 ;
@@ -1319,6 +1433,18 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_GameObject_GetHash(void * jarg1) {
   arg1 = (GameObject *)jarg1; 
   result = (unsigned long)(arg1)->GetHash();
   jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT const char * SWIGSTDCALL CSharp_GameObject_Save(void * jarg1) {
+  const char * jresult ;
+  GameObject *arg1 = 0 ;
+  std::string result;
+  
+  arg1 = (GameObject *)jarg1; 
+  result = (arg1)->Save();
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }
 
@@ -1497,6 +1623,18 @@ SWIGEXPORT void SWIGSTDCALL CSharp_Transform_Start(void * jarg1) {
   
   arg1 = (Transform *)jarg1; 
   (arg1)->Start();
+}
+
+
+SWIGEXPORT const char * SWIGSTDCALL CSharp_Transform_Save(void * jarg1) {
+  const char * jresult ;
+  Transform *arg1 = 0 ;
+  std::string result;
+  
+  arg1 = (Transform *)jarg1; 
+  result = (arg1)->Save();
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
 }
 
 

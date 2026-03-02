@@ -106,6 +106,9 @@
     <Filter Include="EngineAPI\Log">
       <UniqueIdentifier>{ffa2fbc2-4db7-4a13-b602-95a0900fe123}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Manager\JsonManager">
+      <UniqueIdentifier>{40ec7548-153f-44bb-a6c2-413bfc179305}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -234,6 +237,18 @@
     <ClInclude Include="Memory.h">
       <Filter>EngineAPI\Log</Filter>
     </ClInclude>
+    <ClInclude Include="json.hpp">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="json_fwd.hpp">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonManager.h">
+      <Filter>EngineAPI\Manager\JsonManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Type\PMeta.h">
+      <Filter>EngineAPI\Types</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -343,6 +358,9 @@
     </ClCompile>
     <ClCompile Include="Memory.cpp">
       <Filter>EngineAPI\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonManager.cpp">
+      <Filter>EngineAPI\Manager\JsonManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -22,9 +22,7 @@ public:
 	PIXEL_ENGINEDLL Module* GetModule(MODULE_TYPE type);
 	PIXEL_ENGINEDLL unsigned long GetHash();
 public:
-#ifdef PIXEL_EDITOR
-	PIXEL_ENGINEDLL std::string Save(int tab);
-#endif
+	std::string Save();
 public:
 	std::string name;
 private:

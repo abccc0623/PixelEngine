@@ -64,7 +64,17 @@ namespace PixelTool
                 GameObject obj = new GameObject(objAddr, false);
                 SceneObjects.Add(obj);
             }
-        
+        }
+        private void OnHierarchySelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            // e.NewValue가 사용자가 방금 클릭한(선택한) 객체야
+            var selectedObject = e.NewValue as GameObject;
+
+            if (selectedObject != null)
+            {
+                // 아까 만든 인스펙터 갱신 함수 호출!
+                InspectorWindow.RefreshInspector(selectedObject);
+            }
         }
     }
 }

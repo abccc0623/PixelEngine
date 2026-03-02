@@ -14,11 +14,9 @@ typedef unsigned char byte;
 #endif
 
 #ifdef PIXEL_EDITOR
-// 에디터 모드일 때: 에디터 함수는 정상, 인게임 전용 함수는 경고
-#define EDITOR_FUNC 
-#define RUNTIME_FUNC [[deprecated("이 함수는 런타임 전용입니다.")]]
+#define EDITOR_ONLY_FUNC(name) void name() 
+#define EDITOR_CALL(call) call
 #else
-// 인게임 모드일 때: 에디터 전용 함수는 경고(혹은 에러), 인게임 함수는 정상
-#define EDITOR_FUNC [[deprecated("이 함수는 에디터 전용입니다. 빌드에 포함될 수 없습니다.")]]
-#define RUNTIME_FUNC 
+#define EDITOR_ONLY_FUNC(name) inline void name() { } 
+#define EDITOR_CALL(call) ((void)0)
 #endif

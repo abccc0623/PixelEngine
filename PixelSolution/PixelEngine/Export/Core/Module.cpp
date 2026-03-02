@@ -5,6 +5,7 @@
 #include "PixelEngine.h"
 #include "LuaManager.h"
 #include "SerializeHelper.h"
+#include "json.hpp"
 extern PixelEngine* Engine;
 Module::Module()
 {
@@ -23,6 +24,18 @@ void Module::Update(){}
 void Module::MatrixUpdate(){}
 void Module::PhysicsUpdate(){}
 void Module::LastUpdate(){}
+std::string Module::Save()
+{
+	nlohmann::ordered_json j;
+	j["Type"] = type;
+	return j.dump(4);
+}
+
+void Module::Load()
+{
+	
+}
+
 
 MODULE_TYPE Module::GetType()
 {
@@ -36,6 +49,8 @@ GameObject* Module::GetGameObject()
 	}
 	return nullptr;
 }
+
+
 //void Module::OnCollisionEnter2D(WPointer<GameObject> target){}
 //void Module::OnCollision2D(WPointer<GameObject> target){}
 //void Module::OnCollisionExit2D(WPointer<GameObject> target){}

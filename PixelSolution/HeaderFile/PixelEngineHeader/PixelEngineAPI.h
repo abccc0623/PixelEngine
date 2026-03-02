@@ -40,8 +40,8 @@ extern "C" PIXEL_ENGINEDLL bool ChangeScene(const char* sceneName);
 extern "C" PIXEL_ENGINEDLL void RegisterSceneObjectChange(SceneChangeCallbackFunc callBack);
 extern "C" PIXEL_ENGINEDLL GameObject** GetAllSceneObjects(int* outCount);
 
-
 extern "C" PIXEL_ENGINEDLL void SaveScene();
+extern "C" PIXEL_ENGINEDLL void LoadScene(const char* sceneName);
 
 
 extern "C" PIXEL_ENGINEDLL void RegisterLogCallback(LogCallbackFunc callback);

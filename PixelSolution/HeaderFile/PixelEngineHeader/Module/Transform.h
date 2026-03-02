@@ -2,7 +2,9 @@
 #include "Core/Module.h"
 #include "Type/PVector3.h"
 #include "Type/PMatrix.h"
+#include "Type/PMeta.h"
 
+class JsonManager;
 class Transform : public Module
 {
 public:
@@ -11,6 +13,8 @@ public:
 public:
 	void MatrixUpdate() override;
 	void Start() override;
+	std::string Save() override;
+
 public:
 	PIXEL_ENGINEDLL void SetPosition(const PVector3& mPos);
 	PIXEL_ENGINEDLL void SetPosition(float x, float y, float z);
@@ -53,9 +57,7 @@ private:
 	PMatrix Rotation_Matrix;
 	PMatrix Scale_Matrix;
 
-	PVector3 Position;
-	PVector3 Rotation;
-	PVector3 Scale;
+	TransformMata meta;
 
 	PVector3 Local_Look;
 	PVector3 Local_Right;
@@ -65,4 +67,5 @@ public:
 	bool IsChange_Rotation;
 	bool IsChange_Scale;
 	static std::string RegisterLua();
+	friend JsonManager;
 };

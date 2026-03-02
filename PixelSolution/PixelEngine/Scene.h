@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
+
 template <typename T> class SPointer;
 struct RenderingData;
 class GameObject;
@@ -24,22 +25,14 @@ public:
 	void DeleteGameObject(size_t targetObject);
 	GameObject** GetAllSceneObjects(int* maxCount);
 
-	std::string Save(int tab);
-private:
+	std::string Save();
 	std::string sceneName;
+private:
 	std::string path;
-	LuaManager* lua;
-	FunctionManager* func;
-
-	sol::table table;
-	sol::protected_function luaStart;
-	sol::protected_function luaRelease;
-
-	sol::protected_function OnStartFunc;
-	sol::protected_function OnReleaseFunc;
-
 	std::unordered_map<size_t, SPointer<GameObject>> ObjectList;
 	std::vector<GameObject*> Getter;
 	int ObjectCount = 0;
+	LuaManager* lua;
+	FunctionManager* func;
 };
 

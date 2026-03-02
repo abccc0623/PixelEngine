@@ -26,28 +26,28 @@ void Scene::Initialize(const std::string& luaPath, const std::string& name)
     path = luaPath;
     lua  = Engine->GetFactory<LuaManager>();
     func = Engine->GetFactory<FunctionManager>();
-    auto state =  lua->GetModuleCall_Lua();
-    sol::protected_function_result result = state->do_file(path);
-    if (result.valid())
-    {
-        table = result;
-        table["this"] = this;
-        OnStartFunc     = table["Start"];
-        OnReleaseFunc   = table["Release"];
-    }
-    else 
-    {
-        Log::Error("Not Find SceneFile:" + path);
-    }
+    //auto state =  lua->GetModuleCall_Lua();
+    //sol::protected_function_result result = state->do_file(path);
+    //if (result.valid())
+    //{
+    //    table = result;
+    //    table["this"] = this;
+    //    OnStartFunc     = table["Start"];
+    //    OnReleaseFunc   = table["Release"];
+    //}
+    //else 
+    //{
+    //    Log::Error("Not Find SceneFile:" + path);
+    //}
 }
 
 
 void Scene::Start()
 {
-    if (OnStartFunc.valid())
-    {
-        OnStartFunc(table, this);
-    }
+    //if (OnStartFunc.valid())
+    //{
+    //    OnStartFunc(table, this);
+    //}
 }
 
 void Scene::Update()
@@ -57,17 +57,18 @@ void Scene::Update()
 
 void Scene::Release()
 {
-    if (OnReleaseFunc.valid())
-    {
-        OnReleaseFunc(table, this);
-    }
-    func->Clear();
-    ObjectList.clear();
+    //if (OnReleaseFunc.valid())
+    //{
+    //    OnReleaseFunc(table, this);
+    //}
+    //func->Clear();
+    //ObjectList.clear();
 }
 
 void Scene::CreateGameObject(SPointer<GameObject> Obj)
 {
     ObjectList.insert({ Obj->GetHash(),Obj});
+    Log::Info("[" + sceneName + "] CreateObject :" + Obj->name);
     if (g_SceneObjectChangeCallBack != nullptr)
     {
         g_SceneObjectChangeCallBack();
@@ -100,18 +101,16 @@ GameObject** Scene::GetAllSceneObjects(int* maxCount)
     return Getter.empty() ? nullptr : Getter.data();
 }
 
-std::string Scene::Save(int tab)
+std::string Scene::Save()
 {
-    std::string content = BeginBlock(tab); // { 시작
-    //content += AddEntry(tab + 1, "Name", sceneName);
-    //
-    //content += BeginBlock(tab + 1, "GameObjects"); // GameObjects = { 시작
-    //for (auto& K : ObjectList)
-    //{
-    //    content += K.second->Save(tab + 2);
-    //}
-    //content += EndBlock(tab + 1); // GameObjects = } 닫기
-    //
-    //content += EndBlock(tab, false); // SceneData 전체 } 닫기 (마지막이라 쉼표 생략)
-    return content;
+    nlohmann::ordered_json j;
+    j["FileType"] = "SceneFile";
+    j["SceneName"] = sceneName;
+    j["GameObjects"] = nlohmann::ordered_json::array();
+    for (auto& K : ObjectList)
+    {
+        nlohmann::ordered_json childJson = nlohmann::ordered_json::parse(K.second->Save());
+        j["GameObjects"].push_back(childJson);
+    }
+    return j.dump(4);
 }

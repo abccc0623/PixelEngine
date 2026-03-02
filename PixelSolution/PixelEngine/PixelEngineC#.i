@@ -13,6 +13,8 @@
 #include "Export/Core/Module.h"
 #include "Export/Core/GameObject.h"
 
+#include "Export/Type/PMeta.h"
+
 /* Module */
 #include "Export/Module/Camera.h"
 #include "Export/Module/DebugCamera.h"
@@ -34,7 +36,23 @@
 %typemap(csin) HWND "$csinput"
 %typemap(csout) HWND %{ return $imcall; %}
 
+
+/*-------------------------------------- 전처리기 옵션 */
 #define PIXEL_ENGINEDLL
+// 1. SWIG 내부 전처리기 설정
+// 빌드 시스템에서 넘겨받은 PIXEL_EDITOR 값이 있다면 SWIG도 이를 인식함
+#ifdef PIXEL_EDITOR
+    // 에디터 모드일 때 SWIG이 함수 선언을 그대로 읽도록 함
+    #define EDITOR_ONLY_FUNC(name) void name()
+    #define EDITOR_CALL(call) call
+#else
+    // 런타임 모드일 때 SWIG에게 이 함수들은 무시하라고 알려줌
+    // 혹은 빈 함수로 인식하게 하여 스크립트에서 호출해도 아무 일 없게 만듦
+    #define EDITOR_ONLY_FUNC(name) %ignore name; void name()
+    #define EDITOR_CALL(call) 
+#endif
+
+
 /*-------------------------------------- SWIG가 파싱할 대상 헤더 파일들 */
 %inline %{
 typedef void (__stdcall * LogCallbackFunc)(const char *message, int level);
@@ -79,6 +97,7 @@ extern "C" GameObject** GetAllSceneObjects(int* outCount);
 %rename(SubAssign) PMatrix::operator-=;
 
 %include "Export/Type/GlobalEnum.h"
+%include "Export/Type/PMeta.h"
 
 /*-------------------------------------- GameObject */
 %include "Export/Core/PixelObject.h"

@@ -57,6 +57,11 @@ public class Transform : Module {
     PixelEnginePINVOKE.Transform_Start(swigCPtr);
   }
 
+  public override string Save() {
+    string ret = PixelEnginePINVOKE.Transform_Save(swigCPtr);
+    return ret;
+  }
+
   public void SetPosition(PVector3 mPos) {
     PixelEnginePINVOKE.Transform_SetPosition__SWIG_0(swigCPtr, PVector3.getCPtr(mPos));
     if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();

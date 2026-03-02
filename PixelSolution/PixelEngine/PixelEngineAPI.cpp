@@ -12,6 +12,7 @@
 #include "ResourceManager.h"
 #include "TimeManager.h"
 #include "Core/GameObject.h"
+#include "JsonManager.h"
 
 
 PixelEngine* Engine = nullptr;
@@ -207,6 +208,16 @@ void SaveScene()
 	{
 		SceneManager* scene = Engine->GetFactory<SceneManager>();
 		scene->SaveScene();
+	}
+}
+
+void LoadScene(const char* sceneName)
+{
+	if (Engine != nullptr)
+	{
+		SceneManager* scene = Engine->GetFactory<SceneManager>();
+		auto path = std::string(sceneName);
+		JsonManager::Load(path);
 	}
 }
 

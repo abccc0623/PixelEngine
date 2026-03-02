@@ -26,16 +26,19 @@
                     </dock:LayoutDocumentPane>
 
                     <dock:LayoutPanel Orientation="Vertical" DockWidth="0.7*" DockHeight="1.0*">
-                        <dock:LayoutDocumentPane DockHeight="0.8*">
+                        <dock:LayoutDocumentPane DockHeight="0.6*">
                             <dock:LayoutDocument Title="Scene View">
                                 <local:GraphicsWindow x:Name="GraphicsWindow" />
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
 
-                        <dock:LayoutDocumentPane DockHeight="0.15*">
+                        <dock:LayoutDocumentPane DockHeight="0.25*">
                             <dock:LayoutAnchorable Title="Inspector" >
-                                <local:ConsoleWindow x:Name="ConsoleWIndow" />
+                                <local:InspectorWindow></local:InspectorWindow>
                             </dock:LayoutAnchorable>
+                            <dock:LayoutDocument Title="Console">
+                                <local:ConsoleWindow></local:ConsoleWindow>
+                            </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
 
                     </dock:LayoutPanel>

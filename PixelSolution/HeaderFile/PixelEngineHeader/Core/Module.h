@@ -16,6 +16,11 @@ public:
 	virtual void MatrixUpdate();
 	virtual void PhysicsUpdate();
 	virtual void LastUpdate();
+	virtual std::string Save();
+	virtual void Load();
+
+
+
 
 	PIXEL_ENGINEDLL MODULE_TYPE GetType();
 	PIXEL_ENGINEDLL GameObject* GetGameObject();

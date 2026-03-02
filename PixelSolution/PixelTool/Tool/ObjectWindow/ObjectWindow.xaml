@@ -11,7 +11,7 @@
         <local:ObjectTypeConverter x:Key="GameObjectToIconConverter"/>
     </UserControl.Resources>
     <Grid>
-        <TreeView Background="{DynamicResource PixelBackgroundBrush}" ItemsSource="{Binding Source={x:Static local:ObjectWindow.SceneObjects}}">
+        <TreeView Background="{DynamicResource PixelBackgroundBrush}" ItemsSource="{Binding Source={x:Static local:ObjectWindow.SceneObjects}}" SelectedItemChanged="OnHierarchySelectionChanged">
             <TreeView.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent" />
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />

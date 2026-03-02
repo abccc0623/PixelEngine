@@ -1,5 +1,9 @@
 #include "pch.h"
+#include "Type/PVector3.h"
 #include "Transform.h"
+#include "Type/PMeta.h"
+#include <json.hpp>
+
 Transform::Transform():
 	Rotation_Pitch(),
 	Rotation_Yaw(),
@@ -8,16 +12,12 @@ Transform::Transform():
 	Rotation_Matrix(),
 	Scale_Matrix(),
 	World_Matrix(),
-	Position(0,0,0),
-	Rotation(0,0,0),
-	Scale(1,1,1),
 	IsChange_Postion(true),
 	IsChange_Rotation(true),
 	IsChange_Scale(true)
 {
 	
 }
-
 Transform::~Transform()
 {
 
@@ -29,6 +29,25 @@ void Transform::Start()
 	WorldMatrixUpdate();
 }
 
+std::string Transform::Save()
+{
+	nlohmann::ordered_json j;
+	j["Type"] = type;
+	j["Position"] = nlohmann::ordered_json::array();
+	j["Position"].push_back(meta.Position.X);
+	j["Position"].push_back(meta.Position.Y);
+	j["Position"].push_back(meta.Position.Z);
+	j["Rotation"] = nlohmann::ordered_json::array();
+	j["Rotation"].push_back(meta.Rotation.X);
+	j["Rotation"].push_back(meta.Rotation.Y);
+	j["Rotation"].push_back(meta.Rotation.Z);
+	j["Scale"] = nlohmann::ordered_json::array();
+	j["Scale"].push_back(meta.Scale.X);
+	j["Scale"].push_back(meta.Scale.Y);
+	j["Scale"].push_back(meta.Scale.Z);
+	return j.dump(4);
+}
+
 void Transform::MatrixUpdate()
 {
 	WorldMatrixUpdate();
@@ -37,34 +56,34 @@ void Transform::MatrixUpdate()
 void Transform::SetPosition(const PVector3& mPos)
 {
 	IsChange_Postion = true;
-	Position = mPos;
+	meta.Position = mPos;
 }
 
 void Transform::SetPosition(float x, float y, float z)
 {
 	IsChange_Postion = true;
-	Position.X = x;
-	Position.Y = y;
-	Position.Z = z;
+	meta.Position.X = x;
+	meta.Position.Y = y;
+	meta.Position.Z = z;
 }
 
 void Transform::SetPosition(int x, int y, int z)
 {
 	IsChange_Postion = true;
-	Position.X = (float)x;
-	Position.Y = (float)y;
-	Position.Z = (float)z;
+	meta.Position.X = (float)x;
+	meta.Position.Y = (float)y;
+	meta.Position.Z = (float)z;
 }
 
 const PVector3& Transform::GetPosition()
 {
-	return Position;
+	return meta.Position;
 }
 
 void Transform::SetRotation(const PVector3& mRot)
 {
 	IsChange_Rotation = true;
-	Rotation = mRot;
+	meta.Rotation = mRot;
 }
 
 
@@ -72,115 +91,115 @@ void Transform::SetRotation(const PVector3& mRot)
 void Transform::SetRotation(float x, float y, float z)
 {
 	IsChange_Rotation = true;
-	Rotation.X = x;
-	Rotation.Y = y;
-	Rotation.Z = z;
+	meta.Rotation.X = x;
+	meta.Rotation.Y = y;
+	meta.Rotation.Z = z;
 }
 
 void Transform::SetRotation(int x, int y, int z)
 {
 	IsChange_Rotation = true;
-	Rotation.X = (float)x;
-	Rotation.Y = (float)y;
-	Rotation.Z = (float)z;
+	meta.Rotation.X = (float)x;
+	meta.Rotation.Y = (float)y;
+	meta.Rotation.Z = (float)z;
 }
 
 void Transform::SetScale(const PVector3& mScale)
 {
 	IsChange_Scale = true;
-	Scale = mScale;
+	meta.Scale = mScale;
 }
 
 void Transform::SetScale(float x, float y, float z)
 {
 	IsChange_Scale = true;
-	Scale.X = x;
-	Scale.Y = y;
-	Scale.Z = z;
+	meta.Scale.X = x;
+	meta.Scale.Y = y;
+	meta.Scale.Z = z;
 }
 
 void Transform::SetScale(int x, int y, int z)
 {
 	IsChange_Scale = true;
-	Scale.X = (float)x;
-	Scale.Y = (float)y;
-	Scale.Z = (float)z;
+	meta.Scale.X = (float)x;
+	meta.Scale.Y = (float)y;
+	meta.Scale.Z = (float)z;
 }
 
 void Transform::AddPosition(const PVector3& mPos)
 {
 	IsChange_Postion = true;
-	Position += mPos;
+	meta.Position += mPos;
 }
 
 void Transform::AddPosition(float x, float y, float z)
 {
 	IsChange_Postion = true;
-	Position.X += x;
-	Position.Y += y;
-	Position.Z += z;
+	meta.Position.X += x;
+	meta.Position.Y += y;
+	meta.Position.Z += z;
 }
 
 void Transform::AddPosition(int x, int y, int z)
 {
 	IsChange_Postion = true;
-	Position.X += (float)x;
-	Position.Y += (float)y;
-	Position.Z += (float)z;
+	meta.Position.X += (float)x;
+	meta.Position.Y += (float)y;
+	meta.Position.Z += (float)z;
 }
 
 void Transform::AddRotation(const PVector3& mRot)
 {
 	IsChange_Rotation = true;
-	Rotation += mRot;
+	meta.Rotation += mRot;
 }
 
 void Transform::AddRotation(float x, float y, float z)
 {
 	IsChange_Rotation = true;
-	Rotation.X += x;
-	Rotation.Y += y;
-	Rotation.Z += z;
+	meta.Rotation.X += x;
+	meta.Rotation.Y += y;
+	meta.Rotation.Z += z;
 }
 
 void Transform::AddRotation(int x, int y, int z)
 {
 	IsChange_Rotation = true;
-	Rotation.X += (float)x;
-	Rotation.Y += (float)y;
-	Rotation.Z += (float)z;
+	meta.Rotation.X += (float)x;
+	meta.Rotation.Y += (float)y;
+	meta.Rotation.Z += (float)z;
 }
 
 const PVector3& Transform::GetRotation()
 {
-	return Rotation;
+	return meta.Rotation;
 }
 
 void Transform::AddScale(const PVector3& mScale)
 {
 	IsChange_Scale = true;
-	Scale += mScale;
+	meta.Scale += mScale;
 }
 
 void Transform::AddScale(float x, float y, float z)
 {
 	IsChange_Scale = true;
-	Scale.X += x;
-	Scale.Y += y;
-	Scale.Z += z;
+	meta.Scale.X += x;
+	meta.Scale.Y += y;
+	meta.Scale.Z += z;
 }
 
 void Transform::AddScale(int x, int y, int z)
 {
 	IsChange_Scale = true;
-	Scale.X += (float)x;
-	Scale.Y += (float)y;
-	Scale.Z += (float)z;
+	meta.Scale.X += (float)x;
+	meta.Scale.Y += (float)y;
+	meta.Scale.Z += (float)z;
 }
 
 const PVector3& Transform::GetScale()
 {
-	return Scale;
+	return meta.Scale;
 }
 
 PMatrix& Transform::GetWorldMatrix()
@@ -212,21 +231,21 @@ void Transform::WorldMatrixUpdate()
 {
 	if (IsChange_Postion == true)
 	{
-		Position_Matrix.CreateTranslation(Position);
+		Position_Matrix = Position_Matrix.CreateTranslation(meta.Position);
 	}
 
 	if (IsChange_Rotation == true)
 	{
-		Rotation_Pitch = Rotation_Pitch.CreateRotationPitch(Rotation.X);
-		Rotation_Yaw  = Rotation_Yaw.CreateRotationYaw(Rotation.Y);
-		Rotation_Roll = Rotation_Roll.CreateRotationRoll(Rotation.Z);
+		Rotation_Pitch = Rotation_Pitch.CreateRotationPitch(meta.Rotation.X);
+		Rotation_Yaw  = Rotation_Yaw.CreateRotationYaw(meta.Rotation.Y);
+		Rotation_Roll = Rotation_Roll.CreateRotationRoll(meta.Rotation.Z);
 
 		Rotation_Matrix = Rotation_Pitch * Rotation_Yaw * Rotation_Roll;
 	}
 
 	if (IsChange_Scale == true)
 	{
-		Scale_Matrix.CreateScale(Scale);
+		Scale_Matrix = Scale_Matrix.CreateScale(meta.Scale);
 	}
 
 	if (IsChange_Postion == true ||IsChange_Rotation == true || IsChange_Scale == true)
@@ -243,9 +262,9 @@ void Transform::WorldMatrixUpdate()
 			Local_Up.X		= Local_Matrix._m[MATRIX_LOCAL::UP_X];
 			Local_Up.Y		= Local_Matrix._m[MATRIX_LOCAL::UP_Y];
 			Local_Up.Z		= Local_Matrix._m[MATRIX_LOCAL::UP_Z];
-			Local_Matrix._m[MATRIX_LOCAL::POX_X] = -PVector3::Dot(Position, Local_Right);
-			Local_Matrix._m[MATRIX_LOCAL::POX_Y] = -PVector3::Dot(Position, Local_Up);
-			Local_Matrix._m[MATRIX_LOCAL::POX_Z] = -PVector3::Dot(Position, Local_Look);
+			Local_Matrix._m[MATRIX_LOCAL::POX_X] = -PVector3::Dot(meta.Position, Local_Right);
+			Local_Matrix._m[MATRIX_LOCAL::POX_Y] = -PVector3::Dot(meta.Position, Local_Up);
+			Local_Matrix._m[MATRIX_LOCAL::POX_Z] = -PVector3::Dot(meta.Position, Local_Look);
 			Local_Matrix._m[15] = 1.0f;
 			Local_Matrix._m[3] = 0.0f;
 			Local_Matrix._m[7] = 0.0f;

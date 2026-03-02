@@ -58,7 +58,6 @@ int main()
     EngineInitialize(hWnd,800,600);
 
     //LoadLuaScript("./Asset/Setting.Lua");
-    LoadLuaFile("./Asset/Player.lua");
     LoadTexture("./Asset/test.png");
 
     CreateLuaAPIPath("./Asset/PixelEngine_API.lua");
@@ -71,12 +70,11 @@ int main()
     GameObject* Obj = CreateGameObject("test");
     Obj->AddModule(MODULE_TYPE::LuaScript);
     Obj->AddModule(MODULE_TYPE::Renderer2D);
+    
     if (Obj->HasModule(MODULE_TYPE::Transform))
     {
         auto k = Obj->GetModule(MODULE_TYPE::Transform);
-        auto i = Obj->GetModule(MODULE_TYPE::LuaScript);
         auto r = Obj->GetModule(MODULE_TYPE::Renderer2D);
-        LuaScript* lua = static_cast<LuaScript*>(i);
         Renderer2D* render = static_cast<Renderer2D*>(r);
         tr= static_cast<Transform*>(k);
         render->SetTexture("test");

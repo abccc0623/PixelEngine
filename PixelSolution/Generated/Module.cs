@@ -73,6 +73,15 @@ public class Module : PixelObject {
     PixelEnginePINVOKE.Module_LastUpdate(swigCPtr);
   }
 
+  public virtual string Save() {
+    string ret = PixelEnginePINVOKE.Module_Save(swigCPtr);
+    return ret;
+  }
+
+  public virtual void Load() {
+    PixelEnginePINVOKE.Module_Load(swigCPtr);
+  }
+
   public MODULE_TYPE GetType() {
     MODULE_TYPE ret = (MODULE_TYPE)PixelEnginePINVOKE.Module_GetType(swigCPtr);
     return ret;

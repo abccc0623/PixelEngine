@@ -60,7 +60,10 @@
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(Configuration)\$(ProjectName)\</IntDir>
@@ -174,8 +177,12 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClInclude Include="Export\PixelEngineDLL.h" />
     <ClInclude Include="Export\Type\GlobalEnum.h" />
     <ClInclude Include="Export\Type\PMatrix.h" />
+    <ClInclude Include="Export\Type\PMeta.h" />
     <ClInclude Include="Export\Type\PVector3.h" />
     <ClInclude Include="GlobalBind.h" />
+    <ClInclude Include="json.hpp" />
+    <ClInclude Include="JsonManager.h" />
+    <ClInclude Include="json_fwd.hpp" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="LuaClassInfo.h" />
     <ClInclude Include="Memory.h" />
@@ -218,6 +225,7 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClCompile Include="Export\Type\PMatrix.cpp" />
     <ClCompile Include="Export\Type\PVector3.cpp" />
     <ClCompile Include="GlobalBind.cpp" />
+    <ClCompile Include="JsonManager.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="LuaClassInfo.cpp" />
     <ClCompile Include="Memory.cpp" />
