@@ -13,6 +13,11 @@
 #include "Module/DebugCamera.h"
 #include "Module/Camera.h"
 
+#include "PixelMetaAPI.h"
+
+#include "Type/PVector3.h"
+#include "Rect.h"
+
 //std::string BindManager::apiDefinitions = "";
 //std::vector<std::string> BindManager::bindClassName = std::vector<std::string>();
 
@@ -66,7 +71,20 @@ void BindManager::Initialize()
 	ModuleTypeBind<LuaScript>::Bind(MODULE_TYPE::LuaScript);
 	ModuleTypeBind<Renderer2D>::Bind(MODULE_TYPE::Renderer2D);
 
-	//CreateLuaAPI_File();
+	Rect rt;
+
+	auto test = PClassTemplate<Rect>::Create();
+	test->AddField<float>("X", &Rect::x);
+	test->AddField<float>("Y", &Rect::y);
+	test->AddField<float>("width", &Rect::width);
+	test->AddField<float>("height", &Rect::height);
+	test->AddField<std::string>("name", &Rect::name);
+
+	std::string change = "changeName";
+
+	auto s = test->GetField("name");
+	s->SetValue(&rt, &change);
+
 }
 
 void BindManager::Update()

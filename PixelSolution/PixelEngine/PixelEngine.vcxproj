@@ -77,7 +77,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -107,7 +107,7 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir)include\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir)include\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -140,7 +140,7 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

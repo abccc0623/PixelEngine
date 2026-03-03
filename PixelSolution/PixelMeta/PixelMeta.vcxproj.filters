@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="PixelMeta">
+      <UniqueIdentifier>{5d239fae-9b86-409e-a984-6162692e6076}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PixelMeta\API">
+      <UniqueIdentifier>{9cba5f16-ac34-4a1f-b651-b48616fd5d0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PixelMeta\System">
+      <UniqueIdentifier>{f040db34-d2d1-4dff-8aa0-ec16c824e90d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PixelMeta\Type">
+      <UniqueIdentifier>{d1c7d033-afa3-47bf-b0e3-df2e91f63fb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PixelMeta\Core">
+      <UniqueIdentifier>{d0db8516-0ade-472c-bdb7-58a2cbcfc6a5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PixelMetaAPI.h">
+      <Filter>PixelMeta\API</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PixelMetaDLL.h">
+      <Filter>PixelMeta\API</Filter>
+    </ClInclude>
+    <ClInclude Include="RSystem.h">
+      <Filter>PixelMeta\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\GlobalMetaFunc.h">
+      <Filter>PixelMeta\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PClassTemplate.h">
+      <Filter>PixelMeta\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PFieldTemplate.h">
+      <Filter>PixelMeta\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PClass.h">
+      <Filter>PixelMeta\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PField.h">
+      <Filter>PixelMeta\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PFieldString.h">
+      <Filter>PixelMeta\Type</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelMetaAPI.cpp">
+      <Filter>PixelMeta\API</Filter>
+    </ClCompile>
+    <ClCompile Include="RSystem.cpp">
+      <Filter>PixelMeta\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\PClass.cpp">
+      <Filter>PixelMeta\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\PField.cpp">
+      <Filter>PixelMeta\Core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+</Project>

@@ -19,8 +19,13 @@
     <Build Solution="*|x86" Project="false" />
   </Project>
   <Project Path="PixelGraphics/PixelGraphics.vcxproj" Id="90a09673-cd57-47dd-92b7-d8dfdfb3fbf0">
+    <BuildDependency Project="PixelMeta/PixelMeta.vcxproj" />
     <BuildType Solution="Editor_d|Any CPU" Project="Debug" />
     <BuildType Solution="Editor_d|x86" Project="Debug" />
+    <Build Solution="*|x86" Project="false" />
+  </Project>
+  <Project Path="PixelMeta/PixelMeta.vcxproj" Id="d7bd2b79-6d42-4dae-a306-6e8eb34e489a">
+    <BuildType Solution="Editor_d|*" Project="Release" />
     <Build Solution="*|x86" Project="false" />
   </Project>
   <Project Path="PixelTool/PixelTool.csproj" Id="92a9001b-3885-4616-8c8b-4e2dd7ffcc8d">

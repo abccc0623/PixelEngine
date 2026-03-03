@@ -18,6 +18,7 @@
 #include "BindManager.h"
 #include "JsonManager.h"
 #include "SPointer.h"
+#include "PixelMetaAPI.h"
 
 void PixelEngine::Initialize(HWND hWnd, int width, int height)
 {
