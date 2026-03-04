@@ -72,19 +72,16 @@ void BindManager::Initialize()
 	ModuleTypeBind<Renderer2D>::Bind(MODULE_TYPE::Renderer2D);
 
 	Rect rt;
+	rt.x = 10;
 
-	auto test = PClassTemplate<Rect>::Create();
-	test->AddField<float>("X", &Rect::x);
-	test->AddField<float>("Y", &Rect::y);
-	test->AddField<float>("width", &Rect::width);
-	test->AddField<float>("height", &Rect::height);
-	test->AddField<std::string>("name", &Rect::name);
+	//픽셀 오브젝트 바인드
+	auto pixelObject = PClassTemplate<PixelObject>::Create();
 
-	std::string change = "changeName";
+	//게임오브젝트 바인드
+	auto gameObject = PClassTemplate<GameObject,PixelObject>::Create();
+	gameObject->AddField<std::string>("name", &GameObject::name);
 
-	auto s = test->GetField("name");
-	s->SetValue(&rt, &change);
-
+	auto k = gameObject->GetFieldByName("type");
 }
 
 void BindManager::Update()

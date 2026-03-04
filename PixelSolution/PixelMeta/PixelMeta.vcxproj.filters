@@ -51,16 +51,13 @@
     <ClInclude Include="Export\PClassTemplate.h">
       <Filter>PixelMeta\Type</Filter>
     </ClInclude>
-    <ClInclude Include="Export\PFieldTemplate.h">
-      <Filter>PixelMeta\Type</Filter>
-    </ClInclude>
     <ClInclude Include="Export\PClass.h">
       <Filter>PixelMeta\Core</Filter>
     </ClInclude>
     <ClInclude Include="Export\PField.h">
       <Filter>PixelMeta\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Export\PFieldString.h">
+    <ClInclude Include="PFieldData.h">
       <Filter>PixelMeta\Type</Filter>
     </ClInclude>
   </ItemGroup>
@@ -82,6 +79,9 @@
     </ClCompile>
     <ClCompile Include="Export\PField.cpp">
       <Filter>PixelMeta\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="PFieldData.cpp">
+      <Filter>PixelMeta\Type</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

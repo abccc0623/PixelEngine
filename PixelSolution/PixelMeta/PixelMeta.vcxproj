@@ -86,12 +86,11 @@
     <ClInclude Include="Export\PClass.h" />
     <ClInclude Include="Export\PClassTemplate.h" />
     <ClInclude Include="Export\PField.h" />
-    <ClInclude Include="Export\PFieldString.h" />
-    <ClInclude Include="Export\PFieldTemplate.h" />
     <ClInclude Include="Export\PixelMetaAPI.h" />
     <ClInclude Include="Export\PixelMetaDLL.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PFieldData.h" />
     <ClInclude Include="RSystem.h" />
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +101,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PFieldData.cpp" />
     <ClCompile Include="PixelMetaAPI.cpp" />
     <ClCompile Include="RSystem.cpp" />
   </ItemGroup>
