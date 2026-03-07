@@ -10,6 +10,7 @@
 #include "Module/Transform.h"
 #include "Module/LuaScript.h"
 #include "Module/Renderer2D.h"
+#include "Game.h"
 #define PE_NEW new(__FILE__, __LINE__)
 
 
@@ -57,31 +58,7 @@ int main()
     ShowWindow(hWnd, SW_SHOW);
     EngineInitialize(hWnd,800,600);
 
-    //LoadLuaScript("./Asset/Setting.Lua");
-    LoadTexture("./Asset/test.png");
-
-    CreateLuaAPIPath("./Asset/PixelEngine_API.lua");
-  
-    GameObject* Camera = CreateGameObject("Camera");
-    Camera->AddModule(MODULE_TYPE::DebugCamera);
-
-  
-    Transform* tr = nullptr;
-    GameObject* Obj = CreateGameObject("test");
-    Obj->AddModule(MODULE_TYPE::LuaScript);
-    Obj->AddModule(MODULE_TYPE::Renderer2D);
-    
-    if (Obj->HasModule(MODULE_TYPE::Transform))
-    {
-        auto k = Obj->GetModule(MODULE_TYPE::Transform);
-        auto r = Obj->GetModule(MODULE_TYPE::Renderer2D);
-        Renderer2D* render = static_cast<Renderer2D*>(r);
-        tr= static_cast<Transform*>(k);
-        render->SetTexture("test");
-    }
-
-    //CreateGameObject();
-    //test.GetModule();
+    Start();
 
     MSG msg = { 0 };
     while (true)

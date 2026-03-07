@@ -3,19 +3,6 @@
 #include <typeinfo>
 
 using HashID = uint32_t;
-constexpr HashID CalculateHash(const char* str)
-{
-    HashID hash = 2166136261u; // Offset Basis
-    while (*str) {
-        hash ^= static_cast<HashID>(*str++); // XOR
-        hash *= 16777619u; // FNV Prime
-    }
-    return hash;
-}
-constexpr HashID operator "" _h(const char* str, size_t)
-{
-    return CalculateHash(str);
-}
 
 
 namespace HashUtil
@@ -23,12 +10,11 @@ namespace HashUtil
     constexpr uint64_t FNV_OFFSET_BASIS = 14695981039346656037ULL;
     constexpr uint64_t FNV_PRIME = 1099511628211ULL;
 
+    // 런타임/컴파일 타임 공용 64비트 해시 함수
     constexpr uint64_t ConstexprHash(const char* str, uint64_t hash = FNV_OFFSET_BASIS) {
         return (*str == '\0') ? hash : ConstexprHash(str + 1, (hash ^ static_cast<uint64_t>(*str)) * FNV_PRIME);
     }
 }
-
-
 template <typename T>
 struct TypeHash {
     static constexpr uint64_t Value() {
@@ -42,3 +28,28 @@ struct TypeHash {
 #endif
     }
 };
+
+template<typename T>
+std::string ExtractTypeName() {
+#if defined(__clang__) || defined(__GNUC__)
+    std::string sig = __PRETTY_FUNCTION__;
+    size_t start = sig.find("T = ") + 4;
+    size_t end = sig.find_last_of(']');
+    return sig.substr(start, end - start);
+
+#elif defined(_MSC_VER)
+    std::string sig = __FUNCSIG__;
+    size_t start = sig.find("ExtractTypeName<") + 16;
+    size_t end = sig.find_last_of('>');
+    std::string name = sig.substr(start, end - start);
+
+    // MSVC 특유의 찌꺼기 제거
+    size_t pos = name.find("class ");
+    if (pos != std::string::npos) name.erase(pos, 6);
+    pos = name.find("struct ");
+    if (pos != std::string::npos) name.erase(pos, 7);
+    return name;
+#else
+    return "UnknownType";
+#endif
+}

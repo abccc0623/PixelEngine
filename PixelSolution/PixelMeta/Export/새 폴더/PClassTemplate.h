@@ -63,15 +63,16 @@ public:
         }
     }
 
-
-    static PClassTemplate<ClassType,ParentClass>* Create()
+   
+    template<typename returnType, typename... Args>
+    void AddMethod(const std::string& name, returnType(ClassType::* func)(Args...))
     {
-        void* rawMem = PixelInternalAlloc(sizeof(PClassTemplate<ClassType, ParentClass>));
-        if (!rawMem) return nullptr;
-        PClassTemplate<ClassType, ParentClass>* instance = new(rawMem) PClassTemplate<ClassType, ParentClass>();
-        constexpr uint64_t typeId = TypeHash<ClassType>::Value();
-        ReflectionClassRegister(typeId,instance);
-        return instance;
+        //size_t memberCount = sizeof...(Args);
+        //typeid(returnType).name()
+        //
+        //
+        //    (method->memberList.push_back(new PField(typeid(Args).name(), "param", 0)), ...);
     }
+   
     ClassType* classValue;
 };

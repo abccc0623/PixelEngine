@@ -13,6 +13,7 @@
 #include "TimeManager.h"
 #include "Core/GameObject.h"
 #include "JsonManager.h"
+#include "PixelMetaAPI.h"
 
 
 PixelEngine* Engine = nullptr;
@@ -49,6 +50,7 @@ void ReleaseEngine()
 	{
 		Engine->ReleaseShared();
 	}
+	PixelMetaRelease();
 	delete Engine;
 }
 

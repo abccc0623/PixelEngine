@@ -1251,6 +1251,33 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_PixelObject_cBlock_get(void * jarg1) {
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_PixelObject_test_set(void * jarg1, const char * jarg2) {
+  PixelObject *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (PixelObject *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->test = *arg2;
+}
+
+
+SWIGEXPORT const char * SWIGSTDCALL CSharp_PixelObject_test_get(void * jarg1) {
+  const char * jresult ;
+  PixelObject *arg1 = 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (PixelObject *)jarg1; 
+  result = (std::string *) & ((arg1)->test);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT void * SWIGSTDCALL CSharp_new_Module() {
   void * jresult ;
   Module *result = 0 ;

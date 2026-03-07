@@ -18,6 +18,8 @@
 #include "Type/PVector3.h"
 #include "Rect.h"
 
+#include "PixelMetaAPI.h"
+
 //std::string BindManager::apiDefinitions = "";
 //std::vector<std::string> BindManager::bindClassName = std::vector<std::string>();
 
@@ -71,17 +73,18 @@ void BindManager::Initialize()
 	ModuleTypeBind<LuaScript>::Bind(MODULE_TYPE::LuaScript);
 	ModuleTypeBind<Renderer2D>::Bind(MODULE_TYPE::Renderer2D);
 
-	Rect rt;
-	rt.x = 10;
+	auto baseObject = MakeClassRegister<PixelObject>();
+	baseObject->AddField("test", &PixelObject::test);
 
-	//픽셀 오브젝트 바인드
-	auto pixelObject = PClassTemplate<PixelObject>::Create();
+	auto GObject = MakeClassRegister<GameObject, PixelObject>();
+	GObject->AddField("name", &GameObject::name);
+	GObject->AddMethod("Save", &GameObject::Save);
 
-	//게임오브젝트 바인드
-	auto gameObject = PClassTemplate<GameObject,PixelObject>::Create();
-	gameObject->AddField<std::string>("name", &GameObject::name);
-
-	auto k = gameObject->GetFieldByName("type");
+	auto pVector = MakeClassRegister<PVector3>();
+	pVector->AddField("X", &PVector3::X);
+	pVector->AddField("Y", &PVector3::Y);
+	pVector->AddField("Z", &PVector3::Z);
+	pVector->AddMethod("Dot", &PVector3::Dot);
 }
 
 void BindManager::Update()

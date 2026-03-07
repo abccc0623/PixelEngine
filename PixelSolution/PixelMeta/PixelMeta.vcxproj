@@ -82,26 +82,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Export\GlobalMetaFunc.h" />
+    <ClInclude Include="Export\GlobalHashCode.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Export\PClass.h" />
-    <ClInclude Include="Export\PClassTemplate.h" />
     <ClInclude Include="Export\PField.h" />
     <ClInclude Include="Export\PixelMetaAPI.h" />
     <ClInclude Include="Export\PixelMetaDLL.h" />
+    <ClInclude Include="Export\PMethod.h" />
+    <ClInclude Include="Export\PObject.h" />
+    <ClInclude Include="Export\PType.h" />
+    <ClInclude Include="Export\PValue.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PFieldData.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="RSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Export\PClass.cpp" />
     <ClCompile Include="Export\PField.cpp" />
+    <ClCompile Include="Export\PMethod.cpp" />
+    <ClCompile Include="Export\PObject.cpp" />
+    <ClCompile Include="Export\PType.cpp" />
+    <ClCompile Include="Export\PValue.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PFieldData.cpp" />
     <ClCompile Include="PixelMetaAPI.cpp" />
     <ClCompile Include="RSystem.cpp" />
   </ItemGroup>

@@ -443,6 +443,12 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PixelObject_cBlock_get")]
   public static extern global::System.IntPtr PixelObject_cBlock_get(global::System.Runtime.InteropServices.HandleRef jarg1);
 
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PixelObject_test_set")]
+  public static extern void PixelObject_test_set(global::System.Runtime.InteropServices.HandleRef jarg1, string jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PixelObject_test_get")]
+  public static extern string PixelObject_test_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_Module")]
   public static extern global::System.IntPtr new_Module();
 

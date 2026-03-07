@@ -7,6 +7,8 @@ public:
 	PixelObject();
 	virtual ~PixelObject();
 	PtrControlBlock* cBlock = nullptr;
+
+	std::string test;
 private:
 };
 

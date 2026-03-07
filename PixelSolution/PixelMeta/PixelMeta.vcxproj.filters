@@ -45,11 +45,11 @@
     <ClInclude Include="RSystem.h">
       <Filter>PixelMeta\System</Filter>
     </ClInclude>
-    <ClInclude Include="Export\GlobalMetaFunc.h">
+    <ClInclude Include="Export\GlobalHashCode.h">
       <Filter>PixelMeta\Type</Filter>
     </ClInclude>
-    <ClInclude Include="Export\PClassTemplate.h">
-      <Filter>PixelMeta\Type</Filter>
+    <ClInclude Include="Export\PType.h">
+      <Filter>PixelMeta\Core</Filter>
     </ClInclude>
     <ClInclude Include="Export\PClass.h">
       <Filter>PixelMeta\Core</Filter>
@@ -57,7 +57,16 @@
     <ClInclude Include="Export\PField.h">
       <Filter>PixelMeta\Core</Filter>
     </ClInclude>
-    <ClInclude Include="PFieldData.h">
+    <ClInclude Include="resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PValue.h">
+      <Filter>PixelMeta\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PMethod.h">
+      <Filter>PixelMeta\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\PObject.h">
       <Filter>PixelMeta\Type</Filter>
     </ClInclude>
   </ItemGroup>
@@ -74,13 +83,19 @@
     <ClCompile Include="RSystem.cpp">
       <Filter>PixelMeta\System</Filter>
     </ClCompile>
-    <ClCompile Include="Export\PClass.cpp">
+    <ClCompile Include="Export\PType.cpp">
       <Filter>PixelMeta\Core</Filter>
     </ClCompile>
     <ClCompile Include="Export\PField.cpp">
       <Filter>PixelMeta\Core</Filter>
     </ClCompile>
-    <ClCompile Include="PFieldData.cpp">
+    <ClCompile Include="Export\PValue.cpp">
+      <Filter>PixelMeta\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\PMethod.cpp">
+      <Filter>PixelMeta\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\PObject.cpp">
       <Filter>PixelMeta\Type</Filter>
     </ClCompile>
   </ItemGroup>
