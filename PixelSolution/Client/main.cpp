@@ -6,10 +6,6 @@
 #include <string>
 #include <iostream>
 
-#include "Core/GameObject.h"
-#include "Module/Transform.h"
-#include "Module/LuaScript.h"
-#include "Module/Renderer2D.h"
 #include "Game.h"
 #define PE_NEW new(__FILE__, __LINE__)
 

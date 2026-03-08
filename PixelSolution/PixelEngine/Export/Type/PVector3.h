@@ -31,6 +31,11 @@ public:
 	static float Dot(const PVector3& V1, const PVector3 V2);
 	float Dot(const PVector3& V1);
 
+	float Test()
+	{
+		return 10;
+	}
+
 	/** ¿ÜÀû */
 	static PVector3 Cross(const PVector3& V1, const PVector3& V2);
 	PVector3 Cross(const PVector3& V1);

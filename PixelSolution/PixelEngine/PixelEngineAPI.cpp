@@ -2,7 +2,7 @@
 #include "PixelEngineAPI.h" 
 #include "PixelEngine.h" 
 
-
+#include <windows.h>
 #include "ObjectManager.h"
 #include "KeyInputManager.h"
 #include "LuaManager.h"
@@ -20,10 +20,10 @@ PixelEngine* Engine = nullptr;
 LogCallbackFunc g_logCallback = nullptr;
 SceneChangeCallbackFunc g_SceneObjectChangeCallBack = nullptr;
 
-bool EngineInitialize(HWND hWnd, int width, int height)
+bool EngineInitialize(PixelWindowHandle hWnd, int width, int height)
 {
 	Engine = new PixelEngine();
-	Engine->Initialize(hWnd, width, height);
+	Engine->Initialize((HWND)hWnd, width, height);
     return true;
 }
 
@@ -191,6 +191,60 @@ GameObject* CreateGameObject(const char* name)
 		return target.GetPtr();
 	}
 	return nullptr;
+}
+
+PObject* CreateObject(const char* name)
+{
+	if (Engine != nullptr)
+	{
+		auto objManager = Engine->GetFactory<ObjectManager>();
+		SPointer<GameObject> target = objManager->Create(name);
+		return CreateRObject(target.GetPtr(), "GameObject");
+	}
+	return nullptr;
+}
+
+int GetObjectFieldCount(PObject* Obj)
+{
+	if (Obj != nullptr)
+	{
+		return Obj->GetFieldMaxCount();
+	}
+	return 0;
+}
+
+int GetObjectMethodMaxCount(PObject* Obj)
+{
+	return PixelMeta_GetMethodMaxCount(Obj);
+}
+const char* GetObjectTypeName(PObject* Obj)
+{
+	return PixelMeta_TypeName(Obj);
+}
+
+const char* GetObjectParentName(PObject* Obj)
+{
+	return PixelMeta_ParentName(Obj);
+}
+
+const char* GetObjectChildName(PObject* Obj)
+{
+	return PixelMeta_ChildName(Obj);
+}
+
+const char* GetObjectFieldName(PObject* Obj, int index)
+{
+	return PixelMeta_GetFieldName(Obj, index);
+}
+
+const char* GetObjectFieldType(PObject* Obj, int index)
+{
+	return PixelMeta_GetFieldType(Obj, index);
+}
+
+int GetObjectFieldMaxCount(PObject* Obj)
+{
+	return PixelMeta_GetFieldMaxCount(Obj);
 }
 
 bool CreateScene(const char* sceneName)

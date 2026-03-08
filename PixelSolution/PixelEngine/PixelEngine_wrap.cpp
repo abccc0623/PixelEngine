@@ -445,15 +445,15 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_GetAllSceneObjects(int * jarg1) {
 
 SWIGEXPORT unsigned int SWIGSTDCALL CSharp_EngineInitialize(void * jarg1, int jarg2, int jarg3) {
   unsigned int jresult ;
-  HWND arg1 ;
+  PixelWindowHandle arg1 = 0 ;
   int arg2 ;
   int arg3 ;
   bool result;
   
-  arg1 = (HWND)jarg1; 
+  arg1 = (PixelWindowHandle)jarg1; 
   arg2 = (int)jarg2; 
   arg3 = (int)jarg3; 
-  result = (bool)EngineInitialize(SWIG_STD_MOVE(arg1),arg2,arg3);
+  result = (bool)EngineInitialize(arg1,arg2,arg3);
   jresult = result; 
   return jresult;
 }
@@ -484,6 +484,118 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_ResizeEngine(int jarg1, int jarg2) {
   arg2 = (int)jarg2; 
   result = (bool)ResizeEngine(arg1,arg2);
   jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_CreateObject(char * jarg1) {
+  void * jresult ;
+  char *arg1 = (char *)"GameObject" ;
+  PObject *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (PObject *)CreateObject((char const *)arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_GetObjectFieldMaxCount(void * jarg1) {
+  int jresult ;
+  PObject *arg1 = 0 ;
+  int result;
+  
+  arg1 = (PObject *)jarg1; 
+  result = (int)GetObjectFieldMaxCount(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_GetObjectMethodMaxCount(void * jarg1) {
+  int jresult ;
+  PObject *arg1 = 0 ;
+  int result;
+  
+  arg1 = (PObject *)jarg1; 
+  result = (int)GetObjectMethodMaxCount(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_GetObjectTypeName(void * jarg1) {
+  char * jresult ;
+  PObject *arg1 = 0 ;
+  char *result = 0 ;
+  
+  arg1 = (PObject *)jarg1; 
+  result = (char *)GetObjectTypeName(arg1);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_GetObjectParentName(void * jarg1) {
+  char * jresult ;
+  PObject *arg1 = 0 ;
+  char *result = 0 ;
+  
+  arg1 = (PObject *)jarg1; 
+  result = (char *)GetObjectParentName(arg1);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_GetObjectChildName(void * jarg1) {
+  char * jresult ;
+  PObject *arg1 = 0 ;
+  char *result = 0 ;
+  
+  arg1 = (PObject *)jarg1; 
+  result = (char *)GetObjectChildName(arg1);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_GetObjectFieldName(void * jarg1, int jarg2) {
+  char * jresult ;
+  PObject *arg1 = 0 ;
+  int arg2 ;
+  char *result = 0 ;
+  
+  arg1 = (PObject *)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (char *)GetObjectFieldName(arg1,arg2);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_GetObjectFieldType(void * jarg1, int jarg2) {
+  char * jresult ;
+  PObject *arg1 = 0 ;
+  int arg2 ;
+  char *result = 0 ;
+  
+  arg1 = (PObject *)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (char *)GetObjectFieldType(arg1,arg2);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_CreateGameObject(char * jarg1) {
+  void * jresult ;
+  char *arg1 = (char *)"GameObject" ;
+  GameObject *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (GameObject *)CreateGameObject((char const *)arg1);
+  jresult = (void *)result; 
   return jresult;
 }
 
@@ -610,18 +722,6 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_CreateLuaAPIPath(char * jarg1) {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_CreateGameObject(char * jarg1) {
-  void * jresult ;
-  char *arg1 = (char *)"GameObject" ;
-  GameObject *result = 0 ;
-  
-  arg1 = (char *)jarg1; 
-  result = (GameObject *)CreateGameObject((char const *)arg1);
-  jresult = (void *)result; 
-  return jresult;
-}
-
-
 SWIGEXPORT unsigned int SWIGSTDCALL CSharp_CreateScene(char * jarg1) {
   unsigned int jresult ;
   char *arg1 = 0 ;
@@ -736,6 +836,18 @@ SWIGEXPORT float SWIGSTDCALL CSharp_PVector3_Dot__SWIG_0(void * jarg1, void * ja
   }
   arg2 = *argp2; 
   result = (float)PVector3::Dot((PVector3 const &)*arg1,SWIG_STD_MOVE(arg2));
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT float SWIGSTDCALL CSharp_PVector3_Test(void * jarg1) {
+  float jresult ;
+  PVector3 *arg1 = 0 ;
+  float result;
+  
+  arg1 = (PVector3 *)jarg1; 
+  result = (float)(arg1)->Test();
   jresult = result; 
   return jresult;
 }
@@ -1247,33 +1359,6 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_PixelObject_cBlock_get(void * jarg1) {
   arg1 = (PixelObject *)jarg1; 
   result = (PtrControlBlock *) ((arg1)->cBlock);
   jresult = (void *)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void SWIGSTDCALL CSharp_PixelObject_test_set(void * jarg1, const char * jarg2) {
-  PixelObject *arg1 = 0 ;
-  std::string *arg2 = 0 ;
-  
-  arg1 = (PixelObject *)jarg1; 
-  if (!jarg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
-    return ;
-  }
-  std::string arg2_str(jarg2);
-  arg2 = &arg2_str; 
-  if (arg1) (arg1)->test = *arg2;
-}
-
-
-SWIGEXPORT const char * SWIGSTDCALL CSharp_PixelObject_test_get(void * jarg1) {
-  const char * jresult ;
-  PixelObject *arg1 = 0 ;
-  std::string *result = 0 ;
-  
-  arg1 = (PixelObject *)jarg1; 
-  result = (std::string *) & ((arg1)->test);
-  jresult = SWIG_csharp_string_callback(result->c_str()); 
   return jresult;
 }
 

@@ -13,8 +13,8 @@ public:
 	PIXEL_META_DLL PField(PType* type, const std::string& name, size_t offset);
 	PIXEL_META_DLL virtual ~PField();
 
-	PIXEL_META_DLL std::string GetName();
-	PIXEL_META_DLL std::string GetType();
+	PIXEL_META_DLL const std::string& GetName();
+	PIXEL_META_DLL const std::string& GetType();
 	PIXEL_META_DLL PValue GetValuePtr(void* instance);
 	PIXEL_META_DLL void SetValue(void* instance,PValue value);
 

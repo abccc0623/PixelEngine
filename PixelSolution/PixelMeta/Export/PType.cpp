@@ -6,7 +6,7 @@
 PType::PType(uint64_t Hash, std::string name, size_t size):
 	typeHash(Hash), typeName(name), typeSize(size)
 {
-
+	metaType = META_TYPE::PRIMITIVE;
 }
 PType::PType():
 	typeHash(0), typeName(""), typeSize(0)
@@ -16,9 +16,25 @@ PType::PType():
 PType::~PType()
 {
 }
-std::string PType::GetName()
+const std::string& PType::GetName()
 {
+	if (this == GetTypeByKeyword<std::string>())
+	{
+		typeName = "string";
+	}
 	return typeName;
+}
+const std::string& PType::GetMetaType()
+{
+	switch (metaType)
+	{
+	case META_TYPE::PRIMITIVE:
+		return "PRIMITIVE";
+	case META_TYPE::CLASS:
+		return "CLASS";
+	case META_TYPE::ENUM:
+		return "ENUM";
+	}
 }
 uint64_t PType::GetHash()
 {
@@ -29,15 +45,7 @@ uint64_t PType::GetSize()
 	return typeSize;
 }
 
-PField* PType::GetField(const std::string& name)
-{
-	return nullptr;
-}
 
-PMethod* PType::GetMethod(const std::string& name)
-{
-	return nullptr;
-}
 
 bool PType::operator==(const PType& other)
 {

@@ -8,11 +8,11 @@ PField::PField(PType* type, const std::string& name, size_t offset)
 
 
 }
-std::string PField::GetName()
+const std::string& PField::GetName()
 {
 	return memberName;
 }
-std::string PField::GetType()
+const std::string& PField::GetType()
 {
 	return memberType->GetName();
 }

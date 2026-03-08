@@ -68,6 +68,11 @@ public class PVector3 : global::System.IDisposable {
     return ret;
   }
 
+  public float Test() {
+    float ret = PixelEnginePINVOKE.PVector3_Test(swigCPtr);
+    return ret;
+  }
+
   public static PVector3 Cross(PVector3 V1, PVector3 V2) {
     PVector3 ret = new PVector3(PixelEnginePINVOKE.PVector3_Cross__SWIG_0(PVector3.getCPtr(V1), PVector3.getCPtr(V2)), true);
     if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();

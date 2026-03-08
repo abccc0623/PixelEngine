@@ -16,8 +16,8 @@ public class PixelEngine {
     return ret;
   }
 
-  public static bool EngineInitialize(IntPtr hWnd, int width, int height) {
-    bool ret = PixelEnginePINVOKE.EngineInitialize(hWnd, width, height);
+  public static bool EngineInitialize(SWIGTYPE_p_void hWnd, int width, int height) {
+    bool ret = PixelEnginePINVOKE.EngineInitialize(SWIGTYPE_p_void.getCPtr(hWnd), width, height);
     return ret;
   }
 
@@ -35,6 +35,53 @@ public class PixelEngine {
 
   public static bool ResizeEngine(int width, int height) {
     bool ret = PixelEnginePINVOKE.ResizeEngine(width, height);
+    return ret;
+  }
+
+  public static SWIGTYPE_p_PObject CreateObject(string name) {
+    global::System.IntPtr cPtr = PixelEnginePINVOKE.CreateObject(name);
+    SWIGTYPE_p_PObject ret = (cPtr == global::System.IntPtr.Zero) ? null : new SWIGTYPE_p_PObject(cPtr, false);
+    return ret;
+  }
+
+  public static int GetObjectFieldMaxCount(SWIGTYPE_p_PObject Obj) {
+    int ret = PixelEnginePINVOKE.GetObjectFieldMaxCount(SWIGTYPE_p_PObject.getCPtr(Obj));
+    return ret;
+  }
+
+  public static int GetObjectMethodMaxCount(SWIGTYPE_p_PObject Obj) {
+    int ret = PixelEnginePINVOKE.GetObjectMethodMaxCount(SWIGTYPE_p_PObject.getCPtr(Obj));
+    return ret;
+  }
+
+  public static string GetObjectTypeName(SWIGTYPE_p_PObject Obj) {
+    string ret = PixelEnginePINVOKE.GetObjectTypeName(SWIGTYPE_p_PObject.getCPtr(Obj));
+    return ret;
+  }
+
+  public static string GetObjectParentName(SWIGTYPE_p_PObject Obj) {
+    string ret = PixelEnginePINVOKE.GetObjectParentName(SWIGTYPE_p_PObject.getCPtr(Obj));
+    return ret;
+  }
+
+  public static string GetObjectChildName(SWIGTYPE_p_PObject Obj) {
+    string ret = PixelEnginePINVOKE.GetObjectChildName(SWIGTYPE_p_PObject.getCPtr(Obj));
+    return ret;
+  }
+
+  public static string GetObjectFieldName(SWIGTYPE_p_PObject Obj, int index) {
+    string ret = PixelEnginePINVOKE.GetObjectFieldName(SWIGTYPE_p_PObject.getCPtr(Obj), index);
+    return ret;
+  }
+
+  public static string GetObjectFieldType(SWIGTYPE_p_PObject Obj, int index) {
+    string ret = PixelEnginePINVOKE.GetObjectFieldType(SWIGTYPE_p_PObject.getCPtr(Obj), index);
+    return ret;
+  }
+
+  public static GameObject CreateGameObject(string name) {
+    global::System.IntPtr cPtr = PixelEnginePINVOKE.CreateGameObject(name);
+    GameObject ret = (cPtr == global::System.IntPtr.Zero) ? null : new GameObject(cPtr, false);
     return ret;
   }
 
@@ -90,12 +137,6 @@ public class PixelEngine {
 
   public static bool CreateLuaAPIPath(string path) {
     bool ret = PixelEnginePINVOKE.CreateLuaAPIPath(path);
-    return ret;
-  }
-
-  public static GameObject CreateGameObject(string name) {
-    global::System.IntPtr cPtr = PixelEnginePINVOKE.CreateGameObject(name);
-    GameObject ret = (cPtr == global::System.IntPtr.Zero) ? null : new GameObject(cPtr, false);
     return ret;
   }
 

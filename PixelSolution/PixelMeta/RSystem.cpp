@@ -12,7 +12,7 @@ using string = std::string;
 auto Name##type = ExtractTypeName<type>(); \
 auto Hash##type = HashUtil::ConstexprHash(Name##type.c_str()); \
 auto Size##type = sizeof(type); \
-MapByHash.insert({Hash##type,new PType(Hash##type,Name##type,Size##type)});
+MapByHash.insert({Hash##type,new PType(Hash##type,Name##type.c_str(),Size##type)});
 
 RSystem::RSystem()
 {

@@ -70,16 +70,4 @@ public class PixelObject : global::System.IDisposable {
     } 
   }
 
-  public string test {
-    set {
-      PixelEnginePINVOKE.PixelObject_test_set(swigCPtr, value);
-      if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-    } 
-    get {
-      string ret = PixelEnginePINVOKE.PixelObject_test_get(swigCPtr);
-      if (PixelEnginePINVOKE.SWIGPendingException.Pending) throw PixelEnginePINVOKE.SWIGPendingException.Retrieve();
-      return ret;
-    } 
-  }
-
 }

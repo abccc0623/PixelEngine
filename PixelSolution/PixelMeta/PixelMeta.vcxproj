@@ -87,6 +87,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Export\PClass.h" />
+    <ClInclude Include="Export\PClassTemplate.h" />
+    <ClInclude Include="Export\PEnum.h" />
+    <ClInclude Include="Export\PEnumTemplate.h" />
     <ClInclude Include="Export\PField.h" />
     <ClInclude Include="Export\PixelMetaAPI.h" />
     <ClInclude Include="Export\PixelMetaDLL.h" />
@@ -101,6 +104,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Export\PClass.cpp" />
+    <ClCompile Include="Export\PEnum.cpp" />
     <ClCompile Include="Export\PField.cpp" />
     <ClCompile Include="Export\PMethod.cpp" />
     <ClCompile Include="Export\PObject.cpp" />

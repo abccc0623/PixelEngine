@@ -66,7 +66,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)HeaderFile\PixelEngineHeader\;$(SolutionDir)HeaderFile\PixelEngineHeader\GameObject</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)HeaderFile\PixelEngineHeader\;$(SolutionDir)HeaderFile\PixelEngineHeader\GameObject;$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -85,7 +85,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)HeaderFile\PixelEngineHeader\;$(SolutionDir)HeaderFile\PixelEngineHeader\GameObject</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)HeaderFile\PixelEngineHeader\;$(SolutionDir)HeaderFile\PixelEngineHeader\GameObject;$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -106,7 +106,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)HeaderFile\PixelEngineHeader\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)HeaderFile\PixelEngineHeader\;;$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

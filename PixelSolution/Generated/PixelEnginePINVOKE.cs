@@ -234,7 +234,7 @@ class PixelEnginePINVOKE {
   public static extern global::System.IntPtr GetAllSceneObjects(out int jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_EngineInitialize")]
-  public static extern bool EngineInitialize(IntPtr jarg1, int jarg2, int jarg3);
+  public static extern bool EngineInitialize(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2, int jarg3);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_UpdateEngine")]
   public static extern void UpdateEngine();
@@ -247,6 +247,33 @@ class PixelEnginePINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_ResizeEngine")]
   public static extern bool ResizeEngine(int jarg1, int jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_CreateObject")]
+  public static extern global::System.IntPtr CreateObject(string jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetObjectFieldMaxCount")]
+  public static extern int GetObjectFieldMaxCount(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetObjectMethodMaxCount")]
+  public static extern int GetObjectMethodMaxCount(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetObjectTypeName")]
+  public static extern string GetObjectTypeName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetObjectParentName")]
+  public static extern string GetObjectParentName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetObjectChildName")]
+  public static extern string GetObjectChildName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetObjectFieldName")]
+  public static extern string GetObjectFieldName(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetObjectFieldType")]
+  public static extern string GetObjectFieldType(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_CreateGameObject")]
+  public static extern global::System.IntPtr CreateGameObject(string jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GetKeyDown")]
   public static extern bool GetKeyDown(char jarg1);
@@ -281,9 +308,6 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_CreateLuaAPIPath")]
   public static extern bool CreateLuaAPIPath(string jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_CreateGameObject")]
-  public static extern global::System.IntPtr CreateGameObject(string jarg1);
-
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_CreateScene")]
   public static extern bool CreateScene(string jarg1);
 
@@ -313,6 +337,9 @@ class PixelEnginePINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Dot__SWIG_0")]
   public static extern float PVector3_Dot__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Test")]
+  public static extern float PVector3_Test(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PVector3_Cross__SWIG_0")]
   public static extern global::System.IntPtr PVector3_Cross__SWIG_0(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
@@ -442,12 +469,6 @@ class PixelEnginePINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PixelObject_cBlock_get")]
   public static extern global::System.IntPtr PixelObject_cBlock_get(global::System.Runtime.InteropServices.HandleRef jarg1);
-
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PixelObject_test_set")]
-  public static extern void PixelObject_test_set(global::System.Runtime.InteropServices.HandleRef jarg1, string jarg2);
-
-  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_PixelObject_test_get")]
-  public static extern string PixelObject_test_get(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_new_Module")]
   public static extern global::System.IntPtr new_Module();

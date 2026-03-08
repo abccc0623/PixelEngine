@@ -73,18 +73,35 @@ void BindManager::Initialize()
 	ModuleTypeBind<LuaScript>::Bind(MODULE_TYPE::LuaScript);
 	ModuleTypeBind<Renderer2D>::Bind(MODULE_TYPE::Renderer2D);
 
-	auto baseObject = MakeClassRegister<PixelObject>();
-	baseObject->AddField("test", &PixelObject::test);
+	auto moduleEnum = MakeEnumRegister<MODULE_TYPE>();
 
-	auto GObject = MakeClassRegister<GameObject, PixelObject>();
-	GObject->AddField("name", &GameObject::name);
-	GObject->AddMethod("Save", &GameObject::Save);
+	//PEnum* p = MakeEnumRegister("ModuleType");
+	//p->AddElement("Transform",0);
+	//p->AddElement("Camera",1);
+	//p->AddElement("DebugCamera",2);
+	//p->AddElement("LuaScript",3);
+	//p->AddElement("Renderer2D",4);
 
-	auto pVector = MakeClassRegister<PVector3>();
-	pVector->AddField("X", &PVector3::X);
-	pVector->AddField("Y", &PVector3::Y);
-	pVector->AddField("Z", &PVector3::Z);
-	pVector->AddMethod("Dot", &PVector3::Dot);
+	//기본 오브젝트
+	//auto baseObject = MakeClassRegister<PixelObject>();
+	//
+	////게임 오브젝트
+	//auto GObject = MakeClassRegister<GameObject, PixelObject>();
+	//GObject->AddField("name", &GameObject::name);
+	//GObject->AddMethod("AddModule", &GameObject::AddModule);
+	//GObject->AddMethod("GetModule", &GameObject::GetModule);
+	//
+	////
+	//auto Vec = MakeClassRegister<PVector3>();
+	//Vec->AddMethod("Test",&PVector3::Test);
+	//
+	//auto m = GObject->GetMethod("AddModule");
+	//PVector3 v1 = { 0,0,0 };
+	//PVector3 v2 = { 0,0,0 };
+	//
+	//std::vector<void*> list = std::vector<void*>();
+	//list.push_back(&v2);
+	//PValue a =  m->Invoke(&v1, list);
 }
 
 void BindManager::Update()

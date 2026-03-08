@@ -1,18 +1,31 @@
 #pragma once
 #include "PixelEngineDLL.h"
-#include <string>
-#include <windows.h>
 class GameObject;
-
-typedef void(__stdcall* LogCallbackFunc)(const char* message, int level);
-typedef void(__stdcall* SceneChangeCallbackFunc)();
+class PObject;
 
 
-extern "C" PIXEL_ENGINEDLL bool EngineInitialize(HWND hWnd,int width,int height);
+typedef void* PixelWindowHandle;
+
+extern "C" PIXEL_ENGINEDLL bool EngineInitialize(PixelWindowHandle hWnd,int width,int height);
 extern "C" PIXEL_ENGINEDLL void UpdateEngine();
 extern "C" PIXEL_ENGINEDLL void ReleaseEngine();							
 extern "C" PIXEL_ENGINEDLL void QuitWindow();
 extern "C" PIXEL_ENGINEDLL bool ResizeEngine(int width,int height);
+
+//오브젝트 컨트롤
+extern "C" PIXEL_ENGINEDLL PObject* CreateObject(const char* name = "GameObject");
+extern "C" PIXEL_ENGINEDLL int GetObjectFieldMaxCount(PObject* Obj);
+extern "C" PIXEL_ENGINEDLL int GetObjectMethodMaxCount(PObject* Obj);
+extern "C" PIXEL_ENGINEDLL const char* GetObjectTypeName(PObject* Obj);
+extern "C" PIXEL_ENGINEDLL const char* GetObjectParentName(PObject* Obj);
+extern "C" PIXEL_ENGINEDLL const char* GetObjectChildName(PObject* Obj);
+extern "C" PIXEL_ENGINEDLL const char* GetObjectFieldName(PObject* Obj, int index);
+extern "C" PIXEL_ENGINEDLL const char* GetObjectFieldType(PObject* Obj, int index);
+
+
+
+extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name = "GameObject");
+/**/
 
 //KeyInput
 extern "C" PIXEL_ENGINEDLL bool GetKeyDown(char number);		
@@ -32,8 +45,9 @@ extern "C" PIXEL_ENGINEDLL bool LoadTexture(const char* path);
 extern "C" PIXEL_ENGINEDLL bool CreateLuaAPIPath(const char* path);
 
 
-extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name = "GameObject");
 
+typedef void(__stdcall* LogCallbackFunc)(const char* message, int level);
+typedef void(__stdcall* SceneChangeCallbackFunc)();
 //Scene
 extern "C" PIXEL_ENGINEDLL bool CreateScene(const char* sceneName);
 extern "C" PIXEL_ENGINEDLL bool ChangeScene(const char* sceneName);

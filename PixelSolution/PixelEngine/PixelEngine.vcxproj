@@ -93,7 +93,8 @@
     </PostBuildEvent>
     <PreBuildEvent />
     <PreBuildEvent>
-      <Command>xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
+      <Command>xcopy "$(ProjectDir)Export\PixelEngineAPI.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
+xcopy "$(ProjectDir)Export\PixelEngineDLL.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
 "D:\PixelEngine\PixelSolution\PixelEngine\Import\swigwin-4.4.1\swig.exe" -csharp -c++ -outdir "D:\PixelEngine\PixelSolution\Generated" -o "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngine_wrap.cpp" "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngineC#.i"
 copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     </PreBuildEvent>
@@ -123,7 +124,8 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     </PostBuildEvent>
     <PreBuildEvent />
     <PreBuildEvent>
-      <Command>xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
+      <Command>xcopy "$(ProjectDir)Export\PixelEngineAPI.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
+xcopy "$(ProjectDir)Export\PixelEngineDLL.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
 "D:\PixelEngine\PixelSolution\PixelEngine\Import\swigwin-4.4.1\swig.exe" -csharp -c++ -outdir "D:\PixelEngine\PixelSolution\Generated" -o "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngine_wrap.cpp" "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngineC#.i"
 copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     </PreBuildEvent>
@@ -154,7 +156,8 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>xcopy "$(ProjectDir)Export\*.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
+      <Command>xcopy "$(ProjectDir)Export\PixelEngineAPI.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
+xcopy "$(ProjectDir)Export\PixelEngineDLL.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
 "D:\PixelEngine\PixelSolution\PixelEngine\Import\swigwin-4.4.1\swig.exe" -csharp -c++ -outdir "D:\PixelEngine\PixelSolution\Generated" -o "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngine_wrap.cpp" "D:\PixelEngine\PixelSolution\PixelEngine\PixelEngineC#.i"
 copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     </PreBuildEvent>
