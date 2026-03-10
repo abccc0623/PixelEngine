@@ -13,14 +13,9 @@
 #include "PClass.h"
 #include "PField.h"
 #include "PMethod.h"
+#include <iostream>
 
-template<typename T>
-T& GetArg(std::vector<void*>& args, size_t index)
-{
-    return *static_cast<T*>(args[index]);
-}
 
-using MethodPtr = std::function<PValue(void*, std::vector<void*>&)>;
 class PMethod;
 template<typename ThisType,typename ParentType = void>
 class PClassTemplate : public PClass
@@ -112,59 +107,39 @@ public:
         memberList.push_back(field);
     }
 
-    template <typename F>
-    void AddMethod(std::string name, F&& lambda)
+    template<typename ClassType, typename ReturnType, typename... Args>
+    void AddMethod(std::string name, ReturnType(ClassType::* Func)(Args...))
     {
-        //using Traits = FunctionTraits<decltype(&std::remove_reference_t<F>::operator())>;
-        //using ReturnType = typename Traits::ReturnType;
-        //
-        //if constexpr (std::is_void_v<ReturnType>)
-        //{
-        //    PType* returnType = GetTypeByKeyword<ReturnType>();
-        //    uint64_t nameHash = HashUtil::ConstexprHash(name.c_str());
-        //    //auto m = new PMethod(name, returnType, list);
-        //}
+        ([&] {
+            // 여기서 Args는 루프를 돌 때마다 각 타입으로 치환됨
+                PType* typeInfo = GetTypeByKeyword<Args>();
+                std::cout << typeInfo->GetName() << std::endl;
+            }(), ...);
 
-
-        //std::vector<PType*> list;
-        //list.reserve(sizeof...(_Args));
-        //(list.push_back(GetTypeByKeyword<_Args>()), ...);
-        //
-        //PType* returnType = GetTypeByKeyword<_Ret>();
-        //uint64_t nameHash = HashUtil::ConstexprHash(name.c_str());
-        //auto m = new PMethod(name, returnType, list);
-        //
-        //if constexpr (std::is_void_v<_Ret>)
-        //{
-        //    m->templateFunction = nullptr;
-        //}
-        //
-        //// 1. Func는 '값'이므로 반드시 캡처해야 합니다.
-        //// 2. ReturnType과 Args는 '타입'이므로 람다 내부에서 그냥 사용 가능합니다.
-        //m->templateFunction = [Func](void* retAddr, std::vector<void*>& args) -> PValue
-        //    {
-        //        size_t arraySize = sizeof...(_Args);
-        //        if (args.size() != arraySize) return PValue(); // nullptr 대신 PValue()
-        //
-        //        // Class는 이미 템플릿 인자로 들어와 있으므로 ThisType 대신 Class를 직접 써보세요.
-        //        _Class* obj = static_cast<_Class*>(retAddr);
-        //        auto k = std::make_index_sequence<sizeof...(_Args)>{};
-        //
-        //        // 여기서 ReturnType은 템플릿 인자로 고정된 상태입니다.
-        //        if constexpr (std::is_void_v<_Ret>)
-        //        {
-        //            PMethod::CallHelper(obj, Func, args, k);
-        //            return PValue();
-        //        }
-        //        else
-        //        {
-        //            // PVector3::Dot의 경우 ReturnType은 float이므로 반드시 여기를 탑니다.
-        //            return PValue(PMethod::CallHelper(obj, Func, args, k));
-        //        }
-        //    };
-        //
-        //methodMap.insert({ nameHash, m });
-        //methodList.push_back(m);
+        uint64_t nameHash = HashUtil::ConstexprHash(name.c_str());
+        auto m = new PMethod(name);
+        if constexpr (std::is_void_v<ReturnType>)
+        {
+            m->NoReturnFunction = [Func](void* target, std::vector<void*>& argList) ->  void*
+                {
+                    auto k = std::make_index_sequence<sizeof...(Args)>{};
+                    ClassType* C = static_cast<ClassType*>(target);
+                    PMethod::CallHelper(C, Func, argList, k);
+                    return nullptr;
+                };
+        }
+        else
+        {
+            m->NoReturnFunction = [Func](void* target, std::vector<void*>& argList) -> void*
+                {
+                    auto k = std::make_index_sequence<sizeof...(Args)>{};
+                    ClassType* C = static_cast<ClassType*>(target);
+                    PValue t = PMethod::ReturnCallHelper(C, Func, argList, k);
+                    return nullptr;
+                };
+        }
+        methodMap.insert({ nameHash, m });
+        methodList.push_back(m);
     }
 };
 

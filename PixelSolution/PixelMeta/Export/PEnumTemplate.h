@@ -15,6 +15,6 @@ public:
 	}
 	virtual ~PEnumTemplate() {};
 
-	void AddField(const std::string& name, FieldType ThisType::* memberPtr)
+	//void AddField(const std::string& name, FieldType ThisType::* memberPtr)
 };
 

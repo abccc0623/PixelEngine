@@ -73,6 +73,15 @@ public class GameObject : PixelObject {
     return ret;
   }
 
+  public void test(int a, int b, int c) {
+    PixelEnginePINVOKE.GameObject_test(swigCPtr, a, b, c);
+  }
+
+  public int test1() {
+    int ret = PixelEnginePINVOKE.GameObject_test1(swigCPtr);
+    return ret;
+  }
+
   public string Save() {
     string ret = PixelEnginePINVOKE.GameObject_Save(swigCPtr);
     return ret;

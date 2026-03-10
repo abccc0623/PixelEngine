@@ -1549,6 +1549,32 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_GameObject_GetHash(void * jarg1) {
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_GameObject_test(void * jarg1, int jarg2, int jarg3, int jarg4) {
+  GameObject *arg1 = 0 ;
+  int arg2 ;
+  int arg3 ;
+  int arg4 ;
+  
+  arg1 = (GameObject *)jarg1; 
+  arg2 = (int)jarg2; 
+  arg3 = (int)jarg3; 
+  arg4 = (int)jarg4; 
+  (arg1)->test(arg2,arg3,arg4);
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_GameObject_test1(void * jarg1) {
+  int jresult ;
+  GameObject *arg1 = 0 ;
+  int result;
+  
+  arg1 = (GameObject *)jarg1; 
+  result = (int)(arg1)->test1();
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT const char * SWIGSTDCALL CSharp_GameObject_Save(void * jarg1) {
   const char * jresult ;
   GameObject *arg1 = 0 ;

@@ -527,6 +527,12 @@ class PixelEnginePINVOKE {
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_GetHash")]
   public static extern uint GameObject_GetHash(global::System.Runtime.InteropServices.HandleRef jarg1);
 
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_test")]
+  public static extern void GameObject_test(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2, int jarg3, int jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_test1")]
+  public static extern int GameObject_test1(global::System.Runtime.InteropServices.HandleRef jarg1);
+
   [global::System.Runtime.InteropServices.DllImport("PixelEngine", EntryPoint="CSharp_GameObject_Save")]
   public static extern string GameObject_Save(global::System.Runtime.InteropServices.HandleRef jarg1);
 

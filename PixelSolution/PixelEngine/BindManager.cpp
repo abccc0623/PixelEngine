@@ -14,11 +14,11 @@
 #include "Module/Camera.h"
 
 #include "PixelMetaAPI.h"
+#include "PMethod.h"
 
 #include "Type/PVector3.h"
 #include "Rect.h"
 
-#include "PixelMetaAPI.h"
 
 //std::string BindManager::apiDefinitions = "";
 //std::vector<std::string> BindManager::bindClassName = std::vector<std::string>();
@@ -73,7 +73,7 @@ void BindManager::Initialize()
 	ModuleTypeBind<LuaScript>::Bind(MODULE_TYPE::LuaScript);
 	ModuleTypeBind<Renderer2D>::Bind(MODULE_TYPE::Renderer2D);
 
-	auto moduleEnum = MakeEnumRegister<MODULE_TYPE>();
+	//auto moduleEnum = MakeEnumRegister<MODULE_TYPE>();
 
 	//PEnum* p = MakeEnumRegister("ModuleType");
 	//p->AddElement("Transform",0);
@@ -83,25 +83,26 @@ void BindManager::Initialize()
 	//p->AddElement("Renderer2D",4);
 
 	//기본 오브젝트
-	//auto baseObject = MakeClassRegister<PixelObject>();
-	//
-	////게임 오브젝트
-	//auto GObject = MakeClassRegister<GameObject, PixelObject>();
+	auto baseObject = MakeClassRegister<PixelObject>();
+	
+	//게임 오브젝트
+	auto GObject = MakeClassRegister<GameObject, PixelObject>();
 	//GObject->AddField("name", &GameObject::name);
-	//GObject->AddMethod("AddModule", &GameObject::AddModule);
-	//GObject->AddMethod("GetModule", &GameObject::GetModule);
-	//
-	////
-	//auto Vec = MakeClassRegister<PVector3>();
-	//Vec->AddMethod("Test",&PVector3::Test);
-	//
-	//auto m = GObject->GetMethod("AddModule");
-	//PVector3 v1 = { 0,0,0 };
-	//PVector3 v2 = { 0,0,0 };
-	//
-	//std::vector<void*> list = std::vector<void*>();
-	//list.push_back(&v2);
-	//PValue a =  m->Invoke(&v1, list);
+ 	GObject->AddMethod("test", &GameObject::test);
+	GObject->AddMethod("test1", &GameObject::test1);
+
+	GameObject* temp = new GameObject();
+	auto k1 = GObject->GetMethod("test");
+	auto k2 = GObject->GetMethod("test1");
+	std::vector<void*> test = std::vector<void*>();
+	int a = 10;
+	int b = 20;
+	int c = 30;
+	test.push_back(&a);
+	test.push_back(&b);
+	test.push_back(&c);
+	k1->Invoke(temp,test);
+	
 }
 
 void BindManager::Update()

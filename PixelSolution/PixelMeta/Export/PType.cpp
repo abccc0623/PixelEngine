@@ -2,7 +2,7 @@
 #include "PType.h"
 #include "PField.h"
 #include "PMethod.h"
-
+#include "PixelMetaAPI.h"
 PType::PType(uint64_t Hash, std::string name, size_t size):
 	typeHash(Hash), typeName(name), typeSize(size)
 {
