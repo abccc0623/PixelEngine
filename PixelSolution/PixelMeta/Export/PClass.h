@@ -1,32 +1,64 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
+#include <functional>
 #include "PType.h"
+#include "PValue.h"
+
+using CreateFunction = void*(*)();
+using DeleteFunction = void(*)();
+using TypeCastFunction = void*(*)();
+
 class PField;
 class PMethod;
 class PClass : public PType
 {
 public:
-	PIXEL_META_DLL PClass();
-	PIXEL_META_DLL virtual ~PClass();
+	PClass(uint64_t hash, std::string name, size_t size);
+	virtual ~PClass();
+	
+	//등록
+	void AddField(PField* field);
+	void AddMethod(PMethod* method);
 
-	virtual PField* GetField(const std::string& name) = 0;
-	virtual PMethod* GetMethod(const std::string& name) = 0;
+	//상속
+	uint64_t GetParentHash();
+	uint64_t GetChildHash();
+	void SetParentHash(uint64_t hash);
+	void SetChildHash(uint64_t hash);
 
-	PIXEL_META_DLL int GetFieldMaxCount();
-	PIXEL_META_DLL int GetMethodMaxCount();
-	PIXEL_META_DLL const std::string& TypeName();
-	PIXEL_META_DLL const std::string& ParentName();
-	PIXEL_META_DLL const std::string& ChildName();
+	//변수
+	int GetMemberCount();
+	const std::string& GetMemberName(int index);
+	const std::string& GetMemberType(int index);
+	void* GetMemberValue(int index,void* target);
+	void  SetMemberValue(int index,void* target,void* value);
 
-	PIXEL_META_DLL const std::string& GetFieldName(int index);
-	PIXEL_META_DLL const std::string& GetFieldType(int index);
+	//함수
+	int GetMethodCount();
+	int GetPropertyCount(int index);
+	const std::string& GetMethodName(int index);
+	const std::string& GetMethodReturnType(int index);
+	const std::string& GetMethodPropertyType(int index,int propertyIndex);
+	PValue CallMethod(int index,void* target, std::vector<void*> property);
+
+	//생성 삭제
+	void SetCreateFunction(CreateFunction func);
+	void SetDeleteFunction(DeleteFunction func);
+	void SetCastFunction(TypeCastFunction func);
+	void* CallCreateFunction();
+	void  CallDeleteFunction();
+
 protected:
-	PClass* parent;
-	PClass* child;
+	uint64_t parentHash;
+	uint64_t childHash;
 	std::unordered_map<uint64_t, PField*> memberMap;
 	std::unordered_map<uint64_t, PMethod*> methodMap;
 	std::vector<PField*> memberList;
 	std::vector<PMethod*> methodList;
+
+	CreateFunction createFunc;
+	DeleteFunction deleteFunc;
+	TypeCastFunction castFunc;
 };
 

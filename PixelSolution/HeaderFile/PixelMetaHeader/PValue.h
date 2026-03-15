@@ -17,7 +17,7 @@ public:
     template<typename T>
     PValue(const T& val) {
         // 여기서 엔진의 타입 시스템과 매칭하는 로직을 넣습니다.
-        this->Type = GetTypeByKeyword<T>();
+        //this->Type = GetTypeByKeyword<T>();
         // 데이터를 보관하는 로직 (예: void*에 할당하거나 내부 버퍼에 복사)
         //this->Data = new T(val);
     }

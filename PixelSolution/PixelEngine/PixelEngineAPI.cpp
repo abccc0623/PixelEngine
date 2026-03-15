@@ -14,6 +14,7 @@
 #include "Core/GameObject.h"
 #include "JsonManager.h"
 #include "PixelMetaAPI.h"
+#include "Log.h"
 
 
 PixelEngine* Engine = nullptr;
@@ -50,7 +51,7 @@ void ReleaseEngine()
 	{
 		Engine->ReleaseShared();
 	}
-	PixelMetaRelease();
+	ReleaseMetaType();
 	delete Engine;
 }
 
@@ -193,59 +194,75 @@ GameObject* CreateGameObject(const char* name)
 	return nullptr;
 }
 
-PObject* CreateObject(const char* name)
+Module* AddModule(GameObject* target, PClass* moduleClass)
 {
-	if (Engine != nullptr)
+	return target->AddModule(moduleClass);
+}
+
+Module* AddModuleByString(GameObject* target, const char* name)
+{
+	std::string Str(name);
+	PClass* targetClass = GetMetaClass(name);
+	if (target != nullptr)
 	{
-		auto objManager = Engine->GetFactory<ObjectManager>();
-		SPointer<GameObject> target = objManager->Create(name);
-		return CreateRObject(target.GetPtr(), "GameObject");
+		return target->AddModule(targetClass);
+	}
+	else
+	{
+		Log::Error("Not Find Type :"+ Str);
 	}
 	return nullptr;
 }
 
-int GetObjectFieldCount(PObject* Obj)
+Module* GetModule(GameObject* target, PClass* moduleClass)
 {
-	if (Obj != nullptr)
-	{
-		return Obj->GetFieldMaxCount();
-	}
-	return 0;
+	return target->GetModule(moduleClass);
 }
 
-int GetObjectMethodMaxCount(PObject* Obj)
+Module* GetModuleByString(GameObject* target, const char* name)
 {
-	return PixelMeta_GetMethodMaxCount(Obj);
-}
-const char* GetObjectTypeName(PObject* Obj)
-{
-	return PixelMeta_TypeName(Obj);
+	return nullptr;
 }
 
-const char* GetObjectParentName(PObject* Obj)
+#pragma region MetaType
+PClass* GetMetaClass(const char* className)
 {
-	return PixelMeta_ParentName(Obj);
+	std::string targetName(className);
+	return GetClass(targetName);
 }
-
-const char* GetObjectChildName(PObject* Obj)
+const char* GetMemberName(PClass* targetClass, int index)
 {
-	return PixelMeta_ChildName(Obj);
+	return GetClassMemberName(targetClass, index).c_str();
 }
-
-const char* GetObjectFieldName(PObject* Obj, int index)
+const char* GetMemberType(PClass* targetClass, int index)
 {
-	return PixelMeta_GetFieldName(Obj, index);
+	return GetClassMemberType(targetClass, index).c_str();
 }
-
-const char* GetObjectFieldType(PObject* Obj, int index)
+const char* GetMethodName(PClass* targetClass, int index)
 {
-	return PixelMeta_GetFieldType(Obj, index);
+	return GetClassMethodName(targetClass,index).c_str();
 }
-
-int GetObjectFieldMaxCount(PObject* Obj)
+const char* GetMethodReturnType(PClass* targetClass, int index)
 {
-	return PixelMeta_GetFieldMaxCount(Obj);
+	return GetClassMethodReturnType(targetClass, index).c_str();
 }
+const char* GetMethodGetPropertyType(PClass* targetClass, int index, int propertyIndex)
+{
+	return GetClassMethodGetPropertyType(targetClass, index, propertyIndex).c_str();
+}
+int GetMethodPropertyCount(PClass* targetClass, int index)
+{
+	return GetClassMethodPropertyCount(targetClass, index);
+}
+int GetMemberCount(PClass* targetClass)
+{
+	return GetClassMemberCount(targetClass);
+}
+int GetMethodCount(PClass* targetClass)
+{
+	return GetClassMethodCount(targetClass);
+}
+#pragma endregion
 
 bool CreateScene(const char* sceneName)
 {

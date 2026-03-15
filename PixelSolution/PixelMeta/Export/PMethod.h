@@ -9,44 +9,24 @@ class PField;
 class PMethod
 {
 public:
-	PIXEL_META_DLL PMethod(std::string name);
-	PIXEL_META_DLL ~PMethod();
+	PMethod(std::string name);
+	~PMethod();
+	const std::string& GetName();
+	const std::string& GetReturnType();
+	const std::string& GetPropertyType(int index);
+	int GetPropertyCount();
 
+	PValue Call(void* target, std::vector<void*> property);
 
-	PIXEL_META_DLL PValue Invoke(void* instance, std::vector<void*>& members);
-	PIXEL_META_DLL static void* operator new(size_t size);
-	PIXEL_META_DLL static void operator delete(void* ptr);
-
-
-	template<typename TClass, typename F, typename... Args, size_t... Is>
-	static void CallHelper(TClass* obj,F func,std::vector<void*>& args, std::index_sequence<Is...>)
-	{
-		if (args.size() == 0)
-		{
-			(obj->*func)();
-		}
-		else
-		{
-			(obj->*func)((*static_cast<std::remove_reference_t<Args>*>(args[Is]))...);
-		}
-	}
-
-	template<typename TClass, typename F, typename... Args, size_t... Is>
-	static PValue ReturnCallHelper(TClass* obj, F func, std::vector<void*>& args, std::index_sequence<Is...>)
-	{
-		if (args.size() == 0)
-		{
-			return PValue((obj->*func)());
-		}
-		else
-		{
-			return PValue((obj->*func)((*static_cast<std::remove_reference_t<Args>*>(args[Is]))...));
-		}
-	}
-
-	std::function<void*(void*, std::vector<void*>&)> NoReturnFunction;
+	uint64_t GetTypeHash();
+	void SetInfo(std::string retrunType, std::string classType, std::vector<std::string> memberType, std::function<PValue (void*, std::vector<void*>&)> func);
 protected:
+	std::string retrunType;
+	std::string classType;
+	std::vector<std::string> propertyType;
+	uint64_t typeHash;
 	std::string methodName;
+	std::function<PValue (void*, std::vector<void*>&)> invoker;
 };
 
 

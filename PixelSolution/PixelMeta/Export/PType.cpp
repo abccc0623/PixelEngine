@@ -2,7 +2,8 @@
 #include "PType.h"
 #include "PField.h"
 #include "PMethod.h"
-#include "PixelMetaAPI.h"
+
+
 PType::PType(uint64_t Hash, std::string name, size_t size):
 	typeHash(Hash), typeName(name), typeSize(size)
 {
@@ -18,23 +19,15 @@ PType::~PType()
 }
 const std::string& PType::GetName()
 {
-	if (this == GetTypeByKeyword<std::string>())
-	{
-		typeName = "string";
-	}
+	//if (this == GetTypeByKeyword<std::string>())
+	//{
+	//	typeName = "string";
+	//}
 	return typeName;
 }
-const std::string& PType::GetMetaType()
+int PType::GetMetaType()
 {
-	switch (metaType)
-	{
-	case META_TYPE::PRIMITIVE:
-		return "PRIMITIVE";
-	case META_TYPE::CLASS:
-		return "CLASS";
-	case META_TYPE::ENUM:
-		return "ENUM";
-	}
+	return (int)metaType;
 }
 uint64_t PType::GetHash()
 {
@@ -44,8 +37,6 @@ uint64_t PType::GetSize()
 {
 	return typeSize;
 }
-
-
 
 bool PType::operator==(const PType& other)
 {

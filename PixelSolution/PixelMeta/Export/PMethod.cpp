@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "PMethod.h"
 #include "PType.h"
+#include "GlobalHashCode.h"
 
 PMethod::PMethod(std::string name):
 	methodName(name)
 {
-
+	typeHash = HashUtil::ConstexprHash(name.c_str());
 }
 
 PMethod::~PMethod()
@@ -13,21 +14,45 @@ PMethod::~PMethod()
 
 }
 
-void* PMethod::operator new(size_t size)
+const std::string& PMethod::GetName()
 {
-	return ::malloc(size);
+	return methodName;
 }
 
-void PMethod::operator delete(void* ptr)
+const std::string& PMethod::GetReturnType()
 {
-	::free(ptr);
+	return retrunType;
 }
 
-PValue PMethod::Invoke(void* instance, std::vector<void*>& members)
+const std::string& PMethod::GetPropertyType(int index)
 {
-	if(NoReturnFunction)
+	return propertyType[index];
+}
+
+int PMethod::GetPropertyCount()
+{
+	return propertyType.size();
+}
+
+PValue PMethod::Call(void* target, std::vector<void*> property)
+{
+	if (invoker != nullptr)
 	{
-		NoReturnFunction(instance, members);
+		return invoker(target, property);
 	}
 	return PValue();
 }
+
+uint64_t PMethod::GetTypeHash()
+{
+	return typeHash;
+}
+
+void PMethod::SetInfo(std::string retrunType, std::string classType, std::vector<std::string> memberType, std::function<PValue(void*, std::vector<void*>&)> func)
+{
+	this->retrunType = retrunType;
+	this->classType = classType;
+	this->propertyType = memberType;
+	this->invoker = func;
+}
+

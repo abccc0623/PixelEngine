@@ -103,14 +103,14 @@ GameObject** Scene::GetAllSceneObjects(int* maxCount)
 
 std::string Scene::Save()
 {
-    nlohmann::ordered_json j;
-    j["FileType"] = "SceneFile";
-    j["SceneName"] = sceneName;
-    j["GameObjects"] = nlohmann::ordered_json::array();
-    for (auto& K : ObjectList)
-    {
-        nlohmann::ordered_json childJson = nlohmann::ordered_json::parse(K.second->Save());
-        j["GameObjects"].push_back(childJson);
-    }
-    return j.dump(4);
+    //nlohmann::ordered_json j;
+    //j["FileType"] = "SceneFile";
+    //j["SceneName"] = sceneName;
+    //j["GameObjects"] = nlohmann::ordered_json::array();
+    //for (auto& K : ObjectList)
+    //{
+    //    nlohmann::ordered_json childJson = nlohmann::ordered_json::parse(K.second->Save());
+    //    j["GameObjects"].push_back(childJson);
+    //}
+    return "";
 }

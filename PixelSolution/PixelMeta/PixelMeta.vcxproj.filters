@@ -51,9 +51,6 @@
     <ClInclude Include="Export\PType.h">
       <Filter>PixelMeta\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Export\PClassTemplate.h">
-      <Filter>PixelMeta\Core</Filter>
-    </ClInclude>
     <ClInclude Include="Export\PField.h">
       <Filter>PixelMeta\Core</Filter>
     </ClInclude>
@@ -70,12 +67,6 @@
       <Filter>PixelMeta\Type</Filter>
     </ClInclude>
     <ClInclude Include="Export\PClass.h">
-      <Filter>PixelMeta\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Export\PEnum.h">
-      <Filter>PixelMeta\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Export\PEnumTemplate.h">
       <Filter>PixelMeta\Core</Filter>
     </ClInclude>
   </ItemGroup>
@@ -108,9 +99,6 @@
       <Filter>PixelMeta\Type</Filter>
     </ClCompile>
     <ClCompile Include="Export\PClass.cpp">
-      <Filter>PixelMeta\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Export\PEnum.cpp">
       <Filter>PixelMeta\Core</Filter>
     </ClCompile>
   </ItemGroup>

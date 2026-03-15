@@ -32,7 +32,10 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 	if (TextureCheck(mData->master_key, prev) == false)
 	{
 		auto k = engine->Get<TextureResources>(mData->mesh.texture_key);
-		GraphicsCore::GetDeviceContext()->PSSetShaderResources(0, 1, &(k->Texture));
+		if (k != nullptr)
+		{
+			GraphicsCore::GetDeviceContext()->PSSetShaderResources(0, 1, &(k->Texture));
+		}
 	}
 	
 	//모델 바인딩

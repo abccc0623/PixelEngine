@@ -24,6 +24,9 @@ public:
 
 	bool Load(const std::string& filePath);
 	LuaClassInfo* GetLua(const std::string& fileName);
+	
+	std::string ChangeLuaType(std::string type);
+	void BindLua();
 private:
 	sol::state* lua;
 	std::string apiDefinitions;

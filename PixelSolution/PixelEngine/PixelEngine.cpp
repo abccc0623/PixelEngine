@@ -25,12 +25,12 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	BindFactory<KeyInputManager>();
 	BindFactory<TimeManager>();
 	BindFactory<ObjectManager>();
+	BindFactory<BindManager>();
 	BindFactory<LuaManager>();
 	BindFactory<SceneManager>();
 	BindFactory<FunctionManager>();
 	BindFactory<ResourceManager>();
 	BindFactory<CollisionManager>();
-	BindFactory<BindManager>();
 	BindFactory<JsonManager>();
 
 	PixelGraphicsInitialize(hWnd, width, height);

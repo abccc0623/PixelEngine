@@ -38,7 +38,7 @@ void BoxCollision2D::Start()
 void BoxCollision2D::PhysicsUpdate()
 {
 	auto t = transform;
-	auto pos = t->GetPosition();
+	auto pos = t->Position;
 
 	rect.width = originalRect.width;
 	rect.height = originalRect.height;

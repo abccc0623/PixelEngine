@@ -2,8 +2,8 @@
 #include "PixelEngineDLL.h"
 class GameObject;
 class PObject;
-
-
+class PClass;
+class Module;
 typedef void* PixelWindowHandle;
 
 extern "C" PIXEL_ENGINEDLL bool EngineInitialize(PixelWindowHandle hWnd,int width,int height);
@@ -12,20 +12,26 @@ extern "C" PIXEL_ENGINEDLL void ReleaseEngine();
 extern "C" PIXEL_ENGINEDLL void QuitWindow();
 extern "C" PIXEL_ENGINEDLL bool ResizeEngine(int width,int height);
 
-//오브젝트 컨트롤
-extern "C" PIXEL_ENGINEDLL PObject* CreateObject(const char* name = "GameObject");
-extern "C" PIXEL_ENGINEDLL int GetObjectFieldMaxCount(PObject* Obj);
-extern "C" PIXEL_ENGINEDLL int GetObjectMethodMaxCount(PObject* Obj);
-extern "C" PIXEL_ENGINEDLL const char* GetObjectTypeName(PObject* Obj);
-extern "C" PIXEL_ENGINEDLL const char* GetObjectParentName(PObject* Obj);
-extern "C" PIXEL_ENGINEDLL const char* GetObjectChildName(PObject* Obj);
-extern "C" PIXEL_ENGINEDLL const char* GetObjectFieldName(PObject* Obj, int index);
-extern "C" PIXEL_ENGINEDLL const char* GetObjectFieldType(PObject* Obj, int index);
-
-
 
 extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name = "GameObject");
-/**/
+extern "C" PIXEL_ENGINEDLL Module* AddModule(GameObject* target, PClass* moduleClass);
+extern "C" PIXEL_ENGINEDLL Module* AddModuleByString(GameObject* target,const char* name);
+extern "C" PIXEL_ENGINEDLL Module* GetModule(GameObject* target, PClass* moduleClass);
+extern "C" PIXEL_ENGINEDLL Module* GetModuleByString(GameObject* target,const char* name);
+
+#pragma region MetaType
+extern "C" PIXEL_ENGINEDLL PClass* GetMetaClass(const  char* className);
+extern "C" PIXEL_ENGINEDLL int GetMemberCount(PClass* targetClass);
+extern "C" PIXEL_ENGINEDLL int GetMethodCount(PClass* targetClass);
+extern "C" PIXEL_ENGINEDLL const char* GetMemberName(PClass* targetClass, int index);
+extern "C" PIXEL_ENGINEDLL const char* GetMemberType(PClass* targetClass, int index);
+extern "C" PIXEL_ENGINEDLL const char* GetMethodName(PClass* targetClass, int index);
+extern "C" PIXEL_ENGINEDLL const char* GetMethodReturnType(PClass* targetClass, int index);
+extern "C" PIXEL_ENGINEDLL const char* GetMethodGetPropertyType(PClass* targetClass, int index,int propertyIndex);
+extern "C" PIXEL_ENGINEDLL int GetMethodPropertyCount(PClass* targetClass, int index);
+#pragma endregion
+
+
 
 //KeyInput
 extern "C" PIXEL_ENGINEDLL bool GetKeyDown(char number);		

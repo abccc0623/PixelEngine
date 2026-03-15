@@ -15,6 +15,7 @@
 #include "LuaClassInfo.h"
 #include <iostream>
 #include <filesystem>
+#include "PixelMetaAPI.h"
 
 #include "Module/LuaScript.h"
 #define SOL_ALL_SAFETIES_ON 1 // 안전장치 활성화 (권장)
@@ -45,139 +46,79 @@ void LuaManager::Initialize()
     input = Engine->GetFactory<KeyInputManager>();
     obj   = Engine->GetFactory<ObjectManager>();
 
+    //lua->new_usertype<PixelObject>("PixelObject");
+    //lua->new_usertype<Module>("Module", sol::base_classes, sol::bases<Module, PixelObject>());
+    //lua->new_usertype<Transform>("Transform", sol::base_classes, sol::bases<Module, PixelObject>());
+
+    //Engine관련
+   sol::table engine = lua->create_named_table("Engine");
+   engine["CreateGameObject"] = sol::overload
+   (
+       [](std::string name)
+       {
+           auto k = CreateGameObject(name.c_str());
+           return k;
+       },
+       []()
+       {
+           auto k = CreateGameObject();
+           return k;
+       }
+   );
+   BindLua();
+
+
     //Key관련 등록
-    sol::table input = lua->create_named_table("Input");
-    input["GetKey"] = [](int keyNumber)->bool { return GetKey(keyNumber); };
-    input["GetKeyDown"] = [](int keyNumber)->bool {return GetKeyDown(keyNumber); };
-    input["GetKeyUp"] = [](int keyNumber)->bool { return GetKeyUp(keyNumber); };
-    input["GetMousePosition_X"] = GetMousePosition_X;
-    input["GetMousePosition_Y"] = GetMousePosition_Y;
+    //sol::table input = lua->create_named_table("Input");
+    //input["GetKey"] = [](int keyNumber)->bool { return GetKey(keyNumber); };
+    //input["GetKeyDown"] = [](int keyNumber)->bool {return GetKeyDown(keyNumber); };
+    //input["GetKeyUp"] = [](int keyNumber)->bool { return GetKeyUp(keyNumber); };
+    //input["GetMousePosition_X"] = GetMousePosition_X;
+    //input["GetMousePosition_Y"] = GetMousePosition_Y;
 
     //Time관련
-    sol::table time = lua->create_named_table("Time");
-    time["GetDeltaTime"] = GetDeltaTime;
-    time["GetTotalTime"] = GetTotalTime;
-    time["GetFPS"] = GetFPS;
-
-    //Setting 관련
-    sol::table setting = lua->create_named_table("Setting");
-    setting["ChangeScene"] = [](std::string name)
-        {
-            auto sceneManager = Engine->GetFactory<SceneManager>();
-            sceneManager->ChangeScene(name);
-        };
-    setting["CreateScene"] = [](std::string luaPath)
-        {
-            auto sceneManager = Engine->GetFactory<SceneManager>();
-            sceneManager->CreateScene(luaPath);
-        };
+    //sol::table time = lua->create_named_table("Time");
+    //time["GetDeltaTime"] = GetDeltaTime;
+    //time["GetTotalTime"] = GetTotalTime;
+    //time["GetFPS"] = GetFPS;
+    //
+    ////Setting 관련
+    //sol::table setting = lua->create_named_table("Setting");
+    //setting["ChangeScene"] = [](std::string name)
+    //    {
+    //        auto sceneManager = Engine->GetFactory<SceneManager>();
+    //        sceneManager->ChangeScene(name);
+    //    };
+    //setting["CreateScene"] = [](std::string luaPath)
+    //    {
+    //        auto sceneManager = Engine->GetFactory<SceneManager>();
+    //        sceneManager->CreateScene(luaPath);
+    //    };
 
 
     //Engine관련
-    sol::table engine = lua->create_named_table("Engine");
-    engine["CreateGameObject"] = sol::overload
-    (
-        [](std::string name = "GameObject")
-        {
-            SPointer<GameObject> p = Engine->CreateGameObject(name);
-            return p.GetPtr();
-        },
-        []()
-        {
-            SPointer<GameObject> p = Engine->CreateGameObject();
-            return p.GetPtr();
-        }
-    );
-
-    engine["Find"] = [](std::string name)-> GameObject*
-        {
-            auto objManager = Engine->GetFactory<ObjectManager>();
-            auto find = objManager->Find(name);
-            return (find != nullptr) ? find.GetPtr() : nullptr;
-        };
-    engine["LoadTexture"] = [](std::string path) {return LoadTexture(path.c_str());};
-
-
-
-
-    ////게임 오브젝트 추가
-    //lua->new_usertype<GameObject>("GameObject",
-    //    "AddModule", [](GameObject& obj, std::string name, sol::this_state s) ->sol::object
+    //sol::table engine = lua->create_named_table("Engine");
+    //engine["CreateGameObject"] = sol::overload
+    //(
+    //    [](std::string name = "GameObject")
     //    {
-    //        auto bind = Engine->GetFactory<BindManager>();
-    //        bind->AddModuleCall(name, &obj);
-    //        return bind->GetModuleCall_Lua(s, obj, name);
+    //        SPointer<GameObject> p = Engine->CreateGameObject(name);
+    //        return p.GetPtr();
     //    },
-    //    "GetModule", [](GameObject& obj, std::string name, sol::this_state s) -> sol::object
+    //    []()
     //    {
-    //        auto bind = Engine->GetFactory<BindManager>();
-    //        return bind->GetModuleCall_Lua(s, obj, name);
-    //    },
-    //    "Destroy", [](GameObject& obj) {obj.Destroy(); });
-
-    //std::string main = "";
-    //main += "---@class Time \n";
-    //main += "Time = {} \n\n";
-    //main += "---@return number \n";
-    //main += "function Time.GetDeltaTime() end \n\n";
-    //main += "---@return number \n";
-    //main += "function Time.GetTotalTime() end \n\n";
-    //main += "---@return number \n";
-    //main += "function Time.GetFPS() end \n\n";
+    //        SPointer<GameObject> p = Engine->CreateGameObject();
+    //        return p.GetPtr();
+    //    }
+    //);
     //
-    //main += "---@class Setting \n";
-    //main += "Setting = {} \n\n";
-    //main += "---@param SceneName string \n";
-    //main += "---@return void \n";
-    //main += "function Setting.ChangeScene(SceneName) end \n\n";
-    //main += "---@param LuaPath string \n";
-    //main += "---@return void \n";
-    //main += "function Setting.CreateScene(LuaPath) end \n\n";
-    //
-    //
-    //main += "---@class Input \n";
-    //main += "Input = {} \n\n";
-    //main += "---@param key number \n";
-    //main += "---@return boolean \n";
-    //main += "function Input.GetKey(key) end \n\n";
-    //main += "---@param key number \n";
-    //main += "---@return boolean \n";
-    //main += "function Input.GetKeyDown(key) end \n\n";
-    //main += "---@param key number \n";
-    //main += "---@return boolean \n";
-    //main += "function Input.GetKeyUp(key) end \n\n";
-    //main += "---@return number \n";
-    //main += "function Input.GetMousePosition_X() end \n\n";
-    //main += "---@return number \n";
-    //main += "function Input.GetMousePosition_Y() end \n\n";
-    //
-    //main += "---@class Engine \n";
-    //main += "Engine = {} \n\n";
-    //main += "---@param name? string \n";
-    //main += "---@return GameObject \n";
-    //main += "function Engine.CreateGameObject(name) end \n\n";
-    //main += "---@param texturePath string \n";
-    //main += "---@return void \n";
-    //main += "function Engine.LoadTexture(texturePath) end \n\n";
-    //main += "---@param FindName string \n";
-    //main += "---@return GameObject \n";
-    //main += "function Engine.Find(FindName) end \n\n";
-    //
-    //
-    //main += "---@class GameObject \n";
-    //main += "GameObject = {} \n\n";
-    //main += "---@generic T \n";
-    //main += "---@param moduleName `T` \n";
-    //main += "---@return T \n";
-    //main += "function GameObject:GetModule(moduleName) end \n\n";
-    //main += "---@generic T \n";
-    //main += "---@param moduleName `T` \n";
-    //main += "---@return T \n";
-    //main += "function GameObject:AddModule(moduleName) end \n\n";
-    //main += "---@return void \n";
-    //main += "function GameObject:Destroy() end \n\n";
-    //main += SettingKeyEnum();
-    //BindManager::apiDefinitions += main;
+    //engine["Find"] = [](std::string name)-> GameObject*
+    //    {
+    //        auto objManager = Engine->GetFactory<ObjectManager>();
+    //        auto find = objManager->Find(name);
+    //        return (find != nullptr) ? find.GetPtr() : nullptr;
+    //    };
+    //engine["LoadTexture"] = [](std::string path) {return LoadTexture(path.c_str());};
 }
 
 
@@ -211,11 +152,9 @@ bool LuaManager::Load(const std::string& filePath)
         std::filesystem::path p(filePath);
         sol::table mt = lua->create_table_with(sol::meta_function::index, Proto);
 
-
         // 생성: 여기서 LuaClassInfo를 힙에 할당하여 관리
         LuaClassInfo* info = new LuaClassInfo(Proto, mt);
         luaTableMap.insert({ p.stem().string(), info });
-       
     }
 	return true;
 }
@@ -228,6 +167,102 @@ LuaClassInfo* LuaManager::GetLua(const std::string& fileName)
         return k->second;
     }
     return nullptr;
+}
+
+std::string LuaManager::ChangeLuaType(std::string type)
+{
+    if (type == "int" || type == "float")
+    {
+        return "number";
+    }
+    else if (type == "std::basic_string<char,std::char_traits<char>,class std::allocator<char> >")
+    {
+        return "string";
+    }
+    else
+    {
+        return type;
+    }
+}
+
+void LuaManager::BindLua()
+{
+
+    std::string main = "";
+    int classCount = AllClassCount();
+    for (int C = 0; C < classCount; C++)
+    {
+        PClass* pclass = GetClassByIndex(C);
+        if (pclass == nullptr) continue;
+
+        //클래스 테이블 정의
+        std::string typeName = GetClassTypeName(pclass);
+        sol::metatable mt = lua->create_table_with();
+
+        main += "---@class " + typeName + "\n";
+        //맴버 변수등록
+        int memberCount = GetClassMemberCount(pclass);
+        int methodCount = GetClassMethodCount(pclass);
+        for (int m = 0; m < memberCount; m++)
+        {
+            std::string memberName = GetClassMemberName(pclass, m);
+            std::string memberType = GetClassMemberType(pclass, m);
+            main += "--- @field " + memberName + " " + ChangeLuaType(memberType) + "\n";
+
+
+            mt[memberName] = sol::property(
+                [pclass,m](void* obj, sol::this_state s) -> sol::object
+                {
+                    void* ptr = GetClassMemberValue(pclass, m, obj);
+                    if (!ptr) return sol::make_object(s, sol::nil);
+                    std::string type = GetClassMemberType(pclass, m);
+            
+                    if (type == "int") return sol::make_object(s, *reinterpret_cast<int*>(ptr));
+                    if (type == "float") return sol::make_object(s, *reinterpret_cast<float*>(ptr));
+                    if (type == "bool") return sol::make_object(s, *reinterpret_cast<bool*>(ptr));
+                    
+                    return sol::make_object(s, sol::nil);
+                },
+                [pclass, m](void* obj, sol::stack_object value)
+                {
+                    void* ptr = GetClassMemberValue(pclass, m, obj);
+                    std::string type = GetClassMemberType(pclass, m);
+                });
+        }
+        main += typeName + " = {} \n\n";
+
+        for (int m = 0; m < methodCount; m++)
+        {
+            std::string methodReturnType = GetClassMethodReturnType(pclass, m);
+            std::string methodName = GetClassMethodName(pclass, m);
+
+            if (methodName == "Create") continue;
+            if (methodName == "Delete") continue;
+            if (methodName == "Awake") continue;
+            if (methodName == "Start") continue;
+            if (methodName == "Update") continue;
+            if (methodName == "MatrixUpdate") continue;
+            if (methodName == "PhysicsUpdate") continue;
+            if (methodName == "LastUpdate") continue;
+
+            int propertyCount = GetClassMethodPropertyCount(pclass, m);
+            for (int p = 0; p < propertyCount; p++)
+            {
+                std::string propertyType =  GetClassMethodGetPropertyType(pclass, m, p);
+                main += "---@param property" + std::to_string(p) +" " + ChangeLuaType(propertyType) + "\n";
+            }
+            main += "function " + typeName + ":" + methodName +"(x, y, z)" +"end \n";
+        };
+
+
+        sol::table clssTable = lua->create_named_table(typeName);
+        clssTable[sol::metatable_key] = mt;
+    }
+
+    std::ofstream outFile("./Asset/PixelEngineAPI.lua");
+    if (!outFile.is_open()) return;
+    outFile << main;
+    outFile.close();
 }
 
 
