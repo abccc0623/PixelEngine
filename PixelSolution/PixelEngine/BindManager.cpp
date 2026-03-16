@@ -39,10 +39,10 @@ void BindManager::Initialize()
 	table = CreateNewClass("Module",		"PixelObject");
 	table = CreateNewClass("Transform",		"Module");
 	table = CreateNewClass("Camera",		"Module");
-	table = CreateNewClass("Collision2D",	"Module");
+	//table = CreateNewClass("Collision2D",	"Module");
 	table = CreateNewClass("DebugCamera",	"Module");
 	table = CreateNewClass("LuaScript",		"Module");
-	table = CreateNewClass("Renderer",		"Module");
+	//table = CreateNewClass("Renderer",		"Module");
 	table = CreateNewClass("Renderer2D",	"Module");
 	
 	BindTransform();
@@ -75,9 +75,9 @@ void BindManager::BindTransform()
 		{
 			Log::Info("Delete Transform");
 		});
-	AddMember(table, "Position", GetMemberInfo(&Transform::Position));
-	AddMember(table, "Rotation", GetMemberInfo(&Transform::Rotation));
-	AddMember(table, "Scale", GetMemberInfo(&Transform::Scale));
+	AddMember(table, "Position", GetMemberInfo(&Transform::Position), MetaFlag::LUABIND| MetaFlag::SAVE);
+	AddMember(table, "Rotation", GetMemberInfo(&Transform::Rotation), MetaFlag::LUABIND | MetaFlag::SAVE);
+	AddMember(table, "Scale", GetMemberInfo(&Transform::Scale),MetaFlag::LUABIND | MetaFlag::SAVE);
 	AddMethod(table, "Start", GeMethodInfo(&Transform::Start));
 	AddMethod(table, "MatrixUpdate", GeMethodInfo(&Transform::MatrixUpdate));
 }
@@ -96,7 +96,7 @@ void BindManager::BindRenderer2D()
 			Log::Info("Delete Renderer2D");
 		});
 	AddMethod(table, "LastUpdate", GeMethodInfo(&Renderer2D::LastUpdate));
-	AddMethod(table, "SetTexture", GeMethodInfo(&Renderer2D::SetTexture));
+	AddMethod(table, "SetTexture", GeMethodInfo(&Renderer2D::SetTexture), MetaFlag::LUABIND);
 }
 
 void BindManager::BindDebugCamera()

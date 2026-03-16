@@ -188,6 +188,7 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClInclude Include="Export\Type\PMatrix.h" />
     <ClInclude Include="Export\Type\PMeta.h" />
     <ClInclude Include="Export\Type\PVector3.h" />
+    <ClInclude Include="GenerateLuaBind.h" />
     <ClInclude Include="GlobalBind.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="JsonManager.h" />

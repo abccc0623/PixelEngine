@@ -31,12 +31,14 @@ public:
 	int GetMemberCount();
 	const std::string& GetMemberName(int index);
 	const std::string& GetMemberType(int index);
+	bool HasClassMemberFlag(int index, long flag);
 	void* GetMemberValue(int index,void* target);
 	void  SetMemberValue(int index,void* target,void* value);
 
 	//ÇÔ¼ö
 	int GetMethodCount();
 	int GetPropertyCount(int index);
+	bool HasClassMethodFlag(int index, long flag);
 	const std::string& GetMethodName(int index);
 	const std::string& GetMethodReturnType(int index);
 	const std::string& GetMethodPropertyType(int index,int propertyIndex);

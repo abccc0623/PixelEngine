@@ -125,6 +125,7 @@ xcopy "$(ProjectDir)Export\PValue.h" "$(SolutionDir)HeaderFile\$(ProjectName)Hea
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="MetaFlagSet.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RSystem.h">

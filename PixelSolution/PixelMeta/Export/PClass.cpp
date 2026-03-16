@@ -76,6 +76,11 @@ const std::string& PClass::GetMemberType(int index)
 	return memberList[index]->GetType();
 }
 
+bool PClass::HasClassMemberFlag(int index, long flag)
+{
+	return memberList[index]->HasFlag(flag);
+}
+
 void* PClass::GetMemberValue(int index, void* target)
 {
 	return  memberList[index]->GetValue(target);
@@ -94,6 +99,11 @@ int PClass::GetMethodCount()
 int PClass::GetPropertyCount(int index)
 {
 	return methodList[index]->GetPropertyCount();
+}
+
+bool PClass::HasClassMethodFlag(int index, long flag)
+{
+	return methodList[index]->HasFlag(flag);
 }
 
 const std::string& PClass::GetMethodName(int index)

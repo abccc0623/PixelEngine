@@ -43,6 +43,16 @@ PValue PMethod::Call(void* target, std::vector<void*> property)
 	return PValue();
 }
 
+void PMethod::SetFlag(long flag)
+{
+	Flag.Set((MetaFlag)flag);
+}
+
+bool PMethod::HasFlag(long flag)
+{
+	return Flag.Has((MetaFlag)flag);
+}
+
 uint64_t PMethod::GetTypeHash()
 {
 	return typeHash;

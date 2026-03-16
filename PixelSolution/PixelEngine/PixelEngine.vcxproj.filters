@@ -249,6 +249,9 @@
     <ClInclude Include="Export\Type\PMeta.h">
       <Filter>EngineAPI\Types</Filter>
     </ClInclude>
+    <ClInclude Include="GenerateLuaBind.h">
+      <Filter>EngineAPI\Manager\LuaManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

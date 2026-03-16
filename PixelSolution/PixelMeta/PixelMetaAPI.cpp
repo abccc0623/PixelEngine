@@ -143,6 +143,11 @@ const std::string& GetClassMethodGetPropertyType(PClass* targetClass, int index,
 	return targetClass->GetMethodPropertyType(index, propertyIndex);
 }
 
+bool HasClassMethodFlag(PClass* targetClass, int index, long flag)
+{
+	return targetClass->HasClassMethodFlag(index, flag);
+}
+
 const std::string& GetClassMemberName(PClass* targetClass, int index)
 {
 	return targetClass->GetMemberName(index);
@@ -151,6 +156,11 @@ const std::string& GetClassMemberName(PClass* targetClass, int index)
 const std::string& GetClassMemberType(PClass* targetClass, int index)
 {
 	return targetClass->GetMemberType(index);
+}
+
+bool HasClassMemberFlag(PClass* targetClass, int index, long flag)
+{
+	return targetClass->HasClassMemberFlag(index, flag);
 }
 
 void* GetClassMemberValue(PClass* targetClass, int index, void* target)
@@ -176,21 +186,23 @@ int GetClassMethodCount(PClass* targetClass)
 	return targetClass->GetMethodCount();
 }
 
-bool AddMember(PClass* targetClass, const std::string& memberName, MemberInfo info)
+bool AddMember(PClass* targetClass, const std::string& memberName, MemberInfo info, long flag)
 {
 	uint64_t nameHash = HashUtil::ConstexprHash(memberName.c_str());
 	if (System == nullptr) { System = new RSystem(); }
 	PField* field = new PField(System->GetTypeByString(info.memberType), memberName, info.offset);
+	field->SetFlag(flag);
 	targetClass->AddField(field);
 	return true;
 }
 
-bool AddMethod(PClass* targetClass, const std::string& methodName, MethodInfo info)
+bool AddMethod(PClass* targetClass, const std::string& methodName, MethodInfo info, long flag)
 {
 	uint64_t nameHash = HashUtil::ConstexprHash(methodName.c_str());
 	if (System == nullptr) { System = new RSystem(); }
 	PMethod* field = new PMethod(methodName);
 	field->SetInfo(info.retrunType,info.classType, info.memberType,info.invoker);
+	field->SetFlag(flag);
 	targetClass->AddMethod(field);
 	return false;
 }

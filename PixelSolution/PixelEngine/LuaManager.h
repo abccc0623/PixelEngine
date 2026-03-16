@@ -27,8 +27,12 @@ public:
 	
 	std::string ChangeLuaType(std::string type);
 	void BindLua();
+
+	void BindLuaKey();
+	void BindLuaTime();
+	void BindLuaSetting();
 private:
-	sol::state* lua;
+	sol::state lua;
 	std::string apiDefinitions;
 	std::string apiExportPath;
 	void LoadDefaultSettingFile();

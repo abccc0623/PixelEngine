@@ -43,12 +43,13 @@ extern "C" PIXEL_META_DLL uint64_t GetClassParentHash(PClass* targetClass);
 extern "C" PIXEL_META_DLL uint64_t GetClassChildHash(PClass* targetClass);
 
 ///클래스 정보 등록
-extern "C" PIXEL_META_DLL bool AddMember(PClass* targetClass, const std::string& memberName, MemberInfo info);
-extern "C" PIXEL_META_DLL bool AddMethod(PClass* targetClass,const std::string& methodName, MethodInfo info);
+extern "C" PIXEL_META_DLL bool AddMember(PClass* targetClass, const std::string& memberName, MemberInfo info,long flag = 0);
+extern "C" PIXEL_META_DLL bool AddMethod(PClass* targetClass,const std::string& methodName, MethodInfo info, long flag = 0);
 
 ///클래스 맴버 정보
 extern "C" PIXEL_META_DLL const std::string& GetClassMemberName(PClass* targetClass,int index);
 extern "C" PIXEL_META_DLL const std::string& GetClassMemberType(PClass* targetClass,int index);
+extern "C" PIXEL_META_DLL bool  HasClassMemberFlag(PClass* targetClass,int index,long flag);
 extern "C" PIXEL_META_DLL void* GetClassMemberValue(PClass* targetClass,int index,void* target);
 extern "C" PIXEL_META_DLL void  SetClassMemberValue(PClass* targetClass,int index,void* target,void* value);
 extern "C" PIXEL_META_DLL int GetClassMemberCount(PClass* targetClass);
@@ -57,6 +58,7 @@ extern "C" PIXEL_META_DLL int GetClassMemberCount(PClass* targetClass);
 extern "C" PIXEL_META_DLL const std::string& GetClassMethodName(PClass* targetClass, int index);
 extern "C" PIXEL_META_DLL const std::string& GetClassMethodReturnType(PClass* targetClass, int index);
 extern "C" PIXEL_META_DLL const std::string& GetClassMethodGetPropertyType(PClass* targetClass, int index,int propertyIndex);
+extern "C" PIXEL_META_DLL bool HasClassMethodFlag(PClass* targetClass, int index, long flag);
 extern "C" PIXEL_META_DLL int GetClassMethodPropertyCount(PClass* targetClass, int index);
 extern "C" PIXEL_META_DLL int GetClassMethodCount(PClass* targetClass);
 extern "C" PIXEL_META_DLL PValue CallClassMethod(PClass* targetClass,int index,void* target,std::vector<void*> property);

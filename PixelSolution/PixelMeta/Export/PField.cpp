@@ -41,6 +41,16 @@ void PField::SetValue(void* target, void* value)
 	}
 }
 
+void PField::SetFlag(long flag)
+{
+	Flag.Set((MetaFlag)flag);
+}
+
+bool PField::HasFlag(long flag)
+{
+	return Flag.Has((MetaFlag)flag);
+}
+
 void* PField::GetValue(void* target)
 {
 	return (reinterpret_cast<char*>(target) + memberOffset);
