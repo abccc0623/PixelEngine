@@ -24,4 +24,5 @@ private:
 	void BindRenderer2D();
 	void BindDebugCamera();
 	void BindCamera();
+	void BindGameObject();
 };

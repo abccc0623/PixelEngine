@@ -18,19 +18,17 @@ public:
 	void Initialize() override;
 	void Update() override;
 	void ReleaseShared() override;
-	bool CreateLuaAPIPath(const std::string& filePath);
-	sol::state* GetModuleCall_Lua();
-	void AddLuaAPI(std::string className,std::vector<std::string> functionName);
-
 	bool Load(const std::string& filePath);
 	LuaClassInfo* GetLua(const std::string& fileName);
 	
 	std::string ChangeLuaType(std::string type);
-	void BindLua();
 
+
+	void BindEngine();
 	void BindLuaKey();
 	void BindLuaTime();
 	void BindLuaSetting();
+	void BindAsset();
 private:
 	sol::state lua;
 	std::string apiDefinitions;

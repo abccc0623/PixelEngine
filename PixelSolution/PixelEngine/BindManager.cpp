@@ -45,6 +45,7 @@ void BindManager::Initialize()
 	//table = CreateNewClass("Renderer",		"Module");
 	table = CreateNewClass("Renderer2D",	"Module");
 	
+	BindGameObject();
 	BindTransform();
 	BindRenderer2D();
 	BindDebugCamera();
@@ -132,6 +133,12 @@ void BindManager::BindCamera()
 		});
 	AddMethod(table, "Start", GeMethodInfo(&Camera::Start));
 	AddMethod(table, "LastUpdate", GeMethodInfo(&Camera::LastUpdate));
+}
+
+void BindManager::BindGameObject()
+{
+	auto table = GetClass("GameObject");
+	AddMethod(table, "AddModule", GeMethodInfo(&GameObject::AddModule), MetaFlag::LUABIND);
 }
 
 

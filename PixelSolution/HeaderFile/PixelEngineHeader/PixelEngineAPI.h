@@ -20,7 +20,7 @@ extern "C" PIXEL_ENGINEDLL Module* GetModule(GameObject* target, PClass* moduleC
 extern "C" PIXEL_ENGINEDLL Module* GetModuleByString(GameObject* target,const char* name);
 
 #pragma region MetaType
-extern "C" PIXEL_ENGINEDLL PClass* GetMetaClass(const  char* className);
+extern "C" PIXEL_ENGINEDLL PClass* GetMetaClass(const char* className);
 extern "C" PIXEL_ENGINEDLL int GetMemberCount(PClass* targetClass);
 extern "C" PIXEL_ENGINEDLL int GetMethodCount(PClass* targetClass);
 extern "C" PIXEL_ENGINEDLL const char* GetMemberName(PClass* targetClass, int index);
@@ -31,7 +31,7 @@ extern "C" PIXEL_ENGINEDLL const char* GetMethodGetPropertyType(PClass* targetCl
 extern "C" PIXEL_ENGINEDLL int GetMethodPropertyCount(PClass* targetClass, int index);
 #pragma endregion
 
-
+extern "C" PIXEL_ENGINEDLL void GenerateLuaBindCode(const char* outPath);
 
 //KeyInput
 extern "C" PIXEL_ENGINEDLL bool GetKeyDown(char number);		
@@ -48,8 +48,6 @@ extern "C" PIXEL_ENGINEDLL int GetFPS();
 //Lua
 extern "C" PIXEL_ENGINEDLL bool LoadLuaFile(const char* path);
 extern "C" PIXEL_ENGINEDLL bool LoadTexture(const char* path);
-extern "C" PIXEL_ENGINEDLL bool CreateLuaAPIPath(const char* path);
-
 
 
 typedef void(__stdcall* LogCallbackFunc)(const char* message, int level);

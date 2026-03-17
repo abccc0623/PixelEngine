@@ -13,6 +13,10 @@
     <BuildType Solution="Editor_d|x86" Project="Debug" />
     <Build Solution="*|x86" Project="false" />
   </Project>
+  <Project Path="Generate/Generate.vcxproj" Id="25a50c43-5f26-4079-985f-3c9130a09f34">
+    <BuildType Solution="Editor_d|*" Project="Release" />
+    <Build Solution="*|x86" Project="false" />
+  </Project>
   <Project Path="PixelEngine/PixelEngine.vcxproj" Id="ebc5deec-a4e3-441f-b2c2-75bb520403b5">
     <BuildDependency Project="PixelGraphics/PixelGraphics.vcxproj" />
     <BuildType Solution="Editor_d|x86" Project="Debug" />

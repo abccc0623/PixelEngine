@@ -1,0 +1,49 @@
+﻿// Generate.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
+//
+#include "PixelEngineAPI.h"
+#include <iostream>
+#include <string>
+#include <stdexcept>
+int main()
+{
+    EngineInitialize(nullptr, 100, 100);
+
+    while(true)
+    {
+        std::string inputStr;
+
+        // 1. 안내 문구 출력 (이때 std::cout 사용)
+        std::cout << "생성할 번호를 입력" <<std::endl;
+        std::cout << "(1)Lua BindCode 생성" <<std::endl;
+
+        // 2. 공백 포함 한 줄 전체를 입력받음 (std::getline 사용)
+        std::getline(std::cin, inputStr);
+        int number = 0;
+        try
+        {
+            number = std::stoi(inputStr);
+            switch (number)
+            {
+            case 1:
+                std::string outputPath = "../PixelEngine/GenerateLuaBind.h";
+                GenerateLuaBindCode(outputPath.c_str());
+                break;
+            }
+            break;
+        }
+        catch (const std::invalid_argument& e)
+        {
+            // 사용자가 "abc" 같은 걸 쳤을 때 방어
+            std::cout << "[에러] 문자가 아닌 숫자를 입력해야 합니다!\n";
+            return -1; // 에러 코드 반환
+        }
+        catch (const std::out_of_range& e)
+        {
+            // 너무 큰 숫자를 쳤을 때 방어
+            std::cout << "[에러] int 범위를 벗어난 너무 큰 숫자입니다!\n";
+            return -1;
+        }
+        
+      
+    }
+}

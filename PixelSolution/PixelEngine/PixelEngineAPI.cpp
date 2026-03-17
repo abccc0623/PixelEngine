@@ -6,6 +6,7 @@
 #include "ObjectManager.h"
 #include "KeyInputManager.h"
 #include "LuaManager.h"
+#include "GenerateManager.h"
 #include "FunctionManager.h"
 #include "SceneManager.h"
 #include "TextureManager.h"
@@ -172,17 +173,6 @@ bool LoadTexture(const char* path)
 	return false;
 }
 
-bool CreateLuaAPIPath(const char* path)
-{
-	std::string strPath(path);
-	if (Engine != nullptr)
-	{
-		auto lua = Engine->GetFactory<LuaManager>();
-		return lua->CreateLuaAPIPath(strPath);
-	}
-	return false;
-}
-
 GameObject* CreateGameObject(const char* name)
 {
 	if (Engine != nullptr)
@@ -253,6 +243,14 @@ const char* GetMethodGetPropertyType(PClass* targetClass, int index, int propert
 int GetMethodPropertyCount(PClass* targetClass, int index)
 {
 	return GetClassMethodPropertyCount(targetClass, index);
+}
+void GenerateLuaBindCode(const char* outPath)
+{
+	if (Engine != nullptr)
+	{
+		GenerateManager* Generate = Engine->GetFactory<GenerateManager>();
+		Generate->CreateLuaBindCode(outPath);
+	}
 }
 int GetMemberCount(PClass* targetClass)
 {

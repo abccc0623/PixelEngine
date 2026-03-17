@@ -109,6 +109,9 @@
     <Filter Include="EngineAPI\Manager\JsonManager">
       <UniqueIdentifier>{40ec7548-153f-44bb-a6c2-413bfc179305}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Manager\GenerateManager">
+      <UniqueIdentifier>{40286588-4176-4e72-843c-8b5e522b339c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -170,9 +173,6 @@
     </ClInclude>
     <ClInclude Include="Rect.h">
       <Filter>EngineAPI\Types\Rect</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalBind.h">
-      <Filter>EngineAPI\Manager\BindManager</Filter>
     </ClInclude>
     <ClInclude Include="Collision2D.h">
       <Filter>EngineAPI\Module\Collision2D</Filter>
@@ -252,6 +252,15 @@
     <ClInclude Include="GenerateLuaBind.h">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClInclude>
+    <ClInclude Include="GenerateManager.h">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaGenerateTemplate.h">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalBind.h">
+      <Filter>EngineAPI\Manager\BindManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -314,9 +323,6 @@
     <ClCompile Include="PtrControlBlock.cpp">
       <Filter>EngineAPI\SmartPointer</Filter>
     </ClCompile>
-    <ClCompile Include="PixelEngine_wrap.cpp">
-      <Filter>헤더 파일</Filter>
-    </ClCompile>
     <ClCompile Include="SerializeHelper.cpp">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClCompile>
@@ -325,9 +331,6 @@
     </ClCompile>
     <ClCompile Include="Export\Core\PixelObject.cpp">
       <Filter>EngineAPI\GameObject</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalBind.cpp">
-      <Filter>EngineAPI\Manager\BindManager</Filter>
     </ClCompile>
     <ClCompile Include="Export\Core\Module.cpp">
       <Filter>EngineAPI\Module\Module</Filter>
@@ -364,6 +367,9 @@
     </ClCompile>
     <ClCompile Include="JsonManager.cpp">
       <Filter>EngineAPI\Manager\JsonManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateManager.cpp">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

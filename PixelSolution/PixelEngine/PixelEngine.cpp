@@ -17,6 +17,7 @@
 #include "CollisionManager.h"
 #include "BindManager.h"
 #include "JsonManager.h"
+#include "GenerateManager.h"
 #include "SPointer.h"
 #include "PixelMetaAPI.h"
 
@@ -32,8 +33,12 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	BindFactory<ResourceManager>();
 	BindFactory<CollisionManager>();
 	BindFactory<JsonManager>();
+	BindFactory<GenerateManager>();
 
-	PixelGraphicsInitialize(hWnd, width, height);
+	if (hWnd != nullptr)
+	{
+		PixelGraphicsInitialize(hWnd, width, height);
+	}
 
 	for (auto& k : factoryMap)
 	{
@@ -111,7 +116,7 @@ ObjectID PixelEngine::GetResourceID(RESOURCE_TYPE type, const std::string& path)
 sol::state* PixelEngine::GetModuleCall_Lua()
 {
 	auto lua = GetFactory<LuaManager>();
-	return lua->GetModuleCall_Lua();
+	return nullptr;
 }
 
 void PixelEngine::AddFunction(GameObject* obj, Module* module, int type)
