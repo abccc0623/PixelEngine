@@ -1,11 +1,10 @@
-﻿using ICSharpCode.AvalonEdit.Highlighting;
-using ICSharpCode.AvalonEdit.Highlighting.Xshd;
-using System;
+﻿using System;
 using System.IO;
-using System.Text;
+using System.Text.RegularExpressions; // 정규식 사용
 using System.Windows;
 using System.Windows.Controls;
-using System.Xml;
+using System.Windows.Media;           // 색상 사용
+using ICSharpCode.AvalonEdit.Rendering; // 핵심: 직접 색칠하는 도구
 
 namespace PixelTool
 {
@@ -20,51 +19,17 @@ namespace PixelTool
 
             if (LuaEditor != null)
             {
-                // 1. 텍스트를 "먼저" 넣습니다.
-                LuaEditor.Text = "-- Welcome to Pixel Engine Lua Editor\nlocal a = 10\nfunction Test()\n    print('Hello World')\nend";
+                // 1. 기존 XML 하이라이팅을 완전히 끕니다. (충돌 방지)
+                LuaEditor.SyntaxHighlighting = null;
 
-                // 2. 하이라이팅을 "나중에" 부릅니다.
-                ApplyHardcodedHighlighting();
+                // 2. [핵심] 우리가 C#으로 만든 "직접 색칠하는 페인터"를 에디터에 장착합니다.
+                LuaEditor.TextArea.TextView.LineTransformers.Add(new LuaDarkColorizer());
 
-                // 3. 옵션 설정
                 var options = LuaEditor.Options;
                 options.ConvertTabsToSpaces = true;
-            }
-        }
 
-        public void ApplyHardcodedHighlighting()
-        {
-            try
-            {
-                // [최후의 필살기] 파일 안 읽습니다. 그냥 코드에 박아버립니다.
-                // XML 맨 앞에 빈 칸 하나라도 있으면 '토큰 에러' 납니다. 그래서 Trim()을 씁니다.
-                string rawXml = @"
-<SyntaxDefinition name=""LuaDark"" extensions="".lua"" xmlns=""http://icsharpcode.net/sharpdevelop/avalonedit/syntaxdefinition/2008"">
-    <Color name=""Comment"" foreground=""#6A9955"" />
-    <Color name=""String"" foreground=""#CE9178"" />
-    <Color name=""Keywords"" foreground=""#569CD6"" fontWeight=""bold"" />
-    <RuleSet>
-        <Span color=""Comment""><Begin>--</Begin></Span>
-        <Span color=""String""><Begin>""</Begin><End>""</End></Span>
-        <Keywords color=""Keywords"">
-            <Word>local</Word><Word>function</Word><Word>end</Word>
-            <Word>if</Word><Word>then</Word><Word>else</Word><Word>return</Word>
-        </Keywords>
-    </RuleSet>
-</SyntaxDefinition>".Trim();
-
-                using (var sReader = new StringReader(rawXml))
-                {
-                    using (var xReader = XmlReader.Create(sReader))
-                    {
-                        LuaEditor.SyntaxHighlighting = HighlightingLoader.Load(xReader, HighlightingManager.Instance);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // 만약 여기서도 에러 나면 에러 메시지 상자에 줄 번호(Line, Position)가 뜰 겁니다.
-                MessageBox.Show("최후의 수단 실패: " + ex.Message);
+                // 테스트용 텍스트
+                LuaEditor.Text = "-- Welcome to Pixel Engine\nlocal a = 10\nprint(\"Hello World\")\nfunction Test()\n    Engine.Init()\nend";
             }
         }
 
@@ -73,6 +38,61 @@ namespace PixelTool
             if (System.IO.File.Exists(path))
             {
                 LuaEditor.Load(path);
+            }
+        }
+    }
+
+    // =========================================================================
+    // [완전히 새로운 방식] XML 없이 C#으로 직접 글자색을 칠하는 클래스입니다.
+    // =========================================================================
+    public class LuaDarkColorizer : DocumentColorizingTransformer
+    {
+        protected override void ColorizeLine(ICSharpCode.AvalonEdit.Document.DocumentLine line)
+        {
+            int lineStartOffset = line.Offset;
+            string text = CurrentContext.Document.GetText(line);
+
+            // 1. 키워드 (파란색 #569CD6)
+            string[] keywords = { "local", "function", "end", "if", "then", "else", "return", "print", "Engine", "Asset" };
+            foreach (string keyword in keywords)
+            {
+                // 단어 단위로 정확히 찾기 위해 정규식(\b) 사용
+                foreach (Match m in Regex.Matches(text, @"\b" + keyword + @"\b"))
+                {
+                    ChangeLinePart(
+                        lineStartOffset + m.Index,
+                        lineStartOffset + m.Index + m.Length,
+                        (VisualLineElement element) =>
+                        {
+                            element.TextRunProperties.SetForegroundBrush(new SolidColorBrush(Color.FromRgb(86, 156, 214)));
+                            element.TextRunProperties.SetTypeface(new Typeface(element.TextRunProperties.Typeface.FontFamily, FontStyles.Normal, FontWeights.Bold, FontStretches.Normal));
+                        });
+                }
+            }
+
+            // 2. 문자열 (" " 또는 ' ') (주황색 #CE9178)
+            foreach (Match m in Regex.Matches(text, "\".*?\"|'.*?'"))
+            {
+                ChangeLinePart(
+                    lineStartOffset + m.Index,
+                    lineStartOffset + m.Index + m.Length,
+                    (VisualLineElement element) =>
+                    {
+                        element.TextRunProperties.SetForegroundBrush(new SolidColorBrush(Color.FromRgb(206, 145, 120)));
+                    });
+            }
+
+            // 3. 주석 (--) (초록색 #6A9955)
+            int commentIndex = text.IndexOf("--");
+            if (commentIndex >= 0)
+            {
+                ChangeLinePart(
+                    lineStartOffset + commentIndex,
+                    lineStartOffset + text.Length,
+                    (VisualLineElement element) =>
+                    {
+                        element.TextRunProperties.SetForegroundBrush(new SolidColorBrush(Color.FromRgb(106, 153, 85)));
+                    });
             }
         }
     }

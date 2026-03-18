@@ -9,12 +9,12 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <avalonEdit:TextEditor 
-            x:Name="LuaEditor"
-            FontFamily="Consolas"
-            FontSize="12pt"
-            ShowLineNumbers="True"
-            Background="#1E1E1E" 
-            Foreground="White"/>
-        
+    x:Name="LuaEditor"
+    FontFamily="Consolas"
+    FontSize="12pt"
+    ShowLineNumbers="True"
+    Background="#1E1E1E" 
+    Foreground="#DCDCDC"/>
+
     </Grid>
 </UserControl>
