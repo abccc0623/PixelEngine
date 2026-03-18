@@ -14,6 +14,9 @@
     <Compile Update="Tool\InspectorWindow\InspectorWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Tool\LuaEditor.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Tool\ObjectWindow\ObjectWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

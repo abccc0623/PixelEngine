@@ -58,17 +58,16 @@ namespace PixelTool
             );
 
             // 2. 이 자식 창 핸들을 PixelEngine에 전달하여 초기화
-            PixelEngine.EngineInitialize(childHwnd, w, h);
-            PixelEngine.LoadLuaFile("./Asset/Setting.Lua");
-            PixelEngine.CreateLuaAPIPath("./Asset/PixelEngine_API.lua");
+            PixelEngineNative.EngineInitialize(childHwnd, w, h);
             CompositionTarget.Rendering += OnRender;
+            PixelEngineNative.LoadLuaFile("./Asset/main.lua");
             // 3. 자식 창 핸들을 HandleRef로 감싸서 반환 (에러 방지 핵심)
             return new HandleRef(this, childHwnd);
         }
 
         private void OnRender(object sender, EventArgs e)
         {
-            PixelEngine.UpdateEngine();
+            PixelEngineNative.UpdateEngine();
         }
 
         protected override void OnRenderSizeChanged(System.Windows.SizeChangedInfo sizeInfo)
@@ -76,16 +75,16 @@ namespace PixelTool
             base.OnRenderSizeChanged(sizeInfo);
             if (sizeInfo.NewSize.Width > 0 && sizeInfo.NewSize.Height > 0)
             {
-                PixelEngine.ResizeEngine((int)sizeInfo.NewSize.Width, (int)sizeInfo.NewSize.Height);
+                PixelEngineNative.ResizeEngine((int)sizeInfo.NewSize.Width, (int)sizeInfo.NewSize.Height);
             }
         }
 
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
             // 렌더링 이벤트 해제
-            CompositionTarget.Rendering -= OnRender;
-            // 엔진 자원 해제
-            PixelEngine.ReleaseEngine();
+            //CompositionTarget.Rendering -= OnRender;
+            //// 엔진 자원 해제
+            //PixelEngine.ReleaseEngine();
             // 생성한 Win32 창 파괴
             DestroyWindow(hwnd.Handle);
         }

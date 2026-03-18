@@ -50,17 +50,17 @@ namespace PixelTool
 
         public void RefreshFromCore()
         {
-            OnPropertyChanged(nameof(PositionX));
-            OnPropertyChanged(nameof(PositionY));
-            OnPropertyChanged(nameof(PositionZ));
-
-            OnPropertyChanged(nameof(RotationX));
-            OnPropertyChanged(nameof(RotationY));
-            OnPropertyChanged(nameof(RotationZ));
-
-            OnPropertyChanged(nameof(ScaleX));
-            OnPropertyChanged(nameof(ScaleY));
-            OnPropertyChanged(nameof(ScaleZ));
+            //OnPropertyChanged(nameof(PositionX));
+            //OnPropertyChanged(nameof(PositionY));
+            //OnPropertyChanged(nameof(PositionZ));
+            //
+            //OnPropertyChanged(nameof(RotationX));
+            //OnPropertyChanged(nameof(RotationY));
+            //OnPropertyChanged(nameof(RotationZ));
+            //
+            //OnPropertyChanged(nameof(ScaleX));
+            //OnPropertyChanged(nameof(ScaleY));
+            //OnPropertyChanged(nameof(ScaleZ));
         }
 
 
@@ -80,7 +80,7 @@ namespace PixelTool
         }
 
 
-
+        /*
         public float PositionX
         {
             get => _coreTransform.GetPosition().X;
@@ -173,5 +173,6 @@ namespace PixelTool
                 _coreTransform.SetScale(vec.X, vec.Y, value);
             }
         }
+         */
     }
 }

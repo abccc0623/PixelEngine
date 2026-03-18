@@ -4,7 +4,6 @@
 #include "Core/GameObject.h"
 #include "PixelEngine.h"
 #include "LuaManager.h"
-#include "SerializeHelper.h"
 #include "json.hpp"
 extern PixelEngine* Engine;
 Module::Module()

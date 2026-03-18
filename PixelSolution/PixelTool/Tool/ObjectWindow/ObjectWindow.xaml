@@ -8,26 +8,9 @@
              d:DesignHeight="450" d:DesignWidth="200">
 
     <UserControl.Resources>
-        <local:ObjectTypeConverter x:Key="GameObjectToIconConverter"/>
+       
     </UserControl.Resources>
     <Grid>
-        <TreeView Background="{DynamicResource PixelBackgroundBrush}" ItemsSource="{Binding Source={x:Static local:ObjectWindow.SceneObjects}}" SelectedItemChanged="OnHierarchySelectionChanged">
-            <TreeView.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent" />
-                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
-            </TreeView.Resources>
-
-
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Converter={StaticResource GameObjectToIconConverter}}" Margin="0,0,5,0" VerticalAlignment="Center" FontWeight="Bold" Foreground="White" FontFamily="Segoe UI Emoji"/>
-                        <TextBlock Text="{Binding name}"  Margin="5,2" Foreground="White" />
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
-
-
-        </TreeView>
+       
     </Grid>
 </UserControl>

@@ -5,7 +5,6 @@
 #include "FunctionManager.h"
 #include "Core/GameObject.h"
 #include "sol.hpp"
-#include "SerializeHelper.h"
 #include "SPointer.h"
 #include "Log.h"
 #include "Export/PixelEngineAPI.h"

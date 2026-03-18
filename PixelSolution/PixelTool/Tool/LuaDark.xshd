@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<SyntaxDefinition name="LuaDark" extensions=".lua" xmlns="http://icsharpcode.net/sharpdevelop/avalonedit/syntaxdefinition/2008">
+  <Color name="Comment" foreground="#6A9955" />
+  <Color name="String" foreground="#CE9178" />
+  <Color name="Keywords" foreground="#569CD6" fontWeight="bold" />
+  <RuleSet>
+    <Span color="Comment">
+      <Begin>--</Begin>
+    </Span>
+    <Span color="String">
+      <Begin>"</Begin>
+      <End>"</End>
+    </Span>
+    <Keywords color="Keywords">
+      <Word>local</Word>
+      <Word>function</Word>
+      <Word>end</Word>
+      <Word>if</Word>
+      <Word>then</Word>
+      <Word>else</Word>
+      <Word>return</Word>
+    </Keywords>
+  </RuleSet>
+</SyntaxDefinition>

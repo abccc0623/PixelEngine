@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <string>
+#include <sol/forward.hpp>
 #include "Core/PixelObject.h"
 #include "PixelEngineDLL.h"
 
@@ -14,10 +15,13 @@ public:
 	GameObject();
 	virtual ~GameObject();
 public:
-	PIXEL_ENGINEDLL Module* AddModule(PClass* moduleClass);
-	PIXEL_ENGINEDLL bool HasModule(PClass* moduleClass);
-	PIXEL_ENGINEDLL Module* GetModule(PClass* moduleClass);
-	PIXEL_ENGINEDLL unsigned long GetHash();
+	 sol::object AddModule(sol::this_state s,std::string name);
+	 Module* AddModuleToEngine(PClass* moduleClass);
+	 bool HasModule(PClass* moduleClass);
+	 Module* GetModule(PClass* moduleClass);
+	 unsigned long GetHash();
+
+	//sol::object AddModuleToLua(std::string moduleName);
 	std::string name;
 private:
 	unsigned long hashCode;

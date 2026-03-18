@@ -22,6 +22,9 @@ void GenerateManager::CreateLuaBindCode(const char* outPath)
     std::string main = "";
     std::string FunctionName = "inline void BindAll_GeneratedLuaModules(sol::state& lua) \n";
     FunctionName += "{ \n";
+    std::string ModuleListFunction = "inline void BindAll_AddModules() \n";
+    FunctionName += "\tBindAll_AddModules();\n";
+    ModuleListFunction += "{ \n";
 
     //인클루드
     main += ChangeString(INCLUDE_PATH, "sol.hpp", IncludeString);
@@ -33,6 +36,8 @@ void GenerateManager::CreateLuaBindCode(const char* outPath)
     main += ChangeString(INCLUDE_PATH, "Module/LuaScript.h", IncludeString);
     main += ChangeString(INCLUDE_PATH, "Module/DebugCamera.h", IncludeString);
     main += ChangeString(INCLUDE_PATH, "Module/Camera.h", IncludeString);
+    main += "#include <unordered_map>\n";
+    main += "extern std::unordered_map <std::string, std::function<sol::object(sol::this_state s, Module* target)>> AddModuleList;\n";
 
     main += "#define SOL_ALL_SAFETIES_ON 1 \n";
 
@@ -43,6 +48,7 @@ void GenerateManager::CreateLuaBindCode(const char* outPath)
         if (pclass == nullptr) continue;
 
         std::string typeName = GetClassTypeName(pclass);
+        uint64_t hash = GetClassHash(pclass);
         int memberCount = GetClassMemberCount(pclass);
         int methodCount = GetClassMethodCount(pclass);
 
@@ -50,6 +56,15 @@ void GenerateManager::CreateLuaBindCode(const char* outPath)
         main += "{ \n";
         main += ChangeString(CLASS_NAME, typeName, LuaClassBindString);
         FunctionName += ChangeString(CLASS_NAME, typeName, LuaCallBindString);
+
+        if (GetClassParentHash(pclass) == GetClassHashByString("Module")) 
+        {
+            std::unordered_map<std::string, std::string> replaceData =
+            {
+                {"{{CLASS_NAME}}", typeName},
+            };
+            ModuleListFunction += ChangeString(replaceData,LuaAddModuleString);
+        }
 
         //맴버 등록
         for (int m = 0; m < memberCount; m++)
@@ -80,6 +95,8 @@ void GenerateManager::CreateLuaBindCode(const char* outPath)
         main += "} \n\n";
     }
     FunctionName += "} \n";
+    ModuleListFunction += "} \n";
+    main += ModuleListFunction;
     main += FunctionName;
 
     std::ofstream outFile(outPath);

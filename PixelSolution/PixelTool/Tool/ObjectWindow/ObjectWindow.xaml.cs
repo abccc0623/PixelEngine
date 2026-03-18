@@ -30,10 +30,10 @@ namespace PixelTool
         private static SceneChangeDelegate? _sceneChangeDelegate;
 
         // C++ DLL 함수 가져오기 (DLL 이름이 PixelEngine.dll 이라고 가정)
-        [DllImport("PixelEngine.dll", CallingConvention = CallingConvention.Cdecl)]
+        //[DllImport("PixelEngine.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void RegisterSceneObjectChange(SceneChangeDelegate callback);
 
-        public static ObservableCollection<GameObject> SceneObjects { get; set; } = new ObservableCollection<GameObject>();
+        //public static ObservableCollection<GameObject> SceneObjects { get; set; } = new ObservableCollection<GameObject>();
         public ObjectWindow()
         {
             InitializeComponent();
@@ -50,31 +50,31 @@ namespace PixelTool
 
         public static void UpdateScene()
         {
-            SceneObjects.Clear();
-            int maxCount = 0;
-            var swigPtrPtr = PixelEngine.GetAllSceneObjects(out maxCount);
-        
-            if (maxCount <= 0 || swigPtrPtr == null) return;
-        
-            IntPtr baseAddr = SWIGTYPE_p_p_GameObject.getCPtr(swigPtrPtr).Handle;
-        
-            for (int i = 0; i < maxCount; i++)
-            {
-                IntPtr objAddr = Marshal.ReadIntPtr(baseAddr, i * IntPtr.Size);
-                GameObject obj = new GameObject(objAddr, false);
-                SceneObjects.Add(obj);
-            }
+            //SceneObjects.Clear();
+            //int maxCount = 0;
+            //var swigPtrPtr = PixelEngine.GetAllSceneObjects(out maxCount);
+            //
+            //if (maxCount <= 0 || swigPtrPtr == null) return;
+            //
+            //IntPtr baseAddr = SWIGTYPE_p_p_GameObject.getCPtr(swigPtrPtr).Handle;
+            //
+            //for (int i = 0; i < maxCount; i++)
+            //{
+            //    IntPtr objAddr = Marshal.ReadIntPtr(baseAddr, i * IntPtr.Size);
+            //    GameObject obj = new GameObject(objAddr, false);
+            //    SceneObjects.Add(obj);
+            //}
         }
         private void OnHierarchySelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             // e.NewValue가 사용자가 방금 클릭한(선택한) 객체야
-            var selectedObject = e.NewValue as GameObject;
-
-            if (selectedObject != null)
-            {
-                // 아까 만든 인스펙터 갱신 함수 호출!
-                InspectorWindow.RefreshInspector(selectedObject);
-            }
+            //var selectedObject = e.NewValue as GameObject;
+            //
+            //if (selectedObject != null)
+            //{
+            //    // 아까 만든 인스펙터 갱신 함수 호출!
+            //    InspectorWindow.RefreshInspector(selectedObject);
+            //}
         }
     }
 }

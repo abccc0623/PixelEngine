@@ -189,9 +189,6 @@
     <ClInclude Include="UPointer.h">
       <Filter>EngineAPI\SmartPointer</Filter>
     </ClInclude>
-    <ClInclude Include="SerializeHelper.h">
-      <Filter>EngineAPI\Manager\LuaManager</Filter>
-    </ClInclude>
     <ClInclude Include="Export\PixelEngineDLL.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -322,9 +319,6 @@
     </ClCompile>
     <ClCompile Include="PtrControlBlock.cpp">
       <Filter>EngineAPI\SmartPointer</Filter>
-    </ClCompile>
-    <ClCompile Include="SerializeHelper.cpp">
-      <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClCompile>
     <ClCompile Include="Export\Core\GameObject.cpp">
       <Filter>EngineAPI\GameObject</Filter>

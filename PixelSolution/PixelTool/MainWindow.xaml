@@ -12,40 +12,31 @@
         Title="PixelTool" Width="1920" Height="1080">
 
     <DockPanel Background="{DynamicResource PixelBackgroundBrush}">
-        <local:ToolbarWindow></local:ToolbarWindow>
 
         <dock:DockingManager x:Name="dockManager" Grid.Row="1" Background="#191B1C2E" OpacityMask="Black" Foreground="#00000000" BorderBrush="#00000000" Margin="0" >
 
             <dock:LayoutRoot>
-                <dock:LayoutPanel Orientation="Horizontal">
+                <dock:LayoutPanel Orientation="Vertical">
                     
-                    <dock:LayoutDocumentPane DockWidth="0.15*">
-                        <dock:LayoutDocument Title="Asset">
-                            <local:FolderWindow/>
-                        </dock:LayoutDocument>
-                    </dock:LayoutDocumentPane>
-
-                    <dock:LayoutPanel Orientation="Vertical" DockWidth="0.7*" DockHeight="1.0*">
-                        <dock:LayoutDocumentPane DockHeight="0.6*">
+                    <dock:LayoutPanel Orientation="Horizontal" DockWidth="0.5*" DockHeight="0.75*">
+                        <dock:LayoutDocumentPane>
                             <dock:LayoutDocument Title="Scene View">
                                 <local:GraphicsWindow x:Name="GraphicsWindow" />
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
 
-                        <dock:LayoutDocumentPane DockHeight="0.25*">
-                            <dock:LayoutAnchorable Title="Inspector" >
-                                <local:InspectorWindow></local:InspectorWindow>
-                            </dock:LayoutAnchorable>
-                            <dock:LayoutDocument Title="Console">
-                                <local:ConsoleWindow></local:ConsoleWindow>
+                        <dock:LayoutDocumentPane>
+                            <dock:LayoutDocument Title="LuaEditor">
+                                <local:LuaEditorWindow></local:LuaEditorWindow>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
 
                     </dock:LayoutPanel>
 
-                    <dock:LayoutDocumentPane  DockWidth="0.15*" >
-                        <dock:LayoutDocument Title="ObjectList">
-                            <local:ObjectWindow></local:ObjectWindow>
+
+                    <dock:LayoutDocumentPane DockWidth="1.0*" DockHeight="0.25*">
+                        <dock:LayoutDocument Title="Asset">
+                            <local:FolderWindow/>
                         </dock:LayoutDocument>
                     </dock:LayoutDocumentPane>
 

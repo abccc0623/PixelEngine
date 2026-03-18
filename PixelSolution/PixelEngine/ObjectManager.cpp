@@ -69,7 +69,7 @@ SPointer<GameObject> ObjectManager::Create(std::string name)
 	SPointer<GameObject> p = SPointer<GameObject>::Make_SPointer();
 	p->name = name;
 	//기본 모듈인 Transform 추가
-	auto targetModule =  p->AddModule(GetMetaClass("Transform"));
+	auto targetModule =  p->AddModuleToEngine(GetMetaClass("Transform"));
 	auto targetTransform = reinterpret_cast<Transform*>(targetModule);
 	
 

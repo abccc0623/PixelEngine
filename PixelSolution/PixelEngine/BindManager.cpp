@@ -21,6 +21,8 @@ BindManager::BindManager()
 BindManager::~BindManager()
 {
 
+
+
 }
 
 void BindManager::Initialize()

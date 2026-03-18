@@ -124,13 +124,8 @@ namespace PixelTool
 
                 if (selectedFolder != null && !string.IsNullOrEmpty(fileData.Name))
                 {
-                    string fullPath = System.IO.Path.Combine(selectedFolder.FullPath, fileData.Name);
-
-                    // 루아 파일이면 VS Code로 열기
-                    if (System.IO.Path.GetExtension(fullPath).ToLower() == ".lua")
-                    {
-                        OpenWithVsCode(fullPath);
-                    }
+                    string path = selectedFolder.FullPath + "/"+ fileData.Name;
+                    LuaEditorWindow.Instance.OpenFile(path);
                 }
             }
         }
@@ -227,13 +222,13 @@ namespace PixelTool
 
         private void CreateObject_Click(object sender, RoutedEventArgs e)
         {
-            PixelEngine.CreateScene("./Asset/Scene/StartScene.lua");
-            PixelEngine.ChangeScene("StartScene");
+            //PixelEngine.CreateScene("./Asset/Scene/StartScene.lua");
+            //PixelEngine.ChangeScene("StartScene");
         }
 
         private void CreateScene_Click(object sender, RoutedEventArgs e)
         {
-            PixelEngine.SaveScene();
+            //PixelEngine.SaveScene();
         }
     }
 }

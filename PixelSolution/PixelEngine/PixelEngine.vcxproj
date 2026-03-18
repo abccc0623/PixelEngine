@@ -95,9 +95,6 @@
     <PreBuildEvent>
       <Command>xcopy "$(ProjectDir)Export\PixelEngineAPI.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
 xcopy "$(ProjectDir)Export\PixelEngineDLL.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
-xcopy "$(ProjectDir)Export\Core\" "$(SolutionDir)HeaderFile\$(ProjectName)Header\Core" /S /Y /I
-xcopy "$(ProjectDir)Export\Module\" "$(SolutionDir)HeaderFile\$(ProjectName)Header\Module" /S /Y /I
-xcopy "$(ProjectDir)Export\Type\" "$(SolutionDir)HeaderFile\$(ProjectName)Header\Type" /S /Y /I
 copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -128,9 +125,6 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <PreBuildEvent>
       <Command>xcopy "$(ProjectDir)Export\PixelEngineAPI.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
 xcopy "$(ProjectDir)Export\PixelEngineDLL.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
-xcopy "$(ProjectDir)Export\Core\" "$(SolutionDir)HeaderFile\$(ProjectName)Header\Core" /S /Y /I
-xcopy "$(ProjectDir)Export\Module\" "$(SolutionDir)HeaderFile\$(ProjectName)Header\Module" /S /Y /I
-xcopy "$(ProjectDir)Export\Type\" "$(SolutionDir)HeaderFile\$(ProjectName)Header\Type" /S /Y /I
 copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -162,9 +156,6 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <PreBuildEvent>
       <Command>xcopy "$(ProjectDir)Export\PixelEngineAPI.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
 xcopy "$(ProjectDir)Export\PixelEngineDLL.h" "$(SolutionDir)HeaderFile\$(ProjectName)Header" /S /Y /I
-xcopy "$(ProjectDir)Export\Core\" "$(SolutionDir)HeaderFile\$(ProjectName)Header\Core" /S /Y /I
-xcopy "$(ProjectDir)Export\Module\" "$(SolutionDir)HeaderFile\$(ProjectName)Header\Module" /S /Y /I
-xcopy "$(ProjectDir)Export\Type\" "$(SolutionDir)HeaderFile\$(ProjectName)Header\Type" /S /Y /I
 copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -205,7 +196,6 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClInclude Include="LuaManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelEngine.h" />
-    <ClInclude Include="SerializeHelper.h" />
     <ClInclude Include="SPointer.h" />
     <ClInclude Include="PtrControlBlock.h" />
     <ClInclude Include="Rect.h" />
@@ -257,7 +247,6 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
-    <ClCompile Include="SerializeHelper.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="TimeManager.cpp" />
   </ItemGroup>

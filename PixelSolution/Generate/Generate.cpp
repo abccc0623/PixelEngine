@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <vector>
+
 int main()
 {
     EngineInitialize(nullptr, 100, 100);
@@ -11,11 +13,11 @@ int main()
     while(true)
     {
         std::string inputStr;
-
+    
         // 1. 안내 문구 출력 (이때 std::cout 사용)
         std::cout << "생성할 번호를 입력" <<std::endl;
         std::cout << "(1)Lua BindCode 생성" <<std::endl;
-
+    
         // 2. 공백 포함 한 줄 전체를 입력받음 (std::getline 사용)
         std::getline(std::cin, inputStr);
         int number = 0;

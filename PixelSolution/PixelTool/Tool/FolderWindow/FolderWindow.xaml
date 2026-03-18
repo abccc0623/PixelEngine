@@ -20,14 +20,14 @@
     </UserControl.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="0.5*"/>
-            <RowDefinition Height="4"/>
-            <RowDefinition Height="1.5*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.5*"/>
+            <ColumnDefinition Width="4"/>
+            <ColumnDefinition Width="1.5*"/>
+        </Grid.ColumnDefinitions>
 
         <TreeView x:Name="FolderTreeView"  
-          Grid.Row="0"
+          Grid.Column="0"
           Background="{StaticResource PixelBackgroundBrush}"
           Foreground="White"
           BorderThickness="0"
@@ -63,7 +63,7 @@
 
 
         <GridSplitter
-            Grid.Row="1" 
+            Grid.Column="1" 
             Height="4" 
             HorizontalAlignment="Stretch" 
             VerticalAlignment="Center"
@@ -82,10 +82,10 @@
         </GridSplitter>
 
 
-        
-        
-        
-        <ListView Grid.Row="2" 
+
+
+
+        <ListView Grid.Column="2" 
           x:Name="FileListView"
           Background="{StaticResource PixelBackgroundBrush}"
           Foreground="White" 

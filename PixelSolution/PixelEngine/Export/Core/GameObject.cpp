@@ -2,16 +2,18 @@
 #include "GameObject.h"
 #include "PixelEngine.h"
 #include "FunctionManager.h"
-#include "SerializeHelper.h"
 #include "SPointer.h"
 #include "GlobalBind.h"
 #include "PixelMetaAPI.h"
 
 #include "Core/Module.h"
 #include "Module/Transform.h"
+#include "GenerateLuaBind.h"
 
 extern PixelEngine* Engine;
 FunctionManager* GameObject::functionManager = nullptr;
+std::unordered_map<std::string, std::function<sol::object(sol::this_state s, Module* target)>> AddModuleList;
+
 GameObject::GameObject()
 {
 	ModuleMap = std::unordered_map<uint64_t, SPointer<Module>>();
@@ -46,9 +48,23 @@ Module* GameObject::GetModule(PClass* moduleClass)
 unsigned long GameObject::GetHash()
 {
 	return hashCode;
+
 }
 
-Module* GameObject::AddModule(PClass* moduleClass)
+sol::object GameObject::AddModule(sol::this_state s,std::string moduleName)
+{
+	PClass* targetClass = GetClass(moduleName);
+	Module* targetModule = AddModuleToEngine(targetClass);
+	
+	auto find = AddModuleList.find(moduleName);
+	if (find != AddModuleList.end())
+	{
+		return find->second(s, targetModule);
+	}
+	return sol::object();
+}
+
+Module* GameObject::AddModuleToEngine(PClass* moduleClass)
 {
 	if (HasModule(moduleClass) == true) return nullptr;
 	if (GetClassParentHash(moduleClass) != GetClassHashByString("Module")) return nullptr;

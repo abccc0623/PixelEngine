@@ -31,9 +31,6 @@ public:
 	void BindAsset();
 private:
 	sol::state lua;
-	std::string apiDefinitions;
-	std::string apiExportPath;
-	void LoadDefaultSettingFile();
 	std::string SettingKeyEnum();
 private:
 	BindManager* bind = nullptr;

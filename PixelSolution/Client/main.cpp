@@ -6,7 +6,6 @@
 #include <string>
 #include <iostream>
 
-#include "Game.h"
 #define PE_NEW new(__FILE__, __LINE__)
 
 
@@ -73,7 +72,6 @@ int main()
         else
         {
             UpdateEngine();
-            Update();
         }
     }
 

@@ -6,6 +6,8 @@
 #include "Module/LuaScript.h" 
 #include "Module/DebugCamera.h" 
 #include "Module/Camera.h" 
+#include <unordered_map>
+extern std::unordered_map <std::string, std::function<sol::object(sol::this_state s, Module* target)>> AddModuleList;
 #define SOL_ALL_SAFETIES_ON 1 
 inline void Generate_PVector3(sol::state& lua) 
 { 
@@ -60,8 +62,17 @@ inline void Generate_Renderer2D(sol::state& lua)
 	ut["SetTexture"] = &Renderer2D::SetTexture;
 } 
 
+inline void BindAll_AddModules() 
+{ 
+	AddModuleList.insert({ "Transform",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Transform* > (target));return obj;}});
+	AddModuleList.insert({ "Camera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Camera* > (target));return obj;}});
+	AddModuleList.insert({ "DebugCamera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<DebugCamera* > (target));return obj;}});
+	AddModuleList.insert({ "LuaScript",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<LuaScript* > (target));return obj;}});
+	AddModuleList.insert({ "Renderer2D",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Renderer2D* > (target));return obj;}});
+} 
 inline void BindAll_GeneratedLuaModules(sol::state& lua) 
 { 
+	BindAll_AddModules();
 	Generate_PVector3(lua);
 	Generate_PixelObject(lua);
 	Generate_GameObject(lua);

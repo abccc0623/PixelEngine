@@ -186,7 +186,7 @@ GameObject* CreateGameObject(const char* name)
 
 Module* AddModule(GameObject* target, PClass* moduleClass)
 {
-	return target->AddModule(moduleClass);
+	return target->AddModuleToEngine(moduleClass);
 }
 
 Module* AddModuleByString(GameObject* target, const char* name)
@@ -195,7 +195,7 @@ Module* AddModuleByString(GameObject* target, const char* name)
 	PClass* targetClass = GetMetaClass(name);
 	if (target != nullptr)
 	{
-		return target->AddModule(targetClass);
+		return target->AddModuleToEngine(targetClass);
 	}
 	else
 	{

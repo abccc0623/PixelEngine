@@ -6,7 +6,6 @@
 #include <string>
 #include "GlobalBind.h"
 
-
 class GameObject;
 class Module;
 class BindManager : public EngineManager 
