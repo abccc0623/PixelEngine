@@ -30,6 +30,7 @@ public:
 	void Release();
 	void BeginRender(float R, float G, float B, float A);
 	void EndRender();
+	void Clear();
 	
 	RenderingData* GetRenderingData();
 	void DeleteRenderingData(RenderingData* mData);

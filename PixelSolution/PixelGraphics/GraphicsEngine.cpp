@@ -70,6 +70,14 @@ void GraphicsEngine::EndRender()
 	GraphicsCore::EndRender();
 }
 
+void GraphicsEngine::Clear()
+{
+	for (auto& k : factoryMap)
+	{
+		k.second->Clear();
+	}
+}
+
 
 ObjectID GraphicsEngine::LoadTexture(const char* filePath)
 {

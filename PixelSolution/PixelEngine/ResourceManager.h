@@ -19,6 +19,7 @@ public:
 
 	void Load(RESOURCE_TYPE type,const std::string& filePath);
 	ObjectID Get(RESOURCE_TYPE type, const std::string& name);
+	void Clear();
 private:
 	TextureManager* textureManager;
 };

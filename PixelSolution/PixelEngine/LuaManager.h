@@ -18,6 +18,7 @@ public:
 	void Initialize() override;
 	void Update() override;
 	void ReleaseShared() override;
+	void Clear();
 	bool Load(const std::string& filePath);
 	LuaClassInfo* GetLua(const std::string& fileName);
 	

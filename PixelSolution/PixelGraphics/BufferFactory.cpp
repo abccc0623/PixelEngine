@@ -25,6 +25,10 @@ void BufferFactory::Release()
 	}
 }
 
+void BufferFactory::Clear()
+{
+}
+
 void* BufferFactory::GetResource(std::string name)
 {
 	auto target = ShaderLoader::mContextBufferMap.find(name);

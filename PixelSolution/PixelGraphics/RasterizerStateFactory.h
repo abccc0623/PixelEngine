@@ -9,6 +9,7 @@ public:
 
 	void Initialize() override;
 	void Release() override;
+	void Clear() override;
 private:
 	RasterizerStateResources* CreateRasterizerState_Solid();
 	RasterizerStateResources* CreateRasterizerState_Wire();

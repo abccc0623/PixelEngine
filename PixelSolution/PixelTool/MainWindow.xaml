@@ -11,13 +11,19 @@
         Opacity="1.0"
         Title="PixelTool" Width="1920" Height="1080">
 
-    <DockPanel Background="{DynamicResource PixelBackgroundBrush}">
 
-        <dock:DockingManager x:Name="dockManager" Grid.Row="1" Background="#191B1C2E" OpacityMask="Black" Foreground="#00000000" BorderBrush="#00000000" Margin="0" >
+    <Grid Background="{DynamicResource PixelBackgroundBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="90" />
+        </Grid.ColumnDefinitions>
+
+
+        <dock:DockingManager x:Name="dockManager" Grid.Row="0" Background="#191B1C2E" OpacityMask="Black" Foreground="#00000000" BorderBrush="#00000000" Margin="0" >
 
             <dock:LayoutRoot>
                 <dock:LayoutPanel Orientation="Vertical">
-                    
+
                     <dock:LayoutPanel Orientation="Horizontal" DockWidth="0.5*" DockHeight="0.75*">
                         <dock:LayoutDocumentPane>
                             <dock:LayoutDocument Title="Scene View">
@@ -30,18 +36,29 @@
                                 <local:LuaEditorWindow></local:LuaEditorWindow>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
-
                     </dock:LayoutPanel>
 
+                    <dock:LayoutPanel Orientation="Horizontal" DockWidth="0.5*" DockHeight="0.25*">
+                        <dock:LayoutDocumentPane DockWidth="0.75*" DockHeight="1.0*">
+                            <dock:LayoutDocument Title="Asset">
+                                <local:FolderWindow/>
+                            </dock:LayoutDocument>
+                        </dock:LayoutDocumentPane>
 
-                    <dock:LayoutDocumentPane DockWidth="1.0*" DockHeight="0.25*">
-                        <dock:LayoutDocument Title="Asset">
-                            <local:FolderWindow/>
-                        </dock:LayoutDocument>
-                    </dock:LayoutDocumentPane>
+                        <dock:LayoutDocumentPane DockWidth="0.25*" DockHeight="1.0*">
+                            <dock:LayoutDocument Title="Log">
+                                <local:ConsoleWindow/>
+                            </dock:LayoutDocument>
+                        </dock:LayoutDocumentPane>
+                    </dock:LayoutPanel>
 
                 </dock:LayoutPanel>
             </dock:LayoutRoot>
         </dock:DockingManager>
-    </DockPanel>
+
+        <Grid Grid.Column="1">
+            <local:ToolbarWindow />
+        </Grid>
+    </Grid>
+    
 </Window>

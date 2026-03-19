@@ -10,7 +10,6 @@
 
     <UserControl.Resources>
         <ContextMenu x:Key="ItemContextMenu">
-            <MenuItem Header="열기 (VS Code)" Click="MenuOpen_Click"/>
             <MenuItem Header="파일 삭제" Click="MenuDelete_Click"/>
             <Separator/>
             <MenuItem Header="탐색기에서 보기" Click="MenuShowInExplorer_Click"/>
@@ -46,6 +45,7 @@
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" Value="#3F3F46"/>
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -63,15 +63,16 @@
 
 
         <GridSplitter
-            Grid.Column="1" 
-            Height="4" 
-            HorizontalAlignment="Stretch" 
-            VerticalAlignment="Center"
-            Background="{StaticResource PixelBorderBrush}"
-            ShowsPreview="True">
+        Grid.Column="1" 
+        Width="4"                    
+        HorizontalAlignment="Center" 
+        VerticalAlignment="Stretch"  
+        Background="{StaticResource PixelBorderBrush}"
+        ShowsPreview="True">
             <GridSplitter.Style>
                 <Style TargetType="{x:Type GridSplitter}">
                     <Setter Property="Background" Value="#333333"/>
+                    <Setter Property="Cursor" Value="SizeWE"/>
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" Value="#DA34AE"/>

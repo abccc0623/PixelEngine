@@ -26,6 +26,10 @@ void ModelFactory::Release()
 	defaultModelMap.clear();
 }
 
+void ModelFactory::Clear()
+{
+}
+
 void* ModelFactory::GetResource(std::string name)
 {
 	auto k = defaultModelMap.find(name.c_str());

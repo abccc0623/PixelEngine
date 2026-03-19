@@ -91,7 +91,6 @@ void BindManager::BindRenderer2D()
 	auto table = GetClass("Renderer2D");
 	CreateClassFunction(table, []() ->void*
 		{
-			Log::Info("Create Renderer2D");
 			return new Renderer2D();
 		});
 	DeleteClassFunction(table, []() ->void
@@ -108,7 +107,6 @@ void BindManager::BindDebugCamera()
 	auto table = GetClass("DebugCamera");
 	CreateClassFunction(table, []() ->void*
 		{
-			Log::Info("Create DebugCamera");
 			return new DebugCamera();
 		});
 	DeleteClassFunction(table, []() ->void
@@ -126,7 +124,6 @@ void BindManager::BindCamera()
 	auto table = GetClass("Camera");
 	CreateClassFunction(table, []() ->void*
 		{
-			Log::Info("Create Camera");
 			return new Camera();
 		});
 	DeleteClassFunction(table, []() ->void

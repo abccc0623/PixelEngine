@@ -21,6 +21,11 @@ void RenderingFactory::Release()
 
 }
 
+void RenderingFactory::Clear()
+{
+
+}
+
 void* RenderingFactory::GetResource(std::string name)
 {
 	auto renderingData = new RenderingData();

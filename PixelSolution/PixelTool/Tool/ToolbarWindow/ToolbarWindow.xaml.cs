@@ -1,7 +1,9 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,12 +28,68 @@ namespace PixelTool
             InitializeComponent();
         }
 
+        public void CreateMainLua()
+        {
+            string luafilePath = "./Asset/main.lua";
+            if (File.Exists(luafilePath))
+            {
+                var result = MessageBox.Show(
+                 "main.lua 파일은 Asset폴더 하위로 한개만 존재할 수 있습니다. 기존 main파일을 삭제 하겠습니까?",
+                 "이미 존재 하는 파일",
+                  MessageBoxButton.YesNo,
+                  MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.No)
+                {
+                    return;
+                }
+            }
+            string content = "--게임 로직에 진입점 입니다 \n";
+            content += "function Main() \n";
+            content += "\n";
+            content += "end\n";
+            File.WriteAllText(luafilePath, content, Encoding.UTF8);
+            LuaEditorWindow.Instance.OpenFile(luafilePath);
+        }
+        public void CreateSceneLua()
+        {
+            string luafilePath = "./Asset/NewScene.scene";
+            string content = "--게임 씬 파일입니다. \n";
+
+            content += "--씬이 변경될 때 한번 실행됩니다. \n";
+            content += "function Start() \n";
+            content += "\n";
+            content += "end\n";
+            content += "\n";
+
+            content += "--매 프래임 실행됩니다. \n";
+            content += "function Update() \n";
+            content += "\n";
+            content += "end\n";
+            content += "\n";
+
+            content += "--씬이 변경되거나 삭제될 때 실행됩니다.\n";
+            content += "function Release() \n";
+            content += "\n";
+            content += "end\n";
+            content += "\n";
+
+            File.WriteAllText(luafilePath, content, Encoding.UTF8);
+            LuaEditorWindow.Instance.OpenFile(luafilePath);
+        }
+
+
 
         ///-----------------Create----------------------
-        private void DefaultGameObject(object sender, RoutedEventArgs e)
+        private void CreateMainLuaFile(object sender, RoutedEventArgs e)
         {
-            //var go = PixelEngine.CreateGameObject("Default");
+            CreateMainLua();
         }
+        private void CreateSceneLuaFile(object sender, RoutedEventArgs e)
+        {
+            CreateSceneLua();
+        }
+
 
         private void QuadObject(object sender, RoutedEventArgs e)
         {
@@ -87,6 +145,11 @@ namespace PixelTool
 
 
             //PixelEngine.SaveScene();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

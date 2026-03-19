@@ -88,11 +88,22 @@ void PixelEngine::Resize(int width, int height)
 	PixelGraphicsResize(width, height);
 }
 
+void PixelEngine::Clear()
+{
+	auto sceneManager = GetFactory<SceneManager>();
+	sceneManager->Clear();
+	auto resource = GetFactory<ResourceManager>();
+	resource->Clear();
+	auto luaManager = GetFactory<LuaManager>();
+	luaManager->Clear();
+	GraphicsClear();
+	LoadLuaFile("./Asset/main.lua");
+}
+
 void PixelEngine::QuitWindow()
 {
 	
 }
-
 
 SPointer<GameObject> PixelEngine::CreateGameObject(std::string name)
 {

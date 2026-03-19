@@ -61,38 +61,75 @@ void LuaManager::Initialize()
 
 bool LuaManager::Load(const std::string& filePath)
 {
-    if (!std::filesystem::exists(filePath)) {
-        std::cerr << "Error: Lua file not found at path: " << filePath << std::endl;
-        return false;
+    std::filesystem::path p(filePath);
+
+    std::string ext = p.extension().string();
+    std::transform(ext.begin(), ext.end(), ext.begin(),[](unsigned char c) { return std::tolower(c); });
+
+    // 2. 확장자를 제외한 파일 이름 추출 (예: "C:/Scripts/main.lua" -> "main")
+    std::string fileName = p.stem().string();
+
+    // 3. 대소문자 구분 없이 비교하기 위해 소문자로 변환 (안정성 확보)
+    std::transform(fileName.begin(), fileName.end(), fileName.begin(),
+        [](unsigned char c) { return std::tolower(c); });
+
+    //기본 main 루아 파일
+    if (fileName == "main")
+    {
+        sol::protected_function_result result = lua.script_file(filePath);
+        if (!result.valid())
+        {
+            sol::error err = result;
+            Log::Error("[Lua Error] Failed to load main.lua: " + std::string(err.what()));
+            return false;
+        }
+
+        //main 함수를 호출
+        sol::protected_function mainFunc = lua["Main"];
+        if (mainFunc.valid())
+        {
+            auto result = mainFunc();
+        }
+        return true;
     }
+    else if (ext == ".scene") 
+    {
+        sol::protected_function_result result = lua.script_file(filePath);
+    }
+    else
+    {
+
+    }
+
+
     
     //루아 파일 로드
-    sol::load_result script = lua.load_file(filePath);
-    if (!script.valid())
-    {
-        sol::error err = script;
-        std::string what = err.what();
-        return false;
-    }
-    
-    //해당 스크립트 실행
-    sol::protected_function_result result = script();
-    if (!result.valid()) {
-        sol::error err = result;
-        // 실행 에러 로그: err.what()
-        return false;
-    }
-    
-    if (result.return_count() > 0 && result[0].is<sol::table>())
-    {
-        sol::table Proto = result[0];
-        std::filesystem::path p(filePath);
-        sol::table mt = lua.create_table_with(sol::meta_function::index, Proto);
-    
-        // 생성: 여기서 LuaClassInfo를 힙에 할당하여 관리
-        LuaClassInfo* info = new LuaClassInfo(Proto, mt);
-        luaTableMap.insert({ p.stem().string(), info });
-    }
+    //sol::load_result script = lua.load_file(filePath);
+    //if (!script.valid())
+    //{
+    //    sol::error err = script;
+    //    std::string what = err.what();
+    //    return false;
+    //}
+    //
+    ////해당 스크립트 실행
+    //sol::protected_function_result result = script();
+    //if (!result.valid()) {
+    //    sol::error err = result;
+    //    // 실행 에러 로그: err.what()
+    //    return false;
+    //}
+    //
+    //if (result.return_count() > 0 && result[0].is<sol::table>())
+    //{
+    //    sol::table Proto = result[0];
+    //    std::filesystem::path p(filePath);
+    //    sol::table mt = lua.create_table_with(sol::meta_function::index, Proto);
+    //
+    //    // 생성: 여기서 LuaClassInfo를 힙에 할당하여 관리
+    //    LuaClassInfo* info = new LuaClassInfo(Proto, mt);
+    //    luaTableMap.insert({ p.stem().string(), info });
+    //}
 	return true;
 }
 
@@ -143,6 +180,11 @@ void LuaManager::BindEngine()
             Module* findModule = AddModule(obj, GetClass(className));
             return reinterpret_cast<Renderer2D*>(findModule);
         };
+    engine["BackGroundColor"] = [](float R, float G, float B)
+        {
+           
+        };
+
 }
 
 void LuaManager::BindLuaKey()
@@ -190,6 +232,7 @@ void LuaManager::BindAsset()
         {
             LoadTexture(path.c_str());
         };
+    asset["Import"] = Import;
 }
 
 
@@ -236,10 +279,7 @@ std::string LuaManager::SettingKeyEnum()
 
 void LuaManager::Update()
 {
-    if (input->GetKeyDown(VK_OEM_3))
-    {
-        obj->ReloadLuaScript();
-    }
+   
 }
 
 void LuaManager::ReleaseShared()
@@ -248,5 +288,15 @@ void LuaManager::ReleaseShared()
     {
         delete k.second;
     }
+    lua.collect_garbage();
+}
+
+void LuaManager::Clear()
+{
+    for (auto& k : luaTableMap)
+    {
+        delete k.second;
+    }
+    luaTableMap.clear();
     lua.collect_garbage();
 }

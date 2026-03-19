@@ -12,6 +12,7 @@ public:
 
 	void Initialize() override;
 	void Release() override;
+	void Clear() override;
 protected:
 private:
 	ShaderLoader* shaderLoader;

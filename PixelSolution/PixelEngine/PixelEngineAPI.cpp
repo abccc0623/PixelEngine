@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "PixelEngineAPI.h" 
 #include "PixelEngine.h" 
-
+#include <filesystem>
 #include <windows.h>
 #include "ObjectManager.h"
 #include "KeyInputManager.h"
@@ -68,6 +68,24 @@ bool ResizeEngine(int width, int height)
 		Engine->Resize(width, height);
 	}
 	return true;
+}
+
+void SetWindowFocus(bool focus)
+{
+	if (Engine != nullptr)
+	{
+		auto key = Engine->GetFactory<KeyInputManager>();
+		key->Focus = focus;
+	}
+}
+
+void Reload()
+{
+	if (Engine != nullptr)
+	{
+		Log::Info("[Global] Reload Script");
+		Engine->Clear();
+	}
 }
 
 bool GetKeyDown(char number)
@@ -171,6 +189,48 @@ bool LoadTexture(const char* path)
 		return true;
 	}
 	return false;
+}
+
+void Import(const char* path)
+{
+	if (Engine != nullptr)
+	{
+		std::string targetPath(path);
+		std::filesystem::path p(targetPath);
+
+		std::filesystem::file_status status = std::filesystem::status(p);
+
+		if (!std::filesystem::exists(status)) 
+		{
+			Log::Error("Path does not exist: " + targetPath);
+			return;
+		}
+
+		if (std::filesystem::is_directory(status)) 
+		{
+			
+		}
+		else if (std::filesystem::is_regular_file(status))
+		{
+			std::string ext = p.extension().string();
+			if (ext == ".lua")
+			{
+				LoadLuaFile(path);
+			}
+			else if (ext == ".png" || ext == ".jpg")
+			{
+				LoadTexture(path);
+			}
+			else
+			{
+				std::cout << "Unknown extension: " << ext << std::endl;
+			}
+		}
+		else 
+		{
+			std::cout << "[Other] (Symlink, Device, etc.)" << std::endl;
+		}
+	}
 }
 
 GameObject* CreateGameObject(const char* name)

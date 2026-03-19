@@ -67,6 +67,11 @@ void ShaderFactory::Release()
 	delete defaultShaderLoader;
 }
 
+void ShaderFactory::Clear()
+{
+
+}
+
 void* ShaderFactory::GetResource(std::string name)
 {
 	auto k = defaultshaderMap.find(name.c_str());

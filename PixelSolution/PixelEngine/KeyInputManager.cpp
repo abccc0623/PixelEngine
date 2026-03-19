@@ -19,6 +19,16 @@ void KeyInputManager::Initialize()
 
 void KeyInputManager::Update()
 {
+	if(Focus != pastFocus)
+	{
+		for (int i = 0; i < arraySize; i++)
+		{
+			keyStates[i] = KEY_NONE;
+		}
+		return;
+	}
+	if (Focus == false)return;
+
 	for (int i = 0; i < arraySize; i++)
 	{
 		bool isCurrentPressed = (GetAsyncKeyState(i) & 0x8000) != 0;

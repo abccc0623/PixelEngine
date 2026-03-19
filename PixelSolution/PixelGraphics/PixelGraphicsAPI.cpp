@@ -56,6 +56,10 @@ ObjectID CreateDebugModel(Vertex_Debug* Vertex, int VertexSize, int* IndexList, 
 {
 	return mEngine->Model_Debug(Vertex, VertexSize, IndexList, IndexSize);
 }
+void GraphicsClear()
+{
+
+}
 
 
 

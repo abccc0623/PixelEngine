@@ -27,6 +27,7 @@ public:
 	void Update();
 	void ReleaseShared();
 	void Resize(int width, int height);
+	void Clear();
 public:
 	void QuitWindow();
 	void ClientUpdate();

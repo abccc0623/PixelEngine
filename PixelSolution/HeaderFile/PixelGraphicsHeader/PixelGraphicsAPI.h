@@ -13,4 +13,5 @@ PICNIC_GRAPHICS_DLL void DeleteRenderingData(RenderingData* mData);
 PICNIC_GRAPHICS_DLL void ChangeRenderingData(RenderingData* mData);
 
 PICNIC_GRAPHICS_DLL ObjectID LoadGraphicsTexture(const char* filePath);
+PICNIC_GRAPHICS_DLL void GraphicsClear();
 

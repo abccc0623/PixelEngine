@@ -24,9 +24,11 @@ public:
 	int MousePosition_X();
 	int MousePosition_Y();
 
-	POINT ClientCursorPos;
 
+	POINT ClientCursorPos;
+	bool Focus = true;
 private:
+	bool pastFocus = true;
 	static constexpr int arraySize = 256;
 	unsigned char keyStates[arraySize];
 };

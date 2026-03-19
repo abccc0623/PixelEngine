@@ -11,6 +11,12 @@ extern "C" PIXEL_ENGINEDLL void UpdateEngine();
 extern "C" PIXEL_ENGINEDLL void ReleaseEngine();							
 extern "C" PIXEL_ENGINEDLL void QuitWindow();
 extern "C" PIXEL_ENGINEDLL bool ResizeEngine(int width,int height);
+extern "C" PIXEL_ENGINEDLL void SetWindowFocus(bool focus);
+extern "C" PIXEL_ENGINEDLL void Reload();
+
+
+
+extern "C" PIXEL_ENGINEDLL void Import(const char* path);
 
 
 extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name = "GameObject");

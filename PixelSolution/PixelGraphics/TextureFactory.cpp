@@ -149,6 +149,17 @@ TextureResources* TextureFactory::DefaultTextureResource(const wchar_t* resource
 	return texture;
 }
 
+void TextureFactory::Clear()
+{
+	for (auto k : textureMap)
+	{
+		k.second->Texture->Release();
+		delete k.second;
+		k.second = nullptr;
+	}
+	textureMap.clear();
+}
+
 
 void* TextureFactory::GetResource(std::string name)
 {

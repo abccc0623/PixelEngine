@@ -46,3 +46,8 @@ ObjectID ResourceManager::Get(RESOURCE_TYPE type, const std::string& name)
 	}
 	return ObjectID();
 }
+
+void ResourceManager::Clear()
+{
+
+}

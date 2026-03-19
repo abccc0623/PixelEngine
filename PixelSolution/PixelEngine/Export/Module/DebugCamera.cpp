@@ -27,7 +27,6 @@ void DebugCamera::Start()
 	rendering = GetRenderingData();
 	rendering->Type = CAMERA;
 	transform->Position += (transform->GetLookVector() * -3);
-	Log::Info("Debug Camera Log");
 }
 
 void DebugCamera::Update()

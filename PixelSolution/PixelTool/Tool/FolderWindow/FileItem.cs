@@ -16,6 +16,7 @@ namespace PixelTool
         public string Name { get; set; }
         public string FullPath { get; set; }
         public bool IsDirectory { get; set; }
+        public bool IsSelected { get; set; }
         // 자식 노드 목록
         public ObservableCollection<FileItem> Children { get; set; } = new ObservableCollection<FileItem>();
     }

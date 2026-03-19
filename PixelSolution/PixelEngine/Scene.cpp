@@ -61,7 +61,7 @@ void Scene::Release()
     //    OnReleaseFunc(table, this);
     //}
     //func->Clear();
-    //ObjectList.clear();
+    ObjectList.clear();
 }
 
 void Scene::CreateGameObject(SPointer<GameObject> Obj)
@@ -79,6 +79,7 @@ void Scene::DeleteGameObject(size_t targetObject)
     auto find = ObjectList.find(targetObject);
     if (find != ObjectList.end())
     {
+        Log::Info("[" + sceneName + "] DeleteObject :" + find->second->name);
         ObjectList.erase(targetObject);
     }
     if (g_SceneObjectChangeCallBack != nullptr) 

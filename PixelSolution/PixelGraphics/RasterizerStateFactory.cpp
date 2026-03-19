@@ -32,6 +32,11 @@ void RasterizerStateFactory::Release()
 	rasterizerMap.clear();
 }
 
+void RasterizerStateFactory::Clear()
+{
+
+}
+
 RasterizerStateResources* RasterizerStateFactory::CreateRasterizerState_Solid()
 {
 	ID3D11RasterizerState* mSolid = nullptr;

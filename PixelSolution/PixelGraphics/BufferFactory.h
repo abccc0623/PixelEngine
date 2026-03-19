@@ -9,6 +9,7 @@ public:
 
 	void Initialize() override;
 	void Release() override;
+	void Clear() override;
 
 	void* GetResource(std::string name) override;
 };

@@ -107,6 +107,15 @@ void SceneManager::SaveScene()
 	}
 }
 
+void SceneManager::Clear()
+{
+	nowScene = nullptr;
+	for (auto K : SceneMap)
+	{
+		K.second->Release();
+	}
+}
+
 
 void SceneManager::CreateScene(const std::string& luaPath)
 {

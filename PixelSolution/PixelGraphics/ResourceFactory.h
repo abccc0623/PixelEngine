@@ -12,6 +12,7 @@ public:
 
 	virtual void Initialize()	= 0;
 	virtual void Release()		= 0;
+	virtual void Clear()		= 0;
 
 	virtual void* GetResource(std::string name) = 0;
 	virtual void* GetResource(Handle16 key);

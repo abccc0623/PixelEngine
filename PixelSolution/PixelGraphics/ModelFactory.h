@@ -14,6 +14,7 @@ public:
 
 	virtual void Initialize();
 	virtual void Release();
+	virtual void Clear();
 protected:
 	virtual void* GetResource(std::string name);
 

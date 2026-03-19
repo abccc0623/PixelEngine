@@ -12,6 +12,7 @@ public:
 	// ResourceFactory을(를) 통해 상속됨
 	void Initialize() override;
 	void Release() override;
+	void Clear() override;
 	void* GetResource(std::string name) override;
 	void* GetResource(Handle16 key) override;
 	Handle16 SetResource(std::string name);

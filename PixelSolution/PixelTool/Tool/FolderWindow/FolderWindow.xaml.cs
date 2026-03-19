@@ -14,7 +14,6 @@ namespace PixelTool
             InitializeFolderView("./Asset");
         }
 
-        // 외부(MainWindow 등)에서 루트 경로를 설정할 때 호출
         public void InitializeFolderView(string rootPath)
         {
             if (!Directory.Exists(rootPath)) return;
@@ -23,11 +22,18 @@ namespace PixelTool
             {
                 Name = System.IO.Path.GetFileName(rootPath),
                 FullPath = rootPath,
-                IsDirectory = true
+                IsDirectory = true,
+                IsSelected = true,
             };
 
             LoadDirectories(rootItem);
             FolderTreeView.ItemsSource = new List<FileItem> { rootItem };
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                var container = FolderTreeView.ItemContainerGenerator.ContainerFromItem(rootItem) as TreeViewItem;
+                container?.Focus();
+            }), System.Windows.Threading.DispatcherPriority.Background);
         }
 
         private void LoadDirectories(FileItem parentItem)
@@ -130,39 +136,7 @@ namespace PixelTool
             }
         }
 
-
-
-        private void OpenWithVsCode(string filePath)
-        {
-            try
-            {
-                // 1. 실행할 프로세스 설정
-                ProcessStartInfo startInfo = new ProcessStartInfo
-                {
-                    // VS Code가 환경 변수에 등록되어 있다면 "code"만으로 실행 가능합니다.
-                    FileName = "code",
-                    // 인자로 파일 경로를 넘깁니다. 경로에 공백이 있을 수 있으므로 따옴표(\")로 감쌉니다.
-                    Arguments = $"\"{filePath}\"",
-                    // 쉘 실행을 사용하도록 설정 (환경 변수 인식을 위함)
-                    UseShellExecute = true,
-                    // 창을 새로 띄우지 않고 기존 VS Code 인스턴스가 있다면 그곳에서 엽니다.
-                    WindowStyle = ProcessWindowStyle.Hidden
-                };
-                // 2. 프로세스 시작
-                Process.Start(startInfo);
-            }
-            catch (System.ComponentModel.Win32Exception)
-            {
-                // 만약 VS Code가 환경 변수에 등록되지 않아 "code" 명령어를 못 찾을 경우
-                MessageBox.Show("VS Code('code') 명령어를 찾을 수 없습니다.\nVS Code 설치 시 'PATH에 추가' 옵션을 선택했는지 확인해 주세요.",
-                                "실행 실패", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"파일을 여는 중 오류가 발생했습니다: {ex.Message}",
-                                "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+       
 
         private void ListViewItem_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -188,12 +162,6 @@ namespace PixelTool
                      e.Handled = true; 
                 }
             }
-        }
-
-        private void MenuOpen_Click(object sender, RoutedEventArgs e)
-        {
-            var selectedItem = FileListView.SelectedItem as FileDisplayItem;
-            if (selectedItem != null) OpenWithVsCode(selectedItem.FullPath);
         }
 
         private void MenuDelete_Click(object sender, RoutedEventArgs e)

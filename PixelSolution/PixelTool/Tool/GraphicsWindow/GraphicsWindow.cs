@@ -31,9 +31,11 @@ namespace PixelTool
             // 상용 엔진의 'Game Loop'처럼 매 프레임마다 Update를 호출하기 위해 등록
         }
 
+        private IntPtr _childHwnd;
         private const int WS_CHILD = 0x40000000;
         private const int HOST_ID = 0x00000002;
         private const int WS_BORDER = 0x00800000;
+
         protected override HandleRef BuildWindowCore(HandleRef hwndParent)
         {
             // 1. 중계용 자식 창 생성 (WS_CHILD | WS_VISIBLE)
@@ -41,7 +43,7 @@ namespace PixelTool
             int w = (int)ActualWidth > 0 ? (int)ActualWidth : 800;
             int h = (int)ActualHeight > 0 ? (int)ActualHeight : 600;
 
-            var childHwnd = CreateWindowEx
+            _childHwnd = CreateWindowEx
             (
                 0,
                 "static",
@@ -58,11 +60,33 @@ namespace PixelTool
             );
 
             // 2. 이 자식 창 핸들을 PixelEngine에 전달하여 초기화
-            PixelEngineNative.EngineInitialize(childHwnd, w, h);
+            PixelEngineNative.EngineInitialize(_childHwnd, w, h);
             CompositionTarget.Rendering += OnRender;
             PixelEngineNative.LoadLuaFile("./Asset/main.lua");
+
+            ComponentDispatcher.ThreadFilterMessage += OnThreadFilterMessage;
+
             // 3. 자식 창 핸들을 HandleRef로 감싸서 반환 (에러 방지 핵심)
-            return new HandleRef(this, childHwnd);
+            return new HandleRef(this, _childHwnd);
+        }
+
+        private void OnThreadFilterMessage(ref MSG msg, ref bool handled)
+        {
+            const int WM_LBUTTONDOWN = 0x0201;
+            const int WM_RBUTTONDOWN = 0x0204;
+            const int WM_MBUTTONDOWN = 0x0207;
+
+            if (msg.message == WM_LBUTTONDOWN || msg.message == WM_RBUTTONDOWN || msg.message == WM_MBUTTONDOWN)
+            {
+                // 방금 클릭된 창이 우리의 렌더링 자식 창(_childHwnd)인지 확인
+                this.Focus();
+                PixelEngineNative.SetWindowFocus(true);
+            }
+        }
+        protected override void OnLostKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
+        {
+            PixelEngineNative.SetWindowFocus(false);
+            base.OnLostKeyboardFocus(e);
         }
 
         private void OnRender(object sender, EventArgs e)
