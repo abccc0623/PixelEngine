@@ -45,12 +45,16 @@ void KeyInputManager::Update()
 	}
 }
 
-void KeyInputManager::ReleaseShared()
+void KeyInputManager::Release()
 {
 	for (int i = 0; i < arraySize; i++)
 	{
 		keyStates[i] = KeyState::KEY_NONE;
 	}
+}
+void KeyInputManager::Clear()
+{
+
 }
 
 bool KeyInputManager::GetKey(byte keyNumber)

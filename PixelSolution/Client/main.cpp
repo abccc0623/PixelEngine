@@ -53,7 +53,7 @@ int main()
     ShowWindow(hWnd, SW_SHOW);
     EngineInitialize(hWnd,800,600);
 
-    LoadLuaFile("./Asset/main.lua");
+    Import("./Asset/main.lua");
     //Start();
 
     MSG msg = { 0 };

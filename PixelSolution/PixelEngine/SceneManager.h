@@ -15,7 +15,8 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void ReleaseShared() override;
+	void Release() override;
+	void Clear() override;
 
 	void RegisterGameObject(SPointer<GameObject> newObject);
 
@@ -24,7 +25,6 @@ public:
 	GameObject** GetAllSceneObjects(int* outCount);
 	void DeleteGameObject(size_t targetObject);
 	void SaveScene();
-	void Clear();
 private:
 	WPointer<Scene> nowScene = WPointer<Scene>(nullptr);
 	std::unordered_map<std::string, SPointer<Scene>> SceneMap;

@@ -52,8 +52,26 @@ namespace PixelTool
                 string levelTag = level == 0 ? "[INFO]" : (level == 1 ? "[WARN]" : "[ERR ]");
 
                 // ListBox에 로그 추가
+                ListBoxItem item = new ListBoxItem();
                 string logEntry = $"[{timeTag}]{levelTag} {message}";
+                switch (level)
+                {
+                    case 0: // INFO
+                        item.Foreground = Brushes.White;
+                        break;
+                    case 1: // WARN
+                        item.Foreground = Brushes.Yellow;
+                        break;
+                    case 2: // ERR
+                        item.Foreground = Brushes.Red;
+                        break;
+                    default:
+                        item.Foreground = Brushes.Gray;
+                        break;
+                }
                 EngineLogView.Items.Add(logEntry);
+
+
 
                 // 자동 스크롤: 가장 최근 로그로 이동
                 if (EngineLogView.Items.Count > 0)

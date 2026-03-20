@@ -27,7 +27,6 @@
 #include <json.hpp>
 #include <json_fwd.hpp>
 
-
 #include <sol/forward.hpp>
 #include "sol.hpp"
 #endif //PCH_H

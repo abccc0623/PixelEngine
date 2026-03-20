@@ -62,7 +62,7 @@ namespace PixelTool
             // 2. 이 자식 창 핸들을 PixelEngine에 전달하여 초기화
             PixelEngineNative.EngineInitialize(_childHwnd, w, h);
             CompositionTarget.Rendering += OnRender;
-            PixelEngineNative.LoadLuaFile("./Asset/main.lua");
+            PixelEngineNative.Import("./Asset/main.lua");
 
             ComponentDispatcher.ThreadFilterMessage += OnThreadFilterMessage;
 

@@ -197,8 +197,8 @@ void Import(const char* path)
 	{
 		std::string targetPath(path);
 		std::filesystem::path p(targetPath);
-
 		std::filesystem::file_status status = std::filesystem::status(p);
+		std::string fileName = p.stem().string();
 
 		if (!std::filesystem::exists(status)) 
 		{
@@ -213,17 +213,14 @@ void Import(const char* path)
 		else if (std::filesystem::is_regular_file(status))
 		{
 			std::string ext = p.extension().string();
-			if (ext == ".lua")
+			if (ext == ".lua" || ext == ".scene")
 			{
-				LoadLuaFile(path);
+				auto lua = Engine->GetFactory<LuaManager>();
+				lua->ImportLua(targetPath, fileName, ext);
 			}
 			else if (ext == ".png" || ext == ".jpg")
 			{
 				LoadTexture(path);
-			}
-			else
-			{
-				std::cout << "Unknown extension: " << ext << std::endl;
 			}
 		}
 		else 
@@ -266,7 +263,7 @@ Module* AddModuleByString(GameObject* target, const char* name)
 
 Module* GetModule(GameObject* target, PClass* moduleClass)
 {
-	return target->GetModule(moduleClass);
+	return target->GetModuleToEngine(moduleClass);
 }
 
 Module* GetModuleByString(GameObject* target, const char* name)

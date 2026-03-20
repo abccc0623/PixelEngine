@@ -31,13 +31,13 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void ReleaseShared() override;
+	void Release() override;
+	void Clear() override;
 
 	//template <std::derived_from<Module> T>
 	//void Register(GameObject* target);
 	
 	void FunctionUpdate();
-	void Clear();
 	void AddOneTimeFunction(SPointer<Module> module,int type);
 	void AddTickFunction(SPointer<Module> module,int type);
 private:

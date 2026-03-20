@@ -74,7 +74,7 @@ void PixelEngine::ReleaseShared()
 {
 	for (auto& k : factoryMap)
 	{
-		k.second->ReleaseShared();
+		k.second->Release();
 		delete k.second;
 		k.second = nullptr;
 	}
@@ -97,7 +97,7 @@ void PixelEngine::Clear()
 	auto luaManager = GetFactory<LuaManager>();
 	luaManager->Clear();
 	GraphicsClear();
-	LoadLuaFile("./Asset/main.lua");
+	Import("./Asset/main.lua");
 }
 
 void PixelEngine::QuitWindow()

@@ -21,7 +21,7 @@ void ResourceManager::Update()
 
 }
 
-void ResourceManager::ReleaseShared()
+void ResourceManager::Release()
 {
 	delete textureManager;
 	textureManager = nullptr;

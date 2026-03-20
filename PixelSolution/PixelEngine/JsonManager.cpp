@@ -52,7 +52,12 @@ void JsonManager::Update()
 {
 }
 
-void JsonManager::ReleaseShared()
+void JsonManager::Release()
+{
+
+}
+
+void JsonManager::Clear()
 {
 
 }

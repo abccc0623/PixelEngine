@@ -15,11 +15,11 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void ReleaseShared() override;
+	void Release() override;
+	void Clear() override;
 
 	void Load(RESOURCE_TYPE type,const std::string& filePath);
 	ObjectID Get(RESOURCE_TYPE type, const std::string& name);
-	void Clear();
 private:
 	TextureManager* textureManager;
 };

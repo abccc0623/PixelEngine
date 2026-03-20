@@ -26,6 +26,7 @@ inline void Generate_GameObject(sol::state& lua)
 { 
 	sol::usertype<GameObject> ut = lua.new_usertype<GameObject>("GameObject");
 	ut["AddModule"] = &GameObject::AddModule;
+	ut["GetModule"] = &GameObject::GetModule;
 } 
 
 inline void Generate_Module(sol::state& lua) 

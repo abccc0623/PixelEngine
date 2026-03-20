@@ -17,7 +17,8 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void ReleaseShared() override;
+	void Release() override;
+	void Clear() override;
 
 	SPointer<GameObject> Get(std::string name);
 	void Set(SPointer<GameObject> target);

@@ -35,7 +35,7 @@ bool GameObject::HasModule(PClass* moduleClass)
 	return (k == ModuleMap.end()) ? false : true;
 }
 
-Module* GameObject::GetModule(PClass* moduleClass)
+Module* GameObject::GetModuleToEngine(PClass* moduleClass)
 {
 	if (HasModule(moduleClass))
 	{
@@ -56,6 +56,19 @@ sol::object GameObject::AddModule(sol::this_state s,std::string moduleName)
 	PClass* targetClass = GetClass(moduleName);
 	Module* targetModule = AddModuleToEngine(targetClass);
 	
+	auto find = AddModuleList.find(moduleName);
+	if (find != AddModuleList.end())
+	{
+		return find->second(s, targetModule);
+	}
+	return sol::object();
+}
+
+sol::object GameObject::GetModule(sol::this_state s, std::string moduleName)
+{
+	PClass* targetClass = GetClass(moduleName);
+	Module* targetModule = GetModuleToEngine(targetClass);
+
 	auto find = AddModuleList.find(moduleName);
 	if (find != AddModuleList.end())
 	{

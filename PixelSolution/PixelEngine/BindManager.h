@@ -16,7 +16,8 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void ReleaseShared() override;
+	void Release() override;
+	void Clear() override;
 
 private:
 	void BindTransform();

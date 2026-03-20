@@ -7,6 +7,7 @@ public:
 
    virtual void Initialize() = 0;
    virtual void Update() = 0;
-   virtual void ReleaseShared() = 0;
+   virtual void Release() = 0;
+   virtual void Clear() = 0;
 };
 

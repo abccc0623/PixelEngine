@@ -16,9 +16,11 @@ public:
 	virtual ~GameObject();
 public:
 	 sol::object AddModule(sol::this_state s,std::string name);
-	 Module* AddModuleToEngine(PClass* moduleClass);
+	 sol::object GetModule(sol::this_state s, std::string name);
+
 	 bool HasModule(PClass* moduleClass);
-	 Module* GetModule(PClass* moduleClass);
+	 Module* AddModuleToEngine(PClass* moduleClass);
+	 Module* GetModuleToEngine(PClass* moduleClass);
 	 unsigned long GetHash();
 
 	//sol::object AddModuleToLua(std::string moduleName);

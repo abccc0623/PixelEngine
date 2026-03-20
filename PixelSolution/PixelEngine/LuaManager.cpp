@@ -12,10 +12,11 @@
 #include "ObjectManager.h"
 #include "SceneManager.h"
 #include "SPointer.h"
+
 #include "LuaClassInfo.h"
-#include <iostream>
-#include <filesystem>
+#include "LuaSceneInfo.h"
 #include "PixelMetaAPI.h"
+#include "SceneManager.h"
 
 #include "Module/Renderer2D.h"
 #include "Module/LuaScript.h"
@@ -73,35 +74,6 @@ bool LuaManager::Load(const std::string& filePath)
     std::transform(fileName.begin(), fileName.end(), fileName.begin(),
         [](unsigned char c) { return std::tolower(c); });
 
-    //기본 main 루아 파일
-    if (fileName == "main")
-    {
-        sol::protected_function_result result = lua.script_file(filePath);
-        if (!result.valid())
-        {
-            sol::error err = result;
-            Log::Error("[Lua Error] Failed to load main.lua: " + std::string(err.what()));
-            return false;
-        }
-
-        //main 함수를 호출
-        sol::protected_function mainFunc = lua["Main"];
-        if (mainFunc.valid())
-        {
-            auto result = mainFunc();
-        }
-        return true;
-    }
-    else if (ext == ".scene") 
-    {
-        sol::protected_function_result result = lua.script_file(filePath);
-    }
-    else
-    {
-
-    }
-
-
     
     //루아 파일 로드
     //sol::load_result script = lua.load_file(filePath);
@@ -143,6 +115,16 @@ LuaClassInfo* LuaManager::GetLua(const std::string& fileName)
     return nullptr;
 }
 
+LuaSceneInfo* LuaManager::GetSceneLua(const std::string& fileName)
+{
+    auto k = luaSceneTableMap.find(fileName);
+    if (k != luaSceneTableMap.end())
+    {
+        return k->second;
+    }
+    return nullptr;
+}
+
 std::string LuaManager::ChangeLuaType(std::string type)
 {
     if (type == "int" || type == "float")
@@ -158,6 +140,46 @@ std::string LuaManager::ChangeLuaType(std::string type)
         return type;
     }
 }
+
+void LuaManager::ImportModule(const std::string& filePath)
+{
+
+}
+
+void LuaManager::ImportLua(const std::string& filePath,const std::string filename, const std::string& ext)
+{
+    sol::protected_function_result result = lua.script_file(filePath);
+    if (!result.valid())
+    {
+        sol::error err = result;
+        Log::Error("[Lua Error] Failed to load" + filename + std::string(err.what()));
+        return;
+    }
+    if (filename == "main") 
+    {
+        sol::protected_function mainFunc = lua["Main"];
+        if (mainFunc.valid())
+        {
+            auto result = mainFunc();
+        }
+    }
+    else if (ext == ".scene")
+    {
+        if (result.return_count() > 0 && result[0].is<sol::table>())
+        {
+            sol::table Proto = result[0];
+            luaSceneTableMap.insert({ filename , new LuaSceneInfo(Proto)});
+            SceneManager* scene = Engine->GetFactory<SceneManager>();
+            scene->CreateScene(filePath);
+        }
+    }
+
+
+
+
+
+}
+
 
 void LuaManager::BindEngine()
 {
@@ -175,10 +197,10 @@ void LuaManager::BindEngine()
             return k;
         }
     );
-    engine["AddModule"] = [](GameObject* obj, const std::string& className) -> Renderer2D*
+    engine["ChangeScene"] = [](std::string name)
         {
-            Module* findModule = AddModule(obj, GetClass(className));
-            return reinterpret_cast<Renderer2D*>(findModule);
+            auto sceneManager = Engine->GetFactory<SceneManager>();
+            sceneManager->ChangeScene(name);
         };
     engine["BackGroundColor"] = [](float R, float G, float B)
         {
@@ -213,11 +235,6 @@ void LuaManager::BindLuaSetting()
     //    {
     //        auto sceneManager = Engine->GetFactory<SceneManager>();
     //        sceneManager->ChangeScene(name);
-    //    };
-    //setting["CreateScene"] = [](std::string luaPath)
-    //    {
-    //        auto sceneManager = Engine->GetFactory<SceneManager>();
-    //        sceneManager->CreateScene(luaPath);
     //    };
 }
 
@@ -282,12 +299,18 @@ void LuaManager::Update()
    
 }
 
-void LuaManager::ReleaseShared()
+void LuaManager::Release()
 {
     for (auto& k : luaTableMap)
     {
         delete k.second;
     }
+    for (auto& k : luaSceneTableMap)
+    {
+        delete k.second;
+    }
+    luaTableMap.clear();
+    luaSceneTableMap.clear();
     lua.collect_garbage();
 }
 
@@ -297,6 +320,11 @@ void LuaManager::Clear()
     {
         delete k.second;
     }
+    for (auto& k : luaSceneTableMap)
+    {
+        delete k.second;
+    }
     luaTableMap.clear();
+    luaSceneTableMap.clear();
     lua.collect_garbage();
 }

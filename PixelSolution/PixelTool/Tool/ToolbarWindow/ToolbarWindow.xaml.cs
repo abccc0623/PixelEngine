@@ -23,6 +23,7 @@ namespace PixelTool
     /// </summary>
     public partial class ToolbarWindow : UserControl
     {
+        int createSceneindex = 0;
         public ToolbarWindow()
         {
             InitializeComponent();
@@ -53,27 +54,30 @@ namespace PixelTool
         }
         public void CreateSceneLua()
         {
-            string luafilePath = "./Asset/NewScene.scene";
+             string luafilePath = "./Asset/NewScene.scene";
+            while (File.Exists(luafilePath))
+            {
+                luafilePath = $"./Asset/NewScene{createSceneindex}.scene";
+                createSceneindex++;
+            }
             string content = "--게임 씬 파일입니다. \n";
-
+            content += "local Scene = {} \n";
+            content += "\n";
             content += "--씬이 변경될 때 한번 실행됩니다. \n";
-            content += "function Start() \n";
+            content += "function Scene:Start() \n";
             content += "\n";
             content += "end\n";
             content += "\n";
-
             content += "--매 프래임 실행됩니다. \n";
-            content += "function Update() \n";
+            content += "function Scene:Update() \n";
             content += "\n";
             content += "end\n";
             content += "\n";
-
             content += "--씬이 변경되거나 삭제될 때 실행됩니다.\n";
-            content += "function Release() \n";
+            content += "function Scene:Release() \n";
             content += "\n";
             content += "end\n";
-            content += "\n";
-
+            content += "return Scene\n";
             File.WriteAllText(luafilePath, content, Encoding.UTF8);
             LuaEditorWindow.Instance.OpenFile(luafilePath);
         }

@@ -7,7 +7,8 @@ public:
 	virtual ~GenerateManager() = default;
 	void Initialize() override;
 	void Update() override;
-	void ReleaseShared() override;
+	void Release() override;
+	void Clear() override;
 
 	void CreateLuaBindCode(const char* outPath);
 

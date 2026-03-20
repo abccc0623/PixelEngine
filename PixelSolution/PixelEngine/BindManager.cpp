@@ -59,7 +59,11 @@ void BindManager::Update()
 
 }
 
-void BindManager::ReleaseShared()
+void BindManager::Clear()
+{
+}
+
+void BindManager::Release()
 {
 
 }
@@ -138,6 +142,7 @@ void BindManager::BindGameObject()
 {
 	auto table = GetClass("GameObject");
 	AddMethod(table, "AddModule", GeMethodInfo(&GameObject::AddModule), MetaFlag::LUABIND);
+	AddMethod(table, "GetModule", GeMethodInfo(&GameObject::GetModule), MetaFlag::LUABIND);
 }
 
 

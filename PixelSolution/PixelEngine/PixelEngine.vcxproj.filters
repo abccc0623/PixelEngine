@@ -258,6 +258,9 @@
     <ClInclude Include="GlobalBind.h">
       <Filter>EngineAPI\Manager\BindManager</Filter>
     </ClInclude>
+    <ClInclude Include="LuaSceneInfo.h">
+      <Filter>EngineAPI\Manager\LuaManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -364,6 +367,9 @@
     </ClCompile>
     <ClCompile Include="GenerateManager.cpp">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaSceneInfo.cpp">
+      <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

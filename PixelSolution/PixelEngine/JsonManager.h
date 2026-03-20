@@ -9,7 +9,8 @@ public:
 
 	void Initialize() override;
 	void Update() override;
-	void ReleaseShared() override;
+	void Release() override;
+	void Clear() override;
 
 	static void LoadGameObject(nlohmann::ordered_json file);
 	static void LoadScene(nlohmann::ordered_json file);

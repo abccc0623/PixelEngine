@@ -8,6 +8,7 @@ class BindManager;
 class KeyInputManager;
 class ObjectManager;
 class LuaClassInfo;
+class LuaSceneInfo;
 class LuaManager : public EngineManager
 {
 public:
@@ -17,13 +18,16 @@ public:
 	// EngineManager을(를) 통해 상속됨
 	void Initialize() override;
 	void Update() override;
-	void ReleaseShared() override;
-	void Clear();
+	void Release() override;
+	void Clear() override;
 	bool Load(const std::string& filePath);
 	LuaClassInfo* GetLua(const std::string& fileName);
-	
+	LuaSceneInfo* GetSceneLua(const std::string& fileName);
+
 	std::string ChangeLuaType(std::string type);
 
+	void ImportLua(const std::string& filePath, const std::string filename, const std::string& ext);
+	void ImportModule(const std::string& filePath);
 
 	void BindEngine();
 	void BindLuaKey();
@@ -39,5 +43,6 @@ private:
 	ObjectManager* obj = nullptr;
 
 	std::unordered_map<std::string, LuaClassInfo*> luaTableMap;
+	std::unordered_map<std::string, LuaSceneInfo*> luaSceneTableMap;
 };
 

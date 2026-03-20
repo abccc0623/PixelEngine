@@ -33,7 +33,11 @@ void ObjectManager::Update()
 	
 }
 
-void ObjectManager::ReleaseShared()
+void ObjectManager::Release()
+{
+
+}
+void ObjectManager::Clear() 
 {
 
 }

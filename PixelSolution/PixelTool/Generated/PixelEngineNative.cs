@@ -33,7 +33,7 @@ public static class PixelEngineNative
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
-    public static extern bool LoadLuaFile([MarshalAs(UnmanagedType.LPStr)] string path);
+    public static extern bool Import([MarshalAs(UnmanagedType.LPStr)] string path);
 
     [DllImport("PixelEngine.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void SetWindowFocus([MarshalAs(UnmanagedType.I1)] bool focus);

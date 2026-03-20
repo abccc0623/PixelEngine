@@ -33,7 +33,7 @@ void SceneManager::Update()
 	}
 }
 
-void SceneManager::ReleaseShared()
+void SceneManager::Release()
 {
 
 }
@@ -99,11 +99,7 @@ void SceneManager::SaveScene()
 {
 	if (nowScene.IsValid())
 	{
-		auto block = nowScene.Lock();
-		std::string childStr = block->Save();
-		nlohmann::ordered_json childJson = nlohmann::ordered_json::parse(childStr);
-		JsonManager::Save("./Asset/SceneFile.scene", childJson);
-		Log::Info("[" + block->sceneName +"] Save Scene" );
+		
 	}
 }
 
@@ -114,6 +110,7 @@ void SceneManager::Clear()
 	{
 		K.second->Release();
 	}
+	SceneMap.clear();
 }
 
 
@@ -143,8 +140,8 @@ void SceneManager::RegisterGameObject(SPointer<GameObject> newObject)
 {
 	if (nowScene.IsValid() == false)
 	{
-		CreateScene("NewScene");
-		ChangeScene("NewScene");
+		CreateScene("DefaultScene");
+		ChangeScene("DefaultScene");
 	}
 	auto block = nowScene.Lock();
 	block->CreateGameObject(newObject);

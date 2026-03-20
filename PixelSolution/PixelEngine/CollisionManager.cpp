@@ -22,7 +22,11 @@ void CollisionManager::Update()
 
 }
 
-void CollisionManager::ReleaseShared()
+void CollisionManager::Clear()
+{
+}
+
+void CollisionManager::Release()
 {
 	CollisionList.clear();
 }

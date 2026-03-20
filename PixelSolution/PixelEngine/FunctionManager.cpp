@@ -33,7 +33,7 @@ FunctionManager::~FunctionManager()
 
 void FunctionManager::Initialize(){}
 void FunctionManager::Update(){}
-void FunctionManager::ReleaseShared(){}
+void FunctionManager::Release(){}
 
 void FunctionManager::FunctionUpdate()
 {

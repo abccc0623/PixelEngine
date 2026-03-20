@@ -11,6 +11,7 @@ class GameObject;
 class LuaManager;
 class FunctionManager;
 class SceneManager;
+class LuaSceneInfo;
 class Scene : public PixelObject
 {
 public:
@@ -25,13 +26,14 @@ public:
 	void DeleteGameObject(size_t targetObject);
 	GameObject** GetAllSceneObjects(int* maxCount);
 
-	std::string Save();
 	std::string sceneName;
 private:
 	std::string path;
 	std::unordered_map<size_t, SPointer<GameObject>> ObjectList;
 	std::vector<GameObject*> Getter;
 	int ObjectCount = 0;
+	LuaSceneInfo* info;
+private:
 	LuaManager* lua;
 	FunctionManager* func;
 };

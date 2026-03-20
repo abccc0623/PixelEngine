@@ -12,7 +12,12 @@ void GenerateManager::Update()
 
 }
 
-void GenerateManager::ReleaseShared()
+void GenerateManager::Release()
+{
+
+}
+
+void GenerateManager::Clear()
 {
 
 }

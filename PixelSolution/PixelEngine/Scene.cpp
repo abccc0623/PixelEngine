@@ -8,6 +8,7 @@
 #include "SPointer.h"
 #include "Log.h"
 #include "Export/PixelEngineAPI.h"
+#include "LuaSceneInfo.h"
 extern PixelEngine* Engine;
 extern SceneChangeCallbackFunc g_SceneObjectChangeCallBack;
 Scene::Scene()
@@ -16,6 +17,7 @@ Scene::Scene()
     path = "";
     lua = nullptr;
     func = nullptr;
+    info = nullptr;
     ObjectList = std::unordered_map<size_t, SPointer<GameObject>>();
 }
 Scene::~Scene(){}
@@ -25,42 +27,33 @@ void Scene::Initialize(const std::string& luaPath, const std::string& name)
     path = luaPath;
     lua  = Engine->GetFactory<LuaManager>();
     func = Engine->GetFactory<FunctionManager>();
-    //auto state =  lua->GetModuleCall_Lua();
-    //sol::protected_function_result result = state->do_file(path);
-    //if (result.valid())
-    //{
-    //    table = result;
-    //    table["this"] = this;
-    //    OnStartFunc     = table["Start"];
-    //    OnReleaseFunc   = table["Release"];
-    //}
-    //else 
-    //{
-    //    Log::Error("Not Find SceneFile:" + path);
-    //}
+    info = lua->GetSceneLua(name);
 }
 
 
 void Scene::Start()
 {
-    //if (OnStartFunc.valid())
-    //{
-    //    OnStartFunc(table, this);
-    //}
+    if (info != nullptr)
+    {
+        info->Start();
+    }
 }
 
 void Scene::Update()
 {
+    if (info != nullptr)
+    {
+        info->Update();
+    }
     func->FunctionUpdate();
 }
 
 void Scene::Release()
 {
-    //if (OnReleaseFunc.valid())
-    //{
-    //    OnReleaseFunc(table, this);
-    //}
-    //func->Clear();
+    if (info != nullptr)
+    {
+        info->Release();
+    }
     ObjectList.clear();
 }
 
@@ -99,18 +92,4 @@ GameObject** Scene::GetAllSceneObjects(int* maxCount)
         Getter.push_back(sptr.GetPtr());
     }
     return Getter.empty() ? nullptr : Getter.data();
-}
-
-std::string Scene::Save()
-{
-    //nlohmann::ordered_json j;
-    //j["FileType"] = "SceneFile";
-    //j["SceneName"] = sceneName;
-    //j["GameObjects"] = nlohmann::ordered_json::array();
-    //for (auto& K : ObjectList)
-    //{
-    //    nlohmann::ordered_json childJson = nlohmann::ordered_json::parse(K.second->Save());
-    //    j["GameObjects"].push_back(childJson);
-    //}
-    return "";
 }
