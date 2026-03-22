@@ -41,7 +41,7 @@
                     <dock:LayoutPanel Orientation="Horizontal" DockWidth="0.5*" DockHeight="0.25*">
                         <dock:LayoutDocumentPane DockWidth="0.75*" DockHeight="1.0*">
                             <dock:LayoutDocument Title="Asset">
-                                <local:FolderWindow/>
+                                <local:AssetWindow/>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
 

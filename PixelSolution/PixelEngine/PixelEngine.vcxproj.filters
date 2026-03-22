@@ -219,7 +219,7 @@
     <ClInclude Include="Export\Module\DebugCamera.h">
       <Filter>EngineAPI\Module\DebugCamera</Filter>
     </ClInclude>
-    <ClInclude Include="LuaClassInfo.h">
+    <ClInclude Include="LuaModuleInfo.h">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClInclude>
     <ClInclude Include="Export\Module\LuaScript.h">
@@ -347,7 +347,7 @@
     <ClCompile Include="Export\Module\DebugCamera.cpp">
       <Filter>EngineAPI\Module\DebugCamera</Filter>
     </ClCompile>
-    <ClCompile Include="LuaClassInfo.cpp">
+    <ClCompile Include="LuaModuleInfo.cpp">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClCompile>
     <ClCompile Include="Export\Module\LuaScript.cpp">

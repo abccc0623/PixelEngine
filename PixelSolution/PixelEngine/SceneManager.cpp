@@ -35,7 +35,12 @@ void SceneManager::Update()
 
 void SceneManager::Release()
 {
-
+	nowScene = nullptr;
+	for (auto K : SceneMap)
+	{
+		K.second->Release();
+	}
+	SceneMap.clear();
 }
 
 void SceneManager::ChangeScene(std::string name)

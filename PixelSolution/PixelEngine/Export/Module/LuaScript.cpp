@@ -3,7 +3,7 @@
 #include "sol.hpp"
 #include "PixelEngine.h"
 #include "PixelEngineAPI.h"
-#include "LuaClassInfo.h"
+#include "LuaModuleInfo.h"
 #include "LuaManager.h"
 #include "Log.h"
 extern PixelEngine* Engine;
@@ -57,12 +57,14 @@ void LuaScript::Reload()
 
 void LuaScript::Register(std::string fileName)
 {
-    auto luaInfo = lua->GetLua(fileName);
+    auto luaInfo = lua->GetModuleLua(fileName);
     if (luaInfo == nullptr) 
     {
         Log::Error("Not Find Lua File :" + fileName);
         return;
     }
     info = luaInfo;
+    info->Set(targetObject);
+    info->Set(transform);
     luaFileName = fileName;
 }

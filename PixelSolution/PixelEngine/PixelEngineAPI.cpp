@@ -168,17 +168,6 @@ int GetFPS()
 	return -1;
 }
 
-bool LoadLuaFile(const char* path)
-{
-	std::string strPath(path);
-	if (Engine != nullptr)
-	{
-		auto lua = Engine->GetFactory<LuaManager>();
-		return lua->Load(strPath);
-	}
-	return false;
-}
-
 bool LoadTexture(const char* path)
 {
 	std::string strPath(path);
@@ -213,7 +202,7 @@ void Import(const char* path)
 		else if (std::filesystem::is_regular_file(status))
 		{
 			std::string ext = p.extension().string();
-			if (ext == ".lua" || ext == ".scene")
+			if (ext == ".lua" || ext == ".scene" || ext == ".pxm")
 			{
 				auto lua = Engine->GetFactory<LuaManager>();
 				lua->ImportLua(targetPath, fileName, ext);
@@ -309,6 +298,14 @@ void GenerateLuaBindCode(const char* outPath)
 		Generate->CreateLuaBindCode(outPath);
 	}
 }
+void GenerateLuaAPICodeJson(const char* outPath)
+{
+	if (Engine != nullptr)
+	{
+		GenerateManager* Generate = Engine->GetFactory<GenerateManager>();
+		Generate->CreateLuaApiJson(outPath);
+	}
+}
 int GetMemberCount(PClass* targetClass)
 {
 	return GetClassMemberCount(targetClass);
@@ -362,7 +359,7 @@ void DispatchNativeLog(const char* msg, int level)
 	}
 }
 
-bool ChangeScene(const char* sceneName)
+void ChangeScene(const char* sceneName)
 {
 	std::string strPath(sceneName);
 	if (Engine != nullptr)
@@ -370,7 +367,6 @@ bool ChangeScene(const char* sceneName)
 		SceneManager* scene = Engine->GetFactory<SceneManager>();
 		scene->ChangeScene(strPath);
 	}
-	return true;
 }
 
 GameObject** GetAllSceneObjects(int* outCount)

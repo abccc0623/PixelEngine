@@ -78,6 +78,15 @@ namespace PixelTool
 
             if (msg.message == WM_LBUTTONDOWN || msg.message == WM_RBUTTONDOWN || msg.message == WM_MBUTTONDOWN)
             {
+
+                var mouseOver = System.Windows.Input.Mouse.DirectlyOver;
+                // 마우스 아래에 메뉴아이템(MenuItem)이나 팝업 관련 요소가 있다면 포커스를 뺏지 않고 리턴!
+                if (mouseOver is System.Windows.Controls.MenuItem ||
+                    mouseOver is System.Windows.Controls.ContextMenu ||
+                    System.Windows.Input.Keyboard.FocusedElement is System.Windows.Controls.MenuItem)
+                {
+                    return;
+                }
                 // 방금 클릭된 창이 우리의 렌더링 자식 창(_childHwnd)인지 확인
                 this.Focus();
                 PixelEngineNative.SetWindowFocus(true);

@@ -21,6 +21,7 @@
 </PropertyGroup>
 
  <ItemGroup>
+   <None Remove="Generated\GenerateLuaAPI.json" />
    <None Remove="Tool\LuaDark.xshd" />
  </ItemGroup>
 
@@ -36,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Tool\LuaDark.xshd" />
+    <EmbeddedResource Include="Generated\GenerateLuaAPI.json" />
   </ItemGroup>
 
 </Project>

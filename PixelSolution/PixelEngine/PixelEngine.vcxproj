@@ -186,7 +186,7 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClInclude Include="JsonManager.h" />
     <ClInclude Include="json_fwd.hpp" />
     <ClInclude Include="Log.h" />
-    <ClInclude Include="LuaClassInfo.h" />
+    <ClInclude Include="LuaModuleInfo.h" />
     <ClInclude Include="LuaGenerateTemplate.h" />
     <ClInclude Include="LuaSceneInfo.h" />
     <ClInclude Include="Memory.h" />
@@ -230,7 +230,7 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClCompile Include="GenerateManager.cpp" />
     <ClCompile Include="JsonManager.cpp" />
     <ClCompile Include="Log.cpp" />
-    <ClCompile Include="LuaClassInfo.cpp" />
+    <ClCompile Include="LuaModuleInfo.cpp" />
     <ClCompile Include="LuaSceneInfo.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="ObjectManager.cpp" />

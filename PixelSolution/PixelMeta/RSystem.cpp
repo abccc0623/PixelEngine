@@ -82,6 +82,20 @@ void RSystem::Release()
     MapByHash.clear();
 }
 
+int RSystem::GetTypeAllCount()
+{
+    return VectorByHash.size();
+}
+
+PType* RSystem::GetTypeByIndex(int index)
+{
+    if (VectorByHash.size() > index)
+    {
+        return VectorByHash[index];
+    }
+    return nullptr;
+}
+
 PType* RSystem::GetType(uint64_t hash)
 {
     auto k = MapByHash.find(hash);

@@ -8,23 +8,36 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock x:Name="EditorChange" Width="20" Grid.Column="0" Foreground="Green">🔴</TextBlock>
+            <Button Width="20" Grid.Column="1" Foreground="Black" ToolTip="Save changes to file (Ctrl+S)" Click="SaveLuaFile">💾</Button>
+            <Button Width="20" Grid.Column="2" Foreground="Black" ToolTip="Reload assets from source (Ctrl+R)" Click="ReimportLuaFile">🔄</Button>
+        </Grid>
+        
         <avalonEdit:TextEditor 
             x:Name="LuaEditor"
             FontFamily="Consolas"
             FontSize="12pt"
             ShowLineNumbers="True"
             Background="#1E1E1E" 
-            Foreground="#DCDCDC">
+            Foreground="#DCDCDC"
+            PreviewKeyDown="luaEditor_PreviewKeyDown"
+            Grid.Row="1">
 
             <avalonEdit:TextEditor.InputBindings>
                 <KeyBinding Key="S" Modifiers="Control" Command="ApplicationCommands.Save"/>
             </avalonEdit:TextEditor.InputBindings>
-
-            <avalonEdit:TextEditor.CommandBindings>
-                <CommandBinding Command="ApplicationCommands.Save" 
-                                Executed="SaveCommand_Executed" 
-                                CanExecute="SaveCommand_CanExecute"/>
-            </avalonEdit:TextEditor.CommandBindings>
 
         </avalonEdit:TextEditor>
     </Grid>

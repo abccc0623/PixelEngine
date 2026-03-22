@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Module.h"
 class GameObject;
-class LuaClassInfo;
+class LuaModuleInfo;
 class LuaManager;
 class LuaScript : public Module
 {
@@ -12,11 +12,11 @@ public:
 	void Start() override;
 	void Update() override;
 
-	PIXEL_ENGINEDLL void Reload();
-	PIXEL_ENGINEDLL void Register(std::string fileName);
+	void Reload();
+	void Register(std::string fileName);
 private:
 	std::string luaFileName;
-	LuaClassInfo* info;
+	LuaModuleInfo* info;
 	static LuaManager* lua;
 };
 

@@ -20,6 +20,7 @@ public:
 	void Clear() override;
 
 private:
+	void BindLuaScript();
 	void BindTransform();
 	void BindRenderer2D();
 	void BindDebugCamera();

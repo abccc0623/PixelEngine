@@ -37,6 +37,11 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 			GraphicsCore::GetDeviceContext()->PSSetShaderResources(0, 1, &(k->Texture));
 		}
 	}
+	else
+	{
+		ID3D11ShaderResourceView* nullSRV = nullptr;
+		GraphicsCore::GetDeviceContext()->PSSetShaderResources(0, 1, &nullSRV);
+	}
 	
 	//¸ğµ¨ ¹ÙÀÎµù
 	if (ModelCheck(mData->master_key, prev) == false)

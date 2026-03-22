@@ -1,0 +1,152 @@
+{
+    "ApiVersion": "1.0",
+    "Types": [
+        {
+            "Fields": [],
+            "Functions": [
+                {
+                    "Name": "CreateGameObject"
+                }
+            ],
+            "Kind": "Namespace",
+            "Name": "Engine"
+        },
+        {
+            "Fields": [],
+            "Functions": [
+                {
+                    "Name": "ChangeScene"
+                }
+            ],
+            "Kind": "Namespace",
+            "Name": "Scene"
+        },
+        {
+            "Fields": [],
+            "Functions": [
+                {
+                    "Name": "Import"
+                }
+            ],
+            "Kind": "Namespace",
+            "Name": "Asset"
+        },
+        {
+            "Fields": [],
+            "Functions": [
+                {
+                    "Name": "GetKey"
+                },
+                {
+                    "Name": "GetKeyDown"
+                },
+                {
+                    "Name": "GetKeyUp"
+                },
+                {
+                    "Name": "GetMousePosition_X"
+                },
+                {
+                    "Name": "GetMousePosition_Y"
+                }
+            ],
+            "Kind": "Namespace",
+            "Name": "Input"
+        },
+        {
+            "Fields": [
+                {
+                    "Name": "X",
+                    "Type": "float"
+                },
+                {
+                    "Name": "Y",
+                    "Type": "float"
+                },
+                {
+                    "Name": "Z",
+                    "Type": "float"
+                }
+            ],
+            "Functions": [],
+            "Kind": "Class",
+            "Name": "PVector3"
+        },
+        {
+            "Fields": [],
+            "Functions": [],
+            "Kind": "Class",
+            "Name": "PixelObject"
+        },
+        {
+            "Fields": [],
+            "Functions": [
+                {
+                    "Name": "AddModule"
+                },
+                {
+                    "Name": "GetModule"
+                }
+            ],
+            "Kind": "Class",
+            "Name": "GameObject"
+        },
+        {
+            "Fields": [],
+            "Functions": [],
+            "Kind": "Class",
+            "Name": "Module"
+        },
+        {
+            "Fields": [
+                {
+                    "Name": "Position",
+                    "Type": "PVector3"
+                },
+                {
+                    "Name": "Rotation",
+                    "Type": "PVector3"
+                },
+                {
+                    "Name": "Scale",
+                    "Type": "PVector3"
+                }
+            ],
+            "Functions": [],
+            "Kind": "Class",
+            "Name": "Transform"
+        },
+        {
+            "Fields": [],
+            "Functions": [],
+            "Kind": "Class",
+            "Name": "Camera"
+        },
+        {
+            "Fields": [],
+            "Functions": [
+                {
+                    "Name": "Register"
+                }
+            ],
+            "Kind": "Class",
+            "Name": "LuaScript"
+        },
+        {
+            "Fields": [],
+            "Functions": [],
+            "Kind": "Class",
+            "Name": "DebugCamera"
+        },
+        {
+            "Fields": [],
+            "Functions": [
+                {
+                    "Name": "SetTexture"
+                }
+            ],
+            "Kind": "Class",
+            "Name": "Renderer2D"
+        }
+    ]
+}

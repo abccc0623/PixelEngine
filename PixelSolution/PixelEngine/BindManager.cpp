@@ -12,6 +12,7 @@
 #include "Rect.h"
 
 #include "PixelMetaAPI.h"
+#include "PixelEngineAPI.h"
 
 BindManager::BindManager()
 {
@@ -25,8 +26,29 @@ BindManager::~BindManager()
 
 }
 
+void Test() 
+{
+
+}
 void BindManager::Initialize()
 {
+	PNamespace* globalCreate = CreateNewNamepace("Engine");
+	AddGlobalMethod(globalCreate,"CreateGameObject", GeGlobalMethodInfo(&CreateGameObject), MetaFlag::LUABIND);
+
+	PNamespace* globalScene = CreateNewNamepace("Scene");
+	AddGlobalMethod(globalScene,"ChangeScene",GeGlobalMethodInfo(&ChangeScene), MetaFlag::LUABIND);
+
+	PNamespace* globalAsset = CreateNewNamepace("Asset");
+	AddGlobalMethod(globalAsset,"Import",GeGlobalMethodInfo(&Import), MetaFlag::LUABIND);
+
+	PNamespace* globalInput = CreateNewNamepace("Input");
+	AddGlobalMethod(globalInput,"GetKey",GeGlobalMethodInfo(&GetKey), MetaFlag::LUABIND);
+	AddGlobalMethod(globalInput,"GetKeyDown",GeGlobalMethodInfo(&GetKeyDown), MetaFlag::LUABIND);
+	AddGlobalMethod(globalInput,"GetKeyUp",GeGlobalMethodInfo(&GetKeyUp), MetaFlag::LUABIND);
+	AddGlobalMethod(globalInput,"GetMousePosition_X",GeGlobalMethodInfo(&GetMousePosition_X), MetaFlag::LUABIND);
+	AddGlobalMethod(globalInput,"GetMousePosition_Y",GeGlobalMethodInfo(&GetMousePosition_Y), MetaFlag::LUABIND);
+
+	
 	PClass* table = nullptr;
 	table = CreateNewClass("PVector3");
 	AddMember(table, "X", GetMemberInfo(&PVector3::X));
@@ -41,12 +63,14 @@ void BindManager::Initialize()
 	table = CreateNewClass("Module",		"PixelObject");
 	table = CreateNewClass("Transform",		"Module");
 	table = CreateNewClass("Camera",		"Module");
+	table = CreateNewClass("LuaScript",		"Module");
 	//table = CreateNewClass("Collision2D",	"Module");
 	table = CreateNewClass("DebugCamera",	"Module");
 	table = CreateNewClass("LuaScript",		"Module");
 	//table = CreateNewClass("Renderer",		"Module");
 	table = CreateNewClass("Renderer2D",	"Module");
 	
+	BindLuaScript();
 	BindGameObject();
 	BindTransform();
 	BindRenderer2D();
@@ -70,6 +94,23 @@ void BindManager::Release()
 
 
 
+void BindManager::BindLuaScript()
+{
+	auto table = GetClass("LuaScript");
+	CreateClassFunction(table, []() ->void*
+		{
+			return new LuaScript();
+		});
+	DeleteClassFunction(table, []() ->void
+		{
+			Log::Info("Delete LuaScript");
+		});
+	AddMethod(table, "Awake", GetMethodInfo(&LuaScript::Awake));
+	AddMethod(table, "Start", GetMethodInfo(&LuaScript::Start));
+	AddMethod(table, "Update", GetMethodInfo(&LuaScript::Update));
+	AddMethod(table, "Register", GetMethodInfo(&LuaScript::Register), MetaFlag::LUABIND | MetaFlag::SAVE);
+}
+
 void BindManager::BindTransform()
 {
 	///Transform
@@ -85,8 +126,8 @@ void BindManager::BindTransform()
 	AddMember(table, "Position", GetMemberInfo(&Transform::Position), MetaFlag::LUABIND| MetaFlag::SAVE);
 	AddMember(table, "Rotation", GetMemberInfo(&Transform::Rotation), MetaFlag::LUABIND | MetaFlag::SAVE);
 	AddMember(table, "Scale", GetMemberInfo(&Transform::Scale),MetaFlag::LUABIND | MetaFlag::SAVE);
-	AddMethod(table, "Start", GeMethodInfo(&Transform::Start));
-	AddMethod(table, "MatrixUpdate", GeMethodInfo(&Transform::MatrixUpdate));
+	AddMethod(table, "Start", GetMethodInfo(&Transform::Start));
+	AddMethod(table, "MatrixUpdate", GetMethodInfo(&Transform::MatrixUpdate));
 }
 
 void BindManager::BindRenderer2D()
@@ -101,8 +142,8 @@ void BindManager::BindRenderer2D()
 		{
 			Log::Info("Delete Renderer2D");
 		});
-	AddMethod(table, "LastUpdate", GeMethodInfo(&Renderer2D::LastUpdate));
-	AddMethod(table, "SetTexture", GeMethodInfo(&Renderer2D::SetTexture), MetaFlag::LUABIND);
+	AddMethod(table, "LastUpdate", GetMethodInfo(&Renderer2D::LastUpdate));
+	AddMethod(table, "SetTexture", GetMethodInfo(&Renderer2D::SetTexture), MetaFlag::LUABIND);
 }
 
 void BindManager::BindDebugCamera()
@@ -117,9 +158,9 @@ void BindManager::BindDebugCamera()
 		{
 			Log::Info("Delete DebugCamera");
 		});
-	AddMethod(table, "Start", GeMethodInfo(&DebugCamera::Start));
-	AddMethod(table, "Update", GeMethodInfo(&DebugCamera::Update));
-	AddMethod(table, "LastUpdate", GeMethodInfo(&DebugCamera::LastUpdate));
+	AddMethod(table, "Start", GetMethodInfo(&DebugCamera::Start));
+	AddMethod(table, "Update", GetMethodInfo(&DebugCamera::Update));
+	AddMethod(table, "LastUpdate", GetMethodInfo(&DebugCamera::LastUpdate));
 }
 
 void BindManager::BindCamera()
@@ -134,15 +175,15 @@ void BindManager::BindCamera()
 		{
 			Log::Info("Delete Camera");
 		});
-	AddMethod(table, "Start", GeMethodInfo(&Camera::Start));
-	AddMethod(table, "LastUpdate", GeMethodInfo(&Camera::LastUpdate));
+	AddMethod(table, "Start", GetMethodInfo(&Camera::Start));
+	AddMethod(table, "LastUpdate", GetMethodInfo(&Camera::LastUpdate));
 }
 
 void BindManager::BindGameObject()
 {
 	auto table = GetClass("GameObject");
-	AddMethod(table, "AddModule", GeMethodInfo(&GameObject::AddModule), MetaFlag::LUABIND);
-	AddMethod(table, "GetModule", GeMethodInfo(&GameObject::GetModule), MetaFlag::LUABIND);
+	AddMethod(table, "AddModule", GetMethodInfo(&GameObject::AddModule), MetaFlag::LUABIND);
+	AddMethod(table, "GetModule", GetMethodInfo(&GameObject::GetModule), MetaFlag::LUABIND);
 }
 
 

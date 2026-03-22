@@ -17,13 +17,10 @@ extern "C" PIXEL_ENGINEDLL void Reload();
 
 
 extern "C" PIXEL_ENGINEDLL void Import(const char* path);
+extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name);
 
 
-extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name = "GameObject");
-extern "C" PIXEL_ENGINEDLL Module* AddModule(GameObject* target, PClass* moduleClass);
-extern "C" PIXEL_ENGINEDLL Module* AddModuleByString(GameObject* target,const char* name);
-extern "C" PIXEL_ENGINEDLL Module* GetModule(GameObject* target, PClass* moduleClass);
-extern "C" PIXEL_ENGINEDLL Module* GetModuleByString(GameObject* target,const char* name);
+
 
 #pragma region MetaType
 extern "C" PIXEL_ENGINEDLL PClass* GetMetaClass(const char* className);
@@ -38,6 +35,7 @@ extern "C" PIXEL_ENGINEDLL int GetMethodPropertyCount(PClass* targetClass, int i
 #pragma endregion
 
 extern "C" PIXEL_ENGINEDLL void GenerateLuaBindCode(const char* outPath);
+extern "C" PIXEL_ENGINEDLL void GenerateLuaAPICodeJson(const char* outPath);
 
 //KeyInput
 extern "C" PIXEL_ENGINEDLL bool GetKeyDown(char number);		
@@ -51,16 +49,12 @@ extern "C" PIXEL_ENGINEDLL float GetDeltaTime();
 extern "C" PIXEL_ENGINEDLL double GetTotalTime();
 extern "C" PIXEL_ENGINEDLL int GetFPS();
 
-//Lua
-extern "C" PIXEL_ENGINEDLL bool LoadLuaFile(const char* path);
-extern "C" PIXEL_ENGINEDLL bool LoadTexture(const char* path);
-
 
 typedef void(__stdcall* LogCallbackFunc)(const char* message, int level);
 typedef void(__stdcall* SceneChangeCallbackFunc)();
 //Scene
 extern "C" PIXEL_ENGINEDLL bool CreateScene(const char* sceneName);
-extern "C" PIXEL_ENGINEDLL bool ChangeScene(const char* sceneName);
+extern "C" PIXEL_ENGINEDLL void ChangeScene(const char* sceneName);
 extern "C" PIXEL_ENGINEDLL void RegisterSceneObjectChange(SceneChangeCallbackFunc callBack);
 extern "C" PIXEL_ENGINEDLL GameObject** GetAllSceneObjects(int* outCount);
 

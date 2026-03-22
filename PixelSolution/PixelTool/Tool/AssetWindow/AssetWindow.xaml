@@ -1,0 +1,89 @@
+﻿<UserControl x:Class="PixelTool.AssetWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixelTool"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.5*"/>
+            <ColumnDefinition Width="4"/>
+            <ColumnDefinition Width="1.0*"/>
+            <ColumnDefinition Width="0.5*"/>
+        </Grid.ColumnDefinitions>
+
+        <TreeView x:Name="FolderView" Grid.Column="0" Background="{StaticResource PixelBackgroundBrush}" ItemsSource="{Binding FolderItems}" SelectedItemChanged ="FolderView_SelectedItemChanged">
+            <TreeView.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#484A77" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#484A77" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
+            </TreeView.Resources>
+
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <EventSetter Event="PreviewMouseRightButtonDown" Handler= "TreeViewItem_PreviewMouseRightButtonDown" />
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                    <Setter Property="ToolTip" Value="{Binding fullPath}" />
+                </Style>
+            </TreeView.ItemContainerStyle>
+
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding FolderItems}">
+                    <StackPanel Orientation="Horizontal" Margin="2">
+                        <TextBlock Text="📁" Margin="0,0,5,0" Foreground="White"/>
+                        <TextBlock Text="{Binding folderName}" Foreground="White"/>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+
+
+        <GridSplitter Grid.Column="1" Background="{StaticResource PixelBackgroundBrush}"></GridSplitter>
+
+
+
+        <ListView x:Name="FileView" Grid.Column="2" 
+          HorizontalContentAlignment="Stretch"
+          Background="{StaticResource PixelBackgroundBrush}" 
+          ItemsSource="{Binding FileItems}"
+          MouseDoubleClick="FileView_MouseDoubleClick"
+          BorderThickness="0">
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,5">
+
+                        <Grid.ContextMenu>
+                            <ContextMenu Background="#25263D" Foreground="White" BorderBrush="#1B1C2E">
+                                <MenuItem Header="경로 복사" Click="FileItem_CopyPath"/>
+                                <Separator Background="#444" />
+                                <MenuItem Header="이름 바꾸기" Click="FileItem_NameChange"/>
+                                <MenuItem Header="삭제" Click="FileItem_Delete" Foreground="#FF6B6B" />
+                            </ContextMenu>
+                        </Grid.ContextMenu>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="0.6*"/>
+                            <ColumnDefinition Width="0.1*"/>
+                            <ColumnDefinition Width="0.1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="{Binding FileIcon}"  Grid.Column="0" Foreground="White"/>
+                        <TextBlock Text="{Binding FileName}"  Grid.Column="1" Foreground="White"/>
+                        <TextBlock Text="{Binding Extension}" Grid.Column="2" Foreground="White"/>
+                        <TextBlock Text="{Binding FileSize}"  Grid.Column="3" Foreground="White"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <Border Grid.Column="3" Background="#1B1C2E">
+            <Image x:Name="TexturePreview" Stretch="Uniform" Margin="10" />
+        </Border>
+    </Grid>
+</UserControl>

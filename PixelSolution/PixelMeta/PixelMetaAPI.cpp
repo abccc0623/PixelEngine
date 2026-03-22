@@ -2,6 +2,7 @@
 #include "PixelMetaAPI.h"
 #include "PType.h"
 #include "PClass.h"
+#include "PNamespace.h"
 #include "RSystem.h"
 #include "GlobalHashCode.h"
 #include "PField.h"
@@ -15,6 +16,15 @@ uint64_t StringToByHash(const char* name)
 	return thisTypeHash;
 }
 
+PNamespace* CreateNewNamepace(const std::string& Name)
+{
+	if (Name.empty()) return nullptr;
+	uint64_t thisTypeHash = HashUtil::ConstexprHash(Name.c_str());
+	PNamespace* temp = new PNamespace(thisTypeHash, Name, 0);
+	RSystem::GetInstance().Register(temp);
+	return temp;
+}
+
 PClass* CreateNewClass(const std::string& thidTypeName, const std::string& parentTypeName)
 {
 	if (thidTypeName.empty()) return nullptr;
@@ -26,10 +36,9 @@ PClass* CreateNewClass(const std::string& thidTypeName, const std::string& paren
 		parentTypeHash = HashUtil::ConstexprHash(parentTypeName.c_str());
 		temp->SetParentHash(parentTypeHash);
 	}
-	if (System == nullptr){System = new RSystem();}
-	System->Register(temp);
-	AddMethod(temp, "Create", GeMethodInfo(&PClass::CallCreateFunction));
-	AddMethod(temp, "Delete", GeMethodInfo(&PClass::CallDeleteFunction));
+	RSystem::GetInstance().Register(temp);
+	AddMethod(temp, "Create", GetMethodInfo(&PClass::CallCreateFunction));
+	AddMethod(temp, "Delete", GetMethodInfo(&PClass::CallDeleteFunction));
 	return temp;
 }
 
@@ -50,13 +59,11 @@ void CastClassFunction(PClass* targetClass, void* (castFunc)())
 
 int AllClassCount()
 {
-	if (System == nullptr) { System = new RSystem(); }
 	return System->VectorByHash.size();
 }
 
 PClass* GetClassByIndex(int index)
 {
-	if (System == nullptr) { System = new RSystem(); }
 	PType* type = System->VectorByHash[index];
 	if (type->GetMetaType() == (int)META_TYPE::CLASS)
 	{
@@ -73,11 +80,17 @@ const std::string& GetClassTypeName(PClass* targetClass)
 	return targetClass->GetName();
 }
 
+PType* GetType(const std::string& typeName)
+{
+	uint64_t thisTypeHash = HashUtil::ConstexprHash(typeName.c_str());
+	PType* type = System->GetType(thisTypeHash);
+	return type;
+}
+
 PClass* GetClass(const std::string& className)
 {
-	if (System == nullptr) { System = new RSystem(); }
 	uint64_t thisTypeHash = HashUtil::ConstexprHash(className.c_str());
-	PType* type = System->GetType(thisTypeHash);
+	PType* type = RSystem::GetInstance().GetType(thisTypeHash);
 	if (type->GetMetaType() == (int)META_TYPE::CLASS)
 	{
 		return reinterpret_cast<PClass*>(type);
@@ -85,11 +98,43 @@ PClass* GetClass(const std::string& className)
 	return nullptr;
 }
 
+PNamespace* GetNamespace(const std::string& name)
+{
+	uint64_t thisTypeHash = HashUtil::ConstexprHash(name.c_str());
+	PType* type = RSystem::GetInstance().GetType(thisTypeHash);
+	if (type->GetMetaType() == (int)META_TYPE::NAMESPACE)
+	{
+		return reinterpret_cast<PNamespace*>(type);
+	}
+	return nullptr;
+}
+
+
+int GetTypeAllCount()
+{
+	return RSystem::GetInstance().GetTypeAllCount();
+}
+
+PType* GetTypeByIndex(int index)
+{
+	return RSystem::GetInstance().GetTypeByIndex(index);
+}
+
+C_string GetTypeName(PType* target)
+{
+	return target->GetName();
+}
+
+META_TYPE GetTypeCategory(PType* type)
+{
+	return (META_TYPE)type->GetMetaType();
+}
+
+
 uint64_t GetClassHashByString(const std::string& className)
 {
-	if (System == nullptr) { System = new RSystem(); }
 	uint64_t thisTypeHash = HashUtil::ConstexprHash(className.c_str());
-	PType* type = System->GetType(thisTypeHash);
+	PType* type = RSystem::GetInstance().GetType(thisTypeHash);
 	if (type->GetMetaType() == (int)META_TYPE::CLASS)
 	{
 		return type->GetHash();
@@ -99,7 +144,6 @@ uint64_t GetClassHashByString(const std::string& className)
 
 uint64_t GetClassHash(PClass* targetClass)
 {
-	if (System == nullptr) { System = new RSystem(); }
 	return targetClass->GetHash();
 }
 
@@ -136,6 +180,46 @@ int GetClassMethodPropertyCount(PClass* targetClass, int index)
 PValue CallClassMethod(PClass* targetClass, int index, void* target, std::vector<void*> property)
 {
 	return targetClass->CallMethod(index, target, property);
+}
+
+C_string GetNamespaceMethodName(PNamespace* target, int index)
+{
+	return target->GetMethodName(index);
+}
+
+C_string GetNamespaceMethodReturnType(PNamespace* target, int index)
+{
+	return target->GetMethodReturnType(index);
+}
+
+C_string GetNamespaceMethodGetPropertyType(PNamespace* target, int index, int propertyIndex)
+{
+	return target->GetMethodPropertyType(index, propertyIndex);
+}
+
+bool HasNamespaceMethodFlag(PNamespace* target, int index, long flag)
+{
+	return target->HasClassMethodFlag(index,flag);
+}
+
+int GetNamespaceMethodPropertyCount(PNamespace* target, int index)
+{
+	return target->GetPropertyCount(index);
+}
+
+int GetNamespaceMethodCount(PNamespace* target)
+{
+	return target->GetMethodCount();
+}
+
+bool AddGlobalMethod(PNamespace* targetClass, const std::string& methodName, MethodInfo info, long flag)
+{
+	uint64_t nameHash = HashUtil::ConstexprHash(methodName.c_str());
+	PMethod* field = new PMethod(methodName);
+	field->SetInfo(info.returnType, info.classType, info.memberType, info.invoker);
+	field->SetFlag(flag);
+	targetClass->AddMethod(field);
+	return true;
 }
 
 const std::string& GetClassMethodGetPropertyType(PClass* targetClass, int index, int propertyIndex)
@@ -175,10 +259,7 @@ void SetClassMemberValue(PClass* targetClass, int index, void* target, void* val
 
 void ReleaseMetaType()
 {
-	if (System == nullptr) { System = new RSystem(); }
-	System->Release();
-	delete System;
-	System = nullptr;
+	RSystem::GetInstance().Release();
 }
 
 int GetClassMethodCount(PClass* targetClass)
@@ -189,8 +270,7 @@ int GetClassMethodCount(PClass* targetClass)
 bool AddMember(PClass* targetClass, const std::string& memberName, MemberInfo info, long flag)
 {
 	uint64_t nameHash = HashUtil::ConstexprHash(memberName.c_str());
-	if (System == nullptr) { System = new RSystem(); }
-	PField* field = new PField(System->GetTypeByString(info.memberType), memberName, info.offset);
+	PField* field = new PField(RSystem::GetInstance().GetTypeByString(info.memberType), memberName, info.offset);
 	field->SetFlag(flag);
 	targetClass->AddField(field);
 	return true;
@@ -199,9 +279,8 @@ bool AddMember(PClass* targetClass, const std::string& memberName, MemberInfo in
 bool AddMethod(PClass* targetClass, const std::string& methodName, MethodInfo info, long flag)
 {
 	uint64_t nameHash = HashUtil::ConstexprHash(methodName.c_str());
-	if (System == nullptr) { System = new RSystem(); }
 	PMethod* field = new PMethod(methodName);
-	field->SetInfo(info.retrunType,info.classType, info.memberType,info.invoker);
+	field->SetInfo(info.returnType,info.classType, info.memberType,info.invoker);
 	field->SetFlag(flag);
 	targetClass->AddMethod(field);
 	return false;

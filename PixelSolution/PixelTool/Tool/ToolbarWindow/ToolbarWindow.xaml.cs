@@ -51,10 +51,16 @@ namespace PixelTool
             content += "end\n";
             File.WriteAllText(luafilePath, content, Encoding.UTF8);
             LuaEditorWindow.Instance.OpenFile(luafilePath);
+
+            var findWindow = GlobalFunction.GetDockedWindow<AssetWindow>();
+            if (findWindow != null)
+            {
+                findWindow.Refresh();
+            }
         }
         public void CreateSceneLua()
         {
-             string luafilePath = "./Asset/NewScene.scene";
+            string luafilePath = "./Asset/NewScene.scene";
             while (File.Exists(luafilePath))
             {
                 luafilePath = $"./Asset/NewScene{createSceneindex}.scene";
@@ -80,6 +86,12 @@ namespace PixelTool
             content += "return Scene\n";
             File.WriteAllText(luafilePath, content, Encoding.UTF8);
             LuaEditorWindow.Instance.OpenFile(luafilePath);
+
+            var findWindow = GlobalFunction.GetDockedWindow<AssetWindow>();
+            if (findWindow != null)
+            {
+                findWindow.Refresh();
+            }
         }
 
 
@@ -97,15 +109,15 @@ namespace PixelTool
 
         private void QuadObject(object sender, RoutedEventArgs e)
         {
-           // PixelEngine.LoadTexture("./Asset/test.png");
-           // var go = PixelEngine.CreateGameObject("DefaultQuad");
-           // go.AddModule(MODULE_TYPE.Renderer2D);
-           //
-           // var r = Renderer2D.SafeCast(go.GetModule(MODULE_TYPE.Renderer2D));
-           // if (r!= null)
-           // {
-           //     r.SetTexture("test");
-           // }
+            // PixelEngine.LoadTexture("./Asset/test.png");
+            // var go = PixelEngine.CreateGameObject("DefaultQuad");
+            // go.AddModule(MODULE_TYPE.Renderer2D);
+            //
+            // var r = Renderer2D.SafeCast(go.GetModule(MODULE_TYPE.Renderer2D));
+            // if (r!= null)
+            // {
+            //     r.SetTexture("test");
+            // }
         }
         private void LuaObject(object sender, RoutedEventArgs e)
         {
@@ -151,9 +163,52 @@ namespace PixelTool
             //PixelEngine.SaveScene();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
 
+
+        private void CreateModuleLuaFile(object sender, RoutedEventArgs e)
+        {
+            string newNameOnly = Microsoft.VisualBasic.Interaction.InputBox(
+               "새 모듈 파일의 이름을 입력해주세요",
+               "새로운 모듈 파일 만들기",
+               "");
+
+            if (string.IsNullOrWhiteSpace(newNameOnly)) return;
+            string directoryPath = "./Asset/";
+            string fullPath = System.IO.Path.Combine(directoryPath, newNameOnly);
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                MessageBox.Show("이미 같은 이름의 파일이 존재합니다!", "알림", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            string content = $@"local {newNameOnly} = 
+{{ 
+    gameObject = nil, 
+    transform = nil, 
+}} 
+
+function {newNameOnly}:Awake() 
+end 
+
+function {newNameOnly}:Start() 
+end 
+
+function {newNameOnly}:Update(dTime) 
+end 
+
+return {newNameOnly}";
+
+            content = content.Replace("{{MODULE_NAME}}", newNameOnly);
+            fullPath += ".pxm";
+            File.WriteAllText(fullPath, content, Encoding.UTF8);
+            LuaEditorWindow.Instance.OpenFile(fullPath);
+
+            var findWindow = GlobalFunction.GetDockedWindow<AssetWindow>();
+            if (findWindow != null)
+            {
+                findWindow.Refresh();
+            }
         }
     }
 }

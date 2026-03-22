@@ -5,16 +5,16 @@
     <Compile Update="Modules\TransformView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Tool\ConsoleWindow\ConsoleWindow.xaml.cs">
+    <Compile Update="Tool\AssetWindow\AssetWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Tool\FolderWindow\FolderWindow.xaml.cs">
+    <Compile Update="Tool\ConsoleWindow\ConsoleWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Tool\InspectorWindow\InspectorWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Tool\LuaEditor.xaml.cs">
+    <Compile Update="Tool\EditorLuaWindow\LuaEditor.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Tool\ObjectWindow\ObjectWindow.xaml.cs">

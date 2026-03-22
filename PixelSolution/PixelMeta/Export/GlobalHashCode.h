@@ -15,6 +15,15 @@ enum MetaFlag : long
     Flag8   = 1 << 7   // 128
 };
 
+enum class META_TYPE
+{
+    PRIMITIVE,
+    NAMESPACE,
+    CLASS,
+    ENUM,
+    ARRAY,
+};
+
 namespace HashUtil
 {
     constexpr uint64_t FNV_OFFSET_BASIS = 14695981039346656037ULL;

@@ -1,14 +1,7 @@
 #pragma once
 #include <string>
 #include "PixelMetaDLL.h"
-
-enum class META_TYPE
-{
-	PRIMITIVE,
-	CLASS,
-	ENUM,
-	ARRAY,
-};
+#include "GlobalHashCode.h"
 
 class PField;
 class PMethod;

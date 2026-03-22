@@ -13,7 +13,7 @@
 #include "SceneManager.h"
 #include "SPointer.h"
 
-#include "LuaClassInfo.h"
+#include "LuaModuleInfo.h"
 #include "LuaSceneInfo.h"
 #include "PixelMetaAPI.h"
 #include "SceneManager.h"
@@ -28,7 +28,7 @@
 extern PixelEngine* Engine;
 LuaManager::LuaManager()
 {
-    luaTableMap = std::unordered_map<std::string, LuaClassInfo*>();
+    luaModuleTableMap = std::unordered_map<std::string, LuaModuleInfo*>();
 }
 
 LuaManager::~LuaManager()
@@ -51,64 +51,15 @@ void LuaManager::Initialize()
     input = Engine->GetFactory<KeyInputManager>();
     obj   = Engine->GetFactory<ObjectManager>();
 
-   BindAsset();
-   BindEngine();
-   BindLuaKey();
-   BindLuaTime();
-   BindLuaSetting();
+   //BindLuaKey();
+   //BindLuaTime();
    BindAll_GeneratedLuaModules(lua);
 }
 
-
-bool LuaManager::Load(const std::string& filePath)
+LuaModuleInfo* LuaManager::GetModuleLua(const std::string& fileName)
 {
-    std::filesystem::path p(filePath);
-
-    std::string ext = p.extension().string();
-    std::transform(ext.begin(), ext.end(), ext.begin(),[](unsigned char c) { return std::tolower(c); });
-
-    // 2. 확장자를 제외한 파일 이름 추출 (예: "C:/Scripts/main.lua" -> "main")
-    std::string fileName = p.stem().string();
-
-    // 3. 대소문자 구분 없이 비교하기 위해 소문자로 변환 (안정성 확보)
-    std::transform(fileName.begin(), fileName.end(), fileName.begin(),
-        [](unsigned char c) { return std::tolower(c); });
-
-    
-    //루아 파일 로드
-    //sol::load_result script = lua.load_file(filePath);
-    //if (!script.valid())
-    //{
-    //    sol::error err = script;
-    //    std::string what = err.what();
-    //    return false;
-    //}
-    //
-    ////해당 스크립트 실행
-    //sol::protected_function_result result = script();
-    //if (!result.valid()) {
-    //    sol::error err = result;
-    //    // 실행 에러 로그: err.what()
-    //    return false;
-    //}
-    //
-    //if (result.return_count() > 0 && result[0].is<sol::table>())
-    //{
-    //    sol::table Proto = result[0];
-    //    std::filesystem::path p(filePath);
-    //    sol::table mt = lua.create_table_with(sol::meta_function::index, Proto);
-    //
-    //    // 생성: 여기서 LuaClassInfo를 힙에 할당하여 관리
-    //    LuaClassInfo* info = new LuaClassInfo(Proto, mt);
-    //    luaTableMap.insert({ p.stem().string(), info });
-    //}
-	return true;
-}
-
-LuaClassInfo* LuaManager::GetLua(const std::string& fileName)
-{
-    auto k = luaTableMap.find(fileName);
-    if (k != luaTableMap.end())
+    auto k = luaModuleTableMap.find(fileName);
+    if (k != luaModuleTableMap.end())
     {
         return k->second;
     }
@@ -141,10 +92,6 @@ std::string LuaManager::ChangeLuaType(std::string type)
     }
 }
 
-void LuaManager::ImportModule(const std::string& filePath)
-{
-
-}
 
 void LuaManager::ImportLua(const std::string& filePath,const std::string filename, const std::string& ext)
 {
@@ -167,46 +114,23 @@ void LuaManager::ImportLua(const std::string& filePath,const std::string filenam
     {
         if (result.return_count() > 0 && result[0].is<sol::table>())
         {
-            sol::table Proto = result[0];
-            luaSceneTableMap.insert({ filename , new LuaSceneInfo(Proto)});
-            SceneManager* scene = Engine->GetFactory<SceneManager>();
-            scene->CreateScene(filePath);
+            if (result.valid())
+            {
+                sol::table Proto = result[0];
+                luaSceneTableMap.insert({ filename , new LuaSceneInfo(Proto)});
+                SceneManager* scene = Engine->GetFactory<SceneManager>();
+                scene->CreateScene(filePath);
+            }
         }
     }
-
-
-
-
-
-}
-
-
-void LuaManager::BindEngine()
-{
-    sol::table engine = lua.create_named_table("Engine");
-    engine["CreateGameObject"] = sol::overload
-    (
-        [](std::string name)
+    else if (ext == ".pxm")
+    {
+        if (result.return_count() > 0 && result[0].is<sol::table>())
         {
-            auto k = CreateGameObject(name.c_str());
-            return k;
-        },
-        []()
-        {
-            auto k = CreateGameObject();
-            return k;
+            sol::table Proto = result[0];
+            luaModuleTableMap.insert({ filename , new LuaModuleInfo(Proto) });
         }
-    );
-    engine["ChangeScene"] = [](std::string name)
-        {
-            auto sceneManager = Engine->GetFactory<SceneManager>();
-            sceneManager->ChangeScene(name);
-        };
-    engine["BackGroundColor"] = [](float R, float G, float B)
-        {
-           
-        };
-
+    }
 }
 
 void LuaManager::BindLuaKey()
@@ -226,32 +150,6 @@ void LuaManager::BindLuaTime()
      time["GetTotalTime"] = GetTotalTime;
      time["GetFPS"] = GetFPS;
 }
-
-void LuaManager::BindLuaSetting()
-{
-    ////Setting 관련
-    //sol::table setting = lua->create_named_table("Setting");
-    //setting["ChangeScene"] = [](std::string name)
-    //    {
-    //        auto sceneManager = Engine->GetFactory<SceneManager>();
-    //        sceneManager->ChangeScene(name);
-    //    };
-}
-
-void LuaManager::BindAsset()
-{
-    sol::table asset = lua.create_named_table("Asset");
-    asset["LoadLua"] = [](std::string path)
-        {
-            LoadLuaFile(path.c_str());
-        };
-    asset["LoadTexture"] = [](std::string path)
-        {
-            LoadTexture(path.c_str());
-        };
-    asset["Import"] = Import;
-}
-
 
 
 std::string LuaManager::SettingKeyEnum()
@@ -301,7 +199,7 @@ void LuaManager::Update()
 
 void LuaManager::Release()
 {
-    for (auto& k : luaTableMap)
+    for (auto& k : luaModuleTableMap)
     {
         delete k.second;
     }
@@ -309,22 +207,12 @@ void LuaManager::Release()
     {
         delete k.second;
     }
-    luaTableMap.clear();
+    luaModuleTableMap.clear();
     luaSceneTableMap.clear();
     lua.collect_garbage();
 }
 
 void LuaManager::Clear()
 {
-    for (auto& k : luaTableMap)
-    {
-        delete k.second;
-    }
-    for (auto& k : luaSceneTableMap)
-    {
-        delete k.second;
-    }
-    luaTableMap.clear();
-    luaSceneTableMap.clear();
-    lua.collect_garbage();
+    Release();
 }

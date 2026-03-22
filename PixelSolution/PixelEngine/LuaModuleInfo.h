@@ -1,16 +1,21 @@
 #pragma once
 
 #include <sol/forward.hpp>
-class LuaClassInfo
+class Transform;
+class GameObject;
+class LuaModuleInfo
 {
 public:
-	LuaClassInfo(sol::table table, sol::table mtTable);
-	~LuaClassInfo();
+	LuaModuleInfo(sol::table table);
+	~LuaModuleInfo();
 
 	void Reload();
 	void Awake();
 	void Start();
 	void Update();
+
+	void Set(Transform* transform);
+	void Set(GameObject* targetObject);
 private:
 	sol::table tabel;
 	sol::table instance;
@@ -18,5 +23,7 @@ private:
 	sol::protected_function luaAwake;
 	sol::protected_function luaStart;
 	sol::protected_function luaUpdate;
+	Transform* transform;
+	GameObject* targetObject;
 };
 

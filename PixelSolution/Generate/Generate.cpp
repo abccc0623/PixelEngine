@@ -17,6 +17,8 @@ int main()
         // 1. 안내 문구 출력 (이때 std::cout 사용)
         std::cout << "생성할 번호를 입력" <<std::endl;
         std::cout << "(1)Lua BindCode 생성" <<std::endl;
+        std::cout << "(2)Lua APICode(Tool 자동완성 용) 생성" <<std::endl;
+        std::cout << "(3)All" <<std::endl;
     
         // 2. 공백 포함 한 줄 전체를 입력받음 (std::getline 사용)
         std::getline(std::cin, inputStr);
@@ -24,11 +26,22 @@ int main()
         try
         {
             number = std::stoi(inputStr);
+            std::string outputPath;
             switch (number)
             {
             case 1:
-                std::string outputPath = "../PixelEngine/GenerateLuaBind.h";
+                outputPath = "../PixelEngine/GenerateLuaBind.h";
                 GenerateLuaBindCode(outputPath.c_str());
+                break;
+            case 2:
+                outputPath = "../PixelTool/Generated/GenerateLuaAPI.json";
+                GenerateLuaAPICodeJson(outputPath.c_str());
+                break;
+            case 3:
+                outputPath = "../PixelEngine/GenerateLuaBind.h";
+                GenerateLuaBindCode(outputPath.c_str());
+                outputPath = "../PixelTool/Generated/GenerateLuaAPI.json";
+                GenerateLuaAPICodeJson(outputPath.c_str());
                 break;
             }
             break;
