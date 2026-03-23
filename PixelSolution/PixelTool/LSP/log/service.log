@@ -1,0 +1,28 @@
+[20:53:29.035][info] [#0:C:/Users/abcc0/Desktop/lua-language-server-3.17.1-win32-x64\main.lua:71]: Lua Lsp startup, root: 	C:/Users/abcc0/Desktop/lua-language-server-3.17.1-win32-x64
+[20:53:29.036][info] [#0:C:/Users/abcc0/Desktop/lua-language-server-3.17.1-win32-x64\main.lua:72]: ROOT:	C:/Users/abcc0/Desktop/lua-language-server-3.17.1-win32-x64
+[20:53:29.036][info] [#0:C:/Users/abcc0/Desktop/lua-language-server-3.17.1-win32-x64\main.lua:73]: LOGPATH:	C:/Users/abcc0/Desktop/lua-language-server-3.17.1-win32-x64/log
+[20:53:29.036][info] [#0:C:/Users/abcc0/Desktop/lua-language-server-3.17.1-win32-x64\main.lua:74]: METAPATH:	C:/Users/abcc0/Desktop/lua-language-server-3.17.1-win32-x64/meta
+[20:53:29.036][info] [#0:C:/Users/abcc0/Desktop/lua-language-server-3.17.1-win32-x64\main.lua:75]: VERSION:	3.17.1
+[20:53:29.069][info] [#0:script\proto\proto.lua:260]: Listen Mode: stdio
+[20:53:29.069][info] [#0:script\service\service.lua:145]: 
+========= Medical Examination Report =========
+    --------------- Memory ---------------
+        Total: 1.914 MB
+        # 00 : 1.914 MB
+        # 01 : 0.000 MB
+        # 02 : 0.000 MB
+        # 03 : 0.000 MB
+        # 04 : 0.000 MB
+    --------------- Coroutine ---------------
+        Total:     0
+        Running:   0
+        Suspended: 0
+        Normal:    0
+        Dead:      0
+    --------------- Cache ---------------
+        Total: 1
+        Dead:  0
+    ---------------  RPC  ---------------
+        Holdon:   0
+        Waiting:  0
+==============================================

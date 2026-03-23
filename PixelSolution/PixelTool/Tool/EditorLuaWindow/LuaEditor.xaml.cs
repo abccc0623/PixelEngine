@@ -18,88 +18,45 @@ namespace PixelTool
         private string targetPath = "";
         private bool IsDirty = false;
 
-        public static LuaEditorWindow Instance { get; private set; }
-        private Dictionary<string, string> variableTypes = new Dictionary<string, string>();
         private CompletionWindow completionWindow;
-        private JsonDataManager apiManager;
+        private System.Windows.Threading.DispatcherTimer _typeTimer;
+        private Dictionary<string, string> variableTypes = new Dictionary<string, string>();
+
+        private LuaLspService luaLspService;
 
         public LuaEditorWindow()
         {
             InitializeComponent();
-            Instance = this;
-            apiManager = new JsonDataManager();
-            apiManager.LoadEmbeddedJson();
 
-            this.Loaded += (s, e) =>
-            {
-                // 1. 현재 UserControl을 담고 있는 진짜 부모 Window를 찾음
-                Window parentWindow = Window.GetWindow(this);
-
-                if (parentWindow != null)
-                {
-                    // 2. 윈도우가 포커스를 얻었을 때 (엔진 창 클릭 시) -> 입력 가능
-                    parentWindow.Activated += (sender, args) => LuaEditor.IsReadOnly = false;
-                    // 3. 윈도우가 포커스를 잃었을 때 (바탕화면이나 다른 창 클릭 시) -> 입력 차단
-                    parentWindow.Deactivated += (sender, args) => LuaEditor.IsReadOnly = true;
-
-                }
-            };
-
-            if (LuaEditor != null)
-            {
-                // 1. 기존 XML 하이라이팅을 완전히 끕니다. (충돌 방지)
-                LuaEditor.SyntaxHighlighting = null;
-                // 2. [핵심] 우리가 C#으로 만든 "직접 색칠하는 페인터"를 에디터에 장착합니다.
-                LuaEditor.TextArea.TextView.LineTransformers.Add(new LuaDarkColorizer(apiManager));
-
-                var options = LuaEditor.Options;
-                options.ConvertTabsToSpaces = true;
-
-                // 테스트용 텍스트
-                LuaEditor.Text = "-- Welcome to Pixel Engine -- \n";
-                LuaEditor.Text += "Click 'main.lua' to add game logic.";
-
-                LuaEditor.TextArea.TextEntering += TextArea_TextEntering;
-                LuaEditor.TextArea.TextEntered += TextArea_TextEntered;
-                LuaEditor.TextChanged += TextArea_TextChanged;
-            }
+            _typeTimer = new System.Windows.Threading.DispatcherTimer();
+            _typeTimer.Interval = TimeSpan.FromMilliseconds(300); // 0.3초 대기
+            _typeTimer.Tick += OnTypeTimerTick;
+            _typeTimer.Start();
+            LuaEditor.TextChanged += LuaEditor_TextChanged;
+            LuaEditor.TextArea.TextEntered += TextArea_TextEntered;
+            InitializeEditor();
         }
-        private void TextArea_TextChanged(object sender, EventArgs e)
+
+        private async void InitializeEditor()
         {
-            IsDirty = true;
-            EditorChange.Foreground = Brushes.Red;
+            luaLspService = new LuaLspService();
+
+            luaLspService.StartServer();
+            await Task.Delay(500);
+            await luaLspService.SendInitializeRequest();
         }
 
-        private void UpdateVariableTypes()
+        private async void OnTypeTimerTick(object sender, EventArgs e)
         {
-            variableTypes.Clear();
-            string scriptText = LuaEditor.Text;
-            variableTypes["gameobject"] = "GameObject";
-            variableTypes["transform"] = "Transform";
-            variableTypes["self.transform"] = "Transform";
-            variableTypes["self.gameobject"] = "GameObject";
-            // 규칙 A: Engine.CreateGameObject(...) 로 생성된 변수는 무조건 "GameObject" 타입이다!
-            // (매칭 예시: local obj = Engine.CreateGameObject("Obj"))
-            string createObjPattern = @"local\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*Engine\.CreateGameObject";
-            foreach (Match m in Regex.Matches(scriptText, createObjPattern))
+            _typeTimer.Stop();
+            if (!string.IsNullOrEmpty(targetPath))
             {
-                string varName = m.Groups[1].Value; // "obj"
-                variableTypes[varName] = "GameObject"; // 사전에 등록!
-            }
-
-            // 규칙 B: AddModule("클래스명") 으로 생성된 변수는 괄호 안의 문자열 타입이다!
-            // (매칭 예시: local renderer = obj:AddModule("Renderer2D"))
-            string addModulePattern = @"local\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*.*?:(?:AddModule|GetModule)\s*\(\s*""([^""]+)""\s*\)";
-            foreach (Match m in Regex.Matches(scriptText, addModulePattern))
-            {
-                string varName = m.Groups[1].Value;   // "renderer"
-                string className = m.Groups[2].Value; // "Renderer2D"
-                variableTypes[varName] = className;   // 사전에 등록!
+                await luaLspService.SendDidChangeNotification(targetPath, LuaEditor.Text);
             }
         }
 
 
-        public void OpenFile(string path)
+        public async void OpenFile(string path)
         {
             if (System.IO.File.Exists(path))
             {
@@ -111,23 +68,62 @@ namespace PixelTool
                         LuaEditor.Save(targetPath);
                     }
                 }
-
                 LuaEditor.Load(path);
                 targetPath = path;
+                string content = LuaEditor.Text;
+                if (luaLspService != null)
+                {
+                    await luaLspService.SendDidOpenNotification(path, content);
+                }
                 LuaEditor.Document.UndoStack.MarkAsOriginalFile();
                 IsDirty = false;
                 EditorChange.Foreground = Brushes.Green;
             }
         }
 
+        private void TextArea_TextEntered(object sender, TextCompositionEventArgs e)
+        {
+            // . 이나 : 을 입력했을 때 자동완성 요청
+            if (e.Text == "." || e.Text == ":")
+            {
+                // 이미 자동완성 창이 떠있으면 무시
+                if (completionWindow != null) return;
+
+                // 1. 현재 커서 위치와 에디터의 "최신 전체 텍스트" 가져오기
+                var caret = LuaEditor.TextArea.Caret;
+                int line = caret.Line;
+                int col = caret.Column;
+                string currentText = LuaEditor.Text;
+
+                // 2. Task.Run으로 비동기 순차 처리 (UI 프리징 방지 + 서버 크래시 방지)
+                Task.Run(async () => {
+                    try
+                    {
+                        // [생존 수칙 1] 방금 찍은 점(.)이 포함된 최신 텍스트를 서버에 먼저 동기화합니다.
+                        // 이거 안 하면 서버가 "어? 점이 없는데 왜 여기서 자동완성을 찾지?" 하고 뒤집니다.
+                        await luaLspService.SendDidChangeNotification(targetPath, currentText);
+
+                        // [생존 수칙 2] 서버가 텍스트를 읽고 소화할 시간을 아주 살짝(50ms) 줍니다.
+                        await Task.Delay(50);
+
+                        // [생존 수칙 3] 이제 안전하게 자동완성 목록을 요청합니다.
+                        await luaLspService.SendCompletionRequest(targetPath, line, col);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"!!! 자동완성 요청 중 에러: {ex.Message}");
+                    }
+                });
+            }
+        }
 
         private void luaEditor_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             // 에디터에 포커스가 없으면 모든 키 입력 이벤트를 처리된 것으로 간주(Handled)하여 무시
             if (!LuaEditor.IsKeyboardFocusWithin){e.Handled = true;}
-
+            
             bool isCtrlPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
-
+            
             if (isCtrlPressed)
             {
                 switch (e.Key)
@@ -145,114 +141,10 @@ namespace PixelTool
             }
         }
 
-
-        private void TextArea_TextEntering(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        private void LuaEditor_TextChanged(object sender, EventArgs e)
         {
-            if (e.Text.Length > 0 && completionWindow != null)
-            {
-                // 글자가 아닌 기호나 띄어쓰기를 치면 자동완성 창을 닫습니다.
-                if (!char.IsLetterOrDigit(e.Text[0]))
-                {
-                    completionWindow.CompletionList.RequestInsertion(e);
-                }
-            }
-        }
-
-        private void TextArea_TextEntered(object sender, System.Windows.Input.TextCompositionEventArgs e)
-        {
-            if (e.Text == "." || e.Text == ":")
-            {
-                if (completionWindow != null || apiManager.LoadedApi == null) return;
-
-                // 1. 전체 경로를 가져옵니다 (예: "transform.Position")
-                string fullPath = GetFullPathBeforeCursor(LuaEditor.TextArea);
-                if (string.IsNullOrEmpty(fullPath)) return;
-
-                UpdateVariableTypes();
-
-                // 2. 체인을 분석하여 최종 클래스 타입을 찾아냅니다.
-                string targetClassName = ResolveTargetClassName(fullPath);
-
-                var targetType = apiManager.LoadedApi.Types.Find(t => t.Name == targetClassName);
-                if (targetType == null) return;
-
-                // 자동완성 창 준비
-                completionWindow = new CompletionWindow(LuaEditor.TextArea);
-                IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
-
-                if (e.Text == ".")
-                {
-                    foreach (var field in targetType.Fields)
-                    {
-                        // 꿀팁: field.TypeName을 표시해줘야 개발자가 편합니다.
-                        data.Add(new LuaCompletionData(field.Name, "Field: " + field.Type));
-                    }
-                    foreach (var func in targetType.Functions)
-                    {
-                        data.Add(new LuaCompletionData(func.Name, func.Description));
-                    }
-                }
-                else if (e.Text == ":")
-                {
-                    foreach (var func in targetType.Functions)
-                    {
-                        data.Add(new LuaCompletionData(func.Name, func.Description));
-                    }
-                }
-
-                if (data.Count > 0)
-                {
-                    completionWindow.Show();
-                    completionWindow.Closed += delegate { completionWindow = null; };
-                }
-                else
-                {
-                    completionWindow = null;
-                }
-            }
-        }
-
-        private string GetFullPathBeforeCursor(ICSharpCode.AvalonEdit.Editing.TextArea textArea)
-        {
-            var line = textArea.Document.GetLineByOffset(textArea.Caret.Offset);
-            string lineText = textArea.Document.GetText(line.Offset, textArea.Caret.Offset - line.Offset);
-
-            // 정규식: 단어, 점, 콜론이 연결된 마지막 부분을 찾음
-            var match = System.Text.RegularExpressions.Regex.Match(lineText, @"([a-zA-Z0-9_.:]+)[.:]$");
-            if (match.Success)
-            {
-                // 마지막 기호(. 또는 :)는 떼고 반환
-                return match.Groups[1].Value;
-            }
-            return "";
-        }
-
-        private string ResolveTargetClassName(string path)
-        {
-            string[] parts = path.Split(new char[] { '.', ':' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 0) return "";
-
-            // 시작점 찾기 (변수 목록에서 transform이 Transform 타입임을 확인)
-            string currentTypeName = "";
-            if (variableTypes.ContainsKey(parts[0]))
-                currentTypeName = variableTypes[parts[0]];
-            else
-                currentTypeName = parts[0]; // 변수가 아니면 클래스 이름이라 가정
-
-            // 나머지 조각들 추적 (.Position 등)
-            for (int i = 1; i < parts.Length; i++)
-            {
-                var typeInfo = apiManager.LoadedApi.Types.Find(t => t.Name == currentTypeName);
-                if (typeInfo == null) break;
-
-                var field = typeInfo.Fields.Find(f => f.Name == parts[i]);
-                if (field != null)
-                {
-                    currentTypeName = field.Type; // 여기서 PVector3로 갱신됨
-                }
-            }
-
-            return currentTypeName;
+            _typeTimer.Stop();
+            _typeTimer.Start();
         }
 
         private void SaveLuaFile(object sender, RoutedEventArgs e)
@@ -263,6 +155,11 @@ namespace PixelTool
         private void ReimportLuaFile(object sender, RoutedEventArgs e)
         {
             PixelEngineNative.Reload();
+        }
+
+        public TextArea GetLuaEditorTextArea()
+        {
+            return LuaEditor.TextArea;
         }
     }
 }

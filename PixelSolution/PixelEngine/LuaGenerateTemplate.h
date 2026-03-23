@@ -25,3 +25,5 @@ std::string LuaGlobalMemberBindString	= "\tut[\"{{METHOD_NAME}}\"] = &{{METHOD_N
 std::string LuaAddModuleString = "\tAddModuleList.insert({ \"{{CLASS_NAME}}\",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<{{CLASS_NAME}}* > (target));return obj;}});\n";
 
 
+///툴에서 자동완성을 위한 제너레이트
+std::string LuaClassString				= "---@class {{CLASS_NAME}} \n {{CLASS_NAME}} = {}\n\n";

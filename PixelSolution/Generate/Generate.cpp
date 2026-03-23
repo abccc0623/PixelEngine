@@ -5,6 +5,14 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+std::string GetExePath() {
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    return fs::path(buffer).parent_path().string();
+}
 
 int main()
 {
@@ -34,13 +42,14 @@ int main()
                 GenerateLuaBindCode(outputPath.c_str());
                 break;
             case 2:
-                outputPath = "../PixelTool/Generated/GenerateLuaAPI.json";
+                outputPath += GetExePath();
+                outputPath += "\\LSP\\bin\\GenerateLuaAPI.lua";
                 GenerateLuaAPICodeJson(outputPath.c_str());
                 break;
             case 3:
                 outputPath = "../PixelEngine/GenerateLuaBind.h";
                 GenerateLuaBindCode(outputPath.c_str());
-                outputPath = "../PixelTool/Generated/GenerateLuaAPI.json";
+                outputPath = "../PixelTool/Generated/GenerateLuaAPI.lua";
                 GenerateLuaAPICodeJson(outputPath.c_str());
                 break;
             }

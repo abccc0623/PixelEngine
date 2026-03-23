@@ -15,9 +15,13 @@ public:
 	void Generate(PClass* target,int index,std::string typeName);
 	void Generate(PNamespace* target, int index, std::string typeName);
 
+	void GenerateLua(PClass* target, int index, std::string typeName);
+	void GenerateLua(PNamespace* target, int index, std::string typeName);
 
 	void CreateLuaBindCode(const char* outPath);
 	void CreateLuaApiJson(const char* outPath);
+
+	std::string TypeChangeByLua(std::string type);
 private:
 	std::string ChangeString(const std::string& command, const std::string& changeName, const std::string& templateStr);
 	std::string ChangeString(const std::unordered_map<std::string, std::string>& replacements, const std::string& templateStr);
@@ -26,5 +30,7 @@ private:
 	std::string functionSTR;
 	std::string addModuleSTR;
 	std::string globalContentSTR;
+
+	std::string generateMetaFiles;
 };
 

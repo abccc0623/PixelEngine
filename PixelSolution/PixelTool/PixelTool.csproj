@@ -21,7 +21,6 @@
 </PropertyGroup>
 
  <ItemGroup>
-   <None Remove="Generated\GenerateLuaAPI.json" />
    <None Remove="Tool\LuaDark.xshd" />
  </ItemGroup>
 
@@ -29,6 +28,7 @@
     <PackageReference Include="AvalonEdit" Version="6.3.1.120" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
     <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,8 +36,8 @@
     <ProjectReference Include="..\PixelGraphics\PixelGraphics.vcxproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Generated\GenerateLuaAPI.json" />
-  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy &quot;$(ProjectDir)LSP\*.*&quot; &quot;$(TargetDir)LSP\&quot; /S /E /Y /I" />
+  </Target>
 
 </Project>

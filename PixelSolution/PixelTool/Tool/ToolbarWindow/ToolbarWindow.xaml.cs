@@ -50,7 +50,12 @@ namespace PixelTool
             content += "\n";
             content += "end\n";
             File.WriteAllText(luafilePath, content, Encoding.UTF8);
-            LuaEditorWindow.Instance.OpenFile(luafilePath);
+
+            var luaWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
+            if(luaWindow != null)
+            {
+                luaWindow.OpenFile(luafilePath);
+            }
 
             var findWindow = GlobalFunction.GetDockedWindow<AssetWindow>();
             if (findWindow != null)
@@ -85,7 +90,12 @@ namespace PixelTool
             content += "end\n";
             content += "return Scene\n";
             File.WriteAllText(luafilePath, content, Encoding.UTF8);
-            LuaEditorWindow.Instance.OpenFile(luafilePath);
+
+            var luaWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
+            if(luaWindow != null)
+            {
+                luaWindow.OpenFile(luafilePath);
+            }
 
             var findWindow = GlobalFunction.GetDockedWindow<AssetWindow>();
             if (findWindow != null)
@@ -202,7 +212,12 @@ return {newNameOnly}";
             content = content.Replace("{{MODULE_NAME}}", newNameOnly);
             fullPath += ".pxm";
             File.WriteAllText(fullPath, content, Encoding.UTF8);
-            LuaEditorWindow.Instance.OpenFile(fullPath);
+
+            var luaWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
+            if (luaWindow != null)
+            {
+                luaWindow.OpenFile(fullPath);
+            }
 
             var findWindow = GlobalFunction.GetDockedWindow<AssetWindow>();
             if (findWindow != null)

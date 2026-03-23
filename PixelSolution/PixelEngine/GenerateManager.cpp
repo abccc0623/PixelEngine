@@ -190,92 +190,160 @@ std::string GenerateManager::ChangeString(const std::unordered_map<std::string, 
     return resultTemplate;
 }
 
+
+void GenerateManager::GenerateLua(PClass* target, int index, std::string typeName)
+{
+    generateMetaFiles += "\n";
+    generateMetaFiles += "---@class " + typeName +"\n";
+
+    if (typeName == "GameObject")
+    {
+        generateMetaFiles += "GameObject = {} \n";
+        generateMetaFiles += "---@generic T \n";
+        generateMetaFiles += "---@param arg1 `T` \n";
+        generateMetaFiles += "---@return T \n";
+        generateMetaFiles += "function GameObject:AddModule(arg1) end \n";
+
+        generateMetaFiles += "---@generic T \n";
+        generateMetaFiles += "---@param arg1 `T` \n";
+        generateMetaFiles += "---@return T \n";
+        generateMetaFiles += "function GameObject:GetModule(arg1) end \n";
+        return;
+    }
+
+
+    uint64_t hash = GetClassHash(target);
+    int memberCount = GetClassMemberCount(target);
+    int methodCount = GetClassMethodCount(target);
+
+    for (int m = 0; m < memberCount; m++)
+    {
+        std::string memberName = GetClassMemberName(target, m);
+        std::string memberType = GetClassMemberType(target, m);
+        memberType = TypeChangeByLua(memberType);
+        generateMetaFiles += "---@field " + memberName+" " + memberType +"\n";
+    }
+    generateMetaFiles += typeName + " ={}\n";
+
+    for (int m = 0; m < methodCount; m++)
+    {
+        std::string methodName = GetClassMethodName(target, m);
+        if (HasClassMethodFlag(target, m, MetaFlag::LUABIND) == false) continue;
+       
+        std::string Property = "";
+        std::string ReturnType = GetClassMethodReturnType(target, m);
+        std::string MethodName = GetClassMethodName(target, m);
+
+        int PropertyCount = GetClassMethodPropertyCount(target, m);
+
+        ReturnType = TypeChangeByLua(ReturnType);
+        for (int p = 0; p < PropertyCount; p++)
+        {
+            std::string TypeName = GetClassMethodGetPropertyType(target, m, p);
+            TypeName = TypeChangeByLua(TypeName);
+            if (TypeName == "sol::this_state")continue;
+
+            generateMetaFiles += "---@param arg"+ std::to_string(p)+ " "+ TypeName + "\n";
+            if (p == PropertyCount - 1)
+            {
+                Property += "arg" + std::to_string(p);
+            }
+            else
+            {
+                Property += "arg" + std::to_string(p) + ",";
+            }
+
+        }
+        generateMetaFiles += "---@return void \n";
+        generateMetaFiles += "function " + typeName + ":" + MethodName+ "(" + Property +") end\n\n";
+    }
+}
+
+void GenerateManager::GenerateLua(PNamespace* target, int index, std::string typeName)
+{
+    generateMetaFiles += "\n";
+    generateMetaFiles += "---@class " + typeName + "\n";
+    generateMetaFiles += typeName + " ={}\n";
+    int methodCount = GetNamespaceMethodCount(target);
+
+    for (int m = 0; m < methodCount; m++)
+    {
+        std::string methodName = GetNamespaceMethodName(target, m);
+        if (HasNamespaceMethodFlag(target, m, MetaFlag::LUABIND) == false) continue;
+
+        std::string Property = "";
+        std::string ReturnType = GetNamespaceMethodReturnType(target, m);
+        std::string MethodName = GetNamespaceMethodName(target, m);
+
+        int PropertyCount = GetNamespaceMethodPropertyCount(target, m);
+
+        ReturnType = TypeChangeByLua(ReturnType);
+        for (int p = 0; p < PropertyCount; p++)
+        {
+            std::string TypeName = GetNamespaceMethodGetPropertyType(target, m, p);
+            TypeName = TypeChangeByLua(TypeName);
+            if (TypeName == "sol::this_state")continue;
+
+            generateMetaFiles += "---@param arg" + std::to_string(p) + " " + TypeName + "\n";
+            if (p == PropertyCount - 1)
+            {
+                Property += "arg" + std::to_string(p);
+            }
+            else
+            {
+                Property += "arg" + std::to_string(p) + ",";
+            }
+        }
+        generateMetaFiles += "---@return "+ ReturnType + "\n";
+        generateMetaFiles += "function " + typeName + "." + MethodName + "(" + Property + ") end\n\n";
+    }
+}
+
 void GenerateManager::CreateLuaApiJson(const char* outPath)
 {
-    json root;
-    root["ApiVersion"] = "1.0";
-    root["Types"] = json::array();
-
+    generateMetaFiles = "---@meta \n";
     int allCount = GetTypeAllCount();
-
-    // 기존 바인딩 코드와 동일하게 모든 타입을 순회합니다.
+    //모든 타입을 순회
     for (int typeIndex = 0; typeIndex < allCount; typeIndex++)
     {
         PType* targetType = GetTypeByIndex(typeIndex);
         auto metaType = GetTypeCategory(targetType);
         const std::string& targetName = GetTypeName(targetType);
 
-        // Primitive 타입(int, float 등)은 자동완성에 안 띄우므로 패스
-        if (metaType == META_TYPE::PRIMITIVE) continue;
-
-        json typeJson;
-        typeJson["Name"] = targetName;
-        typeJson["Fields"] = json::array();
-        typeJson["Functions"] = json::array();
-
-        // ==========================================
-        // 1. 클래스(CLASS) 파싱
-        // ==========================================
-        if (metaType == META_TYPE::CLASS)
+        switch (metaType)
         {
-            typeJson["Kind"] = "Class";
-            PClass* target = GetClass(targetName);
-
-            // 1-1. 멤버 변수 추출
-            int memberCount = GetClassMemberCount(target);
-            for (int m = 0; m < memberCount; m++)
-            {
-                json fieldJson;
-                fieldJson["Name"] = GetClassMemberName(target, m);
-                fieldJson["Type"] = GetClassMemberType(target, m);
-                typeJson["Fields"].push_back(fieldJson);
-            }
-
-            // 1-2. 멤버 함수 추출
-            int methodCount = GetClassMethodCount(target);
-            for (int m = 0; m < methodCount; m++)
-            {
-                // LUABIND 플래그가 없으면 자동완성에도 안 띄웁니다!
-                if (HasClassMethodFlag(target, m, MetaFlag::LUABIND) == false) continue;
-
-                json funcJson;
-                funcJson["Name"] = GetClassMethodName(target, m);
-
-                // [!] 10년 차의 팁: 기존 리플렉션 시스템에 아래와 같이 반환형과 파라미터를 
-                // 가져오는 함수가 있다면 여기에 연결해 주세요.
-                // funcJson["ReturnType"] = GetClassMethodReturnType(target, m);
-                // funcJson["Parameters"] = ... (파라미터 리스트를 배열로 추가)
-
-                typeJson["Functions"].push_back(funcJson);
-            }
+        case META_TYPE::CLASS:
+            GenerateLua(GetClass(targetName), typeIndex, targetName);
+            break;
+        case META_TYPE::NAMESPACE:
+            GenerateLua(GetNamespace(targetName), typeIndex, targetName);
+            break;
+        case META_TYPE::PRIMITIVE:
+            break;
         }
-        // ==========================================
-        // 2. 네임스페이스(NAMESPACE) / 전역 함수 파싱
-        // ==========================================
-        else if (metaType == META_TYPE::NAMESPACE)
-        {
-            typeJson["Kind"] = "Namespace";
-            PNamespace* target = GetNamespace(targetName);
-
-            int namespaceCount = GetNamespaceMethodCount(target);
-            for (int m = 0; m < namespaceCount; m++)
-            {
-                if (HasNamespaceMethodFlag(target, m, MetaFlag::LUABIND) == false) continue;
-
-                json funcJson;
-                funcJson["Name"] = GetNamespaceMethodName(target, m);
-
-                // 네임스페이스 함수도 마찬가지로 반환형과 파라미터를 넣어주면 좋습니다.
-                // funcJson["ReturnType"] = GetNamespaceMethodReturnType(target, m);
-
-                typeJson["Functions"].push_back(funcJson);
-            }
-        }
-        root["Types"].push_back(typeJson);
     }
-    // 파일로 예쁘게(4칸 들여쓰기) 출력
+
+
     std::ofstream outFile(outPath);
     if (!outFile.is_open()) return;
-    outFile << root.dump(4);
+    outFile << generateMetaFiles;
     outFile.close();
+}
+
+std::string GenerateManager::TypeChangeByLua(std::string type)
+{
+    if (type == "int" || type == "float" || type == "double" || type == "char")
+    {
+        type = "number";
+    }
+    else if (type == "std::string" || type == "const char*")
+    {
+        type = "string";
+    }
+    else if (type == "bool")
+    {
+        type = "boolean";
+    }
+    std::erase(type, '*');
+    return type;
 }
