@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
+using System.Windows.Media;
 using System.Windows.Shapes;
 using Path = System.IO.Path;
 
@@ -18,6 +19,9 @@ namespace PixelTool
         private StreamWriter _stdin;
         private int _fileVersion = 1;
 
+        string filePath;
+        string fileContent;
+
         public void StartServer()
         {
             // 1. 서버 경로 확인 (빌드 이벤트로 복사된 위치)
@@ -27,7 +31,7 @@ namespace PixelTool
 
             if (!File.Exists(lspExe))
             {
-                Debug.WriteLine($"[Error] LSP Server not found at: {lspExe}");
+                ConsoleWindow.LogMessage($"[LSP] LSP Server not found at{lspExe}", 2);
                 return;
             }
 
@@ -63,6 +67,23 @@ namespace PixelTool
                 // 4. 별도 태스크에서 출력 읽기 시작
                 Task.Run(() => ListenToServer(_lspProcess.StandardOutput));
             }
+
+            _lspProcess.Exited += _lspProcess_Exited;
+        }
+
+        private void _lspProcess_Exited(object? sender, EventArgs e)
+        {
+            ConsoleWindow.LogMessage("[LSP] 서버가 중단되었습니다. 3초 후 재시작합니다...", 2);
+            StopServer();
+            // 너무 빨리 재시작하면 무한 루프에 빠질 수 있으니 지연 시간을 둡니다.
+            Task.Delay(3000).ContinueWith(t =>
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    StartServer();
+                    SendDidOpenNotification(filePath, fileContent);
+                });
+            });
         }
 
         private async Task ListenToServer(StreamReader reader)
@@ -154,13 +175,13 @@ namespace PixelTool
                                 workspace = new
                                 {
                                     // [수정] 파일 경로가 아닌 '폴더 URI'로 교체했습니다.
-                                    library = new[] { metaFolderUri },
+                                    library = new[] { metaFilePath },
                                     checkThirdParty = false,
                                     ignoreDir = new[] { ".git" } // bin 폴더 무시 방지
                                 },
                                 diagnostics = new
                                 {
-                                    globals = new[] { "Pixel", "Time", "Input", "Engine", "KeyCode", "PVector3", "Asset", "Scene", "GameObject", "Renderer2D" }
+                                    globals = new[] { "Pixel", "Time", "Input", "Engine", "KeyCode", "PVector3", "Asset", "Scene", "GameObject", "Renderer2D","LuaScript" }
                                 },
                                 completion = new
                                 {
@@ -201,11 +222,10 @@ namespace PixelTool
 
                 // [정리 2] 이 역시 SendMessage로 깔끔하게 전송!
                 await SendMessage(forceOpenRequest);
-                Debug.WriteLine(">>> 2. Meta File Force Loaded (didOpen).");
             }
             else
             {
-                Debug.WriteLine($"!!! Meta Load Error: File not found at {metaFilePath}");
+                ConsoleWindow.LogMessage($"[LSP] Error File not found at{metaFilePath}", 2);
             }
         }
 
@@ -217,7 +237,7 @@ namespace PixelTool
             {
                 if (_lspProcess == null || _lspProcess.HasExited || _stdin == null)
                 {
-                    Debug.WriteLine("!!! [Error] LSP 서버가 실행 중이 아닙니다.");
+                    ConsoleWindow.LogMessage($"[LSP] LSP 서버가 실행 중이 아닙니다.", 2);
                     return;
                 }
                 string jsonPayload = JsonConvert.SerializeObject(payload);
@@ -238,68 +258,86 @@ namespace PixelTool
             }
             catch (IOException ex)
             {
-                Debug.WriteLine($"!!! [LSP Write Error]: {ex.Message}");
+                ConsoleWindow.LogMessage($"[LSP] Error{ex.Message}", 2);
             }
         }
 
         // 2. 메시지 수신 핸들러 (서버의 말에 반응함)
         private void HandleMessage(string json)
         {
+            // 1. JSON 분석은 백그라운드 스레드에서 (UI와 상관없음)
             var response = JsonConvert.DeserializeObject<dynamic>(json);
+            if (response == null) return;
 
-            // [순서 1] Initialize에 대한 응답이 왔는가?
-            if (response.id == 1)
+            // 2. UI와 관련된 모든 작업은 Dispatcher 내부로 완전히 몰아넣습니다.
+            App.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
-                Debug.WriteLine(">>> [Step 2] 서버 응답 확인. Initialized 확답 보냄.");
-                Task.Run(async () => {
-                    // [순서 2] Initialized 알림 전송 (규격상 필수)
-                    await SendMessage(new { jsonrpc = "2.0", method = "initialized", @params = new { } });
-                });
-            }
-
-            if(response.id == 100)
-            {
-                var items = response.result.items;
-                if (items == null) return;
-
-                // UI 스레드에서 팝업 띄우기
-                App.Current.Dispatcher.Invoke(() => 
+                try
                 {
-                    var k = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
-                    if (k == null) return;
-
-                    var window = new CompletionWindow(k.GetLuaEditorTextArea());
-                    IList<ICompletionData> data = window.CompletionList.CompletionData;
-                    foreach (var item in items)
+                    // 초기화 확인 응답
+                    if (response.id == 1)
                     {
-                        int kind = (int)item.kind;
-                        if (kind == 1 || kind == 14 || kind == 15) continue;
-                        // label: 함수명, detail: 반환타입이나 매개변수 정보
-                        //data.Add(new LuaCompletionData((string)item.label, (string)item.detail));
-                        string label = (string)item.label;
-                        data.Add(new LuaCompletionData(label, (string)item.detail ?? ""));
+                        Task.Run(async () => {
+                            await SendMessage(new { jsonrpc = "2.0", method = "initialized", @params = new { } });
+                        });
                     }
 
-                    if (data.Count > 0)
+                    // 자동 완성 처리 (CompletionWindow 생성 및 표시)
+                    if (response.id == 100)
                     {
-                        window.Show();
-                        window.Width = 300;
-                        window.Closed += (o, e) => window = null;
-                    }
-                });
-            }
+                        var items = response.result?.items;
+                        if (items == null) return;
 
-            // [참고] 서버가 보내는 실시간 에러(Diagnostics)는 id가 없음
-            if (response.method == "textDocument/publishDiagnostics")
-            {
-                Debug.WriteLine($">>> [Step 4] 문법 검사 결과 도착: {json}");
-            }
+                        var editorWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
+                        if (editorWindow == null) return;
+
+                        // CompletionWindow는 반드시 UI 스레드에서 생성되어야 함
+                        var window = new CompletionWindow(editorWindow.GetLuaEditorTextArea());
+                        window.CompletionList.ListBox.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
+                        window.CompletionList.ListBox.Foreground = Brushes.LightGray;
+                        window.CompletionList.ListBox.BorderBrush = new SolidColorBrush(Color.FromRgb(63, 63, 70));
+                        window.CompletionList.ListBox.BorderThickness = new System.Windows.Thickness(1);
+                        window.CompletionList.ListBox.FontFamily = new FontFamily("Consolas");
+                        window.CompletionList.ListBox.FontSize = 13;
+
+                        IList<ICompletionData> data = window.CompletionList.CompletionData;
+
+                        foreach (var item in items)
+                        {
+                            int kind = (int)(item.kind ?? 0);
+                            if (kind == 1 || kind == 14 || kind == 15) continue;
+                            string label = (string)item.label;
+                            string detail = (string)(item.detail ?? "");
+                            data.Add(new LuaCompletionData(label, detail));
+                        }
+
+                        if (data.Count > 0)
+                        {
+                            window.Show();
+                            window.Width = 300;
+                        }
+                    }
+
+                    // 실시간 진단 로그
+                    if (response.method == "textDocument/publishDiagnostics")
+                    {
+                        //ConsoleWindow.LogMessage($"[LSP] 문법 검사 결과 도착", 0);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 여기서 터지는건 UI 로직 문제임
+                    Debug.WriteLine($"!!! [UI Thread Error]: {ex.Message}");
+                }
+            }));
         }
 
         public async Task SendDidOpenNotification(string filePath, string fileContent)
         {
             if (_stdin == null) return;
 
+            this.filePath = filePath;
+            this.fileContent= fileContent;
             string fileUri = new Uri(Path.GetFullPath(filePath), UriKind.Absolute).AbsoluteUri;
 
             var notification = new
@@ -319,7 +357,7 @@ namespace PixelTool
             };
 
             await SendMessage(notification);
-            Debug.WriteLine($">>> [didOpen] 서버에 파일 등록 완료: {fileUri}");
+            ConsoleWindow.LogMessage($"[LSP] Lua 파일 Open {fileUri}", 0);
         }
 
 
@@ -371,8 +409,6 @@ namespace PixelTool
 
             await SendMessage(request);
         }
-
-
 
         public void StopServer()
         {

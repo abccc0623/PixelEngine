@@ -1,10 +1,13 @@
 ﻿using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Editing;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using ICSharpCode.AvalonEdit.Rendering; // 핵심: 직접 색칠하는 도구
 using PixelTool;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions; // 정규식 사용
 using System.Windows;
 using System.Windows.Controls;
@@ -35,6 +38,7 @@ namespace PixelTool
             LuaEditor.TextChanged += LuaEditor_TextChanged;
             LuaEditor.TextArea.TextEntered += TextArea_TextEntered;
             InitializeEditor();
+            ApplyLuaSyntaxHighlighting();
         }
 
         private async void InitializeEditor()
@@ -44,6 +48,30 @@ namespace PixelTool
             luaLspService.StartServer();
             await Task.Delay(500);
             await luaLspService.SendInitializeRequest();
+        }
+
+        private void ApplyLuaSyntaxHighlighting()
+        {
+            try
+            {
+                // "프로젝트이름.폴더이름.파일명.xshd" 형식인지 꼭 확인하세요!
+                var resourceName = "PixelTool.Tool.EditorLuaWindow.Lua.xshd";
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+                {
+                    if (stream == null) return; // 파일을 못 찾으면 그냥 리턴 (에러 방지)
+
+                    using (var reader = new System.Xml.XmlTextReader(stream))
+                    {
+                        LuaEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // 리소스 로드 실패 시 디버깅용
+                System.Diagnostics.Debug.WriteLine("Highlighting Load Failed: " + ex.Message);
+                ConsoleWindow.LogMessage("Highlighting Load Failed: " + ex.Message, 2);
+            }
         }
 
         private async void OnTypeTimerTick(object sender, EventArgs e)
@@ -60,7 +88,7 @@ namespace PixelTool
         {
             if (System.IO.File.Exists(path))
             {
-                if(IsDirty == true)
+                if(EditorChange.Foreground == Brushes.Red)
                 {
                     var result = MessageBox.Show("파일을 변경전 저장이 필요합니다.\n","저장",MessageBoxButton.YesNo,MessageBoxImage.Warning);
                     if (result == MessageBoxResult.Yes)
@@ -86,35 +114,38 @@ namespace PixelTool
             // . 이나 : 을 입력했을 때 자동완성 요청
             if (e.Text == "." || e.Text == ":")
             {
-                // 이미 자동완성 창이 떠있으면 무시
                 if (completionWindow != null) return;
 
-                // 1. 현재 커서 위치와 에디터의 "최신 전체 텍스트" 가져오기
+                // [데이터 복사] UI 스레드에서 안전하게 값만 추출합니다.
                 var caret = LuaEditor.TextArea.Caret;
                 int line = caret.Line;
                 int col = caret.Column;
                 string currentText = LuaEditor.Text;
+                string currentPath = this.targetPath; // 경로도 미리 복사
 
-                // 2. Task.Run으로 비동기 순차 처리 (UI 프리징 방지 + 서버 크래시 방지)
+                // 비동기 작업 시작
                 Task.Run(async () => {
                     try
                     {
-                        // [생존 수칙 1] 방금 찍은 점(.)이 포함된 최신 텍스트를 서버에 먼저 동기화합니다.
-                        // 이거 안 하면 서버가 "어? 점이 없는데 왜 여기서 자동완성을 찾지?" 하고 뒤집니다.
-                        await luaLspService.SendDidChangeNotification(targetPath, currentText);
+                        // [동기화] 서버에 현재 텍스트 전달
+                        await luaLspService.SendDidChangeNotification(currentPath, currentText);
 
-                        // [생존 수칙 2] 서버가 텍스트를 읽고 소화할 시간을 아주 살짝(50ms) 줍니다.
+                        // [지연] 서버가 인덱싱할 시간을 아주 살짝 줍니다 (LSP 사양에 따라 조절 가능)
                         await Task.Delay(50);
 
-                        // [생존 수칙 3] 이제 안전하게 자동완성 목록을 요청합니다.
-                        await luaLspService.SendCompletionRequest(targetPath, line, col);
+                        // [요청] 자동완성 목록 요청
+                        await luaLspService.SendCompletionRequest(currentPath, line, col);
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"!!! 자동완성 요청 중 에러: {ex.Message}");
+                        // 로그 출력 시에도 Dispatcher를 활용해 UI 스레드 충돌 방지
+                        App.Current.Dispatcher.BeginInvoke(new Action(() => {
+                            ConsoleWindow.LogMessage($"LSP 자동완성 실패: {ex.Message}", 2);
+                        }));
                     }
                 });
             }
+            EditorChange.Foreground = Brushes.Red;
         }
 
         private void luaEditor_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -135,6 +166,7 @@ namespace PixelTool
                         break;
                     case Key.R: // 저장 + 리로드 (ReImport)
                         e.Handled = true;
+                        LuaEditor.Save(targetPath);
                         PixelEngineNative.Reload();
                         break;
                 }

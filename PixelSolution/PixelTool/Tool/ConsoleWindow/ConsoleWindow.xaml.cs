@@ -40,13 +40,21 @@ namespace PixelTool
             // 3. 콜백 인스턴스 생성 및 등록
             _logCallback = new LogDelegate(OnNativeLogReceived);
             RegisterLogCallback(_logCallback);
+            EngineLogView.SelectionChanged += EngineLogView_SelectionChanged;
         }
 
         // 4. C++에서 호출되는 실제 함수
         private void OnNativeLogReceived(string message, int level)
         {
-            // 중요: C++ 로그는 별도 스레드에서 올 수 있으므로 UI 스레드로 보냄 (Dispatcher)
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
+            LogMessage(message, level);
+        }
+
+        public static void LogMessage(string message, int level)
+        {
+            var logwindow = GlobalFunction.GetDockedWindow<ConsoleWindow>();
+            if (logwindow == null) return;
+
+            logwindow.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
             {
                 string timeTag = DateTime.Now.ToString("HH:mm:ss");
                 string levelTag = level == 0 ? "[INFO]" : (level == 1 ? "[WARN]" : "[ERR ]");
@@ -69,16 +77,59 @@ namespace PixelTool
                         item.Foreground = Brushes.Gray;
                         break;
                 }
-                EngineLogView.Items.Add(logEntry);
-
-
+                var logView = logwindow.EngineLogView;
+                item.Content = logEntry;
+                logView.Items.Add(item);
 
                 // 자동 스크롤: 가장 최근 로그로 이동
-                if (EngineLogView.Items.Count > 0)
+                if (logwindow.EngineLogView.Items.Count > 0)
                 {
-                    EngineLogView.ScrollIntoView(EngineLogView.Items[EngineLogView.Items.Count - 1]);
+                    logView.ScrollIntoView(logView.Items[logView.Items.Count - 1]);
                 }
             }));
+        }
+
+
+        private void Clear(object sender, RoutedEventArgs e)
+        {
+            EngineLogView.Items.Clear();
+        }
+
+        private void CopyMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Copy();
+        }
+
+        private void EngineLogView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Copy();
+        }
+
+        void Copy()
+        {
+            // 1. 선택된 아이템이 있는지 확인
+            if (EngineLogView.SelectedItem == null) return;
+
+            string logText = "";
+
+            // 2. 아이템 타입에 따라 텍스트 추출
+            if (EngineLogView.SelectedItem is ListBoxItem item)
+            {
+                // ListBoxItem으로 넣었을 경우
+                logText = item.Content.ToString();
+            }
+            else
+            {
+                // 문자열로 넣었을 경우
+                logText = EngineLogView.SelectedItem.ToString();
+            }
+
+            // 3. 클립보드에 복사
+            if (!string.IsNullOrEmpty(logText))
+            {
+                Clipboard.SetText(logText);
+                EngineLogView.SelectedIndex = -1;
+            }
         }
     }
 }

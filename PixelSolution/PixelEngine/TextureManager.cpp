@@ -29,7 +29,7 @@ ObjectID TextureManager::Get(const std::string& name)
 	}
 	else 
 	{
-		Log::Error("Not Find Texture : " + name);
+		PixelLog::Error("Not Find Texture : " + name);
 		return ObjectID();
 	}
 }

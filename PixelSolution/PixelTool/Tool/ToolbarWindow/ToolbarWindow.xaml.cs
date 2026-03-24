@@ -192,24 +192,28 @@ namespace PixelTool
                 return;
             }
 
-            string content = $@"local {newNameOnly} = 
-{{ 
-    gameObject = nil, 
-    transform = nil, 
-}} 
+           
+            string content = "";
+            content += "---@class {{TYPE_NAME}} \n";
+            content += "---@field gameObject GameObject\n";
+            content += "---@field transform Transform;\n";
+            content += "local  {{TYPE_NAME}} = \n";
+            content += "{\n";
+            content += "\tgameObject = nil,\n";
+            content += "\ttransform = nil,\n";
+            content += "}\n";
+            content += "function  {{TYPE_NAME}}:Awake() \n";
+            content += "\t\n";
+            content += "end  \n\n";
+            content += "function  {{TYPE_NAME}}:Start()  \n";
+            content += "\t\n";
+            content += "end  \n\n";
+            content += "function  {{TYPE_NAME}}:Update(dTime)   \n";
+            content += "\t\n";
+            content += "end  \n\n";
+            content += "return {{TYPE_NAME}}  \n";
 
-function {newNameOnly}:Awake() 
-end 
-
-function {newNameOnly}:Start() 
-end 
-
-function {newNameOnly}:Update(dTime) 
-end 
-
-return {newNameOnly}";
-
-            content = content.Replace("{{MODULE_NAME}}", newNameOnly);
+            content = content.Replace("{{TYPE_NAME}}", newNameOnly);
             fullPath += ".pxm";
             File.WriteAllText(fullPath, content, Encoding.UTF8);
 

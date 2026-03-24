@@ -60,7 +60,7 @@ void Scene::Release()
 void Scene::CreateGameObject(SPointer<GameObject> Obj)
 {
     ObjectList.insert({ Obj->GetHash(),Obj});
-    Log::Info("[" + sceneName + "] CreateObject :" + Obj->name);
+    PixelLog::Info("[" + sceneName + "] CreateObject :" + Obj->name);
     if (g_SceneObjectChangeCallBack != nullptr)
     {
         g_SceneObjectChangeCallBack();
@@ -72,7 +72,7 @@ void Scene::DeleteGameObject(size_t targetObject)
     auto find = ObjectList.find(targetObject);
     if (find != ObjectList.end())
     {
-        Log::Info("[" + sceneName + "] DeleteObject :" + find->second->name);
+        PixelLog::Info("[" + sceneName + "] DeleteObject :" + find->second->name);
         ObjectList.erase(targetObject);
     }
     if (g_SceneObjectChangeCallBack != nullptr) 

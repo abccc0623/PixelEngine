@@ -72,7 +72,7 @@ void SceneManager::ChangeScene(std::string name)
 	}
 	else
 	{
-		Log::Error("Not Find Scene :" + name);
+		PixelLog::Error("Not Find Scene :" + name);
 	}
 }
 
@@ -86,7 +86,7 @@ GameObject** SceneManager::GetAllSceneObjects(int* outCount)
 	}
 	else
 	{
-		Log::Error("Not Select Scene");
+		PixelLog::Error("Not Select Scene");
 		return 0;
 	}
 }
@@ -137,7 +137,7 @@ void SceneManager::CreateScene(const std::string& luaPath)
 	}
 	else 
 	{
-		Log::Error("This scene name is already in use :" + stem);
+		PixelLog::Error("This scene name is already in use :" + stem);
 	}
 }
 

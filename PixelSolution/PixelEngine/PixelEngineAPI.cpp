@@ -83,7 +83,7 @@ void Reload()
 {
 	if (Engine != nullptr)
 	{
-		Log::Info("[Global] Reload Script");
+		PixelLog::Info("[Global] Reload Script");
 		Engine->Clear();
 	}
 }
@@ -191,7 +191,7 @@ void Import(const char* path)
 
 		if (!std::filesystem::exists(status)) 
 		{
-			Log::Error("Path does not exist: " + targetPath);
+			PixelLog::Error("Path does not exist: " + targetPath);
 			return;
 		}
 
@@ -245,7 +245,7 @@ Module* AddModuleByString(GameObject* target, const char* name)
 	}
 	else
 	{
-		Log::Error("Not Find Type :"+ Str);
+		PixelLog::Error("Not Find Type :"+ Str);
 	}
 	return nullptr;
 }

@@ -65,7 +65,7 @@ public:
 		}
 		else
 		{
-			Log::Error("Not Find ModuleType");
+			PixelLog::Error("Not Find ModuleType");
 			return ModuleTypeInfo();
 		}
 	}

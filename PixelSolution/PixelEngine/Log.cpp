@@ -3,30 +3,30 @@
 #include "Log.h"
 
 extern LogCallbackFunc g_logCallback;
-void Log::Init(const std::string& filename)
+void PixelLog::Init(const std::string& filename)
 {
 	GetFileStream().open(filename, std::ios::app);
 }
-void Log::Info(const std::string& msg)
+void PixelLog::Info(const std::string& msg)
 {
 	Print(LogLevel::INFO, msg, "\033[32m"); // Green
 }
-void Log::Warn(const std::string& msg)
+void PixelLog::Warn(const std::string& msg)
 {
 	Print(LogLevel::WARN, msg, "\033[33m"); // Yellow
 }
-void Log::Error(const std::string& msg)
+void PixelLog::Error(const std::string& msg)
 {
 	Print(LogLevel::ERR, msg, "\033[31m"); // Red
 }
 
-std::ofstream& Log::GetFileStream()
+std::ofstream& PixelLog::GetFileStream()
 {
 	static std::ofstream file;
 	return file;
 }
 
-void Log::Print(LogLevel Level, const std::string& msg, const std::string& color)
+void PixelLog::Print(LogLevel Level, const std::string& msg, const std::string& color)
 {
 	// 시간 계산
 	std::time_t now = std::time(nullptr);

@@ -60,7 +60,7 @@ void LuaScript::Register(std::string fileName)
     auto luaInfo = lua->GetModuleLua(fileName);
     if (luaInfo == nullptr) 
     {
-        Log::Error("Not Find Lua File :" + fileName);
+        PixelLog::Error("Not Find Lua File :" + fileName);
         return;
     }
     info = luaInfo;

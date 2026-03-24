@@ -7,6 +7,24 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <ListBox x:Name="EngineLogView" Background="{StaticResource PixelBackgroundBrush}" Foreground="{StaticResource PixelTextBrush}"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid Background="{StaticResource PixelBackgroundBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="25"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Content="🧹" Grid.Column="0" Click="Clear"></Button>
+        </Grid>
+        
+        <ListBox x:Name="EngineLogView" Grid.Row="1" Background="{StaticResource PixelBackgroundBrush}" Foreground="{StaticResource PixelTextBrush}">
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="복사 (Copy)" Click="CopyMenuItem_Click" />
+                </ContextMenu>
+            </ListBox.ContextMenu>
+        </ListBox>
     </Grid>
 </UserControl>

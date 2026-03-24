@@ -29,4 +29,5 @@
 
 #include <sol/forward.hpp>
 #include "sol.hpp"
+#include "Log.h"
 #endif //PCH_H

@@ -103,7 +103,7 @@ void BindManager::BindLuaScript()
 		});
 	DeleteClassFunction(table, []() ->void
 		{
-			Log::Info("Delete LuaScript");
+			PixelLog::Info("Delete LuaScript");
 		});
 	AddMethod(table, "Awake", GetMethodInfo(&LuaScript::Awake));
 	AddMethod(table, "Start", GetMethodInfo(&LuaScript::Start));
@@ -121,7 +121,7 @@ void BindManager::BindTransform()
 		});
 	DeleteClassFunction(table, []() ->void
 		{
-			Log::Info("Delete Transform");
+			PixelLog::Info("Delete Transform");
 		});
 	AddMember(table, "Position", GetMemberInfo(&Transform::Position), MetaFlag::LUABIND| MetaFlag::SAVE);
 	AddMember(table, "Rotation", GetMemberInfo(&Transform::Rotation), MetaFlag::LUABIND | MetaFlag::SAVE);
@@ -140,7 +140,7 @@ void BindManager::BindRenderer2D()
 		});
 	DeleteClassFunction(table, []() ->void
 		{
-			Log::Info("Delete Renderer2D");
+			PixelLog::Info("Delete Renderer2D");
 		});
 	AddMethod(table, "LastUpdate", GetMethodInfo(&Renderer2D::LastUpdate));
 	AddMethod(table, "SetTexture", GetMethodInfo(&Renderer2D::SetTexture), MetaFlag::LUABIND);
@@ -156,7 +156,7 @@ void BindManager::BindDebugCamera()
 		});
 	DeleteClassFunction(table, []() ->void
 		{
-			Log::Info("Delete DebugCamera");
+			PixelLog::Info("Delete DebugCamera");
 		});
 	AddMethod(table, "Start", GetMethodInfo(&DebugCamera::Start));
 	AddMethod(table, "Update", GetMethodInfo(&DebugCamera::Update));
@@ -173,7 +173,7 @@ void BindManager::BindCamera()
 		});
 	DeleteClassFunction(table, []() ->void
 		{
-			Log::Info("Delete Camera");
+			PixelLog::Info("Delete Camera");
 		});
 	AddMethod(table, "Start", GetMethodInfo(&Camera::Start));
 	AddMethod(table, "LastUpdate", GetMethodInfo(&Camera::LastUpdate));

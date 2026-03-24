@@ -42,9 +42,9 @@ void LuaModuleInfo::Awake()
 		{
 			sol::error err = result;
 			std::string what = err.what();
-			Log::Error("--- LUA AWAKE ERROR ---");
-			Log::Error(what);
-			Log::Error("-----------------------");
+			PixelLog::Error("--- LUA AWAKE ERROR ---");
+			PixelLog::Error(what);
+			PixelLog::Error("-----------------------");
 		}
 	}
 }
@@ -58,9 +58,9 @@ void LuaModuleInfo::Start()
 		{
 			sol::error err = result;
 			std::string what = err.what();
-			Log::Error("--- LUA SRART ERROR ---");
-			Log::Error(what);
-			Log::Error("-----------------------");
+			PixelLog::Error("--- LUA SRART ERROR ---");
+			PixelLog::Error(what);
+			PixelLog::Error("-----------------------");
 		}
 	}
 }

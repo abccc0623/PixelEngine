@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<SyntaxDefinition name="Lua" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+  <Color name="Keywords" foreground="#569CD6" fontWeight="bold" />
+  <Color name="Strings" foreground="#D69D85" />
+  <Color name="Comments" foreground="#57A64A" />
+  <Color name="Methods" foreground="#50FA7B" />
+  <Color name="Numbers" foreground="#B5CEA8" />
+  <Color name="LogMessages" foreground="#A6E22E" fontWeight="bold" />
+
+  <RuleSet>
+    <Keywords color="Keywords">
+      <Word>if</Word>
+      <Word>then</Word>
+      <Word>else</Word>
+      <Word>elseif</Word>
+      <Word>end</Word>
+      <Word>function</Word>
+      <Word>local</Word>
+      <Word>return</Word>
+      <Word>for</Word>
+      <Word>while</Word>
+      <Word>do</Word>
+    </Keywords>
+
+    <Span color="Comments">
+      <Begin>--</Begin>
+      <End>\n</End>
+    </Span>
+
+    <Span color="Strings">
+      <Begin>"</Begin>
+      <End>"</End>
+    </Span>
+    <Rule color="Methods">
+      \b[\w\d_]+(?=\s*\()
+    </Rule>
+    <Rule foreground="#80CBC4">
+      \b[\w\d_]+(?=\.)
+    </Rule>
+    <Rule color="LogMessages">
+      Log:.*
+    </Rule>
+    <Span color="LogMessages">
+      <Begin>print\("</Begin>
+      <End>"\)</End>
+    </Span>
+  </RuleSet>
+</SyntaxDefinition>
