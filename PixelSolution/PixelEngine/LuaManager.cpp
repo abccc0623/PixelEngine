@@ -97,17 +97,9 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 {
 	try
 	{
-
-
-		sol::protected_function_result result = lua.script_file(filePath);
-		if (!result.valid())
-		{
-			sol::error err = result;
-			PixelLog::Error("[Lua Error] Failed to load" + filename + std::string(err.what()));
-			return;
-		}
 		if (filename == "main")
 		{
+			sol::protected_function_result result = lua.script_file(filePath);
 			sol::protected_function mainFunc = lua["Main"];
 			if (mainFunc.valid())
 			{
@@ -116,6 +108,7 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 		}
 		else if (ext == ".scene")
 		{
+			sol::protected_function_result result = lua.script_file(filePath);
 			if (result.return_count() > 0 && result[0].is<sol::table>())
 			{
 				if (result.valid())
@@ -129,10 +122,16 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 		}
 		else if (ext == ".pxm")
 		{
-			if (result.return_count() > 0 && result[0].is<sol::table>())
+			//이파일에 대한 공간을 할당 없는건 lua.globals()에서 찾아라
+			sol::environment prototypeEnv(lua, sol::create, lua.globals());
+			prototypeEnv["self"] = lua.create_table();
+
+			//이공간에서 사용할 파일로드
+			sol::protected_function_result result = lua.script_file(filePath, prototypeEnv);
+			if (result.valid()) 
 			{
-				sol::table Proto = result[0];
-				luaModuleTableMap.insert({ filename , new LuaModuleInfo(Proto) });
+				sol::table tabel = prototypeEnv;
+				luaModuleTableMap.insert({ filename , new LuaModuleInfo(tabel) });
 			}
 		}
 	}

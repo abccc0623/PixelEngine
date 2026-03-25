@@ -1,5 +1,5 @@
 #pragma once
-class PVector3
+class PVector3 
 {
 public:
 	PVector3();

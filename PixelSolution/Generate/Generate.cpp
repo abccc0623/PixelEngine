@@ -49,7 +49,8 @@ int main()
             case 3:
                 outputPath = "../PixelEngine/GenerateLuaBind.h";
                 GenerateLuaBindCode(outputPath.c_str());
-                outputPath = "../PixelTool/Generated/GenerateLuaAPI.lua";
+                outputPath = GetExePath();
+                outputPath += "\\LSP\\bin\\GenerateLuaAPI.lua";
                 GenerateLuaAPICodeJson(outputPath.c_str());
                 break;
             }

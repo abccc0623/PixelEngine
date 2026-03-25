@@ -194,24 +194,21 @@ namespace PixelTool
 
            
             string content = "";
-            content += "---@class {{TYPE_NAME}} \n";
+            content += "---@class LuaModule \n";
             content += "---@field gameObject GameObject\n";
-            content += "---@field transform Transform;\n";
-            content += "local  {{TYPE_NAME}} = \n";
-            content += "{\n";
-            content += "\tgameObject = nil,\n";
-            content += "\ttransform = nil,\n";
-            content += "}\n";
-            content += "function  {{TYPE_NAME}}:Awake() \n";
+            content += "---@field transform Transform\n";
+            content += "---@class self : LuaModule \n";
+            content += "self = self or {} \n";
+
+            content += "function  self:Awake() \n";
             content += "\t\n";
             content += "end  \n\n";
-            content += "function  {{TYPE_NAME}}:Start()  \n";
+            content += "function  self:Start()  \n";
             content += "\t\n";
             content += "end  \n\n";
-            content += "function  {{TYPE_NAME}}:Update(dTime)   \n";
+            content += "function  self:Update(dTime)   \n";
             content += "\t\n";
             content += "end  \n\n";
-            content += "return {{TYPE_NAME}}  \n";
 
             content = content.Replace("{{TYPE_NAME}}", newNameOnly);
             fullPath += ".pxm";

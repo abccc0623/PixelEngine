@@ -14,6 +14,7 @@
 #include "PixelMetaAPI.h"
 #include "PixelEngineAPI.h"
 
+
 BindManager::BindManager()
 {
 
@@ -50,17 +51,12 @@ void BindManager::Initialize()
 
 	
 	PClass* table = nullptr;
-	table = CreateNewClass("PVector3");
-	AddMember(table, "X", GetMemberInfo(&PVector3::X));
-	AddMember(table, "Y", GetMemberInfo(&PVector3::Y));
-	AddMember(table, "Z", GetMemberInfo(&PVector3::Z));
-	
+
 	//기본 게임 오브젝트 상속관계
-	table = CreateNewClass("PixelObject");
-	table = CreateNewClass("GameObject", "PixelObject");
+	table = CreateNewClass("GameObject");
 
 	//기본 모듈 상속관계
-	table = CreateNewClass("Module",		"PixelObject");
+	table = CreateNewClass("Module");
 	table = CreateNewClass("Transform",		"Module");
 	table = CreateNewClass("Camera",		"Module");
 	table = CreateNewClass("LuaScript",		"Module");
@@ -70,6 +66,7 @@ void BindManager::Initialize()
 	//table = CreateNewClass("Renderer",		"Module");
 	table = CreateNewClass("Renderer2D",	"Module");
 	
+	BindPVector3();
 	BindLuaScript();
 	BindGameObject();
 	BindTransform();
@@ -128,6 +125,10 @@ void BindManager::BindTransform()
 	AddMember(table, "Scale", GetMemberInfo(&Transform::Scale),MetaFlag::LUABIND | MetaFlag::SAVE);
 	AddMethod(table, "Start", GetMethodInfo(&Transform::Start));
 	AddMethod(table, "MatrixUpdate", GetMethodInfo(&Transform::MatrixUpdate));
+
+	AddMethod(table, "GetLookVector", GetMethodInfo(&Transform::GetLookVector), MetaFlag::LUABIND | MetaFlag::SAVE);
+	AddMethod(table, "GetRightVector", GetMethodInfo(&Transform::GetRightVector), MetaFlag::LUABIND | MetaFlag::SAVE);
+	AddMethod(table, "GetUpVector", GetMethodInfo(&Transform::GetUpVector), MetaFlag::LUABIND | MetaFlag::SAVE);
 }
 
 void BindManager::BindRenderer2D()
@@ -184,6 +185,14 @@ void BindManager::BindGameObject()
 	auto table = GetClass("GameObject");
 	AddMethod(table, "AddModule", GetMethodInfo(&GameObject::AddModule), MetaFlag::LUABIND);
 	AddMethod(table, "GetModule", GetMethodInfo(&GameObject::GetModule), MetaFlag::LUABIND);
+}
+
+void BindManager::BindPVector3()
+{
+	auto table = CreateNewClass("PVector3");
+	AddMember(table, "X", GetMemberInfo(&PVector3::X));
+	AddMember(table, "Y", GetMemberInfo(&PVector3::Y));
+	AddMember(table, "Z", GetMemberInfo(&PVector3::Z));
 }
 
 

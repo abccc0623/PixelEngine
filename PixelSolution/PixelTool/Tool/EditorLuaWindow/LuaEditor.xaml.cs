@@ -21,7 +21,7 @@ namespace PixelTool
         private string targetPath = "";
         private bool IsDirty = false;
 
-        private CompletionWindow completionWindow;
+        public CompletionWindow completionWindow;
         private System.Windows.Threading.DispatcherTimer _typeTimer;
         private Dictionary<string, string> variableTypes = new Dictionary<string, string>();
 
@@ -111,8 +111,9 @@ namespace PixelTool
 
         private void TextArea_TextEntered(object sender, TextCompositionEventArgs e)
         {
-            // . 이나 : 을 입력했을 때 자동완성 요청
-            if (e.Text == "." || e.Text == ":")
+            EditorChange.Foreground = Brushes.Red;
+
+            if (e.Text == "." || e.Text == ":" || char.IsLetterOrDigit(e.Text[0]))
             {
                 if (completionWindow != null) return;
 
@@ -145,7 +146,6 @@ namespace PixelTool
                     }
                 });
             }
-            EditorChange.Foreground = Brushes.Red;
         }
 
         private void luaEditor_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)

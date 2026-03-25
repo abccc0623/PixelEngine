@@ -26,7 +26,7 @@ namespace PixelTool
         {
             // 1. 서버 경로 확인 (빌드 이벤트로 복사된 위치)
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string lspExe = System.IO.Path.Combine(baseDir, "LSP","bin","lua-language-server.exe");
+            string lspExe = System.IO.Path.Combine(baseDir, "LSP", "bin", "lua-language-server.exe");
             string workingDir = System.IO.Path.GetDirectoryName(lspExe);
 
             if (!File.Exists(lspExe))
@@ -150,7 +150,8 @@ namespace PixelTool
 
             string rootUri = new Uri(baseDir).AbsoluteUri;
             string metaFileUri = new Uri(metaFilePath).AbsoluteUri;
-            string metaFolderUri = new Uri(Path.Combine(baseDir, "LSP", "bin")).AbsoluteUri;
+            string metaFolderUri = new Uri(Path.Combine(baseDir, "LSP", "bin", "GenerateLuaAPI.lua")).AbsoluteUri;
+            string apiContent = File.ReadAllText(metaFilePath);
 
             // 2. 초기화(Initialize) 요청 구성
             var initializeRequest = new
@@ -162,35 +163,8 @@ namespace PixelTool
                 {
                     processId = Process.GetCurrentProcess().Id,
                     rootUri = rootUri,
-                    capabilities = new
-                    {
-                        textDocument = new { completion = new { completionItem = new { snippetSupport = true } } }
-                    },
-                    initializationOptions = new
-                    {
-                        settings = new
-                        {
-                            Lua = new
-                            {
-                                workspace = new
-                                {
-                                    // [수정] 파일 경로가 아닌 '폴더 URI'로 교체했습니다.
-                                    library = new[] { metaFilePath },
-                                    checkThirdParty = false,
-                                    ignoreDir = new[] { ".git" } // bin 폴더 무시 방지
-                                },
-                                diagnostics = new
-                                {
-                                    globals = new[] { "Pixel", "Time", "Input", "Engine", "KeyCode", "PVector3", "Asset", "Scene", "GameObject", "Renderer2D","LuaScript" }
-                                },
-                                completion = new
-                                {
-                                    displayContext = 1,
-                                    callSnippet = "Both"
-                                }
-                            }
-                        }
-                    }
+                    capabilities = new { /* 네 기존 capabilities */ },
+                    initializationOptions = GetLspInitOptions() // 👈 깔-끔
                 }
             };
 
@@ -202,6 +176,44 @@ namespace PixelTool
             // 3. 메타 파일 강제 로드 (Force Load)
             // 서버가 폴더 스캔을 씹는 현상을 완벽하게 방어하는 필살기입니다.
             // =====================================================================
+
+            var configRequest = new
+            {
+                jsonrpc = "2.0",
+                method = "workspace/didChangeConfiguration",
+                @params = new
+                {
+                    settings = new Dictionary<string, object>
+                    {
+                        ["Lua"] = new Dictionary<string, object>
+                        {
+                            ["runtime"] = new Dictionary<string, object>
+                            {
+                                ["version"] = "Lua 5.1",
+                                ["builtin"] = new Dictionary<string, string>
+                                {
+                                    ["basic"] = "disable",
+                                    ["string"] = "disable",
+                                    ["table"] = "disable",
+                                    ["math"] = "disable",
+                                    ["coroutine"] = "disable",
+                                    ["debug"] = "disable",
+                                    ["os"] = "disable",
+                                    ["io"] = "disable"
+                                }
+                            },
+                            ["completion"] = new Dictionary<string, object>
+                            {
+                                ["callSnippet"] = "Both",
+                                ["displayContext"] = 1,
+                                ["workspaceWord"] = false,
+                                ["showWord"] = "Disable"
+                            }
+                        }
+                    }
+                }
+            };
+            await SendMessage(configRequest);
             if (File.Exists(metaFilePath))
             {
                 var forceOpenRequest = new
@@ -219,7 +231,7 @@ namespace PixelTool
                         }
                     }
                 };
-
+            
                 // [정리 2] 이 역시 SendMessage로 깔끔하게 전송!
                 await SendMessage(forceOpenRequest);
             }
@@ -277,7 +289,8 @@ namespace PixelTool
                     // 초기화 확인 응답
                     if (response.id == 1)
                     {
-                        Task.Run(async () => {
+                        Task.Run(async () =>
+                        {
                             await SendMessage(new { jsonrpc = "2.0", method = "initialized", @params = new { } });
                         });
                     }
@@ -286,22 +299,26 @@ namespace PixelTool
                     if (response.id == 100)
                     {
                         var items = response.result?.items;
-                        if (items == null) return;
+                        if (items.Count <= 0) return;
 
                         var editorWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
-                        if (editorWindow == null) return;
+                        if (editorWindow.completionWindow != null) return;
 
-                        // CompletionWindow는 반드시 UI 스레드에서 생성되어야 함
-                        var window = new CompletionWindow(editorWindow.GetLuaEditorTextArea());
-                        window.CompletionList.ListBox.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
-                        window.CompletionList.ListBox.Foreground = Brushes.LightGray;
-                        window.CompletionList.ListBox.BorderBrush = new SolidColorBrush(Color.FromRgb(63, 63, 70));
-                        window.CompletionList.ListBox.BorderThickness = new System.Windows.Thickness(1);
-                        window.CompletionList.ListBox.FontFamily = new FontFamily("Consolas");
-                        window.CompletionList.ListBox.FontSize = 13;
+                        editorWindow.completionWindow = new CompletionWindow(editorWindow.GetLuaEditorTextArea());
+                        WindowUISetting(editorWindow.completionWindow);
+                        editorWindow.completionWindow.Closed += (s, ev) =>
+                        {
+                            editorWindow.completionWindow = null;
+                        };
+                        var offset = editorWindow.GetLuaEditorTextArea().Caret.Offset;
+                        char lastChar = editorWindow.GetLuaEditorTextArea().Document.GetCharAt(offset - 1);
+                        if (lastChar != '.' && lastChar != ':')
+                        {
+                            editorWindow.completionWindow.StartOffset -= 1;
+                        }
 
-                        IList<ICompletionData> data = window.CompletionList.CompletionData;
 
+                        IList<ICompletionData> data = editorWindow.completionWindow.CompletionList.CompletionData;
                         foreach (var item in items)
                         {
                             int kind = (int)(item.kind ?? 0);
@@ -310,12 +327,8 @@ namespace PixelTool
                             string detail = (string)(item.detail ?? "");
                             data.Add(new LuaCompletionData(label, detail));
                         }
-
-                        if (data.Count > 0)
-                        {
-                            window.Show();
-                            window.Width = 300;
-                        }
+                        editorWindow.completionWindow.Show();
+                        editorWindow.completionWindow.Width = 300;
                     }
 
                     // 실시간 진단 로그
@@ -327,7 +340,7 @@ namespace PixelTool
                 catch (Exception ex)
                 {
                     // 여기서 터지는건 UI 로직 문제임
-                    Debug.WriteLine($"!!! [UI Thread Error]: {ex.Message}");
+                    ConsoleWindow.LogMessage($"[LSP] UI Thread Error {ex.Message}", 0);
                 }
             }));
         }
@@ -337,7 +350,7 @@ namespace PixelTool
             if (_stdin == null) return;
 
             this.filePath = filePath;
-            this.fileContent= fileContent;
+            this.fileContent = fileContent;
             string fileUri = new Uri(Path.GetFullPath(filePath), UriKind.Absolute).AbsoluteUri;
 
             var notification = new
@@ -380,9 +393,10 @@ namespace PixelTool
                         version = ++_fileVersion // 버전업!
                     },
                     // 전체 텍스트 동기화 방식 (간단함)
-                    contentChanges = new[] {
-                new { text = fileContent }
-            }
+                    contentChanges = new[]
+                    {
+                        new { text = fileContent }
+                    }
                 }
             };
 
@@ -415,5 +429,73 @@ namespace PixelTool
             _lspProcess?.Kill();
             _lspProcess?.Dispose();
         }
+
+
+        void WindowUISetting(CompletionWindow window)
+        {
+            window.CompletionList.ListBox.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
+            window.CompletionList.ListBox.Foreground = Brushes.LightGray;
+            window.CompletionList.ListBox.BorderBrush = new SolidColorBrush(Color.FromRgb(63, 63, 70));
+            window.CompletionList.ListBox.BorderThickness = new System.Windows.Thickness(1);
+            window.CompletionList.ListBox.FontFamily = new FontFamily("Consolas");
+            window.CompletionList.ListBox.FontSize = 13;
+        }
+        public object GetLspInitOptions()
+        {
+            // 1. 루아 런타임 (내장 라이브러리 비활성화)
+            var runtime = new Dictionary<string, object>
+            {
+                ["version"] = "Lua 5.1",
+                ["builtin"] = new Dictionary<string, string>
+                {
+                    ["basic"] = "disable",
+                    ["string"] = "disable",
+                    ["table"] = "disable",
+                    ["math"] = "disable",
+                    ["coroutine"] = "disable",
+                    ["debug"] = "disable",
+                    ["os"] = "disable",
+                    ["io"] = "disable"
+                }
+            };
+
+            // 2. 진단 및 자동완성
+            var diagnostics = new Dictionary<string, object>
+            {
+                ["globals"] = new[] { "Pixel", "Time", "Input", "Engine", "KeyCode", "PVector3", "Asset", "Scene", "GameObject", "Transform", "Renderer2D", "LuaScript" }
+            };
+
+            var completion = new Dictionary<string, object>
+            {
+                ["callSnippet"] = "Both",
+                ["displayContext"] = 1
+            };
+
+            // 3. 파일 확장자 연결
+            var files = new Dictionary<string, object>
+            {
+                ["associations"] = new Dictionary<string, string>
+                {
+                    ["*.pxm"] = "lua",
+                    ["*.scene"] = "lua"
+                }
+            };
+
+            // 4. 최종 조립 리턴
+            return new
+            {
+                settings = new Dictionary<string, object>
+                {
+                    ["Lua"] = new Dictionary<string, object>
+                    {
+                        ["runtime"] = runtime,
+                        ["diagnostics"] = diagnostics,
+                        ["completion"] = completion
+                    },
+                    ["files"] = files
+                }
+            };
+        }
     }
+
 }

@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Type/PVector3.h"
 #include "Transform.h"
-#include "Type/PMeta.h"
 #include <json.hpp>
 
 Transform::Transform():

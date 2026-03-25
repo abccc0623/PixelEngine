@@ -36,15 +36,15 @@ void GenerateManager::Generate(PClass* target, int index, std::string typeName)
         };
         addModuleSTR += ChangeString(replaceData,LuaAddModuleString);
     }
-    else if(GetClassHash(target) == GetClassHashByString("PVector3"))
-    {
-        //Type형태의 클래스일 경우
-        includeSTR += ChangeString("{{INCLUDE_TYPE}}", typeName, IncludeTypesString);
-    }
     else if (GetClassHash(target) == GetClassHashByString("GameObject"))
     {
         //Core형태의 클래스일 경우
         includeSTR += ChangeString("{{INCLUDE_TYPE}}", typeName, IncludeCoreString);
+    }
+    else if(GetClassHash(target) == GetClassHashByString("PVector3"))
+    {
+        //Type형태의 클래스일 경우
+        includeSTR += ChangeString("{{INCLUDE_TYPE}}", typeName, IncludeTypesString);
     }
     functionSTR     += ChangeString("{{CLASS_NAME}}", typeName, LuaCallBindString);
     contentSTR      += ChangeString("{{CLASS_NAME}}", typeName, LuaFunctionString);
@@ -254,7 +254,7 @@ void GenerateManager::GenerateLua(PClass* target, int index, std::string typeNam
             }
 
         }
-        generateMetaFiles += "---@return void \n";
+        generateMetaFiles += "---@return " + ReturnType + "\n";
         generateMetaFiles += "function " + typeName + ":" + MethodName+ "(" + Property +") end\n\n";
     }
 }

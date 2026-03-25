@@ -15,6 +15,8 @@ public:
 	void Generate(PClass* target,int index,std::string typeName);
 	void Generate(PNamespace* target, int index, std::string typeName);
 
+
+
 	void GenerateLua(PClass* target, int index, std::string typeName);
 	void GenerateLua(PNamespace* target, int index, std::string typeName);
 

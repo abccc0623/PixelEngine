@@ -2,7 +2,6 @@
 #include "Core/Module.h"
 #include "Type/PVector3.h"
 #include "Type/PMatrix.h"
-#include "Type/PMeta.h"
 
 class Transform : public Module
 {
@@ -13,11 +12,11 @@ public:
 	void MatrixUpdate() override;
 	void Start() override;
 
-	PIXEL_ENGINEDLL PMatrix& GetWorldMatrix();
-	PIXEL_ENGINEDLL PVector3 GetLookVector();
-	PIXEL_ENGINEDLL PVector3 GetRightVector();
-	PIXEL_ENGINEDLL PVector3 GetUpVector();
-	PIXEL_ENGINEDLL PMatrix	GetLocal();
+	PMatrix& GetWorldMatrix();
+	PVector3 GetLookVector();
+	PVector3 GetRightVector();
+	PVector3 GetUpVector();
+	PMatrix	GetLocal();
 	PVector3 Position;
 	PVector3 Rotation;
 	PVector3 Scale;

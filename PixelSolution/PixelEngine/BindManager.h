@@ -26,4 +26,8 @@ private:
 	void BindDebugCamera();
 	void BindCamera();
 	void BindGameObject();
+	void BindPVector3();
+private:
+	
+
 };

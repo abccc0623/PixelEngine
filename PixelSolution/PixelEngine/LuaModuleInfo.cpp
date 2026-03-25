@@ -7,7 +7,6 @@
 LuaModuleInfo::LuaModuleInfo(sol::table table)
 {
 	this->tabel = table;
-	//this->mataTable = mtTable;
 }
 LuaModuleInfo::~LuaModuleInfo()
 {
@@ -22,18 +21,19 @@ void LuaModuleInfo::Reload()
 void LuaModuleInfo::Awake()
 {
 	sol::state_view lua(tabel.lua_state());
+	sol::table prototypeSelf = tabel["self"];
+	
 	instance = lua.create_table();
-
 	sol::table mt = lua.create_table();
-	mt["__index"] = tabel;
+	mt["__index"] = prototypeSelf;
 	instance[sol::metatable_key] = mt;
 
 	instance["gameObject"] = targetObject;
 	instance["transform"] = transform;
 
-	luaAwake = tabel["Awake"];
-	luaStart = tabel["Start"];
-	luaUpdate = tabel["Update"];
+	luaAwake = prototypeSelf["Awake"];
+	luaStart = prototypeSelf["Start"];
+	luaUpdate = prototypeSelf["Update"];
 
 	if (luaAwake.valid())
 	{

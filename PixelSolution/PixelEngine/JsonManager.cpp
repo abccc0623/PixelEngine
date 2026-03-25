@@ -5,7 +5,6 @@
 #include "PixelEngineAPI.h"
 #include "Export/Core/GameObject.h"
 #include "Export/Core/Module.h"
-#include "Export/Type/PMeta.h"
 #include "Export/Module/Transform.h"
 
 
