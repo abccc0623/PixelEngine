@@ -1,5 +1,8 @@
 #pragma once
 #include "EngineManager.h"
+#include "PixelMeta.h"
+class LSPBind;
+class LuaBind;
 class PClass;
 class PNamespace;
 class GenerateManager :public EngineManager
@@ -12,27 +15,13 @@ public:
 	void Release() override;
 	void Clear() override;
 
-	void Generate(PClass* target,int index,std::string typeName);
-	void Generate(PNamespace* target, int index, std::string typeName);
-
-
-
-	void GenerateLua(PClass* target, int index, std::string typeName);
-	void GenerateLua(PNamespace* target, int index, std::string typeName);
-
-	void CreateLuaBindCode(const char* outPath);
-	void CreateLuaApiJson(const char* outPath);
-
-	std::string TypeChangeByLua(std::string type);
+	void CreateBindCode();
+	void LuaGenerate(const char* outPath);
+	void LSPGenerate(const char* outPath);
+	void JsonGenerate(const char* outPath);
 private:
-	std::string ChangeString(const std::string& command, const std::string& changeName, const std::string& templateStr);
-	std::string ChangeString(const std::unordered_map<std::string, std::string>& replacements, const std::string& templateStr);
-	std::string includeSTR;
-	std::string contentSTR;
-	std::string functionSTR;
-	std::string addModuleSTR;
-	std::string globalContentSTR;
-
-	std::string generateMetaFiles;
+	LuaBind* luaBind;
+	LSPBind* lspBind;
+	std::vector<PixelClassMeta> types;
 };
 

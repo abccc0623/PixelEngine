@@ -258,6 +258,18 @@
     <ClInclude Include="LuaSceneInfo.h">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClInclude>
+    <ClInclude Include="PixelMeta.h">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaBind.h">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="IBind.h">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="LSPBind.h">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -367,6 +379,12 @@
     </ClCompile>
     <ClCompile Include="LuaSceneInfo.cpp">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaBind.cpp">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClCompile>
+    <ClCompile Include="LSPBind.cpp">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -24,9 +24,9 @@ int main()
     
         // 1. 안내 문구 출력 (이때 std::cout 사용)
         std::cout << "생성할 번호를 입력" <<std::endl;
-        std::cout << "(1)Lua BindCode 생성" <<std::endl;
-        std::cout << "(2)Lua APICode(Tool 자동완성 용) 생성" <<std::endl;
-        std::cout << "(3)All" <<std::endl;
+        std::cout << "(1)LuaGenerate" <<std::endl;
+        std::cout << "(2)LSPGenerate" <<std::endl;
+        std::cout << "(3)JsonGenerate" <<std::endl;
     
         // 2. 공백 포함 한 줄 전체를 입력받음 (std::getline 사용)
         std::getline(std::cin, inputStr);
@@ -39,19 +39,19 @@ int main()
             {
             case 1:
                 outputPath = "../PixelEngine/GenerateLuaBind.h";
-                GenerateLuaBindCode(outputPath.c_str());
+                LuaGenerate(outputPath.c_str());
                 break;
             case 2:
                 outputPath += GetExePath();
                 outputPath += "\\LSP\\bin\\GenerateLuaAPI.lua";
-                GenerateLuaAPICodeJson(outputPath.c_str());
+                LSPGenerate(outputPath.c_str());
                 break;
             case 3:
-                outputPath = "../PixelEngine/GenerateLuaBind.h";
-                GenerateLuaBindCode(outputPath.c_str());
-                outputPath = GetExePath();
-                outputPath += "\\LSP\\bin\\GenerateLuaAPI.lua";
-                GenerateLuaAPICodeJson(outputPath.c_str());
+                //outputPath = "../PixelEngine/GenerateLuaBind.h";
+                //GenerateLuaBindCode(outputPath.c_str());
+                //outputPath = GetExePath();
+                //outputPath += "\\LSP\\bin\\GenerateLuaAPI.lua";
+                //GenerateLuaAPICodeJson(outputPath.c_str());
                 break;
             }
             break;

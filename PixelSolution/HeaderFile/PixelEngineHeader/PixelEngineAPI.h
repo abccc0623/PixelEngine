@@ -34,8 +34,9 @@ extern "C" PIXEL_ENGINEDLL const char* GetMethodGetPropertyType(PClass* targetCl
 extern "C" PIXEL_ENGINEDLL int GetMethodPropertyCount(PClass* targetClass, int index);
 #pragma endregion
 
-extern "C" PIXEL_ENGINEDLL void GenerateLuaBindCode(const char* outPath);
-extern "C" PIXEL_ENGINEDLL void GenerateLuaAPICodeJson(const char* outPath);
+extern "C" PIXEL_ENGINEDLL void LuaGenerate(const char* outPath);
+extern "C" PIXEL_ENGINEDLL void LSPGenerate(const char* outPath);
+extern "C" PIXEL_ENGINEDLL void JsonGenerate(const char* outPath);
 
 //KeyInput
 extern "C" PIXEL_ENGINEDLL bool GetKeyDown(char number);		

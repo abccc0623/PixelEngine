@@ -160,6 +160,7 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="IBind.h" />
     <ClInclude Include="Export\Core\GameObject.h" />
     <ClInclude Include="BindManager.h" />
     <ClInclude Include="BoxCollision2D.h" />
@@ -185,6 +186,8 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClInclude Include="JsonManager.h" />
     <ClInclude Include="json_fwd.hpp" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="LSPBind.h" />
+    <ClInclude Include="LuaBind.h" />
     <ClInclude Include="LuaModuleInfo.h" />
     <ClInclude Include="LuaGenerateTemplate.h" />
     <ClInclude Include="LuaSceneInfo.h" />
@@ -196,6 +199,7 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClInclude Include="LuaManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelEngine.h" />
+    <ClInclude Include="PixelMeta.h" />
     <ClInclude Include="SPointer.h" />
     <ClInclude Include="PtrControlBlock.h" />
     <ClInclude Include="Rect.h" />
@@ -229,6 +233,8 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClCompile Include="GenerateManager.cpp" />
     <ClCompile Include="JsonManager.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="LSPBind.cpp" />
+    <ClCompile Include="LuaBind.cpp" />
     <ClCompile Include="LuaModuleInfo.cpp" />
     <ClCompile Include="LuaSceneInfo.cpp" />
     <ClCompile Include="Memory.cpp" />

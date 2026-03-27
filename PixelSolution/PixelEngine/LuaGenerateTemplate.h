@@ -22,7 +22,7 @@ std::string LuaCallBindString	= "\tGenerate_{{CLASS_NAME}}(lua);\n";
 std::string LuaGlobalBindString			= "\tsol::table ut = lua.create_named_table(\"{{CLASS_NAME}}\");\n";
 std::string LuaGlobalMemberBindString	= "\tut[\"{{METHOD_NAME}}\"] = &{{METHOD_NAME}};\n";
 
-std::string LuaAddModuleString = "\tAddModuleList.insert({ \"{{CLASS_NAME}}\",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<{{CLASS_NAME}}* > (target));return obj;}});\n";
+std::string LuaAddModuleString			= "\tAddModuleList.insert({ \"{{CLASS_NAME}}\",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<{{CLASS_NAME}}* > (target));return obj;}});\n";
 
 
 ///툴에서 자동완성을 위한 제너레이트

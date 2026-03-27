@@ -291,22 +291,31 @@ int GetMethodPropertyCount(PClass* targetClass, int index)
 {
 	return GetClassMethodPropertyCount(targetClass, index);
 }
-void GenerateLuaBindCode(const char* outPath)
+void LuaGenerate(const char* outPath)
 {
 	if (Engine != nullptr)
 	{
 		GenerateManager* Generate = Engine->GetFactory<GenerateManager>();
-		Generate->CreateLuaBindCode(outPath);
+		Generate->LuaGenerate(outPath);
 	}
 }
-void GenerateLuaAPICodeJson(const char* outPath)
+void LSPGenerate(const char* outPath)
 {
 	if (Engine != nullptr)
 	{
 		GenerateManager* Generate = Engine->GetFactory<GenerateManager>();
-		Generate->CreateLuaApiJson(outPath);
+		Generate->LSPGenerate(outPath);
 	}
 }
+void JsonGenerate(const char* outPath)
+{
+	if (Engine != nullptr)
+	{
+		GenerateManager* Generate = Engine->GetFactory<GenerateManager>();
+		Generate->JsonGenerate(outPath);
+	}
+}
+
 int GetMemberCount(PClass* targetClass)
 {
 	return GetClassMemberCount(targetClass);
