@@ -249,9 +249,6 @@
     <ClInclude Include="GenerateManager.h">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClInclude>
-    <ClInclude Include="LuaGenerateTemplate.h">
-      <Filter>EngineAPI\Manager\GenerateManager</Filter>
-    </ClInclude>
     <ClInclude Include="GlobalBind.h">
       <Filter>EngineAPI\Manager\BindManager</Filter>
     </ClInclude>

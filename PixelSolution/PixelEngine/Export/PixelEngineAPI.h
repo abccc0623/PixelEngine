@@ -14,13 +14,8 @@ extern "C" PIXEL_ENGINEDLL bool ResizeEngine(int width,int height);
 extern "C" PIXEL_ENGINEDLL void SetWindowFocus(bool focus);
 extern "C" PIXEL_ENGINEDLL void Reload();
 
-
-
 extern "C" PIXEL_ENGINEDLL void Import(const char* path);
 extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name);
-
-
-
 
 #pragma region MetaType
 extern "C" PIXEL_ENGINEDLL PClass* GetMetaClass(const char* className);
@@ -49,6 +44,13 @@ extern "C" PIXEL_ENGINEDLL int GetMousePosition_Y();
 extern "C" PIXEL_ENGINEDLL float GetDeltaTime();
 extern "C" PIXEL_ENGINEDLL double GetTotalTime();
 extern "C" PIXEL_ENGINEDLL int GetFPS();
+
+//Debug
+extern "C" PIXEL_ENGINEDLL void LogInfo(const char* log);
+extern "C" PIXEL_ENGINEDLL void LogError(const char* log);
+extern "C" PIXEL_ENGINEDLL void LogWarning(const char* log);
+
+//Vector3
 
 
 typedef void(__stdcall* LogCallbackFunc)(const char* message, int level);

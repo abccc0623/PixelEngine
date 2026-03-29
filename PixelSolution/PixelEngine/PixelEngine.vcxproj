@@ -189,7 +189,6 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
     <ClInclude Include="LSPBind.h" />
     <ClInclude Include="LuaBind.h" />
     <ClInclude Include="LuaModuleInfo.h" />
-    <ClInclude Include="LuaGenerateTemplate.h" />
     <ClInclude Include="LuaSceneInfo.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="ObjectManager.h" />

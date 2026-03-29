@@ -49,6 +49,15 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalInput,"GetMousePosition_X",GeGlobalMethodInfo(&GetMousePosition_X), MetaFlag::LUABIND);
 	AddGlobalMethod(globalInput,"GetMousePosition_Y",GeGlobalMethodInfo(&GetMousePosition_Y), MetaFlag::LUABIND);
 
+	PNamespace* globaDebug = CreateNewNamepace("Debug");
+	AddGlobalMethod(globaDebug, "LogInfo", GeGlobalMethodInfo(&LogInfo), MetaFlag::LUABIND);
+	AddGlobalMethod(globaDebug, "LogError", GeGlobalMethodInfo(&LogError), MetaFlag::LUABIND);
+	AddGlobalMethod(globaDebug, "LogWarning", GeGlobalMethodInfo(&LogWarning), MetaFlag::LUABIND);
+
+	PNamespace* globaVector3 = CreateNewNamepace("Vector3");
+	AddGlobalMethod(globaVector3, "Lerp",		GeGlobalMethodInfo(&Lerp),		MetaFlag::LUABIND);
+	AddGlobalMethod(globaVector3, "Distance",	GeGlobalMethodInfo(&Distance),	MetaFlag::LUABIND);
+
 	
 	PClass* table = nullptr;
 
@@ -60,10 +69,8 @@ void BindManager::Initialize()
 	table = CreateNewClass("Transform",		"Module");
 	table = CreateNewClass("Camera",		"Module");
 	table = CreateNewClass("LuaScript",		"Module");
-	//table = CreateNewClass("Collision2D",	"Module");
 	table = CreateNewClass("DebugCamera",	"Module");
 	table = CreateNewClass("LuaScript",		"Module");
-	//table = CreateNewClass("Renderer",		"Module");
 	table = CreateNewClass("Renderer2D",	"Module");
 	
 	BindPVector3();
@@ -193,6 +200,7 @@ void BindManager::BindPVector3()
 	AddMember(table, "X", GetMemberInfo(&PVector3::X));
 	AddMember(table, "Y", GetMemberInfo(&PVector3::Y));
 	AddMember(table, "Z", GetMemberInfo(&PVector3::Z));
+	AddMethod(table, "Create", GetMethodInfo(&PVector3::Create), MetaFlag::LUABIND);
 }
 
 

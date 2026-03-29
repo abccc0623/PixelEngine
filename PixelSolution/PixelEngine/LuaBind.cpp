@@ -51,9 +51,17 @@ void LuaBind::SetFunctionString(PixelClassMeta& meta)
 
 void LuaBind::SetLuaClassString(PixelClassMeta& meta)
 {
-    if (meta.thisName == "PVector3")
+
+    auto it = std::find_if(meta.methods.begin(), meta.methods.end(), [](const auto& method)
+        {
+            return method.name == "Create"; 
+        });
+    if (it != meta.methods.end())
     {
-        FunctionString += ReplaceAll(CreateClassBind, "CLASS_NAME", meta.thisName);
+        std::unordered_map<std::string, std::string> data;
+        data["PROPERTY"] = propertyToString(it->propertys);
+        data["CLASS_NAME"] = meta.thisName;
+        FunctionString += ReplaceSimple(CreateClassBind, data);
     }
     else if (meta.metaType == META_TYPE::NAMESPACE)
     {
@@ -85,6 +93,11 @@ void LuaBind::SetLuaMethodString(PixelClassMeta& meta)
 {
     for (auto& m : meta.methods)
     {
+        if (m.name == "Create") 
+        {
+            continue;
+        }
+
         if (meta.metaType == META_TYPE::NAMESPACE)
         {
             std::unordered_map<std::string, std::string> data;
@@ -99,6 +112,23 @@ void LuaBind::SetLuaMethodString(PixelClassMeta& meta)
             FunctionString += ReplaceSimple(ClassMethodBind, data);
         }
     }
+}
+
+std::string LuaBind::propertyToString(std::vector<std::string> propertys)
+{
+    std::string content = "";
+    for (int i = 0; i < propertys.size(); i++)
+    {
+        if (i == propertys.size() - 1)
+        {
+            content += propertys[i];
+        }
+        else
+        {
+            content += propertys[i]+ ",";
+        }
+    }
+    return content;
 }
 
 

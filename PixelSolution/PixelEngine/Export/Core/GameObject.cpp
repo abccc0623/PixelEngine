@@ -32,7 +32,14 @@ bool GameObject::HasModule(PClass* moduleClass)
 {
 	uint64_t hash = GetClassHash(moduleClass);
 	auto k = ModuleMap.find(hash);
-	return (k == ModuleMap.end()) ? false : true;
+	if ((k == ModuleMap.end()))
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
 Module* GameObject::GetModuleToEngine(PClass* moduleClass)

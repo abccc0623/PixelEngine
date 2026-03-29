@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "GenerateManager.h"
 #include "PixelMetaAPI.h"
-#include "LuaGenerateTemplate.h"
 #include "PixelMeta.h"
 #include "LuaBind.h"
 #include "LSPBind.h"

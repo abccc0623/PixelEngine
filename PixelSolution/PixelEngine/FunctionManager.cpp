@@ -163,3 +163,33 @@ void FunctionManager::AddTickFunction(SPointer<Module> module, int type)
 	}
 }
 
+void FunctionManager::AddLuaAwake(void(*Func)())
+{
+	LuaAWAKECall.push(Func);
+}
+
+void FunctionManager::AddLuaStart(void(*Func)())
+{
+	LuaSTARTCall.push(Func);
+}
+
+void FunctionManager::CallLuaAwake()
+{
+	while (!LuaAWAKECall.empty())
+	{
+		auto call = LuaAWAKECall.front();
+		call();
+		LuaAWAKECall.pop();
+	}
+}
+
+void FunctionManager::CallLuaStart()
+{
+	while (!LuaSTARTCall.empty())
+	{
+		auto call = LuaSTARTCall.front();
+		call();
+		LuaSTARTCall.pop();
+	}
+}
+

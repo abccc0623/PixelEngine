@@ -11,18 +11,17 @@ private:
 	std::string propertyToString(std::vector<std::string> propertys);
 	void SetMethodString(PixelClassMeta& meta);
 	void SetMemberString(PixelClassMeta& meta);
-	void SetGameObjectString();
-
-
+	void SetGameObjectString(std::vector<PixelClassMeta>& types);
 
 	std::string main = "";
-	const std::string ClassBind		= "---@class {{CLASS_NAME}}\n";
-	const std::string PropertyBind	= "---@param {{TYPE}}{{INDEX}} {{TYPE}}\n";
-	const std::string ReturnBind	= "---@return {{TYPE}}\n";
-	const std::string MemberBind	= "---@field {{NAME}} {{TYPE}}\n";
+	const std::string ClassBind			= "---@class {{CLASS_NAME}}\n";
+	const std::string ClassParentBind	= "---@class {{CLASS_NAME}} : {{PARENT_NAME}}\n";
+	const std::string PropertyBind		= "---@param {{TYPE}}{{INDEX}} {{TYPE}}\n";
+	const std::string ReturnBind		= "---@return {{TYPE}}\n";
+	const std::string MemberBind		= "---@field {{NAME}} {{TYPE}}\n";
 	const std::string MethodBind		= "function {{CLASS_NAME}}:{{FUNCTION_NAME}}({{PROPERTY}}) end\n\n";
 	const std::string StaticMethodBind	= "function {{CLASS_NAME}}.{{FUNCTION_NAME}}({{PROPERTY}}) end\n\n";
-
 	const std::string CreateClassBind = "---@return {{CLASS_NAME}} \n function {{CLASS_NAME}}.new() end\n";
+	const std::string OverloadObject	= "---@overload fun(self: GameObject, ModuleName: '\"{{CLASS_NAME}}\"'): {{CLASS_NAME}}\n";
 };
 

@@ -168,6 +168,21 @@ int GetFPS()
 	return -1;
 }
 
+void LogInfo(const char* log)
+{
+	PixelLog::Info(log);
+}
+
+void LogError(const char* log)
+{
+	PixelLog::Error(log);
+}
+
+void LogWarning(const char* log)
+{
+	PixelLog::Warn(log);
+}
+
 bool LoadTexture(const char* path)
 {
 	std::string strPath(path);

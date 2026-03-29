@@ -5,6 +5,8 @@
 #include "PixelEngineAPI.h"
 #include "LuaModuleInfo.h"
 #include "LuaManager.h"
+#include "Core/GameObject.h"
+#include "Module/Transform.h"
 #include "Log.h"
 extern PixelEngine* Engine;
 LuaManager* LuaScript::lua = nullptr;
@@ -14,44 +16,68 @@ LuaScript::LuaScript()
     {
         lua = Engine->GetFactory<LuaManager>();
     }
-    info = nullptr;
 }
 
 LuaScript::~LuaScript()
 {
-    info = nullptr;
+    //instance = nullptr;
 }
 
 void LuaScript::Awake()
 {
-    if (info != nullptr)
+    if (awake.valid())
     {
-        info->Awake();
+    	auto result = awake(instance);
+    	if (!result.valid())
+    	{
+    		sol::error err = result;
+    		std::string what = err.what();
+    		PixelLog::Error("--- LUA AWAKE ERROR ---");
+    		PixelLog::Error(what);
+    		PixelLog::Error("-----------------------");
+    	}
     }
+
 }
 
 void LuaScript::Start()
 {
-    if (info != nullptr)
+    if (start.valid())
     {
-        info->Start();
+    	auto result = start(instance);
+    	if (!result.valid())
+    	{
+    		sol::error err = result;
+    		std::string what = err.what();
+    		PixelLog::Error("--- LUA SRART ERROR ---");
+    		PixelLog::Error(what);
+    		PixelLog::Error("-----------------------");
+    	}
     }
 }
 
 void LuaScript::Update()
 {
-    if (info != nullptr)
+    if (update.valid())
     {
-        info->Update();
+        auto result = update(instance, GetDeltaTime());
     }
 }
 
 
 void LuaScript::Reload()
 {
-    if (info != nullptr)
+    if (update.valid())
     {
-        info->Reload();
+        auto result = update(instance, GetDeltaTime());
+        if (!result.valid())
+        {
+            sol::error err = result;
+            std::string what = err.what();
+            PixelLog::Error("--- LUA SRART ERROR ---");
+            PixelLog::Error(what);
+            PixelLog::Error("-----------------------");
+        }
     }
 }
 
@@ -63,8 +89,13 @@ void LuaScript::Register(std::string fileName)
         PixelLog::Error("Not Find Lua File :" + fileName);
         return;
     }
-    info = luaInfo;
-    info->Set(targetObject);
-    info->Set(transform);
     luaFileName = fileName;
+    instance = luaInfo->Create();
+    
+    awake = instance["Awake"];
+    start = instance["Start"];
+    update = instance["Update"];
+    
+    instance["gameObject"] = targetObject;
+    instance["transform"] = transform;
 }

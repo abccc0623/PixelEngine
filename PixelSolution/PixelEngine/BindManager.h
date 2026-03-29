@@ -28,6 +28,5 @@ private:
 	void BindGameObject();
 	void BindPVector3();
 private:
-	
 
 };

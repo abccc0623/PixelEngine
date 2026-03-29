@@ -12,6 +12,8 @@ private:
 	void SetLuaClassString(PixelClassMeta& meta);
 	void SetLuaMemberString(PixelClassMeta& meta);
 	void SetLuaMethodString(PixelClassMeta& meta);
+	
+	std::string propertyToString(std::vector<std::string> propertys);
 
 	std::string IncludeString;
 	std::string FunctionString;
@@ -23,7 +25,7 @@ private:
 	const std::string FunctionCallName			= "\tGenerate_{{TYPE_NAME}}(lua); \n";
 	const std::string ClassBind					= "\tsol::usertype<{{CLASS_NAME}}> ut = lua.new_usertype<{{CLASS_NAME}}>(\"{{CLASS_NAME}}\");\n";
 	const std::string StaticClassBind			= "\tsol::table ut = lua.create_named_table(\"{{CLASS_NAME}}\");\n";
-	const std::string CreateClassBind			= "\tsol::usertype<{{CLASS_NAME}}> ut = lua.new_usertype<{{CLASS_NAME}}>(\"{{CLASS_NAME}}\",sol::constructors<{{CLASS_NAME}}()>()); \n";
+	const std::string CreateClassBind			= "\tsol::usertype<{{CLASS_NAME}}> ut = lua.new_usertype<{{CLASS_NAME}}>(\"{{CLASS_NAME}}\",sol::constructors<{{CLASS_NAME}}({{PROPERTY}})>()); \n";
 	const std::string ClassMemberBind			= "\tut[\"{{MEMBER_NAME}}\"] = &{{CLASS_NAME}}::{{MEMBER_NAME}};\n";
 	const std::string ClassMethodBind			= "\tut[\"{{METHOD_NAME}}\"] = &{{CLASS_NAME}}::{{METHOD_NAME}};\n";
 	const std::string ClassGlobalMethodBind		= "\tut[\"{{METHOD_NAME}}\"] = &{{METHOD_NAME}};\n";

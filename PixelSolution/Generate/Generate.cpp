@@ -42,8 +42,7 @@ int main()
                 LuaGenerate(outputPath.c_str());
                 break;
             case 2:
-                outputPath += GetExePath();
-                outputPath += "\\LSP\\bin\\GenerateLuaAPI.lua";
+                outputPath += "../PixelTool/LSP/bin/GenerateLuaAPI.lua";
                 LSPGenerate(outputPath.c_str());
                 break;
             case 3:

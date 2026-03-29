@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Module.h"
+#include <sol/forward.hpp>
 class GameObject;
 class LuaModuleInfo;
 class LuaManager;
@@ -16,7 +17,11 @@ public:
 	void Register(std::string fileName);
 private:
 	std::string luaFileName;
-	LuaModuleInfo* info;
+	sol::table instance;
+	sol::function awake;
+	sol::function start;
+	sol::function update;
+
 	static LuaManager* lua;
 };
 

@@ -14,16 +14,18 @@ public:
 	void Start();
 	void Update();
 
-	void Set(Transform* transform);
-	void Set(GameObject* targetObject);
+	sol::table Create();
+
+	//void Set(Transform* transform);
+	//void Set(GameObject* targetObject);
 private:
 	sol::table tabel;
-	sol::table instance;
-	sol::table mataTable;
-	sol::protected_function luaAwake;
-	sol::protected_function luaStart;
-	sol::protected_function luaUpdate;
-	Transform* transform;
-	GameObject* targetObject;
+	//sol::table instance;
+	//sol::table mataTable;
+	//sol::protected_function luaAwake;
+	//sol::protected_function luaStart;
+	//sol::protected_function luaUpdate;
+	//Transform* transform;
+	//GameObject* targetObject;
 };
 

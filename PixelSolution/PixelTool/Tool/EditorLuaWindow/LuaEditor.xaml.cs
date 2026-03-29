@@ -4,11 +4,13 @@ using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using ICSharpCode.AvalonEdit.Rendering; // 핵심: 직접 색칠하는 도구
+using Microsoft.VisualStudio.LanguageServer.Protocol;
 using PixelTool;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions; // 정규식 사용
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -22,6 +24,9 @@ namespace PixelTool
         private bool IsDirty = false;
 
         public CompletionWindow completionWindow;
+        private CancellationTokenSource _debounceTokenSource;
+
+
         private System.Windows.Threading.DispatcherTimer _typeTimer;
         private Dictionary<string, string> variableTypes = new Dictionary<string, string>();
 
@@ -30,24 +35,13 @@ namespace PixelTool
         public LuaEditorWindow()
         {
             InitializeComponent();
+            luaLspService = new LuaLspService();
+            luaLspService.Initialize();
 
-            _typeTimer = new System.Windows.Threading.DispatcherTimer();
-            _typeTimer.Interval = TimeSpan.FromMilliseconds(300); // 0.3초 대기
-            _typeTimer.Tick += OnTypeTimerTick;
-            _typeTimer.Start();
             LuaEditor.TextChanged += LuaEditor_TextChanged;
             LuaEditor.TextArea.TextEntered += TextArea_TextEntered;
-            InitializeEditor();
+            //InitializeEditor();
             ApplyLuaSyntaxHighlighting();
-        }
-
-        private async void InitializeEditor()
-        {
-            luaLspService = new LuaLspService();
-
-            luaLspService.StartServer();
-            await Task.Delay(500);
-            await luaLspService.SendInitializeRequest();
         }
 
         private void ApplyLuaSyntaxHighlighting()
@@ -59,7 +53,7 @@ namespace PixelTool
                 using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
                 {
                     if (stream == null) return; // 파일을 못 찾으면 그냥 리턴 (에러 방지)
-
+            
                     using (var reader = new System.Xml.XmlTextReader(stream))
                     {
                         LuaEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader, HighlightingManager.Instance);
@@ -71,15 +65,6 @@ namespace PixelTool
                 // 리소스 로드 실패 시 디버깅용
                 System.Diagnostics.Debug.WriteLine("Highlighting Load Failed: " + ex.Message);
                 ConsoleWindow.LogMessage("Highlighting Load Failed: " + ex.Message, 2);
-            }
-        }
-
-        private async void OnTypeTimerTick(object sender, EventArgs e)
-        {
-            _typeTimer.Stop();
-            if (!string.IsNullOrEmpty(targetPath))
-            {
-                await luaLspService.SendDidChangeNotification(targetPath, LuaEditor.Text);
             }
         }
 
@@ -101,7 +86,7 @@ namespace PixelTool
                 string content = LuaEditor.Text;
                 if (luaLspService != null)
                 {
-                    await luaLspService.SendDidOpenNotification(path, content);
+                    await luaLspService.NotifyFileOpenAsync(path, LuaEditor.Text);
                 }
                 LuaEditor.Document.UndoStack.MarkAsOriginalFile();
                 IsDirty = false;
@@ -109,42 +94,17 @@ namespace PixelTool
             }
         }
 
-        private void TextArea_TextEntered(object sender, TextCompositionEventArgs e)
+        private async void TextArea_TextEntered(object sender, TextCompositionEventArgs e)
         {
-            EditorChange.Foreground = Brushes.Red;
-
-            if (e.Text == "." || e.Text == ":" || char.IsLetterOrDigit(e.Text[0]))
+            if (e.Text == "." || e.Text == ":")
             {
-                if (completionWindow != null) return;
-
-                // [데이터 복사] UI 스레드에서 안전하게 값만 추출합니다.
-                var caret = LuaEditor.TextArea.Caret;
-                int line = caret.Line;
-                int col = caret.Column;
-                string currentText = LuaEditor.Text;
-                string currentPath = this.targetPath; // 경로도 미리 복사
-
-                // 비동기 작업 시작
-                Task.Run(async () => {
-                    try
-                    {
-                        // [동기화] 서버에 현재 텍스트 전달
-                        await luaLspService.SendDidChangeNotification(currentPath, currentText);
-
-                        // [지연] 서버가 인덱싱할 시간을 아주 살짝 줍니다 (LSP 사양에 따라 조절 가능)
-                        await Task.Delay(50);
-
-                        // [요청] 자동완성 목록 요청
-                        await luaLspService.SendCompletionRequest(currentPath, line, col);
-                    }
-                    catch (Exception ex)
-                    {
-                        // 로그 출력 시에도 Dispatcher를 활용해 UI 스레드 충돌 방지
-                        App.Current.Dispatcher.BeginInvoke(new Action(() => {
-                            ConsoleWindow.LogMessage($"LSP 자동완성 실패: {ex.Message}", 2);
-                        }));
-                    }
-                });
+                if(completionWindow != null){completionWindow.Close();}
+                int currentLine = LuaEditor.TextArea.Caret.Line - 1;
+                int currentColumn = LuaEditor.TextArea.Caret.Column -1;
+                if (luaLspService != null)
+                {
+                    await luaLspService.NotifyDidChangeAsync(LuaEditor.Text, currentLine, currentColumn, e.Text);
+                }
             }
         }
 
@@ -157,26 +117,49 @@ namespace PixelTool
             
             if (isCtrlPressed)
             {
-                switch (e.Key)
+                if(e.Key == Key.S)
                 {
-                    case Key.S: // 저장만
-                        e.Handled = true;
-                        LuaEditor.Save(targetPath);
-                        EditorChange.Foreground = Brushes.Green;
-                        break;
-                    case Key.R: // 저장 + 리로드 (ReImport)
-                        e.Handled = true;
-                        LuaEditor.Save(targetPath);
-                        PixelEngineNative.Reload();
-                        break;
+                    e.Handled = true;
+                    LuaEditor.Save(targetPath);
+                    EditorChange.Foreground = Brushes.Green;
+                }
+                else if (e.Key == Key.R)
+                {
+                    e.Handled = true;
+                    LuaEditor.Save(targetPath);
+                    PixelEngineNative.Reload();
+                }
+                else if (e.Key == Key.Space && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                {
+                    int currentLine = LuaEditor.TextArea.Caret.Line - 1;
+                    int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
+                    luaLspService.NotifyDidChangeAsync(LuaEditor.Text, currentLine, currentColumn,"");
                 }
             }
         }
 
         private void LuaEditor_TextChanged(object sender, EventArgs e)
         {
-            _typeTimer.Stop();
-            _typeTimer.Start();
+            if (completionWindow != null) return;
+            
+            _debounceTokenSource?.Cancel();
+            _debounceTokenSource = new CancellationTokenSource();
+            var token = _debounceTokenSource.Token;
+            
+            string currentText = LuaEditor.Text;
+            int currentLine = LuaEditor.TextArea.Caret.Line - 1;
+            int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
+            Task.Run(async () =>
+            {
+                try
+                {
+                    if (!token.IsCancellationRequested)
+                    {
+                        await luaLspService.NotifyDidChangeAsync(currentText, currentLine, currentColumn,"");
+                    }
+                }
+                catch (TaskCanceledException) { /* 타이머 취소됨 (정상적인 동작) */ }
+            });
         }
 
         private void SaveLuaFile(object sender, RoutedEventArgs e)

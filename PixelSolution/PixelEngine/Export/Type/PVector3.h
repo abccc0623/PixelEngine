@@ -4,6 +4,8 @@ class PVector3
 public:
 	PVector3();
 	PVector3(const float& X, const float& Y, const float& Z);
+	PVector3 Create(const float& X, const float& Y, const float& Z);
+
 
 	inline PVector3& operator =(const PVector3& Vec)
 	{
@@ -51,11 +53,6 @@ public:
 
 	/** ¡§±‘»≠ */
 	PVector3 Normalize();
-	static PVector3 Normalize(const PVector3 V1);
-
-	static float Distance(const PVector3& Vec1, const PVector3& Vec2);
-	float Distance();
-	static PVector3 Lerp(const PVector3& v1, const PVector3& v2, float t);
 
 	static const PVector3 Zero;
 	static const PVector3 One;
@@ -70,3 +67,6 @@ public:
 	float Y = 0.0f;
 	float Z = 0.0f;
 };
+
+PVector3 Lerp(const PVector3& v1, const PVector3& v2, float t);
+float Distance(const PVector3& Vec1, const PVector3& Vec2);

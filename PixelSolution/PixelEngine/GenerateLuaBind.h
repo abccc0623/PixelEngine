@@ -33,6 +33,19 @@ inline void Generate_Input(sol::state& lua)
 	ut["GetMousePosition_X"] = &GetMousePosition_X;
 	ut["GetMousePosition_Y"] = &GetMousePosition_Y;
 }
+inline void Generate_Debug(sol::state& lua) 
+{
+	sol::table ut = lua.create_named_table("Debug");
+	ut["LogInfo"] = &LogInfo;
+	ut["LogError"] = &LogError;
+	ut["LogWarning"] = &LogWarning;
+}
+inline void Generate_Vector3(sol::state& lua) 
+{
+	sol::table ut = lua.create_named_table("Vector3");
+	ut["Lerp"] = &Lerp;
+	ut["Distance"] = &Distance;
+}
 inline void Generate_GameObject(sol::state& lua) 
 {
 	sol::usertype<GameObject> ut = lua.new_usertype<GameObject>("GameObject");
@@ -73,7 +86,7 @@ inline void Generate_Renderer2D(sol::state& lua)
 }
 inline void Generate_PVector3(sol::state& lua) 
 {
-	sol::usertype<PVector3> ut = lua.new_usertype<PVector3>("PVector3",sol::constructors<PVector3()>()); 
+	sol::usertype<PVector3> ut = lua.new_usertype<PVector3>("PVector3",sol::constructors<PVector3(float,float,float)>()); 
 	ut["X"] = &PVector3::X;
 	ut["Y"] = &PVector3::Y;
 	ut["Z"] = &PVector3::Z;
@@ -93,6 +106,8 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_Scene(lua); 
 	Generate_Asset(lua); 
 	Generate_Input(lua); 
+	Generate_Debug(lua); 
+	Generate_Vector3(lua); 
 	Generate_GameObject(lua); 
 	Generate_Module(lua); 
 	Generate_Transform(lua); 
