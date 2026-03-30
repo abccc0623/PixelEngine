@@ -93,3 +93,15 @@ GameObject** Scene::GetAllSceneObjects(int* maxCount)
     }
     return Getter.empty() ? nullptr : Getter.data();
 }
+
+GameObject* Scene::FindGameObject(const std::string& name)
+{
+    for (auto const& [key, sptr] : ObjectList)
+    {
+        if (sptr->name == name)
+        {
+            return sptr.GetPtr();
+        }
+    }
+    return nullptr;
+}

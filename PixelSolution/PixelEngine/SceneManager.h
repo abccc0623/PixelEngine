@@ -19,6 +19,7 @@ public:
 	void Clear() override;
 
 	void RegisterGameObject(SPointer<GameObject> newObject);
+	GameObject* FindGameObject(const std::string& name);
 
 	void CreateScene(const std::string& luaPath);
 	void ChangeScene(std::string SceneName);

@@ -25,6 +25,7 @@ public:
 	void CreateGameObject(SPointer<GameObject> Obj);
 	void DeleteGameObject(size_t targetObject);
 	GameObject** GetAllSceneObjects(int* maxCount);
+	GameObject* FindGameObject(const std::string& name);
 
 	std::string sceneName;
 private:

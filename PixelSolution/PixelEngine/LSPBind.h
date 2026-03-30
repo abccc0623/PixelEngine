@@ -22,6 +22,6 @@ private:
 	const std::string MethodBind		= "function {{CLASS_NAME}}:{{FUNCTION_NAME}}({{PROPERTY}}) end\n\n";
 	const std::string StaticMethodBind	= "function {{CLASS_NAME}}.{{FUNCTION_NAME}}({{PROPERTY}}) end\n\n";
 	const std::string CreateClassBind = "---@return {{CLASS_NAME}} \n function {{CLASS_NAME}}.new() end\n";
-	const std::string OverloadObject	= "---@overload fun(self: GameObject, ModuleName: '\"{{CLASS_NAME}}\"'): {{CLASS_NAME}}\n";
+	const std::string OverloadObject	= "---@overload fun(self: GameObject, ModuleName: \"{{CLASS_NAME}}\"): {{CLASS_NAME}}\n";
 };
 

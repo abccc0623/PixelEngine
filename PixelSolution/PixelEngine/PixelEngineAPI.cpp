@@ -245,6 +245,13 @@ GameObject* CreateGameObject(const char* name)
 	return nullptr;
 }
 
+GameObject* FindGameObject(const char* name)
+{
+	auto sceneManager = Engine->GetFactory<SceneManager>();
+	std::string objName(name);
+	return sceneManager->FindGameObject(objName);
+}
+
 
 Module* AddModule(GameObject* target, PClass* moduleClass)
 {

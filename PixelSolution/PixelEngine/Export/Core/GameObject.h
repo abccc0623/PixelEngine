@@ -9,6 +9,7 @@ template <typename T> class SPointer;
 class Module;
 class FunctionManager;
 class PClass;
+class Transform;
 class GameObject :public PixelObject
 {
 public:
@@ -21,6 +22,7 @@ public:
 	 bool HasModule(PClass* moduleClass);
 	 Module* AddModuleToEngine(PClass* moduleClass);
 	 Module* GetModuleToEngine(PClass* moduleClass);
+	 Transform* GetTransform();
 	 unsigned long GetHash();
 
 	//sol::object AddModuleToLua(std::string moduleName);

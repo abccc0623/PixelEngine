@@ -35,44 +35,41 @@ void BindManager::Initialize()
 {
 	PNamespace* globalCreate = CreateNewNamepace("Engine");
 	AddGlobalMethod(globalCreate,"CreateGameObject", GeGlobalMethodInfo(&CreateGameObject), MetaFlag::LUABIND);
-
+	AddGlobalMethod(globalCreate,"FindGameObject", GeGlobalMethodInfo(&FindGameObject), MetaFlag::LUABIND);
+	
 	PNamespace* globalScene = CreateNewNamepace("Scene");
 	AddGlobalMethod(globalScene,"ChangeScene",GeGlobalMethodInfo(&ChangeScene), MetaFlag::LUABIND);
-
+	
 	PNamespace* globalAsset = CreateNewNamepace("Asset");
 	AddGlobalMethod(globalAsset,"Import",GeGlobalMethodInfo(&Import), MetaFlag::LUABIND);
-
+	
 	PNamespace* globalInput = CreateNewNamepace("Input");
 	AddGlobalMethod(globalInput,"GetKey",GeGlobalMethodInfo(&GetKey), MetaFlag::LUABIND);
 	AddGlobalMethod(globalInput,"GetKeyDown",GeGlobalMethodInfo(&GetKeyDown), MetaFlag::LUABIND);
 	AddGlobalMethod(globalInput,"GetKeyUp",GeGlobalMethodInfo(&GetKeyUp), MetaFlag::LUABIND);
 	AddGlobalMethod(globalInput,"GetMousePosition_X",GeGlobalMethodInfo(&GetMousePosition_X), MetaFlag::LUABIND);
 	AddGlobalMethod(globalInput,"GetMousePosition_Y",GeGlobalMethodInfo(&GetMousePosition_Y), MetaFlag::LUABIND);
-
+	
 	PNamespace* globaDebug = CreateNewNamepace("Debug");
 	AddGlobalMethod(globaDebug, "LogInfo", GeGlobalMethodInfo(&LogInfo), MetaFlag::LUABIND);
 	AddGlobalMethod(globaDebug, "LogError", GeGlobalMethodInfo(&LogError), MetaFlag::LUABIND);
 	AddGlobalMethod(globaDebug, "LogWarning", GeGlobalMethodInfo(&LogWarning), MetaFlag::LUABIND);
-
+	
 	PNamespace* globaVector3 = CreateNewNamepace("Vector3");
 	AddGlobalMethod(globaVector3, "Lerp",		GeGlobalMethodInfo(&Lerp),		MetaFlag::LUABIND);
 	AddGlobalMethod(globaVector3, "Distance",	GeGlobalMethodInfo(&Distance),	MetaFlag::LUABIND);
-
 	
-	PClass* table = nullptr;
-
+	
 	//기본 게임 오브젝트 상속관계
-	table = CreateNewClass("GameObject");
-
+	CreateNewClass("GameObject");
 	//기본 모듈 상속관계
-	table = CreateNewClass("Module");
-	table = CreateNewClass("Transform",		"Module");
-	table = CreateNewClass("Camera",		"Module");
-	table = CreateNewClass("LuaScript",		"Module");
-	table = CreateNewClass("DebugCamera",	"Module");
-	table = CreateNewClass("LuaScript",		"Module");
-	table = CreateNewClass("Renderer2D",	"Module");
-	
+	CreateNewClass("Module");
+	CreateNewClass("Transform",		"Module");
+	CreateNewClass("Camera",		"Module");
+	CreateNewClass("LuaScript",		"Module");
+	CreateNewClass("DebugCamera",	"Module");
+	CreateNewClass("Renderer2D",	"Module");
+	//
 	BindPVector3();
 	BindLuaScript();
 	BindGameObject();
@@ -192,6 +189,7 @@ void BindManager::BindGameObject()
 	auto table = GetClass("GameObject");
 	AddMethod(table, "AddModule", GetMethodInfo(&GameObject::AddModule), MetaFlag::LUABIND);
 	AddMethod(table, "GetModule", GetMethodInfo(&GameObject::GetModule), MetaFlag::LUABIND);
+	AddMethod(table, "GetTransform", GetMethodInfo(&GameObject::GetTransform), MetaFlag::LUABIND);
 }
 
 void BindManager::BindPVector3()
@@ -201,6 +199,7 @@ void BindManager::BindPVector3()
 	AddMember(table, "Y", GetMemberInfo(&PVector3::Y));
 	AddMember(table, "Z", GetMemberInfo(&PVector3::Z));
 	AddMethod(table, "Create", GetMethodInfo(&PVector3::Create), MetaFlag::LUABIND);
+	AddMethod(table, "Normalize", GetMethodInfo(&PVector3::Normalize), MetaFlag::LUABIND);
 }
 
 

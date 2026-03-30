@@ -52,6 +52,12 @@ Module* GameObject::GetModuleToEngine(PClass* moduleClass)
 	return nullptr;
 }
 
+Transform* GameObject::GetTransform()
+{
+	uint64_t hash = GetClassHash(GetClass("Transform"));
+	return static_cast<Transform*>(ModuleMap[hash].GetPtr());
+}
+
 unsigned long GameObject::GetHash()
 {
 	return hashCode;

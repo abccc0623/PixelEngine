@@ -13,6 +13,7 @@ inline void Generate_Engine(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Engine");
 	ut["CreateGameObject"] = &CreateGameObject;
+	ut["FindGameObject"] = &FindGameObject;
 }
 inline void Generate_Scene(sol::state& lua) 
 {
@@ -51,6 +52,7 @@ inline void Generate_GameObject(sol::state& lua)
 	sol::usertype<GameObject> ut = lua.new_usertype<GameObject>("GameObject");
 	ut["AddModule"] = &GameObject::AddModule;
 	ut["GetModule"] = &GameObject::GetModule;
+	ut["GetTransform"] = &GameObject::GetTransform;
 }
 inline void Generate_Module(sol::state& lua) 
 {
@@ -90,6 +92,7 @@ inline void Generate_PVector3(sol::state& lua)
 	ut["X"] = &PVector3::X;
 	ut["Y"] = &PVector3::Y;
 	ut["Z"] = &PVector3::Z;
+	ut["Normalize"] = &PVector3::Normalize;
 }
 inline void BindAll_AddModules() 
 { 

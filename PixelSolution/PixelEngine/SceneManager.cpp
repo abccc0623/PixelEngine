@@ -151,3 +151,14 @@ void SceneManager::RegisterGameObject(SPointer<GameObject> newObject)
 	auto block = nowScene.Lock();
 	block->CreateGameObject(newObject);
 }
+
+GameObject* SceneManager::FindGameObject(const std::string& name)
+{
+	if (nowScene.IsValid() == true)
+	{
+		auto block = nowScene.Lock();
+		return block->FindGameObject(name);
+	}
+
+	return nullptr;
+}
