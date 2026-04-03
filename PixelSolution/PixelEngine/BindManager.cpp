@@ -8,6 +8,7 @@
 #include "Module/DebugCamera.h"
 #include "Module/Camera.h"
 
+#include "Type/GlobalEnum.h"
 #include "Type/PVector3.h"
 #include "Rect.h"
 
@@ -33,43 +34,35 @@ void Test()
 }
 void BindManager::Initialize()
 {
-	PNamespace* globalCreate = CreateNewNamepace("Engine");
+	PStatic* globalCreate = CreateNewStatic("Engine");
 	AddGlobalMethod(globalCreate,"CreateGameObject", GeGlobalMethodInfo(&CreateGameObject), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCreate,"FindGameObject", GeGlobalMethodInfo(&FindGameObject), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCreate,"RegisterMessage", GeGlobalMethodInfo(&RegisterMessage), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCreate,"UnregisterMessage", GeGlobalMethodInfo(&UnregisterMessage), MetaFlag::LUABIND);
 	
-	PNamespace* globalScene = CreateNewNamepace("Scene");
+	PStatic* globalScene = CreateNewStatic("Scene");
 	AddGlobalMethod(globalScene,"ChangeScene",GeGlobalMethodInfo(&ChangeScene), MetaFlag::LUABIND);
 	
-	PNamespace* globalAsset = CreateNewNamepace("Asset");
+	PStatic* globalAsset = CreateNewStatic("Asset");
 	AddGlobalMethod(globalAsset,"Import",GeGlobalMethodInfo(&Import), MetaFlag::LUABIND);
 	
-	PNamespace* globalInput = CreateNewNamepace("Input");
+	PStatic* globalInput = CreateNewStatic("Input");
 	AddGlobalMethod(globalInput,"GetKey",GeGlobalMethodInfo(&GetKey), MetaFlag::LUABIND);
 	AddGlobalMethod(globalInput,"GetKeyDown",GeGlobalMethodInfo(&GetKeyDown), MetaFlag::LUABIND);
 	AddGlobalMethod(globalInput,"GetKeyUp",GeGlobalMethodInfo(&GetKeyUp), MetaFlag::LUABIND);
 	AddGlobalMethod(globalInput,"GetMousePosition_X",GeGlobalMethodInfo(&GetMousePosition_X), MetaFlag::LUABIND);
 	AddGlobalMethod(globalInput,"GetMousePosition_Y",GeGlobalMethodInfo(&GetMousePosition_Y), MetaFlag::LUABIND);
 	
-	PNamespace* globaDebug = CreateNewNamepace("Debug");
+	PStatic* globaDebug = CreateNewStatic("Debug");
 	AddGlobalMethod(globaDebug, "LogInfo", GeGlobalMethodInfo(&LogInfo), MetaFlag::LUABIND);
 	AddGlobalMethod(globaDebug, "LogError", GeGlobalMethodInfo(&LogError), MetaFlag::LUABIND);
 	AddGlobalMethod(globaDebug, "LogWarning", GeGlobalMethodInfo(&LogWarning), MetaFlag::LUABIND);
 	
-	PNamespace* globaVector3 = CreateNewNamepace("Vector3");
+	PStatic* globaVector3 = CreateNewStatic("Vector3");
 	AddGlobalMethod(globaVector3, "Lerp",		GeGlobalMethodInfo(&Lerp),		MetaFlag::LUABIND);
 	AddGlobalMethod(globaVector3, "Distance",	GeGlobalMethodInfo(&Distance),	MetaFlag::LUABIND);
-	
-	
-	//기본 게임 오브젝트 상속관계
-	CreateNewClass("GameObject");
-	//기본 모듈 상속관계
 	CreateNewClass("Module");
-	CreateNewClass("Transform",		"Module");
-	CreateNewClass("Camera",		"Module");
-	CreateNewClass("LuaScript",		"Module");
-	CreateNewClass("DebugCamera",	"Module");
-	CreateNewClass("Renderer2D",	"Module");
-	//
+	
 	BindPVector3();
 	BindLuaScript();
 	BindGameObject();
@@ -77,6 +70,7 @@ void BindManager::Initialize()
 	BindRenderer2D();
 	BindDebugCamera();
 	BindCamera();
+	BindEnum();
 }
 
 void BindManager::Update()
@@ -97,7 +91,7 @@ void BindManager::Release()
 
 void BindManager::BindLuaScript()
 {
-	auto table = GetClass("LuaScript");
+	auto table = CreateNewClass("LuaScript", "Module");
 	CreateClassFunction(table, []() ->void*
 		{
 			return new LuaScript();
@@ -115,7 +109,7 @@ void BindManager::BindLuaScript()
 void BindManager::BindTransform()
 {
 	///Transform
-	auto table = GetClass("Transform");
+	auto table = CreateNewClass("Transform", "Module");
 	CreateClassFunction(table, []() ->void*
 		{
 			return new Transform();
@@ -129,7 +123,7 @@ void BindManager::BindTransform()
 	AddMember(table, "Scale", GetMemberInfo(&Transform::Scale),MetaFlag::LUABIND | MetaFlag::SAVE);
 	AddMethod(table, "Start", GetMethodInfo(&Transform::Start));
 	AddMethod(table, "MatrixUpdate", GetMethodInfo(&Transform::MatrixUpdate));
-
+	
 	AddMethod(table, "GetLookVector", GetMethodInfo(&Transform::GetLookVector), MetaFlag::LUABIND | MetaFlag::SAVE);
 	AddMethod(table, "GetRightVector", GetMethodInfo(&Transform::GetRightVector), MetaFlag::LUABIND | MetaFlag::SAVE);
 	AddMethod(table, "GetUpVector", GetMethodInfo(&Transform::GetUpVector), MetaFlag::LUABIND | MetaFlag::SAVE);
@@ -138,7 +132,7 @@ void BindManager::BindTransform()
 void BindManager::BindRenderer2D()
 {
 	///Renderer2D 
-	auto table = GetClass("Renderer2D");
+	auto table = CreateNewClass("Renderer2D", "Module");
 	CreateClassFunction(table, []() ->void*
 		{
 			return new Renderer2D();
@@ -154,7 +148,7 @@ void BindManager::BindRenderer2D()
 void BindManager::BindDebugCamera()
 {
 	///DebugCamera
-	auto table = GetClass("DebugCamera");
+	auto table = CreateNewClass("DebugCamera", "Module");
 	CreateClassFunction(table, []() ->void*
 		{
 			return new DebugCamera();
@@ -171,7 +165,7 @@ void BindManager::BindDebugCamera()
 void BindManager::BindCamera()
 {
 	///Camera
-	auto table = GetClass("Camera");
+	auto table = CreateNewClass("Camera", "Module");
 	CreateClassFunction(table, []() ->void*
 		{
 			return new Camera();
@@ -186,7 +180,7 @@ void BindManager::BindCamera()
 
 void BindManager::BindGameObject()
 {
-	auto table = GetClass("GameObject");
+	auto table = CreateNewClass("GameObject");
 	AddMethod(table, "AddModule", GetMethodInfo(&GameObject::AddModule), MetaFlag::LUABIND);
 	AddMethod(table, "GetModule", GetMethodInfo(&GameObject::GetModule), MetaFlag::LUABIND);
 	AddMethod(table, "GetTransform", GetMethodInfo(&GameObject::GetTransform), MetaFlag::LUABIND);
@@ -200,6 +194,13 @@ void BindManager::BindPVector3()
 	AddMember(table, "Z", GetMemberInfo(&PVector3::Z));
 	AddMethod(table, "Create", GetMethodInfo(&PVector3::Create), MetaFlag::LUABIND);
 	AddMethod(table, "Normalize", GetMethodInfo(&PVector3::Normalize), MetaFlag::LUABIND);
+}
+
+void BindManager::BindEnum()
+{
+	PEnum* globalEnum = CreateNewEnum("EventType");
+	AddEnum(globalEnum, "KEY_UP");
+	AddEnum(globalEnum, "KEY_DOWN");
 }
 
 

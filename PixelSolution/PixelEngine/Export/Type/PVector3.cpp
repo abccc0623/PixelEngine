@@ -33,6 +33,11 @@ float PVector3::Dot(const PVector3& V1)
 	return ((X * V1.X) + (Y * V1.Y) + (Z * V1.Z));
 }
 
+float PVector3::Dot()
+{
+	return 0.0f;
+}
+
 
 PVector3 PVector3::Cross(const PVector3& V1, const PVector3& V2)
 {

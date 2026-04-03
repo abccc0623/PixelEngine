@@ -5,11 +5,11 @@
 #include "PType.h"
 #include "PValue.h"
 class PMethod;
-class PNamespace : public  PType
+class PStatic : public  PType
 {
 public:
-	PNamespace(uint64_t hash, std::string name, size_t size);
-	virtual ~PNamespace();
+	PStatic(uint64_t hash, std::string name, size_t size);
+	virtual ~PStatic();
 
 	int GetMethodCount();
 	int GetPropertyCount(int index);

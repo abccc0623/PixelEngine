@@ -7,6 +7,7 @@ enum KeyState {
 	DOWN	= 1 << 1,   // 0010 : 이번에 막 눌림
 	UP		= 1 << 2,   // 0100 : 이번에 막 떨어짐
 };
+class EventManager;
 typedef unsigned char byte;
 class KeyInputManager : public EngineManager
 {
@@ -32,5 +33,7 @@ private:
 	bool pastFocus = true;
 	static constexpr int arraySize = 256;
 	unsigned char keyStates[arraySize];
+
+	EventManager* event;
 };
 

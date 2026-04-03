@@ -1,19 +1,21 @@
 #include "sol.hpp"
 #include "PixelEngineAPI.h" 
 #include <unordered_map>
+#include "Type/PVector3.h" 
+#include "Module/LuaScript.h" 
 #include "Core/GameObject.h" 
 #include "Module/Transform.h" 
-#include "Module/Camera.h" 
-#include "Module/LuaScript.h" 
-#include "Module/DebugCamera.h" 
 #include "Module/Renderer2D.h" 
-#include "Type/PVector3.h" 
+#include "Module/DebugCamera.h" 
+#include "Module/Camera.h" 
 extern std::unordered_map <std::string, std::function<sol::object(sol::this_state s, Module* target)>> AddModuleList;
 inline void Generate_Engine(sol::state& lua) 
 {
 	sol::table ut = lua.create_named_table("Engine");
 	ut["CreateGameObject"] = &CreateGameObject;
 	ut["FindGameObject"] = &FindGameObject;
+	ut["RegisterMessage"] = &RegisterMessage;
+	ut["UnregisterMessage"] = &UnregisterMessage;
 }
 inline void Generate_Scene(sol::state& lua) 
 {
@@ -47,16 +49,29 @@ inline void Generate_Vector3(sol::state& lua)
 	ut["Lerp"] = &Lerp;
 	ut["Distance"] = &Distance;
 }
+inline void Generate_Module(sol::state& lua) 
+{
+	sol::usertype<Module> ut = lua.new_usertype<Module>("Module");
+}
+inline void Generate_PVector3(sol::state& lua) 
+{
+	sol::usertype<PVector3> ut = lua.new_usertype<PVector3>("PVector3",sol::constructors<PVector3(float,float,float)>()); 
+	ut["X"] = &PVector3::X;
+	ut["Y"] = &PVector3::Y;
+	ut["Z"] = &PVector3::Z;
+	ut["Normalize"] = &PVector3::Normalize;
+}
+inline void Generate_LuaScript(sol::state& lua) 
+{
+	sol::usertype<LuaScript> ut = lua.new_usertype<LuaScript>("LuaScript");
+	ut["Register"] = &LuaScript::Register;
+}
 inline void Generate_GameObject(sol::state& lua) 
 {
 	sol::usertype<GameObject> ut = lua.new_usertype<GameObject>("GameObject");
 	ut["AddModule"] = &GameObject::AddModule;
 	ut["GetModule"] = &GameObject::GetModule;
 	ut["GetTransform"] = &GameObject::GetTransform;
-}
-inline void Generate_Module(sol::state& lua) 
-{
-	sol::usertype<Module> ut = lua.new_usertype<Module>("Module");
 }
 inline void Generate_Transform(sol::state& lua) 
 {
@@ -68,39 +83,33 @@ inline void Generate_Transform(sol::state& lua)
 	ut["GetRightVector"] = &Transform::GetRightVector;
 	ut["GetUpVector"] = &Transform::GetUpVector;
 }
-inline void Generate_Camera(sol::state& lua) 
-{
-	sol::usertype<Camera> ut = lua.new_usertype<Camera>("Camera");
-}
-inline void Generate_LuaScript(sol::state& lua) 
-{
-	sol::usertype<LuaScript> ut = lua.new_usertype<LuaScript>("LuaScript");
-	ut["Register"] = &LuaScript::Register;
-}
-inline void Generate_DebugCamera(sol::state& lua) 
-{
-	sol::usertype<DebugCamera> ut = lua.new_usertype<DebugCamera>("DebugCamera");
-}
 inline void Generate_Renderer2D(sol::state& lua) 
 {
 	sol::usertype<Renderer2D> ut = lua.new_usertype<Renderer2D>("Renderer2D");
 	ut["SetTexture"] = &Renderer2D::SetTexture;
 }
-inline void Generate_PVector3(sol::state& lua) 
+inline void Generate_DebugCamera(sol::state& lua) 
 {
-	sol::usertype<PVector3> ut = lua.new_usertype<PVector3>("PVector3",sol::constructors<PVector3(float,float,float)>()); 
-	ut["X"] = &PVector3::X;
-	ut["Y"] = &PVector3::Y;
-	ut["Z"] = &PVector3::Z;
-	ut["Normalize"] = &PVector3::Normalize;
+	sol::usertype<DebugCamera> ut = lua.new_usertype<DebugCamera>("DebugCamera");
+}
+inline void Generate_Camera(sol::state& lua) 
+{
+	sol::usertype<Camera> ut = lua.new_usertype<Camera>("Camera");
+}
+inline void Generate_EventType(sol::state& lua) 
+{
+	lua.new_enum<EventType>("EventType", {
+	{ "KEY_UP", EventType::KEY_UP },
+	{ "KEY_DOWN", EventType::KEY_DOWN },
+});
 }
 inline void BindAll_AddModules() 
 { 
-	AddModuleList.insert({ "Transform",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Transform* > (target));return obj;}});
-	AddModuleList.insert({ "Camera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Camera* > (target));return obj;}});
 	AddModuleList.insert({ "LuaScript",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<LuaScript* > (target));return obj;}});
-	AddModuleList.insert({ "DebugCamera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<DebugCamera* > (target));return obj;}});
+	AddModuleList.insert({ "Transform",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Transform* > (target));return obj;}});
 	AddModuleList.insert({ "Renderer2D",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Renderer2D* > (target));return obj;}});
+	AddModuleList.insert({ "DebugCamera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<DebugCamera* > (target));return obj;}});
+	AddModuleList.insert({ "Camera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Camera* > (target));return obj;}});
 }
 inline void BindAll_GeneratedLuaModules(sol::state& lua)
 {
@@ -111,12 +120,13 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_Input(lua); 
 	Generate_Debug(lua); 
 	Generate_Vector3(lua); 
-	Generate_GameObject(lua); 
 	Generate_Module(lua); 
-	Generate_Transform(lua); 
-	Generate_Camera(lua); 
-	Generate_LuaScript(lua); 
-	Generate_DebugCamera(lua); 
-	Generate_Renderer2D(lua); 
 	Generate_PVector3(lua); 
+	Generate_LuaScript(lua); 
+	Generate_GameObject(lua); 
+	Generate_Transform(lua); 
+	Generate_Renderer2D(lua); 
+	Generate_DebugCamera(lua); 
+	Generate_Camera(lua); 
+	Generate_EventType(lua); 
 }

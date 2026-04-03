@@ -8,19 +8,19 @@ class PMethod;
 class PType
 {
 public:
-	PIXEL_META_DLL PType(uint64_t hash, std::string name, size_t size);
-	PIXEL_META_DLL PType();
-	PIXEL_META_DLL virtual ~PType();
+	PType(uint64_t hash, std::string name, size_t size);
+	PType();
+	virtual ~PType();
 
 	PIXEL_META_DLL const std::string& GetName();
 	int GetMetaType();
 	uint64_t GetHash();
 	uint64_t GetSize();
 
-	PIXEL_META_DLL bool operator==(const PType& other);
-	PIXEL_META_DLL bool operator!=(const PType& other);
-	PIXEL_META_DLL static void* operator new(size_t size);
-	PIXEL_META_DLL static void operator delete(void* ptr);
+	bool operator==(const PType& other);
+	bool operator!=(const PType& other);
+	static void* operator new(size_t size);
+	static void operator delete(void* ptr);
 protected:
 	uint64_t typeHash;
 	std::string typeName;

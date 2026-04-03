@@ -72,7 +72,10 @@
     <ClInclude Include="MetaFlagSet.h">
       <Filter>PixelMeta\System</Filter>
     </ClInclude>
-    <ClInclude Include="PNamespace.h">
+    <ClInclude Include="PStatic.h">
+      <Filter>PixelMeta\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="PEnum.h">
       <Filter>PixelMeta\Core</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,7 +110,10 @@
     <ClCompile Include="Export\PClass.cpp">
       <Filter>PixelMeta\Core</Filter>
     </ClCompile>
-    <ClCompile Include="PNamespace.cpp">
+    <ClCompile Include="PStatic.cpp">
+      <Filter>PixelMeta\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="PEnum.cpp">
       <Filter>PixelMeta\Core</Filter>
     </ClCompile>
   </ItemGroup>

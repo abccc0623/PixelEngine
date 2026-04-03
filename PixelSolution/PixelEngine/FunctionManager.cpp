@@ -87,7 +87,7 @@ void FunctionManager::FunctionUpdate()
 
 void FunctionManager::Clear()
 {
-	isClear = true;
+	//isClear = true;
 }
 
 void FunctionManager::AddOneTimeFunction(SPointer<Module> module, int type)

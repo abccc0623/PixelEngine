@@ -2,11 +2,12 @@
 #include "PixelMetaAPI.h"
 #include "PType.h"
 #include "PClass.h"
-#include "PNamespace.h"
+#include "PStatic.h"
 #include "RSystem.h"
 #include "GlobalHashCode.h"
 #include "PField.h"
 #include "PMethod.h"
+#include "PEnum.h"
 
 RSystem* System = nullptr;
 uint64_t StringToByHash(const char* name)
@@ -16,11 +17,11 @@ uint64_t StringToByHash(const char* name)
 	return thisTypeHash;
 }
 
-PNamespace* CreateNewNamepace(const std::string& Name)
+PStatic* CreateNewStatic(const std::string& Name)
 {
 	if (Name.empty()) return nullptr;
 	uint64_t thisTypeHash = HashUtil::ConstexprHash(Name.c_str());
-	PNamespace* temp = new PNamespace(thisTypeHash, Name, 0);
+	PStatic* temp = new PStatic(thisTypeHash, Name, 0);
 	RSystem::GetInstance().Register(temp);
 	return temp;
 }
@@ -39,6 +40,15 @@ PClass* CreateNewClass(const std::string& thidTypeName, const std::string& paren
 	RSystem::GetInstance().Register(temp);
 	AddMethod(temp, "Create", GetMethodInfo(&PClass::CallCreateFunction));
 	AddMethod(temp, "Delete", GetMethodInfo(&PClass::CallDeleteFunction));
+	return temp;
+}
+
+PEnum* CreateNewEnum(const std::string& thidTypeName)
+{
+	if (thidTypeName.empty()) return nullptr;
+	uint64_t thisTypeHash = HashUtil::ConstexprHash(thidTypeName.c_str());
+	PEnum* temp = new PEnum(thisTypeHash, thidTypeName, 0);
+	RSystem::GetInstance().Register(temp);
 	return temp;
 }
 
@@ -83,7 +93,7 @@ const std::string& GetClassTypeName(PClass* targetClass)
 PType* GetType(const std::string& typeName)
 {
 	uint64_t thisTypeHash = HashUtil::ConstexprHash(typeName.c_str());
-	PType* type = System->GetType(thisTypeHash);
+	PType* type = RSystem::GetInstance().GetType(thisTypeHash);
 	return type;
 }
 
@@ -98,13 +108,13 @@ PClass* GetClass(const std::string& className)
 	return nullptr;
 }
 
-PNamespace* GetNamespace(const std::string& name)
+PStatic* GetNamespace(const std::string& name)
 {
 	uint64_t thisTypeHash = HashUtil::ConstexprHash(name.c_str());
 	PType* type = RSystem::GetInstance().GetType(thisTypeHash);
 	if (type->GetMetaType() == (int)META_TYPE::NAMESPACE)
 	{
-		return reinterpret_cast<PNamespace*>(type);
+		return reinterpret_cast<PStatic*>(type);
 	}
 	return nullptr;
 }
@@ -128,6 +138,224 @@ C_string GetTypeName(PType* target)
 META_TYPE GetTypeCategory(PType* type)
 {
 	return (META_TYPE)type->GetMetaType();
+}
+
+uint64_t GetTypeParentByHash(PType* target)
+{
+	auto meta = (META_TYPE)target->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(target))->GetParentHash();
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+uint64_t GetTypeHash(PType* type)
+{
+	return type->GetHash();
+}
+
+uint64_t GetTypeHashByName(const std::string& name)
+{
+	return  HashUtil::ConstexprHash(name.c_str());
+}
+
+int GetMemberCount(PType* type)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetMemberCount();
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+C_string GetMemberType(PType* type,int index)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetMemberType(index);
+	}
+	else
+	{
+		return "";
+	}
+}
+
+C_string GetMemberName(PType* type, int index)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetMemberName(index);
+	}
+	else
+	{
+		return "";
+	}
+}
+
+bool HasMemberFlag(PType* type, int index, long flag)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->HasClassMemberFlag(index,flag);
+	}
+	else
+	{
+		return "";
+	}
+}
+
+int GetMethodCount(PType* type)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetMethodCount();
+	}
+	else if(meta == META_TYPE::STATIC)
+	{
+		return (static_cast<PStatic*>(type))->GetMethodCount();
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+C_string GetMethodName(PType* type, int index)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetMethodName(index);
+	}
+	else if (meta == META_TYPE::STATIC)
+	{
+		return (static_cast<PStatic*>(type))->GetMethodName(index);
+	}
+	else
+	{
+		return "";
+	}
+}
+
+C_string GetMethodReturnType(PType* type, int index)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetMethodReturnType(index);
+	}
+	else if (meta == META_TYPE::STATIC)
+	{
+		return (static_cast<PStatic*>(type))->GetMethodReturnType(index);
+	}
+	else
+	{
+		return "";
+	}
+}
+
+int GetMethodPropertyCount(PType* type, int index)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetPropertyCount(index);
+	}
+	else if (meta == META_TYPE::STATIC)
+	{
+		return (static_cast<PStatic*>(type))->GetPropertyCount(index);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+C_string GetMethodGetPropertyType(PType* type, int index,int propertyIndex)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetMethodPropertyType(index, propertyIndex);
+	}
+	else if (meta == META_TYPE::STATIC)
+	{
+		return (static_cast<PStatic*>(type))->GetMethodPropertyType(index, propertyIndex);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+bool HasMethodFlag(PType* type, int index, long flag)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->HasClassMethodFlag(index, flag);
+	}
+	else if (meta == META_TYPE::STATIC)
+	{
+		return (static_cast<PStatic*>(type))->HasClassMethodFlag(index,flag);
+	}
+	else
+	{
+		return "";
+	}
+}
+
+PValue CallMethod(PType* type, int index, void* target, std::vector<void*> property)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->CallMethod(index, target, property);
+	}
+	else if (meta == META_TYPE::STATIC)
+	{
+		return (static_cast<PStatic*>(type))->CallMethod(index, target, property);
+	}
+	else
+	{
+		return "";
+	}
+	return PValue();
+}
+
+int GetEnumCount(PType* type)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if(meta == META_TYPE::ENUM)
+	{
+		return (static_cast<PEnum*>(type))->GetEnumCount();
+	}
+	return 0;
+}
+
+C_string GetEnum(PType* type, int index)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::ENUM)
+	{
+		return (static_cast<PEnum*>(type))->GetEnum(index);
+	}
+	else
+	{
+		return "";
+	}
 }
 
 
@@ -182,37 +410,8 @@ PValue CallClassMethod(PClass* targetClass, int index, void* target, std::vector
 	return targetClass->CallMethod(index, target, property);
 }
 
-C_string GetNamespaceMethodName(PNamespace* target, int index)
-{
-	return target->GetMethodName(index);
-}
 
-C_string GetNamespaceMethodReturnType(PNamespace* target, int index)
-{
-	return target->GetMethodReturnType(index);
-}
-
-C_string GetNamespaceMethodGetPropertyType(PNamespace* target, int index, int propertyIndex)
-{
-	return target->GetMethodPropertyType(index, propertyIndex);
-}
-
-bool HasNamespaceMethodFlag(PNamespace* target, int index, long flag)
-{
-	return target->HasClassMethodFlag(index,flag);
-}
-
-int GetNamespaceMethodPropertyCount(PNamespace* target, int index)
-{
-	return target->GetPropertyCount(index);
-}
-
-int GetNamespaceMethodCount(PNamespace* target)
-{
-	return target->GetMethodCount();
-}
-
-bool AddGlobalMethod(PNamespace* targetClass, const std::string& methodName, MethodInfo info, long flag)
+bool AddGlobalMethod(PStatic* targetClass, const std::string& methodName, MethodInfo info, long flag)
 {
 	uint64_t nameHash = HashUtil::ConstexprHash(methodName.c_str());
 	PMethod* field = new PMethod(methodName);
@@ -283,5 +482,12 @@ bool AddMethod(PClass* targetClass, const std::string& methodName, MethodInfo in
 	field->SetInfo(info.returnType,info.classType, info.memberType,info.invoker);
 	field->SetFlag(flag);
 	targetClass->AddMethod(field);
+	return false;
+}
+
+bool AddEnum(PEnum* target, const std::string& Key)
+{
+	uint64_t nameHash = HashUtil::ConstexprHash(Key.c_str());
+	target->AddEnum(Key);
 	return false;
 }

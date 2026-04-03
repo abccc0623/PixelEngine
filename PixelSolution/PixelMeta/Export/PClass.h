@@ -54,8 +54,8 @@ public:
 protected:
 	uint64_t parentHash;
 	uint64_t childHash;
-	std::unordered_map<uint64_t, PField*> memberMap;
-	std::unordered_map<uint64_t, PMethod*> methodMap;
+	std::unordered_multimap<uint64_t, PField*> memberMap;
+	std::unordered_multimap<uint64_t, PMethod*> methodMap;
 	std::vector<PField*> memberList;
 	std::vector<PMethod*> methodList;
 

@@ -46,6 +46,7 @@ public:
 	/** 내적 */
 	static float Dot(const PVector3& V1, const PVector3 V2);
 	float Dot(const PVector3& V1);
+	float Dot();
 
 	/** 외적 */
 	static PVector3 Cross(const PVector3& V1, const PVector3& V2);

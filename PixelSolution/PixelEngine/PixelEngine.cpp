@@ -20,6 +20,7 @@
 #include "GenerateManager.h"
 #include "SPointer.h"
 #include "PixelMetaAPI.h"
+#include "EventManager.h"
 
 void PixelEngine::Initialize(HWND hWnd, int width, int height)
 {
@@ -34,6 +35,7 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	BindFactory<CollisionManager>();
 	BindFactory<JsonManager>();
 	BindFactory<GenerateManager>();
+	BindFactory<EventManager>();
 
 	if (hWnd != nullptr)
 	{
@@ -90,12 +92,16 @@ void PixelEngine::Resize(int width, int height)
 
 void PixelEngine::Clear()
 {
-	auto sceneManager = GetFactory<SceneManager>();
-	sceneManager->Clear();
-	auto resource = GetFactory<ResourceManager>();
-	resource->Clear();
-	auto luaManager = GetFactory<LuaManager>();
-	luaManager->Clear();
+	//auto sceneManager = GetFactory<SceneManager>();
+	//sceneManager->Clear();
+	//auto resource = GetFactory<ResourceManager>();
+	//resource->Clear();
+	//auto luaManager = GetFactory<LuaManager>();
+	//luaManager->Clear();
+	for (auto& k : factoryMap)
+	{
+		k.second->Clear();
+	}
 	GraphicsClear();
 	Import("./Asset/main.lua");
 }

@@ -9,6 +9,7 @@
 #include "FunctionManager.h"
 #include "SceneManager.h"
 #include "SPointer.h"
+#include "PixelMetaAPI.h"
 
 
 extern PixelEngine* Engine;
@@ -72,11 +73,11 @@ SPointer<GameObject> ObjectManager::Create(std::string name)
 	//새로운 게임 오브젝트 생성
 	SPointer<GameObject> p = SPointer<GameObject>::Make_SPointer();
 	p->name = name;
+
 	//기본 모듈인 Transform 추가
-	auto targetModule =  p->AddModuleToEngine(GetMetaClass("Transform"));
+	auto targetModule =  p->AddModuleToEngine(GetType("Transform"));
 	auto targetTransform = reinterpret_cast<Transform*>(targetModule);
 	
-
 	//씬 매니저에 등록
 	sceneManager->RegisterGameObject(p);
 	return p;

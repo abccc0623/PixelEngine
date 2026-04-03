@@ -45,7 +45,9 @@ void LuaManager::Initialize()
 		sol::lib::string,  // 문자열 처리
 		sol::lib::math,    // 수학 연산
 		sol::lib::os,      // 시간(os.time) 등 시스템 함수
-		sol::lib::debug    // 디버깅 툴
+		sol::lib::debug,    // 디버깅 툴
+		sol::lib::jit,     // [추가됨] LuaJIT 컨트롤 (jit.on, jit.off, 최적화 옵션 등)
+		sol::lib::ffi
 	);
 	bind = Engine->GetFactory<BindManager>();
 	input = Engine->GetFactory<KeyInputManager>();

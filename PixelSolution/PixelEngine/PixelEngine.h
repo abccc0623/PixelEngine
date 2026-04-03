@@ -16,6 +16,7 @@ class Module;
 class Scene;
 class TextureManager;
 class ResourceManager;
+class EventManager;
 
 template <typename T> class SPointer;
 class PixelEngine

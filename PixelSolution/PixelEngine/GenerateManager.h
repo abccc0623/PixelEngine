@@ -3,8 +3,7 @@
 #include "PixelMeta.h"
 class LSPBind;
 class LuaBind;
-class PClass;
-class PNamespace;
+class PType;
 class GenerateManager :public EngineManager
 {
 public:
@@ -20,6 +19,10 @@ public:
 	void LSPGenerate(const char* outPath);
 	void JsonGenerate(const char* outPath);
 private:
+	void TypeMember(PixelClassMeta& PixelClass,PType* type);
+	void TypeMethod(PixelClassMeta& PixelClass,PType* type);
+	void TypeEnum(PixelClassMeta& PixelClass, PType* type);
+
 	LuaBind* luaBind;
 	LSPBind* lspBind;
 	std::vector<PixelClassMeta> types;

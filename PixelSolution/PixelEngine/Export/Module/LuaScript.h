@@ -13,6 +13,7 @@ public:
 	void Start() override;
 	void Update() override;
 
+	void MessageHub();
 	void Reload();
 	void Register(std::string fileName);
 private:
@@ -21,6 +22,7 @@ private:
 	sol::function awake;
 	sol::function start;
 	sol::function update;
+	sol::function message;
 
 	static LuaManager* lua;
 };

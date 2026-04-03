@@ -22,6 +22,7 @@ enum class META_TYPE
     CLASS,
     ENUM,
     ARRAY,
+    STATIC
 };
 
 namespace HashUtil
@@ -62,16 +63,21 @@ std::string ExtractTypeName() {
     size_t end = sig.find_last_of('>');
     std::string name = sig.substr(start, end - start);
 
-    // MSVC 특유의 찌꺼기 제거
-    size_t pos = name.find("class ");
-    if (pos != std::string::npos) name.erase(pos, 6);
-    pos = name.find("struct ");
-    if (pos != std::string::npos) name.erase(pos, 7);
+    // MSVC 특유의 찌꺼기 제거 ("enum class"가 "enum"보다 먼저 와야 합니다)
+    const char* prefixes[] = { "enum class ", "enum ", "class ", "struct " };
+    for (const char* prefix : prefixes) {
+        size_t pos = name.find(prefix);
+        if (pos != std::string::npos) {
+            // 접두사 문자열의 길이만큼 삭제
+            name.erase(pos, std::char_traits<char>::length(prefix));
+        }
+    }
     return name;
 #else
     return "UnknownType";
 #endif
 }
+
 template<>
 inline std::string ExtractTypeName<std::string>() {
     return "std::string";

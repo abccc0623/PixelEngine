@@ -27,6 +27,7 @@ private:
 	void BindCamera();
 	void BindGameObject();
 	void BindPVector3();
+	void BindEnum();
 private:
 
 };

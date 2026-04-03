@@ -28,9 +28,9 @@ GameObject::~GameObject()
 	ModuleMap.clear();
 }
 
-bool GameObject::HasModule(PClass* moduleClass)
+bool GameObject::HasModule(PType* moduleClass)
 {
-	uint64_t hash = GetClassHash(moduleClass);
+	uint64_t hash = GetTypeHash(moduleClass);
 	auto k = ModuleMap.find(hash);
 	if ((k == ModuleMap.end()))
 	{
@@ -42,11 +42,11 @@ bool GameObject::HasModule(PClass* moduleClass)
 	}
 }
 
-Module* GameObject::GetModuleToEngine(PClass* moduleClass)
+Module* GameObject::GetModuleToEngine(PType* moduleClass)
 {
 	if (HasModule(moduleClass))
 	{
-		uint64_t hash = GetClassHash(moduleClass);
+		uint64_t hash = GetTypeHash(moduleClass);
 		return ModuleMap[hash].GetPtr();
 	}
 	return nullptr;
@@ -54,7 +54,7 @@ Module* GameObject::GetModuleToEngine(PClass* moduleClass)
 
 Transform* GameObject::GetTransform()
 {
-	uint64_t hash = GetClassHash(GetClass("Transform"));
+	uint64_t hash = GetTypeHashByName("Transform");
 	return static_cast<Transform*>(ModuleMap[hash].GetPtr());
 }
 
@@ -66,7 +66,7 @@ unsigned long GameObject::GetHash()
 
 sol::object GameObject::AddModule(sol::this_state s,std::string moduleName)
 {
-	PClass* targetClass = GetClass(moduleName);
+	PType* targetClass = GetType(moduleName);
 	Module* targetModule = AddModuleToEngine(targetClass);
 	
 	auto find = AddModuleList.find(moduleName);
@@ -79,7 +79,7 @@ sol::object GameObject::AddModule(sol::this_state s,std::string moduleName)
 
 sol::object GameObject::GetModule(sol::this_state s, std::string moduleName)
 {
-	PClass* targetClass = GetClass(moduleName);
+	PType* targetClass = GetType(moduleName);
 	Module* targetModule = GetModuleToEngine(targetClass);
 
 	auto find = AddModuleList.find(moduleName);
@@ -90,22 +90,22 @@ sol::object GameObject::GetModule(sol::this_state s, std::string moduleName)
 	return sol::object();
 }
 
-Module* GameObject::AddModuleToEngine(PClass* moduleClass)
+Module* GameObject::AddModuleToEngine(PType* moduleClass)
 {
 	if (HasModule(moduleClass) == true) return nullptr;
-	if (GetClassParentHash(moduleClass) != GetClassHashByString("Module")) return nullptr;
+	if (GetTypeParentByHash(moduleClass) != GetTypeHashByName("Module")) return nullptr;
 	
 	//생성 함수 호출하여 모듈 생성
 	std::vector<void*> property;
-	PValue target = CallClassMethod(moduleClass, 0, moduleClass, property);
+	PValue target = CallMethod(moduleClass, 0, moduleClass, property);
 	Module* targetModule = reinterpret_cast<Module*>(target.AsPointer());
 	auto module =  SPointer<Module>(targetModule);
 
 	//함수 등록
-	int MethodCount = GetClassMethodCount(moduleClass);
+	int MethodCount = GetMethodCount(moduleClass);
 	for (int i = 0; i < MethodCount; i++)
 	{
-		std::string name = GetClassMethodName(moduleClass, i);
+		std::string name = GetMethodName(moduleClass, i);
 		if (name == "Awake")
 		{
 			functionManager->AddOneTimeFunction(module, (int)MODULE_FUNC::AWAKE);
@@ -131,7 +131,7 @@ Module* GameObject::AddModuleToEngine(PClass* moduleClass)
 			functionManager->AddTickFunction(module, (int)MODULE_FUNC::LAST);
 		}
 	}
-	ModuleMap.insert({ GetClassHash(moduleClass) ,module});
+	ModuleMap.insert({ GetTypeHash(moduleClass) ,module});
 	targetModule->targetObject = this;
 	
 	//기본 Transform 넣어준다

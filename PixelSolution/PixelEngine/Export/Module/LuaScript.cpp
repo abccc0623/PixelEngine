@@ -49,7 +49,7 @@ void LuaScript::Start()
     	{
     		sol::error err = result;
     		std::string what = err.what();
-    		PixelLog::Error("--- LUA SRART ERROR ---");
+    		PixelLog::Error("--- LUA START ERROR ---");
     		PixelLog::Error(what);
     		PixelLog::Error("-----------------------");
     	}
@@ -61,9 +61,33 @@ void LuaScript::Update()
     if (update.valid())
     {
         auto result = update(instance, GetDeltaTime());
+        if (!result.valid())
+        {
+            sol::error err = result;
+            std::string what = err.what();
+            PixelLog::Error("--- LUA UPDATE ERROR ---");
+            PixelLog::Error(what);
+            PixelLog::Error("-----------------------");
+        }
     }
 }
 
+
+void LuaScript::MessageHub()
+{
+    if (message.valid())
+    {
+        auto result = message(instance);
+        if (!result.valid())
+        {
+            sol::error err = result;
+            std::string what = err.what();
+            PixelLog::Error("--- LUA MESSAGE ERROR ---");
+            PixelLog::Error(what);
+            PixelLog::Error("-----------------------");
+        }
+    }
+}
 
 void LuaScript::Reload()
 {
@@ -95,6 +119,7 @@ void LuaScript::Register(std::string fileName)
     awake = instance["Awake"];
     start = instance["Start"];
     update = instance["Update"];
+    message = instance["MessageHub"];
     
     instance["gameObject"] = targetObject;
     instance["transform"] = transform;

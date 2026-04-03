@@ -1,4 +1,5 @@
 #pragma once
+#include "PixelMetaAPI.h"
 enum class MODULE_TYPE
 {
 	NONE,
@@ -23,3 +24,14 @@ enum class MODULE_FUNC : int
 
 	//특정 조건후 호출되는 함수
 };
+
+
+enum class EventType : int
+{
+	KEY_UP,
+	KEY_DOWN
+};
+
+
+
+

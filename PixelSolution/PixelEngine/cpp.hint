@@ -3,3 +3,4 @@
 // 자세한 내용은 다음을 참조하세요. https://go.microsoft.com/fwlink/?linkid=865984
 #define PIXEL_ENGINEDLL __declspec(dllexport)
 #define PIXEL_ENGINEDLL __declspec(dllimport)
+#define MAKE_ENUM_VALUE(Key)

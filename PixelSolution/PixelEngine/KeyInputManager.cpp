@@ -1,9 +1,13 @@
 #include "pch.h"
 #include "KeyInputManager.h"
+#include "EventManager.h"
+#include "PixelEngine.h"
+#include "Type/GlobalEnum.h"
 #pragma comment(lib, "User32.lib")
+extern PixelEngine* Engine;
 KeyInputManager::KeyInputManager()
 {
-
+	
 }
 KeyInputManager::~KeyInputManager()
 {
@@ -15,6 +19,7 @@ void KeyInputManager::Initialize()
 	{
 		keyStates[i] = KeyState::KEY_NONE;
 	}
+	event = Engine->GetFactory<EventManager>();
 }
 
 void KeyInputManager::Update()
@@ -37,10 +42,18 @@ void KeyInputManager::Update()
         if (isCurrentPressed)
         {
 			keyStates[i] = wasPressed ? PRESSED : PRESSED | DOWN;
+			if (keyStates[i] & DOWN)
+			{
+				event->TriggerEvent(EventType::KEY_DOWN, i);
+			}
         }
         else
         {
 			keyStates[i] = wasPressed ? UP : KEY_NONE;
+			if (keyStates[i] & UP)
+			{
+				event->TriggerEvent(EventType::KEY_UP, i);
+			}
         }
 	}
 }

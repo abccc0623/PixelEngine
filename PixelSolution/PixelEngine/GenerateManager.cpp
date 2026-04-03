@@ -33,67 +33,30 @@ void GenerateManager::CreateBindCode()
     int allCount = GetTypeAllCount();
     for (int typeIndex = 0; typeIndex < allCount; typeIndex++)
     {
-        PType* targetType       = GetTypeByIndex(typeIndex);
-        auto metaType           = GetTypeCategory(targetType);
-        std::string TypeName    = GetTypeName(targetType);
-
-
         PixelClassMeta PixelClass;
-        if (metaType == META_TYPE::CLASS)
+        PType* targetType   = GetTypeByIndex(typeIndex);
+        PixelClass.metaType = GetTypeCategory(targetType);
+        PixelClass.thisName = GetTypeName(targetType);
+
+        if (PixelClass.metaType == META_TYPE::PRIMITIVE)
         {
-            PClass* PClass  = GetClass(TypeName);
-            PixelClass.thisName = TypeName;
-            PixelClass.metaType = metaType;
-            int memberCount = GetClassMemberCount(PClass);
-            int methodCount = GetClassMethodCount(PClass);
-            PixelClass.parentHash  = GetClassParentHash(PClass);
-            for (int memberIndex = 0; memberIndex < memberCount; memberIndex++)
-            {
-                PixelMemberMeta PixelMember;
-                PixelMember.name = GetClassMemberName(PClass, memberIndex);
-                PixelMember.type = GetClassMemberType(PClass, memberIndex);
-                PixelClass.members.push_back(PixelMember);
-            }
-            for (int methodIndex = 0; methodIndex < methodCount; methodIndex++)
-            {
-                if (HasClassMethodFlag(PClass, methodIndex, MetaFlag::LUABIND) == false) continue;
-                PixelMethodMeta PixelMethod;
-                PixelMethod.name            = GetClassMethodName(PClass, methodIndex);
-                PixelMethod.returnType      = GetClassMethodReturnType(PClass, methodIndex);
-                int methodPropertyCount     = GetClassMethodPropertyCount(PClass, methodIndex);
-                for (int propertyIndex = 0; propertyIndex < methodPropertyCount; propertyIndex++)
-                {
-                    PixelMethod.propertys.push_back(GetClassMethodGetPropertyType(PClass, methodIndex, propertyIndex));
-                }
-                PixelClass.methods.push_back(PixelMethod);
-            }
-             types.push_back(PixelClass);
+            //±âº»Çü
         }
-        else if (metaType == META_TYPE::NAMESPACE)
+        else if (PixelClass.metaType == META_TYPE::CLASS)
         {
-            PNamespace* PNamespace = GetNamespace(TypeName);
-            PixelClass.metaType = metaType;
-            PixelClass.thisName = TypeName;
-            int methodCount     = GetNamespaceMethodCount(PNamespace);
-            for (int methodIndex = 0; methodIndex < methodCount; methodIndex++)
-            {
-                if (HasNamespaceMethodFlag(PNamespace, methodIndex, MetaFlag::LUABIND) == false) continue;
-                PixelMethodMeta PixelMethod;
-                PixelMethod.name = GetNamespaceMethodName(PNamespace, methodIndex);
-                PixelMethod.returnType = GetNamespaceMethodReturnType(PNamespace, methodIndex);
-                int methodPropertyCount = GetNamespaceMethodPropertyCount(PNamespace, methodIndex);
-                for (int propertyIndex = 0; propertyIndex < methodPropertyCount; propertyIndex++)
-                {
-                    PixelMethod.propertys.push_back(GetNamespaceMethodGetPropertyType(PNamespace, methodIndex, propertyIndex));
-                }
-                PixelClass.methods.push_back(PixelMethod);
-            }
-            types.push_back(PixelClass);
+            PixelClass.parentHash = GetTypeParentByHash(targetType);
+            TypeMember(PixelClass, targetType);
+            TypeMethod(PixelClass, targetType);
         }
-        else
+        else if (PixelClass.metaType == META_TYPE::STATIC)
         {
-            continue;
+            TypeMethod(PixelClass, targetType);
         }
+        else if (PixelClass.metaType == META_TYPE::ENUM)
+        {
+            TypeEnum(PixelClass, targetType);
+        }
+        types.push_back(PixelClass);
     }
 }
 
@@ -112,6 +75,47 @@ void GenerateManager::LSPGenerate(const char* outPath)
 void GenerateManager::JsonGenerate(const char* outPath)
 {
 
+}
+
+void GenerateManager::TypeMember(PixelClassMeta& PixelClass, PType* type)
+{
+    int memberCount = GetMemberCount(type);
+    for (int memberIndex = 0; memberIndex < memberCount; memberIndex++)
+    {
+        PixelMemberMeta PixelMember;
+        PixelMember.name = GetMemberName(type, memberIndex);
+        PixelMember.type = GetMemberType(type, memberIndex);
+        PixelClass.members.push_back(PixelMember);
+    }
+}
+
+void GenerateManager::TypeMethod(PixelClassMeta& PixelClass, PType* type)
+{
+    int methodCount = GetMethodCount(type);
+    for (int methodIndex = 0; methodIndex < methodCount; methodIndex++)
+    {
+        if (HasMethodFlag(type, methodIndex, MetaFlag::LUABIND) == false) continue;
+        PixelMethodMeta PixelMethod;
+        PixelMethod.name = GetMethodName(type, methodIndex);
+        PixelMethod.returnType = GetMethodReturnType(type, methodIndex);
+        int methodPropertyCount = GetMethodPropertyCount(type, methodIndex);
+        for (int propertyIndex = 0; propertyIndex < methodPropertyCount; propertyIndex++)
+        {
+            PixelMethod.propertys.push_back(GetMethodGetPropertyType(type, methodIndex, propertyIndex));
+        }
+        PixelClass.methods.push_back(PixelMethod);
+    }
+}
+
+void GenerateManager::TypeEnum(PixelClassMeta& PixelClass, PType* type)
+{
+    int enumCount = GetEnumCount(type);
+    for (int enumIndex = 0; enumIndex < enumCount; enumIndex++)
+    {
+        PixelEnumMeta PixelEnum;
+        PixelEnum.value = GetEnum(type, enumIndex);
+        PixelClass.enums.push_back(PixelEnum);
+    }
 }
 
 

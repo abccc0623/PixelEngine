@@ -14,6 +14,7 @@
 #include "TimeManager.h"
 #include "Core/GameObject.h"
 #include "JsonManager.h"
+#include "EventManager.h"
 #include "PixelMetaAPI.h"
 #include "Log.h"
 
@@ -252,28 +253,26 @@ GameObject* FindGameObject(const char* name)
 	return sceneManager->FindGameObject(objName);
 }
 
+void RegisterMessage(GameObject* target, EventType type)
+{
+	auto eventManager = Engine->GetFactory<EventManager>();
+	eventManager->RegisterMessage(target, type);
+}
 
-Module* AddModule(GameObject* target, PClass* moduleClass)
+void UnregisterMessage(GameObject* target, EventType type)
+{
+	auto eventManager = Engine->GetFactory<EventManager>();
+	eventManager->UnregisterMessage(target, type);
+}
+
+
+Module* AddModule(GameObject* target, PType* moduleClass)
 {
 	return target->AddModuleToEngine(moduleClass);
 }
 
-Module* AddModuleByString(GameObject* target, const char* name)
-{
-	std::string Str(name);
-	PClass* targetClass = GetMetaClass(name);
-	if (target != nullptr)
-	{
-		return target->AddModuleToEngine(targetClass);
-	}
-	else
-	{
-		PixelLog::Error("Not Find Type :"+ Str);
-	}
-	return nullptr;
-}
 
-Module* GetModule(GameObject* target, PClass* moduleClass)
+Module* GetModule(GameObject* target, PType* moduleClass)
 {
 	return target->GetModuleToEngine(moduleClass);
 }
@@ -284,35 +283,35 @@ Module* GetModuleByString(GameObject* target, const char* name)
 }
 
 #pragma region MetaType
-PClass* GetMetaClass(const char* className)
-{
-	std::string targetName(className);
-	return GetClass(targetName);
-}
-const char* GetMemberName(PClass* targetClass, int index)
-{
-	return GetClassMemberName(targetClass, index).c_str();
-}
-const char* GetMemberType(PClass* targetClass, int index)
-{
-	return GetClassMemberType(targetClass, index).c_str();
-}
-const char* GetMethodName(PClass* targetClass, int index)
-{
-	return GetClassMethodName(targetClass,index).c_str();
-}
-const char* GetMethodReturnType(PClass* targetClass, int index)
-{
-	return GetClassMethodReturnType(targetClass, index).c_str();
-}
-const char* GetMethodGetPropertyType(PClass* targetClass, int index, int propertyIndex)
-{
-	return GetClassMethodGetPropertyType(targetClass, index, propertyIndex).c_str();
-}
-int GetMethodPropertyCount(PClass* targetClass, int index)
-{
-	return GetClassMethodPropertyCount(targetClass, index);
-}
+//PClass* GetMetaClass(const char* className)
+//{
+//	std::string targetName(className);
+//	return GetClass(targetName);
+//}
+//const char* GetMemberName(PClass* targetClass, int index)
+//{
+//	return GetClassMemberName(targetClass, index).c_str();
+//}
+//const char* GetMemberType(PClass* targetClass, int index)
+//{
+//	return GetClassMemberType(targetClass, index).c_str();
+//}
+//const char* GetMethodName(PClass* targetClass, int index)
+//{
+//	return GetClassMethodName(targetClass,index).c_str();
+//}
+//const char* GetMethodReturnType(PClass* targetClass, int index)
+//{
+//	return GetClassMethodReturnType(targetClass, index).c_str();
+//}
+//const char* GetMethodGetPropertyType(PClass* targetClass, int index, int propertyIndex)
+//{
+//	return GetClassMethodGetPropertyType(targetClass, index, propertyIndex).c_str();
+//}
+//int GetMethodPropertyCount(PClass* targetClass, int index)
+//{
+//	return GetClassMethodPropertyCount(targetClass, index);
+//}
 void LuaGenerate(const char* outPath)
 {
 	if (Engine != nullptr)
@@ -337,15 +336,15 @@ void JsonGenerate(const char* outPath)
 		Generate->JsonGenerate(outPath);
 	}
 }
-
-int GetMemberCount(PClass* targetClass)
-{
-	return GetClassMemberCount(targetClass);
-}
-int GetMethodCount(PClass* targetClass)
-{
-	return GetClassMethodCount(targetClass);
-}
+//
+//int GetMemberCount(PClass* targetClass)
+//{
+//	return GetClassMemberCount(targetClass);
+//}
+//int GetMethodCount(PClass* targetClass)
+//{
+//	return GetClassMethodCount(targetClass);
+//}
 #pragma endregion
 
 bool CreateScene(const char* sceneName)

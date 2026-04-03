@@ -6,26 +6,43 @@ void LSPBind::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
     main = "";
     for (auto& K : types)
     {
-        if (K.parentHash == GetClassHash(GetClass("Module")))
+        if (K.metaType == META_TYPE::PRIMITIVE)
         {
-            std::unordered_map<std::string, std::string> data;
-            data["CLASS_NAME"] = K.thisName;
-            data["PARENT_NAME"] = "Module";
-            main += ReplaceSimple(ClassParentBind, data);
-        }
-        else
-        {
-            main += ReplaceAll(ClassBind, "CLASS_NAME", K.thisName);
-        }
-
-        if (K.thisName == "GameObject")
-        {
-            SetGameObjectString(types);
             continue;
         }
-        SetMemberString(K);
-        main += K.thisName +" ={}\n\n";
-        SetMethodString(K);
+        else if (K.metaType == META_TYPE::CLASS || K.metaType == META_TYPE::STATIC)
+        {
+            if (K.parentHash == GetTypeHashByName("Module"))
+            {
+                std::unordered_map<std::string, std::string> data;
+                data["CLASS_NAME"] = K.thisName;
+                data["PARENT_NAME"] = "Module";
+                main += ReplaceSimple(ClassParentBind, data);
+            }
+            else
+            {
+                main += ReplaceAll(ClassBind, "CLASS_NAME", K.thisName);
+            }
+        
+            if (K.thisName == "GameObject")
+            {
+                SetGameObjectString(types);
+                continue;
+            }
+            SetMemberString(K);
+            main += K.thisName +" ={}\n\n";
+            SetMethodString(K);
+        }
+        else if (K.metaType == META_TYPE::ENUM)
+        {
+            main += ReplaceAll(EnumBind, "ENUM_NAME", K.thisName);
+            main += K.thisName + "= {\n";
+            for (int i = 0; i < K.enums.size(); i++) 
+            {
+                main += "\t"+K.enums[i].value + " = " + std::to_string(i) + ",\n";
+            }
+            main += "}\n";
+        }
     }
 
     std::ofstream file(outPath);
@@ -97,7 +114,7 @@ void LSPBind::SetMethodString(PixelClassMeta& meta)
             {
                 main += ReplaceSimple(MethodBind, data);
             }
-            else if (meta.metaType == META_TYPE::NAMESPACE)
+            else if (meta.metaType == META_TYPE::STATIC)
             {
                 main += ReplaceSimple(StaticMethodBind, data);
             }
@@ -121,24 +138,24 @@ void LSPBind::SetGameObjectString(std::vector<PixelClassMeta>& types)
     main += "GameObject = {} \n";
     for (auto& K : types)
     {
-        if (K.parentHash == GetClassHash(GetClass("Module")))
+        if (K.parentHash == GetTypeHashByName("Module"))
         {
             main += ReplaceAll(OverloadObject, "CLASS_NAME", K.thisName);
         }
     }
-    main += "---@param ModuleName string\n";
+    main += "---@param string0 string\n";
     main += "---@return Module\n";
-    main += "function GameObject:AddModule(ModuleName) end\n\n";
+    main += "function GameObject:AddModule(string0) end\n\n";
 
 
     for (auto& K : types)
     {
-        if (K.parentHash == GetClassHash(GetClass("Module")))
+        if (K.parentHash == GetTypeHashByName("Module"))
         {
             main += ReplaceAll(OverloadObject, "CLASS_NAME", K.thisName);
         }
     }
-    main += "---@param ModuleName string\n";
+    main += "---@param string0 string\n";
     main += "---@return Module\n";
-    main += "function GameObject:GetModule(ModuleName) end\n\n";
+    main += "function GameObject:GetModule(string0) end\n\n";
 }

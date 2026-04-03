@@ -8,7 +8,7 @@
 template <typename T> class SPointer;
 class Module;
 class FunctionManager;
-class PClass;
+class PType;
 class Transform;
 class GameObject :public PixelObject
 {
@@ -19,9 +19,9 @@ public:
 	 sol::object AddModule(sol::this_state s,std::string name);
 	 sol::object GetModule(sol::this_state s, std::string name);
 
-	 bool HasModule(PClass* moduleClass);
-	 Module* AddModuleToEngine(PClass* moduleClass);
-	 Module* GetModuleToEngine(PClass* moduleClass);
+	 bool HasModule(PType* moduleClass);
+	 Module* AddModuleToEngine(PType* moduleClass);
+	 Module* GetModuleToEngine(PType* moduleClass);
 	 Transform* GetTransform();
 	 unsigned long GetHash();
 

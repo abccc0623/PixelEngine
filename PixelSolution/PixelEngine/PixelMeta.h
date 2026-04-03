@@ -15,6 +15,10 @@ struct PixelMethodMeta
 	std::string returnType;
 	std::vector<std::string> propertys;
 };
+struct PixelEnumMeta
+{
+	std::string value;
+};
 
 struct PixelClassMeta
 {
@@ -23,4 +27,5 @@ struct PixelClassMeta
 	std::string thisName;
 	std::vector<PixelMemberMeta> members;
 	std::vector<PixelMethodMeta> methods;
+	std::vector<PixelEnumMeta>	 enums;
 };

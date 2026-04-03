@@ -16,7 +16,8 @@ LuaBind::~LuaBind()
 void LuaBind::SetIncludeString(PixelClassMeta& meta)
 {
     if (meta.metaType == META_TYPE::PRIMITIVE) return;
-    if (meta.metaType == META_TYPE::NAMESPACE) return;
+    if (meta.metaType == META_TYPE::STATIC) return;
+    if (meta.metaType == META_TYPE::ENUM) return;
     if (meta.thisName == "Module") return;
 
     if (meta.thisName == "GameObject")
@@ -27,7 +28,7 @@ void LuaBind::SetIncludeString(PixelClassMeta& meta)
     {
         IncludeString += ReplaceAll(Include, "INCLUDE_TYPE", "Type/" + meta.thisName);
     }
-    else  if (meta.parentHash == GetClassHash(GetClass("Module")))
+    else  if (meta.parentHash == GetTypeHashByName("Module"))
     {
         IncludeString += ReplaceAll(Include, "INCLUDE_TYPE", "Module/" + meta.thisName);
     }
@@ -39,14 +40,22 @@ void LuaBind::SetIncludeString(PixelClassMeta& meta)
 
 void LuaBind::SetFunctionString(PixelClassMeta& meta)
 {
+    if (meta.metaType == META_TYPE::PRIMITIVE) return;
+
     FunctionCallString += ReplaceAll(FunctionCallName, "TYPE_NAME", meta.thisName);
     FunctionString += ReplaceAll(FunctionName, "TYPE_NAME", meta.thisName);
     FunctionString += "{\n";
-    SetLuaClassString(meta);
-    SetLuaMemberString(meta);
-    SetLuaMethodString(meta);
+    if (meta.metaType == META_TYPE::CLASS || meta.metaType == META_TYPE::STATIC)
+    {
+        SetLuaClassString(meta);
+        SetLuaMemberString(meta);
+        SetLuaMethodString(meta);
+    }
+    else if (meta.metaType == META_TYPE::ENUM)
+    {
+        SetLuaEnumString(meta);
+    }
     FunctionString += "}\n";
-
 }
 
 void LuaBind::SetLuaClassString(PixelClassMeta& meta)
@@ -63,7 +72,7 @@ void LuaBind::SetLuaClassString(PixelClassMeta& meta)
         data["CLASS_NAME"] = meta.thisName;
         FunctionString += ReplaceSimple(CreateClassBind, data);
     }
-    else if (meta.metaType == META_TYPE::NAMESPACE)
+    else if (meta.metaType == META_TYPE::STATIC)
     {
         FunctionString += ReplaceAll(StaticClassBind, "CLASS_NAME", meta.thisName);
     }
@@ -71,7 +80,7 @@ void LuaBind::SetLuaClassString(PixelClassMeta& meta)
     {
         FunctionString += ReplaceAll(ClassBind, "CLASS_NAME", meta.thisName);
 
-        if (meta.parentHash == GetClassHash(GetClass("Module")))
+        if (meta.parentHash == GetTypeHashByName("Module"))
         {
             AddModuleLuaString += ReplaceAll(LuaAddModuleBind, "CLASS_NAME", meta.thisName);
         }
@@ -98,7 +107,7 @@ void LuaBind::SetLuaMethodString(PixelClassMeta& meta)
             continue;
         }
 
-        if (meta.metaType == META_TYPE::NAMESPACE)
+        if (meta.metaType == META_TYPE::STATIC)
         {
             std::unordered_map<std::string, std::string> data;
             data["METHOD_NAME"] = m.name;
@@ -112,6 +121,18 @@ void LuaBind::SetLuaMethodString(PixelClassMeta& meta)
             FunctionString += ReplaceSimple(ClassMethodBind, data);
         }
     }
+}
+
+void LuaBind::SetLuaEnumString(PixelClassMeta& meta)
+{
+    FunctionString += ReplaceAll(ClassEnumBind, "ENUM_NAME", meta.thisName);
+    for (auto& K : meta.enums) {
+        std::unordered_map<std::string, std::string> data;
+        data["ENUM_VALUE"] = K.value;
+        data["ENUM_NAME"] = meta.thisName;
+        FunctionString += ReplaceSimple(ClassEnumValueBind, data);
+    }
+    FunctionString += "});\n";
 }
 
 std::string LuaBind::propertyToString(std::vector<std::string> propertys)

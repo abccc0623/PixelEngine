@@ -1,5 +1,7 @@
 #pragma once
 #include "PixelEngineDLL.h"
+
+enum class EventType : int;
 class GameObject;
 class PObject;
 class PClass;
@@ -18,16 +20,19 @@ extern "C" PIXEL_ENGINEDLL void Import(const char* path);
 extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name);
 extern "C" PIXEL_ENGINEDLL GameObject* FindGameObject(const char* name);
 
+extern "C" PIXEL_ENGINEDLL void RegisterMessage(GameObject* target, EventType type);
+extern "C" PIXEL_ENGINEDLL void UnregisterMessage(GameObject* target, EventType type);
+
 #pragma region MetaType
-extern "C" PIXEL_ENGINEDLL PClass* GetMetaClass(const char* className);
-extern "C" PIXEL_ENGINEDLL int GetMemberCount(PClass* targetClass);
-extern "C" PIXEL_ENGINEDLL int GetMethodCount(PClass* targetClass);
-extern "C" PIXEL_ENGINEDLL const char* GetMemberName(PClass* targetClass, int index);
-extern "C" PIXEL_ENGINEDLL const char* GetMemberType(PClass* targetClass, int index);
-extern "C" PIXEL_ENGINEDLL const char* GetMethodName(PClass* targetClass, int index);
-extern "C" PIXEL_ENGINEDLL const char* GetMethodReturnType(PClass* targetClass, int index);
-extern "C" PIXEL_ENGINEDLL const char* GetMethodGetPropertyType(PClass* targetClass, int index,int propertyIndex);
-extern "C" PIXEL_ENGINEDLL int GetMethodPropertyCount(PClass* targetClass, int index);
+//extern "C" PIXEL_ENGINEDLL PClass* GetMetaClass(const char* className);
+//extern "C" PIXEL_ENGINEDLL int GetMemberCount(PClass* targetClass);
+//extern "C" PIXEL_ENGINEDLL int GetMethodCount(PClass* targetClass);
+//extern "C" PIXEL_ENGINEDLL const char* GetMemberName(PClass* targetClass, int index);
+//extern "C" PIXEL_ENGINEDLL const char* GetMemberType(PClass* targetClass, int index);
+//extern "C" PIXEL_ENGINEDLL const char* GetMethodName(PClass* targetClass, int index);
+//extern "C" PIXEL_ENGINEDLL const char* GetMethodReturnType(PClass* targetClass, int index);
+//extern "C" PIXEL_ENGINEDLL const char* GetMethodGetPropertyType(PClass* targetClass, int index,int propertyIndex);
+//extern "C" PIXEL_ENGINEDLL int GetMethodPropertyCount(PClass* targetClass, int index);
 #pragma endregion
 
 extern "C" PIXEL_ENGINEDLL void LuaGenerate(const char* outPath);
