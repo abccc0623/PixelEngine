@@ -65,6 +65,17 @@ void PixelEngine::EngineUpdate()
 		k.second->Update();
 	}
 	PixelGraphicsRendering();
+
+	if (IsClear == true)
+	{
+		for (auto& k : factoryMap)
+		{
+			k.second->Clear();
+		}
+		GraphicsClear();
+		Import("./Asset/main.lua");
+		IsClear = false;
+	}
 }
 
 bool PixelEngine::RunningCheck()
@@ -92,18 +103,7 @@ void PixelEngine::Resize(int width, int height)
 
 void PixelEngine::Clear()
 {
-	//auto sceneManager = GetFactory<SceneManager>();
-	//sceneManager->Clear();
-	//auto resource = GetFactory<ResourceManager>();
-	//resource->Clear();
-	//auto luaManager = GetFactory<LuaManager>();
-	//luaManager->Clear();
-	for (auto& k : factoryMap)
-	{
-		k.second->Clear();
-	}
-	GraphicsClear();
-	Import("./Asset/main.lua");
+	IsClear = true;
 }
 
 void PixelEngine::QuitWindow()

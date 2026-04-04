@@ -260,10 +260,24 @@ void RegisterMessage(GameObject* target, EventType type)
 	eventManager->RegisterMessage(target, type);
 }
 
+void RegisterCustomMessage(GameObject* target, const char* type)
+{
+	std::string eventType(type);
+	auto eventManager = Engine->GetFactory<EventManager>();
+	eventManager->RegisterMessageCustom(target, eventType);
+}
+
 void UnregisterMessage(GameObject* target, EventType type)
 {
 	auto eventManager = Engine->GetFactory<EventManager>();
 	eventManager->UnregisterMessage(target, type);
+}
+
+void UnregisterCustomMessage(GameObject* target, const char* type)
+{
+	std::string eventType(type);
+	auto eventManager = Engine->GetFactory<EventManager>();
+	eventManager->UnregisterMessageCustom(target, eventType);
 }
 
 void BackgroundColor(int R, int G, int B)

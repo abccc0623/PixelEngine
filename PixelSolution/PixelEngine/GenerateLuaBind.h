@@ -17,12 +17,6 @@ inline void Generate_Engine(sol::state& lua)
 	ut["FindGameObject"] = &FindGameObject;
 	ut["BackgroundColor"] = &BackgroundColor;
 }
-inline void Generate_Event(sol::state& lua) 
-{
-	sol::table ut = lua.create_named_table("Event");
-	ut["RegisterMessage"] = &RegisterMessage;
-	ut["UnregisterMessage"] = &UnregisterMessage;
-}
 inline void Generate_Scene(sol::state& lua) 
 {
 	sol::table ut = lua.create_named_table("Scene");
@@ -71,6 +65,12 @@ inline void Generate_LuaScript(sol::state& lua)
 {
 	sol::usertype<LuaScript> ut = lua.new_usertype<LuaScript>("LuaScript");
 	ut["Register"] = &LuaScript::Register;
+	ut["Get"] = &LuaScript::Get;
+	ut["TriggerCustomEvent"] = &LuaScript::TriggerCustomEvent;
+	ut["RegisterMessage"] = &LuaScript::RegisterMessage;
+	ut["UnregisterMessage"] = &LuaScript::UnregisterMessage;
+	ut["RegisterCustomMessage"] = &LuaScript::RegisterCustomMessage;
+	ut["UnregisterCustomMessage"] = &LuaScript::UnregisterCustomMessage;
 }
 inline void Generate_GameObject(sol::state& lua) 
 {
@@ -130,7 +130,6 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 {
 	BindAll_AddModules();
 	Generate_Engine(lua); 
-	Generate_Event(lua); 
 	Generate_Scene(lua); 
 	Generate_Asset(lua); 
 	Generate_Input(lua); 

@@ -4,6 +4,7 @@
 #include "Core/GameObject.h"
 #include "Module/LuaScript.h"
 #include "PixelMetaAPI.h"
+#include "PixelEngineAPI.h"
 
 EventManager::EventManager()
 {
@@ -22,7 +23,36 @@ void EventManager::Initialize()
 
 void EventManager::Update()
 {
+	if (customDelayEvents.empty()) return;
 
+	float currentTime = GetTotalTime();
+
+	// ★ 핵심: 배열을 뒤에서부터 앞으로 순회 (인덱스 꼬임 방지)
+	for (int i = customDelayEvents.size() - 1; i >= 0; --i) {
+
+		// 목표 시간에 도달했는지 확인
+		if (currentTime >= customDelayEvents[i].eventEndTime)
+		{
+			std::string typeName = customDelayEvents[i].eventType;
+			auto list = customEventList.find(typeName);
+			if (list != customEventList.end())
+			{
+				for (auto& K : customEventList[typeName])
+				{
+					auto targetModule = K->GetModuleToEngine(GetType("LuaScript"));
+					auto lua = static_cast<LuaScript*>(targetModule);
+					lua->CustomEventCall(typeName, customDelayEvents[i].eventTable);
+				}
+			}
+
+			// 2. 배열에서 삭제 (Swap-and-Pop 기법 - O(1) 성능)
+			// 현재 요소를 맨 마지막 요소로 덮어씌우고, 마지막 요소를 날려버림
+			if (i != customDelayEvents.size() - 1) {
+				customDelayEvents[i] = customDelayEvents.back();
+				customDelayEvents.pop_back();
+			}
+		}
+	}
 }
 
 void EventManager::Release()
@@ -40,7 +70,40 @@ void EventManager::Clear()
 	{
 		K.second.clear();
 	}
+	for (auto K : customEventList)
+	{
+		K.second.clear();
+	}
+	customDelayEvents.clear();
 	eventList.clear();
+	customEventList.clear();
+}
+
+void EventManager::RegisterMessageCustom(GameObject* target, std::string EventName)
+{
+	auto& list = customEventList[EventName];
+	auto find = std::find(list.begin(), list.end(), target);
+	if (find == list.end())
+	{
+		list.push_back(target);
+	}
+	else
+	{
+		PixelLog::Error("[Event] 이미 등록된 오브젝트 :" + target->name);
+	}
+}
+
+void EventManager::UnregisterMessageCustom(GameObject* target, std::string EventName)
+{
+	auto list = customEventList.find(EventName);
+	if (list != customEventList.end())
+	{
+		auto find = std::find(customEventList[EventName].begin(), customEventList[EventName].end(), target);
+		if (find != customEventList[EventName].end())
+		{
+			customEventList[EventName].erase(find);
+		}
+	}
 }
 
 void EventManager::RegisterMessage(GameObject* target, EventType type)
@@ -67,6 +130,32 @@ void EventManager::UnregisterMessage(GameObject* target, EventType type)
 		{
 			eventList[type].erase(find);
 		}
+	}
+}
+
+void EventManager::TriggerCustomEvent(std::string eventType, sol::table event, float time)
+{
+	if (time == 0.0f)
+	{
+		auto list = customEventList.find(eventType);
+		if (list != customEventList.end())
+		{
+			for (auto& K : customEventList[eventType])
+			{
+				auto targetModule = K->GetModuleToEngine(GetType("LuaScript"));
+				auto lua = static_cast<LuaScript*>(targetModule);
+				lua->CustomEventCall(eventType, event);
+			}
+		}
+	}
+	else
+	{
+		CustomDelayEvent delayEvent;
+		delayEvent.eventType = eventType;
+		delayEvent.eventTable = event;
+		delayEvent.eventStartTime = GetTotalTime();
+		delayEvent.eventEndTime = GetTotalTime() + time;
+		customDelayEvents.push_back(delayEvent);
 	}
 }
 

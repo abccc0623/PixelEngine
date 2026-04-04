@@ -252,5 +252,10 @@ namespace PixelTool
         {
             CreateEventFunction(sender, "Event_Key");
         }
+
+        private void CustomEvent(object sender, RoutedEventArgs e)
+        {
+            CreateEventFunction(sender, "Event_Key");
+        }
     }
 }

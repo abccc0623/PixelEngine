@@ -40,8 +40,9 @@
             <avalonedit:TextEditor.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Create Event" IsCheckable= "False">
+                        <MenuItem Header="CustomEvent" Tag="CustomEvent" Click="CustomEvent"/>
                         <MenuItem Header="KeyDown" Tag="Event_KeyDown" Click="Event_KeyDown"/>
-                        <MenuItem Header="KeyDown" Tag="Event_KeyUp" Click="Event_KeyUp"/>
+                        <MenuItem Header="KeyUp" Tag="Event_KeyUp" Click="Event_KeyUp"/>
                     </MenuItem>
                     <Separator />
                 </ContextMenu>

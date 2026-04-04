@@ -26,7 +26,7 @@ int main()
         std::cout << "생성할 번호를 입력" <<std::endl;
         std::cout << "(1)LuaGenerate" <<std::endl;
         std::cout << "(2)LSPGenerate" <<std::endl;
-        std::cout << "(3)JsonGenerate" <<std::endl;
+        std::cout << "(3)종료" <<std::endl;
     
         // 2. 공백 포함 한 줄 전체를 입력받음 (std::getline 사용)
         std::getline(std::cin, inputStr);
@@ -51,7 +51,7 @@ int main()
                 //outputPath = GetExePath();
                 //outputPath += "\\LSP\\bin\\GenerateLuaAPI.lua";
                 //GenerateLuaAPICodeJson(outputPath.c_str());
-                break;
+                return 0;
             }
         }
         catch (const std::invalid_argument& e)

@@ -9,3 +9,9 @@ function self:Event_KeyUp(KeyCode)
 	--self.transfrom.Position.X = 1	
 	--end
 end 
+
+function self:CustomEvent(MessageType,Message)  
+	--if 	MessageType == "YourCustomMessageName" then
+	
+	--end
+end 

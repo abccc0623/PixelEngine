@@ -64,6 +64,10 @@ std::string LSPBind::TypeChangeByLua(std::string type)
     {
         type = "boolean";
     }
+    else if (type == "sol::basic_table_core<0,class sol::basic_reference<0> >")
+    {
+        type = "table";
+    }
     std::erase(type, '*');
     return type;
 }

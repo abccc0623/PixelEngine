@@ -6,6 +6,7 @@ enum class EventType : int;
 class GameObject;
 class LuaModuleInfo;
 class LuaManager;
+class EventManager;
 class LuaScript : public Module
 {
 public:
@@ -15,10 +16,19 @@ public:
 	void Start() override;
 	void Update() override;
 
-	void MessageHub();
 	void Reload();
 	void Register(std::string fileName);
 	void EventCall(EventType type, Event event);
+	void TriggerCustomEvent(std::string eventType, sol::table event,float time);
+	void CustomEventCall(std::string eventType, sol::table event);
+	
+
+	void RegisterMessage(EventType type);
+	void RegisterCustomMessage(const char* type);
+	void UnregisterMessage(EventType type);
+	void UnregisterCustomMessage(const char* type);
+
+	sol::table Get();
 private:
 	std::string luaFileName;
 	sol::table instance;
@@ -29,7 +39,9 @@ private:
 
 	sol::function keyDown;
 	sol::function keyUp;
+	sol::function CustomEvent;
 
 	static LuaManager* lua;
+	static EventManager* event;
 };
 

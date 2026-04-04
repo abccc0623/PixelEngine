@@ -33,6 +33,8 @@ namespace PixelTool
         [DllImport("PixelEngine.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void RegisterLogCallback(LogDelegate callback);
 
+        static ConsoleWindow console;
+
         public ConsoleWindow()
         {
             InitializeComponent();
@@ -41,6 +43,7 @@ namespace PixelTool
             _logCallback = new LogDelegate(OnNativeLogReceived);
             RegisterLogCallback(_logCallback);
             EngineLogView.SelectionChanged += EngineLogView_SelectionChanged;
+            console = GlobalFunction.GetDockedWindow<ConsoleWindow>();
         }
 
         // 4. C++에서 호출되는 실제 함수
@@ -51,14 +54,17 @@ namespace PixelTool
 
         public static void LogMessage(string message, int level)
         {
-            var logwindow = GlobalFunction.GetDockedWindow<ConsoleWindow>();
-            if (logwindow == null) return;
+            if(console == null)
+            {
+                console = GlobalFunction.GetDockedWindow<ConsoleWindow>();
+            }
+            if (console == null) return;
 
-            logwindow.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
+            console.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
             {
                 string timeTag = DateTime.Now.ToString("HH:mm:ss");
                 string levelTag = level == 0 ? "[INFO]" : (level == 1 ? "[WARN]" : "[ERR ]");
-
+            
                 // ListBox에 로그 추가
                 ListBoxItem item = new ListBoxItem();
                 string logEntry = $"[{timeTag}]{levelTag} {message}";
@@ -77,12 +83,12 @@ namespace PixelTool
                         item.Foreground = Brushes.Gray;
                         break;
                 }
-                var logView = logwindow.EngineLogView;
+                var logView = console.EngineLogView;
                 item.Content = logEntry;
                 logView.Items.Add(item);
-
+            
                 // 자동 스크롤: 가장 최근 로그로 이동
-                if (logwindow.EngineLogView.Items.Count > 0)
+                if (console.EngineLogView.Items.Count > 0)
                 {
                     logView.ScrollIntoView(logView.Items[logView.Items.Count - 1]);
                 }

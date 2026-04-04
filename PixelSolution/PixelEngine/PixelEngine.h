@@ -34,6 +34,7 @@ public:
 	void ClientUpdate();
 	void EngineUpdate();
 	bool RunningCheck();
+	bool IsClear = false;
 
 	sol::state* GetModuleCall_Lua();
 	SPointer<GameObject> CreateGameObject(std::string name = "GameObject");

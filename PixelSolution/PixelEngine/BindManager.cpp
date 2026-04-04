@@ -39,10 +39,6 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalCreate,"CreateGameObject", GeGlobalMethodInfo(&CreateGameObject), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCreate,"FindGameObject", GeGlobalMethodInfo(&FindGameObject), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCreate,"BackgroundColor", GeGlobalMethodInfo(&BackgroundColor), MetaFlag::LUABIND);
-
-	PStatic* globalEvent = CreateNewStatic("Event");
-	AddGlobalMethod(globalEvent,"RegisterMessage", GeGlobalMethodInfo(&RegisterMessage), MetaFlag::LUABIND);
-	AddGlobalMethod(globalEvent,"UnregisterMessage", GeGlobalMethodInfo(&UnregisterMessage), MetaFlag::LUABIND);
 	
 	PStatic* globalScene = CreateNewStatic("Scene");
 	AddGlobalMethod(globalScene,"ChangeScene",GeGlobalMethodInfo(&ChangeScene), MetaFlag::LUABIND);
@@ -105,10 +101,16 @@ void BindManager::BindLuaScript()
 		{
 			PixelLog::Info("Delete LuaScript");
 		});
-	AddMethod(table, "Awake", GetMethodInfo(&LuaScript::Awake));
-	AddMethod(table, "Start", GetMethodInfo(&LuaScript::Start));
-	AddMethod(table, "Update", GetMethodInfo(&LuaScript::Update));
-	AddMethod(table, "Register", GetMethodInfo(&LuaScript::Register), MetaFlag::LUABIND | MetaFlag::SAVE);
+	AddMethod(table, "Awake",					GetMethodInfo(&LuaScript::Awake));
+	AddMethod(table, "Start",					GetMethodInfo(&LuaScript::Start));
+	AddMethod(table, "Update",					GetMethodInfo(&LuaScript::Update));
+	AddMethod(table, "Register",				GetMethodInfo(&LuaScript::Register),				MetaFlag::LUABIND);
+	AddMethod(table, "Get",						GetMethodInfo(&LuaScript::Get),						MetaFlag::LUABIND);
+	AddMethod(table, "TriggerCustomEvent",		GetMethodInfo(&LuaScript::TriggerCustomEvent),		MetaFlag::LUABIND);
+	AddMethod(table, "RegisterMessage",			GetMethodInfo(&LuaScript::RegisterMessage),			MetaFlag::LUABIND);
+	AddMethod(table, "UnregisterMessage",		GetMethodInfo(&LuaScript::UnregisterMessage),		MetaFlag::LUABIND);
+	AddMethod(table, "RegisterCustomMessage",	GetMethodInfo(&LuaScript::RegisterCustomMessage),	MetaFlag::LUABIND);
+	AddMethod(table, "UnregisterCustomMessage", GetMethodInfo(&LuaScript::UnregisterCustomMessage), MetaFlag::LUABIND);
 }
 
 void BindManager::BindTransform()
