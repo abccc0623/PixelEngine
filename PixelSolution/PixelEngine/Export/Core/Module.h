@@ -19,7 +19,7 @@ public:
 	virtual void Load();
 
 
-	PIXEL_ENGINEDLL GameObject* GetGameObject();
+	GameObject* GetGameObject();
 protected:
 	Transform* transform;
 	GameObject* targetObject;

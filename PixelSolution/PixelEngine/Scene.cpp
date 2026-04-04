@@ -6,6 +6,7 @@
 #include "Core/GameObject.h"
 #include "sol.hpp"
 #include "SPointer.h"
+#include "WPointer.h"
 #include "Log.h"
 #include "Export/PixelEngineAPI.h"
 #include "LuaSceneInfo.h"
@@ -104,4 +105,26 @@ GameObject* Scene::FindGameObject(const std::string& name)
         }
     }
     return nullptr;
+}
+
+WPointer<GameObject> Scene::FindGameObjectToEngine(const std::string& name)
+{
+    for (auto const& [key, sptr] : ObjectList)
+    {
+        if (sptr->name == name)
+        {
+            return WPointer<GameObject>(sptr);
+        }
+    }
+}
+
+WPointer<GameObject> Scene::FindGameObjectToEngine(GameObject* target)
+{
+    for (auto const& [key, sptr] : ObjectList)
+    {
+        if (sptr == target)
+        {
+            return WPointer<GameObject>(sptr);
+        }
+    }
 }

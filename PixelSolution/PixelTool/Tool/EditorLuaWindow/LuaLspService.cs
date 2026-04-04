@@ -284,6 +284,10 @@ namespace PixelTool
                             if (!char.IsLetterOrDigit(ch) && ch != '_') break; // 변수명 규칙에 어긋나면 중단
                             startOffset--;
                         }
+                        if (string.IsNullOrEmpty(triggerChar) && (caretOffset == startOffset))
+                        {
+                            return;
+                        }
                         var completionSegment = new TextSegment
                         {
                             StartOffset = startOffset,
@@ -329,6 +333,7 @@ namespace PixelTool
             {
                 var m = ChangeMessageQueue.Peek();
                 // 상황 A: 서버가 보낸 버전이 큐의 버전보다 크거나 같다 (처리 대상)
+                if(m == null ) return;
                 if (version >= m.version)
                 {
                     // 이제 필요 없으니 꺼냄

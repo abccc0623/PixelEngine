@@ -53,7 +53,6 @@ int main()
                 //GenerateLuaAPICodeJson(outputPath.c_str());
                 break;
             }
-            break;
         }
         catch (const std::invalid_argument& e)
         {
@@ -67,7 +66,5 @@ int main()
             std::cout << "[에러] int 범위를 벗어난 너무 큰 숫자입니다!\n";
             return -1;
         }
-        
-      
     }
 }

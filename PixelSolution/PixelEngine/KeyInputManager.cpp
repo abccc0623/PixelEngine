@@ -44,7 +44,10 @@ void KeyInputManager::Update()
 			keyStates[i] = wasPressed ? PRESSED : PRESSED | DOWN;
 			if (keyStates[i] & DOWN)
 			{
-				event->TriggerEvent(EventType::KEY_DOWN, i);
+				Event eventMessage;
+				eventMessage.key.keyCode = i;
+				eventMessage.key.Pressed = true;
+				event->TriggerEvent(EventType::KEY_DOWN, eventMessage);
 			}
         }
         else
@@ -52,7 +55,10 @@ void KeyInputManager::Update()
 			keyStates[i] = wasPressed ? UP : KEY_NONE;
 			if (keyStates[i] & UP)
 			{
-				event->TriggerEvent(EventType::KEY_UP, i);
+				Event eventMessage;
+				eventMessage.key.keyCode = i;
+				eventMessage.key.Pressed = false;
+				event->TriggerEvent(EventType::KEY_UP, eventMessage);
 			}
         }
 	}

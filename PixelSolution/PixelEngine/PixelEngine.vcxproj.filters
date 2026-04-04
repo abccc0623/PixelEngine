@@ -115,6 +115,9 @@
     <Filter Include="EngineAPI\Manager\EventManager">
       <UniqueIdentifier>{7d6ef083-32e5-4f6f-813f-142e4b417e71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Module\Movement">
+      <UniqueIdentifier>{1c9090cc-7d2b-49f9-8c78-b20ce61e36e5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -273,6 +276,12 @@
     <ClInclude Include="EventManager.h">
       <Filter>EngineAPI\Manager\EventManager</Filter>
     </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>EngineAPI\Manager\EventManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Module\Movement.h">
+      <Filter>EngineAPI\Module\Movement</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -391,6 +400,9 @@
     </ClCompile>
     <ClCompile Include="EventManager.cpp">
       <Filter>EngineAPI\Manager\EventManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Module\Movement.cpp">
+      <Filter>EngineAPI\Module\Movement</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

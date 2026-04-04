@@ -25,6 +25,7 @@ private:
 	void BindRenderer2D();
 	void BindDebugCamera();
 	void BindCamera();
+	void BindMovement();
 	void BindGameObject();
 	void BindPVector3();
 	void BindEnum();

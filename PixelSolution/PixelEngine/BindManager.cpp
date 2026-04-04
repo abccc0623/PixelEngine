@@ -7,6 +7,7 @@
 #include "Module/LuaScript.h"
 #include "Module/DebugCamera.h"
 #include "Module/Camera.h"
+#include "Module/Movement.h"
 
 #include "Type/GlobalEnum.h"
 #include "Type/PVector3.h"
@@ -37,8 +38,11 @@ void BindManager::Initialize()
 	PStatic* globalCreate = CreateNewStatic("Engine");
 	AddGlobalMethod(globalCreate,"CreateGameObject", GeGlobalMethodInfo(&CreateGameObject), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCreate,"FindGameObject", GeGlobalMethodInfo(&FindGameObject), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCreate,"RegisterMessage", GeGlobalMethodInfo(&RegisterMessage), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCreate,"UnregisterMessage", GeGlobalMethodInfo(&UnregisterMessage), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCreate,"BackgroundColor", GeGlobalMethodInfo(&BackgroundColor), MetaFlag::LUABIND);
+
+	PStatic* globalEvent = CreateNewStatic("Event");
+	AddGlobalMethod(globalEvent,"RegisterMessage", GeGlobalMethodInfo(&RegisterMessage), MetaFlag::LUABIND);
+	AddGlobalMethod(globalEvent,"UnregisterMessage", GeGlobalMethodInfo(&UnregisterMessage), MetaFlag::LUABIND);
 	
 	PStatic* globalScene = CreateNewStatic("Scene");
 	AddGlobalMethod(globalScene,"ChangeScene",GeGlobalMethodInfo(&ChangeScene), MetaFlag::LUABIND);
@@ -67,6 +71,7 @@ void BindManager::Initialize()
 	BindLuaScript();
 	BindGameObject();
 	BindTransform();
+	BindMovement();
 	BindRenderer2D();
 	BindDebugCamera();
 	BindCamera();
@@ -176,6 +181,24 @@ void BindManager::BindCamera()
 		});
 	AddMethod(table, "Start", GetMethodInfo(&Camera::Start));
 	AddMethod(table, "LastUpdate", GetMethodInfo(&Camera::LastUpdate));
+}
+
+void BindManager::BindMovement()
+{
+	auto table = CreateNewClass("Movement", "Module");
+	CreateClassFunction(table, []() ->void*
+		{
+			return new Movement();
+		});
+	DeleteClassFunction(table, []() ->void
+		{
+			PixelLog::Info("Delete Movement");
+		});
+	AddMember(table, "StartDistance", GetMemberInfo(&Movement::StartDistance));
+	AddMember(table, "StopDistance",  GetMemberInfo(&Movement::StopDistance));
+	AddMember(table, "speed",		  GetMemberInfo(&Movement::speed));
+	AddMethod(table, "MoveToTarget",  GetMethodInfo(&Movement::MoveToTarget), MetaFlag::LUABIND);
+	AddMethod(table, "Update",		  GetMethodInfo(&Movement::Update));
 }
 
 void BindManager::BindGameObject()

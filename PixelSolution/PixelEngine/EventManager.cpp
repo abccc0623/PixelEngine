@@ -2,6 +2,8 @@
 #include "EventManager.h"
 #include <algorithm>
 #include "Core/GameObject.h"
+#include "Module/LuaScript.h"
+#include "PixelMetaAPI.h"
 
 EventManager::EventManager()
 {
@@ -68,14 +70,16 @@ void EventManager::UnregisterMessage(GameObject* target, EventType type)
 	}
 }
 
-//void EventManager::TriggerEvent(EventType type)
-//{
-//	auto list = eventList.find(type);
-//	if (list != eventList.end())
-//	{
-//		for (auto& K : eventList[type])
-//		{
-//			
-//		}
-//	}
-//}
+void EventManager::TriggerEvent(EventType type, Event event)
+{
+	auto list = eventList.find(type);
+	if (list != eventList.end())
+	{
+		for (auto& K : eventList[type])
+		{
+			auto targetModule =  K->GetModuleToEngine(GetType("LuaScript"));
+			auto lua = static_cast<LuaScript*>(targetModule);
+			lua->EventCall(type, event);
+		}
+	}
+}

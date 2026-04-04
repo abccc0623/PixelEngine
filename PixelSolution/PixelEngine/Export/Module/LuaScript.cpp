@@ -7,6 +7,7 @@
 #include "LuaManager.h"
 #include "Core/GameObject.h"
 #include "Module/Transform.h"
+#include "Type/GlobalEnum.h"
 #include "Log.h"
 extern PixelEngine* Engine;
 LuaManager* LuaScript::lua = nullptr;
@@ -119,8 +120,23 @@ void LuaScript::Register(std::string fileName)
     awake = instance["Awake"];
     start = instance["Start"];
     update = instance["Update"];
-    message = instance["MessageHub"];
+
+    keyDown = instance["Event_KeyDown"];
+    keyUp   = instance["Event_KeyUp"];
     
     instance["gameObject"] = targetObject;
     instance["transform"] = transform;
+}
+
+void LuaScript::EventCall(EventType type, Event event)
+{
+    switch (type)
+    {
+    case EventType::KEY_DOWN:
+        if (keyDown.valid()){keyDown(instance, event.key);}
+        break;
+    case EventType::KEY_UP:
+        if (keyUp.valid()) { keyUp(instance, event.key); }
+        break;
+    }
 }

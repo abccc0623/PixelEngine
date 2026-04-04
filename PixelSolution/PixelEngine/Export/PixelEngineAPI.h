@@ -19,9 +19,10 @@ extern "C" PIXEL_ENGINEDLL void Reload();
 extern "C" PIXEL_ENGINEDLL void Import(const char* path);
 extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name);
 extern "C" PIXEL_ENGINEDLL GameObject* FindGameObject(const char* name);
-
 extern "C" PIXEL_ENGINEDLL void RegisterMessage(GameObject* target, EventType type);
 extern "C" PIXEL_ENGINEDLL void UnregisterMessage(GameObject* target, EventType type);
+extern "C" PIXEL_ENGINEDLL void BackgroundColor(int R, int G, int B);
+
 
 #pragma region MetaType
 //extern "C" PIXEL_ENGINEDLL PClass* GetMetaClass(const char* className);

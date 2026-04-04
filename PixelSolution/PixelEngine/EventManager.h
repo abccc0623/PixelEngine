@@ -1,7 +1,11 @@
 #pragma once
 #include "EngineManager.h"
+#include "Event.h"
 #include <unordered_map>
 #include <vector>
+
+
+
 
 enum class EventType : int;
 class GameObject;
@@ -18,20 +22,7 @@ public:
 
 	void RegisterMessage(GameObject* target, EventType type);
 	void UnregisterMessage(GameObject* target, EventType type);
-
-
-	template<typename... Args>
-	void TriggerEvent(EventType type, Args... args)
-	{
-		auto it = eventList.find(type);
-		if (it == eventList.end()) return;
-
-		for (auto& callback : it->second)
-		{
-			
-		}
-	}
-	
+	void TriggerEvent(EventType type, Event event);
 private:
 	std::unordered_map<EventType, std::vector<GameObject*>> eventList;
 };

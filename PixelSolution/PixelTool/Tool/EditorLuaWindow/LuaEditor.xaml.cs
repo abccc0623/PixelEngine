@@ -96,7 +96,9 @@ namespace PixelTool
 
         private async void TextArea_TextEntered(object sender, TextCompositionEventArgs e)
         {
-            if (e.Text == "." || e.Text == ":")
+            if (string.IsNullOrEmpty(e.Text)) return;
+            char c = e.Text[0];
+            if (char.IsLetterOrDigit(c) || c == '.' || c == ':')
             {
                 if(completionWindow != null){completionWindow.Close();}
                 int currentLine = LuaEditor.TextArea.Caret.Line - 1;
@@ -175,6 +177,80 @@ namespace PixelTool
         public TextArea GetLuaEditorTextArea()
         {
             return LuaEditor.TextArea;
+        }
+
+
+        private void CreateEventFunction(object sender, string fileName)
+        {
+            if (sender is MenuItem clickedMenu && clickedMenu.Tag != null)
+            {
+                // 1. Tag에서 찾고자 하는 함수 이름(예: Event_KeyDown)을 가져옵니다.
+                string targetFunction = clickedMenu.Tag.ToString();
+
+                // 2. 모든 함수가 들어있는 단일 루아 파일의 리소스 경로입니다. (실제 경로에 맞게 수정하세요)
+                string resourceName = $"PixelTool.LuaCode.{fileName}.lua";
+
+                using (var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+                {
+                    if (stream == null)
+                    {
+                        MessageBox.Show("공통 루아 리소스 파일을 찾을 수 없습니다.");
+                        return;
+                    }
+
+                    using (var reader = new System.IO.StreamReader(stream))
+                    {
+                        // 3. 파일의 전체 내용을 읽어옵니다.
+                        string fullCode = reader.ReadToEnd();
+
+                        // 4. 전체 코드에서 원하는 함수 부분만 추출합니다.
+                        string extractedCode = ExtractFunctionBlock(fullCode, targetFunction);
+
+                        if (!string.IsNullOrEmpty(extractedCode))
+                        {
+                            // 5. 추출된 코드를 에디터에 삽입하고, 줄 바꿈을 넣어 깔끔하게 정리합니다.
+                            LuaEditor.Document.Insert(LuaEditor.CaretOffset, extractedCode + "\n\n");
+                        }
+                        else
+                        {
+                            MessageBox.Show($"{targetFunction} 함수를 파일에서 찾을 수 없습니다.");
+                        }
+                    }
+                }
+            }
+        }
+
+        private string ExtractFunctionBlock(string fullCode, string functionName)
+        {
+            // 찾을 시작 키워드 (예: "function self:Event_KeyDown")
+            string startKeyword = $"function self:{functionName}";
+            int startIndex = fullCode.IndexOf(startKeyword);
+
+            // 해당 함수가 없으면 빈 문자열 반환
+            if (startIndex == -1) return "";
+
+            // 현재 함수 내용이 끝나는 지점을 찾기 위해, '다음 함수'가 시작되는 위치를 찾습니다.
+            int nextFunctionIndex = fullCode.IndexOf("function self:", startIndex + startKeyword.Length);
+
+            if (nextFunctionIndex != -1)
+            {
+                // 다음 함수가 존재한다면, 현재 함수 시작점부터 다음 함수 시작점 전까지 잘라냅니다.
+                return fullCode.Substring(startIndex, nextFunctionIndex - startIndex).TrimEnd();
+            }
+            else
+            {
+                // 다음 함수가 없다면 (즉, 파일의 마지막 함수라면) 끝까지 잘라냅니다.
+                return fullCode.Substring(startIndex).TrimEnd();
+            }
+        }
+
+        private void Event_KeyUp(object sender, RoutedEventArgs e)
+        {
+            CreateEventFunction(sender, "Event_Key");
+        }
+        private void Event_KeyDown(object sender, RoutedEventArgs e)
+        {
+            CreateEventFunction(sender, "Event_Key");
         }
     }
 }

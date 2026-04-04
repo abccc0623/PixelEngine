@@ -28,9 +28,10 @@ public:
 public:
 	void Initialize(HWND WindowHandle, int Width, int Height);
 	void Release();
-	void BeginRender(float R, float G, float B, float A);
+	void BeginRender();
 	void EndRender();
 	void Clear();
+	void SetBackGroundColor(float* mColor);
 	
 	RenderingData* GetRenderingData();
 	void DeleteRenderingData(RenderingData* mData);
@@ -107,5 +108,6 @@ public:
 	}
 private:
 	Rendering* mRender;
+	float renderColor[4] = {0,0,0,1};
 };
 

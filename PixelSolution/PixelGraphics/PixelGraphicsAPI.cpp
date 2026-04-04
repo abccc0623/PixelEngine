@@ -20,9 +20,9 @@ void PixelGraphicsRelease()
 	mEngine = nullptr;
 }
 
-void PixelGraphicsRendering(float R, float G, float B, float A)
+void PixelGraphicsRendering()
 {
-	mEngine->BeginRender(R, G, B, A);
+	mEngine->BeginRender();
 
 	mEngine->EndRender();
 }
@@ -30,6 +30,15 @@ void PixelGraphicsRendering(float R, float G, float B, float A)
 void PixelGraphicsResize(int Width, int Height)
 {
 	GraphicsCore::Resize(Width, Height);
+}
+
+void PixelGraphicsBackgroundColor(int R, int G, int B)
+{
+	float color[3];
+	color[0] = R / 255.0f;
+	color[1] = G / 255.0f;
+	color[2] = B / 255.0f;
+	mEngine->SetBackGroundColor(color);
 }
 
 RenderingData* GetRenderingData()

@@ -6,6 +6,7 @@
 
 
 template <typename T> class SPointer;
+template <typename T> class WPointer;
 struct RenderingData;
 class GameObject;
 class LuaManager;
@@ -26,6 +27,8 @@ public:
 	void DeleteGameObject(size_t targetObject);
 	GameObject** GetAllSceneObjects(int* maxCount);
 	GameObject* FindGameObject(const std::string& name);
+	WPointer<GameObject> FindGameObjectToEngine(const std::string& name);
+	WPointer<GameObject> FindGameObjectToEngine(GameObject* target);
 
 	std::string sceneName;
 private:

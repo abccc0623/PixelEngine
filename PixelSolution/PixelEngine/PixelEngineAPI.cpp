@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PixelEngineAPI.h" 
+#include "PixelGraphicsAPI.h"
 #include "PixelEngine.h" 
 #include <filesystem>
 #include <windows.h>
@@ -263,6 +264,11 @@ void UnregisterMessage(GameObject* target, EventType type)
 {
 	auto eventManager = Engine->GetFactory<EventManager>();
 	eventManager->UnregisterMessage(target, type);
+}
+
+void BackgroundColor(int R, int G, int B)
+{
+	PixelGraphicsBackgroundColor(R, G, B);
 }
 
 

@@ -9,7 +9,7 @@ public:
 	~Renderer2D();
 
 	void LastUpdate() override;
-	PIXEL_ENGINEDLL void SetTexture(const std::string& name);
+	void SetTexture(const std::string& name);
 private:
 	RenderingData* rendering;
 	std::string textureName;

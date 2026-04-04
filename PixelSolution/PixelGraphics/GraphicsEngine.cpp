@@ -58,9 +58,9 @@ void GraphicsEngine::Release()
 	GraphicsCore::GraphicsRelease();
 }
 
-void GraphicsEngine::BeginRender(float R, float G, float B, float A)
+void GraphicsEngine::BeginRender()
 {
-	GraphicsCore::BeginRender(R, G, B, A);
+	GraphicsCore::BeginRender(renderColor[0], renderColor[1], renderColor[2], renderColor[3]);
 	
 	mRender->Update();
 }
@@ -76,6 +76,13 @@ void GraphicsEngine::Clear()
 	{
 		k.second->Clear();
 	}
+}
+
+void GraphicsEngine::SetBackGroundColor(float* mColor)
+{
+	renderColor[0] = mColor[0];
+	renderColor[1] = mColor[1];
+	renderColor[2] = mColor[2];
 }
 
 

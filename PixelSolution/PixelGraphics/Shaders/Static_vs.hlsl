@@ -42,7 +42,7 @@ PixelInputType main(VertexInputType input)
     float4 worldPos = mul(float4(input.position, 1.0f), world);
     output.posH = mul(worldPos, view_proj);
     //uv°ª
-    output.UV = mul(float4(input.UV.xy, 0.0f, 1.0f), TexMatrix);
+    output.UV = mul(float4(input.UV.xy, 0.0f, 0.5f), TexMatrix);
     //³ë¸»
     output.NormalW = mul(input.NormalL, (float3x3) view_proj);
     //ÅºÁ¨Æ®

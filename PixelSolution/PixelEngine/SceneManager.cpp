@@ -108,6 +108,16 @@ void SceneManager::SaveScene()
 	}
 }
 
+Scene* SceneManager::GetNowScene()
+{
+	if (nowScene.IsValid() == false)
+	{
+		CreateScene("DefaultScene");
+		ChangeScene("DefaultScene");
+	}
+	return nowScene.Lock().GetPtr();
+}
+
 void SceneManager::Clear()
 {
 	nowScene = nullptr;

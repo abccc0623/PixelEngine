@@ -64,7 +64,7 @@ void PixelEngine::EngineUpdate()
 	{
 		k.second->Update();
 	}
-	PixelGraphicsRendering(0.25f, 0.25f, 0.25f, 1.0f);
+	PixelGraphicsRendering();
 }
 
 bool PixelEngine::RunningCheck()

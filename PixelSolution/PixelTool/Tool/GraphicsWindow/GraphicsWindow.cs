@@ -62,6 +62,7 @@ namespace PixelTool
             // 2. 이 자식 창 핸들을 PixelEngine에 전달하여 초기화
             PixelEngineNative.EngineInitialize(_childHwnd, w, h);
             CompositionTarget.Rendering += OnRender;
+            //ComponentDispatcher.ThreadIdle += OnIdle;
             PixelEngineNative.Import("./Asset/main.lua");
 
             ComponentDispatcher.ThreadFilterMessage += OnThreadFilterMessage;
@@ -102,6 +103,10 @@ namespace PixelTool
         {
             PixelEngineNative.UpdateEngine();
         }
+        private void OnIdle(object sender, EventArgs e)
+        {
+            PixelEngineNative.UpdateEngine();
+        }
 
         protected override void OnRenderSizeChanged(System.Windows.SizeChangedInfo sizeInfo)
         {
@@ -115,9 +120,9 @@ namespace PixelTool
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
             // 렌더링 이벤트 해제
-            //CompositionTarget.Rendering -= OnRender;
+            CompositionTarget.Rendering -= OnRender;
             //// 엔진 자원 해제
-            //PixelEngine.ReleaseEngine();
+            PixelEngineNative.ReleaseEngine();
             // 생성한 Win32 창 파괴
             DestroyWindow(hwnd.Handle);
         }

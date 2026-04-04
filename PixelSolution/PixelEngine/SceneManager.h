@@ -26,6 +26,7 @@ public:
 	GameObject** GetAllSceneObjects(int* outCount);
 	void DeleteGameObject(size_t targetObject);
 	void SaveScene();
+	Scene* GetNowScene();
 private:
 	WPointer<Scene> nowScene = WPointer<Scene>(nullptr);
 	std::unordered_map<std::string, SPointer<Scene>> SceneMap;

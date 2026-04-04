@@ -160,7 +160,9 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />
+    <ClInclude Include="Export\Module\Movement.h" />
     <ClInclude Include="IBind.h" />
     <ClInclude Include="Export\Core\GameObject.h" />
     <ClInclude Include="BindManager.h" />
@@ -227,6 +229,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="Export\Module\Camera.cpp" />
     <ClCompile Include="Export\Module\DebugCamera.cpp" />
     <ClCompile Include="Export\Module\LuaScript.cpp" />
+    <ClCompile Include="Export\Module\Movement.cpp" />
     <ClCompile Include="Export\Module\Renderer2D.cpp" />
     <ClCompile Include="Export\Module\Transform.cpp" />
     <ClCompile Include="Export\Type\PMatrix.cpp" />
