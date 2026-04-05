@@ -161,6 +161,7 @@
     <ClInclude Include="BindingRect.h" />
     <ClInclude Include="BufferFactory.h" />
     <ClInclude Include="DefaultShaderLoader.h" />
+    <ClInclude Include="MaterialFactory.h" />
     <ClInclude Include="ModelFactory.h" />
     <ClInclude Include="PixelResources.h" />
     <ClInclude Include="RenderingFactory.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="BindingRect.cpp" />
     <ClCompile Include="BufferFactory.cpp" />
     <ClCompile Include="DefaultShaderLoader.cpp" />
+    <ClCompile Include="MaterialFactory.cpp" />
     <ClCompile Include="ModelFactory.cpp" />
     <ClCompile Include="RenderingFactory.cpp" />
     <ClCompile Include="ResourceFactory.cpp" />

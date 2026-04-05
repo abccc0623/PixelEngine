@@ -21,9 +21,15 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 	ObjectBuffer mbuffer;
 	DirectX::SimpleMath::Matrix mWorld = DirectX::SimpleMath::Matrix::Identity;
 	memcpy(&mWorld, mData->World, sizeof(float) * 16);
+	DirectX::SimpleMath::Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(mData->mesh.tilingX, mData->mesh.tilingY, 1.0f);
+	DirectX::SimpleMath::Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(mData->mesh.offsetX, mData->mesh.offsetY, 0.0f);
+	DirectX::SimpleMath::Matrix texMat = texScale * texTrans;
 	
-	mbuffer.world = DirectX::XMMatrixTranspose(mWorld);
-	mbuffer.TexMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixIdentity());
+	mbuffer.world		= DirectX::XMMatrixTranspose(mWorld);
+	DirectX::SimpleMath::Matrix mWVP = mWorld * GraphicsCore::mView * GraphicsCore::mProj;
+	mbuffer.wvp			= mWVP.Transpose();
+	mbuffer.TexMatrix	= texMat.Transpose();
+
 
 	GraphicsCore::GetDeviceContext()->UpdateSubresource(targetBuffer->buffer, 0, nullptr, &mbuffer, 0, 0);
 	GraphicsCore::GetDeviceContext()->VSSetConstantBuffers(1, 1, &(targetBuffer->buffer));
@@ -77,7 +83,7 @@ ID3D11SamplerState* BindingQuad::CreateSampler()
 	ID3D11SamplerState* Sampler = nullptr;
 	//±âº» »ùÇÃ·¯
 	D3D11_SAMPLER_DESC samplerDesc;
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.Filter	 = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;

@@ -11,7 +11,6 @@ public:
 	virtual ~BindingCamera();
 
 	void Initialize() override;
-	//void Binding(float* m);
 	void Binding(RenderingData* mData, Handle64 prev) override;
 private:
 	BufferResources* cameraBuffer;

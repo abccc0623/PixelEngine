@@ -15,16 +15,6 @@ enum class ProjectionType
 };
 
 using ObjectID = size_t;
-struct CameraOption
-{
-	enum class ProjectionType 
-	{
-		Perspective, // 원근
-		Orthographic // 직교
-	};
-	ProjectionType Projection = ProjectionType::Perspective;
-};
-
 using Handle16 = unsigned short;
 using Handle32 = unsigned int;
 using Handle64 = unsigned long long;
@@ -34,6 +24,13 @@ struct MeshData
 	Handle16 model_key;
 	Handle16 texture_key;
 	Handle16 shader_key;
+
+	float offsetX;
+	float offsetY;
+	float tilingX;
+	float tilingY;
+	bool  isSpriteSheet;
+	int   frameCount;
 };
 
 struct CameraData
@@ -52,6 +49,7 @@ struct BoxCollision2DData
 struct RenderingData
 {
 public:
+
 	RENDER_TYPE Type = RENDER_TYPE::NONE;
 	float World[16];
 	Handle64 master_key = 0;

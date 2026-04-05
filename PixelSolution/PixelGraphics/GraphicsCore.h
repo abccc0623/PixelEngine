@@ -1,7 +1,7 @@
 #pragma once
 #include <windows.h>
 #include <d3d11.h>
-
+#include "SimpleMath.h"
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -50,5 +50,7 @@ public:
 	static int GetClientWidth();
 	static int GetClientHeight();
 	static void Resize(int width, int height);
+	static DirectX::SimpleMath::Matrix mProj;
+	static DirectX::SimpleMath::Matrix mView;
 };
 

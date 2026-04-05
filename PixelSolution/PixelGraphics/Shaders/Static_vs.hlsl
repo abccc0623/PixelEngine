@@ -11,9 +11,9 @@ cbuffer CameraBuffer : register(b0)
 cbuffer ObjectBuffer : register(b1)
 {
     float4x4    world;
+    float4x4    wvp;
     float4x4    TexMatrix;
 };
-
 
 Texture2D MainTexture   : register(t0);
 SamplerState SampleType : register(s0);
@@ -39,14 +39,15 @@ PixelInputType main(VertexInputType input)
     PixelInputType output;
 
     //¿ùµåº¯È¯
-    float4 worldPos = mul(float4(input.position, 1.0f), world);
-    output.posH = mul(worldPos, view_proj);
+    //float4 worldPos = mul(float4(input.position, 1.0f), wvp);
+    output.posH = mul(wvp, float4(input.position, 1.0f));
     //uv°ª
-    output.UV = mul(float4(input.UV.xy, 0.0f, 0.5f), TexMatrix);
+    //output.UV = mul(TexMatrix,float4(input.UV, 0.0f, 1.0f)).xy;
+    output.UV = mul(float4(input.UV, 0.0f, 1.0f), TexMatrix).xy;
     //³ë¸»
-    output.NormalW = mul(input.NormalL, (float3x3) view_proj);
+    //output.NormalW = mul(input.NormalL, (float3x3) view_proj);
     //ÅºÁ¨Æ®
-    output.TangentW = mul(input.TangentL, (float3x3) world);
+    //output.TangentW = mul(input.TangentL, (float3x3) world);
  
     return output;
 }

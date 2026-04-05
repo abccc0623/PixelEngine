@@ -13,6 +13,7 @@ struct CameraBuffer
 struct ObjectBuffer
 {
 	DirectX::SimpleMath::Matrix world;
+	DirectX::SimpleMath::Matrix wvp;
 	DirectX::SimpleMath::Matrix TexMatrix;
 };
 

@@ -60,6 +60,8 @@
                             <Button Content="📝 Main LuaFile" Style="{StaticResource EditorMenuItemButton}"  Click="CreateMainLuaFile" />
                             <Button Content="📝 Scene LuaFile" Style="{StaticResource EditorMenuItemButton}"  Click="CreateSceneLuaFile" />
                             <Button Content="📝 Module LuaFile" Style="{StaticResource EditorMenuItemButton}"  Click="CreateModuleLuaFile" />
+                            <TextBlock Text="Create Asset" Foreground="#8A8DA9" FontSize="11" Margin="8,5,0,5" FontWeight="Bold"/>
+                            <Button Content="🔮 Material" Style="{StaticResource EditorMenuItemButton}"  Click="CreateMaterial" />
                         </StackPanel>
                     </local:ToolbarButton.PopupContent>
                 </local:ToolbarButton>

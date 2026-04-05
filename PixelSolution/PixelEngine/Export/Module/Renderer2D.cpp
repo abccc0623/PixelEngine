@@ -17,6 +17,12 @@ Renderer2D::Renderer2D() :
 {
 	rendering = GetRenderingData();
 	rendering->Type = QUAD;
+	rendering->mesh.offsetX = 1;
+	rendering->mesh.offsetY = 1;
+	rendering->mesh.tilingX = 1;
+	rendering->mesh.tilingY = 1;
+	rendering->mesh.isSpriteSheet = false;
+	rendering->mesh.frameCount	  = 1;
 }
 
 Renderer2D::~Renderer2D()
@@ -27,6 +33,22 @@ Renderer2D::~Renderer2D()
 
 void Renderer2D::LastUpdate()
 {
+	testtime += GetDeltaTime();
+	if (testtime >= 0.1f)
+	{
+		// 1. 현재 프레임 인덱스를 관리하는 변수를 별도로 두는 것이 좋습니다.
+		// 만약 offsetX를 직접 써야 한다면 아래와 같이 계산하세요.
+		static int frameIndex = 0;
+		frameIndex = (frameIndex + 1) % 17; // 0 ~ 16 사이를 순환
+
+		// 2. 오프셋은 (현재 인덱스 * 한 칸의 크기) 입니다.
+		rendering->mesh.offsetX = (float)frameIndex * (1.0f / 17.0f);
+
+		testtime = 0;
+	}
+	rendering->mesh.tilingX = 1.0f / 17.0f;
+
+	rendering->mesh.tilingX = (1 / 17.0f);
 	if (transform == nullptr) return;
 	PMatrix m = transform->GetWorldMatrix();
 	for (int i = 0; i < 16; i++)
@@ -45,16 +67,3 @@ void Renderer2D::SetTexture(const std::string& name)
 		ChangeRenderingData(rendering);
 	}
 }
-
-//std::string Renderer2D::RegisterLua()
-//{
-//	//auto state = GetLuaState();
-//	//state->new_usertype<Renderer2D>("Renderer2D", sol::base_classes, sol::bases<Module, PixelObject>(),
-//	//	"SetTexture", [](Renderer2D& obj, std::string name) {obj.SetTexture(name); }
-//	//);
-//	//
-//	//std::string main = "";
-//	//main += BindManager::ExportLuaAPIHeader<Renderer2D>();
-//	//main += BindManager::ExportLuaAPIFromFunc("SetTexture",&Renderer2D::SetTexture,"string");
-//	return "";
-//}

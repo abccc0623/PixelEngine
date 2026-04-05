@@ -76,9 +76,6 @@
     <Filter Include="EngineAPI\Module\Camera">
       <UniqueIdentifier>{bdcf9ffd-50f5-49b1-9790-e5b821a048c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Manager\TextureManager">
-      <UniqueIdentifier>{01eb86b2-74e2-4bff-ba1c-63b39a80018f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Manager\ResourceManager">
       <UniqueIdentifier>{d6f518e3-501d-4b3a-b189-73aef13abd36}</UniqueIdentifier>
     </Filter>
@@ -161,9 +158,6 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureManager.h">
-      <Filter>EngineAPI\Manager\TextureManager</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
@@ -282,6 +276,12 @@
     <ClInclude Include="Export\Module\Movement.h">
       <Filter>EngineAPI\Module\Movement</Filter>
     </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>EngineAPI\Manager\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialManager.h">
+      <Filter>EngineAPI\Manager\ResourceManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -322,9 +322,6 @@
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>EngineAPI\Manager\SceneManager</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureManager.cpp">
-      <Filter>EngineAPI\Manager\TextureManager</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
@@ -403,6 +400,12 @@
     </ClCompile>
     <ClCompile Include="Export\Module\Movement.cpp">
       <Filter>EngineAPI\Module\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>EngineAPI\Manager\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialManager.cpp">
+      <Filter>EngineAPI\Manager\ResourceManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

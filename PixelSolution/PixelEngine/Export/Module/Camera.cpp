@@ -18,7 +18,7 @@ Camera::~Camera()
 
 void Camera::Start()
 {
-	transform->Position += (transform->GetLookVector()*-3);
+
 }
 
 void Camera::LastUpdate()
@@ -46,17 +46,3 @@ void Camera::PerspectiveProjection()
 	}
 }
 
-//std::string Camera::RegisterLua()
-//{
-//	//auto state = GetLuaState();
-//	//state->new_usertype<Camera>("Camera", sol::base_classes, sol::bases<Module, PixelObject>(),
-//	//	"OrthographicProjection", [](Camera& obj) {obj.OrthographicProjection();},
-//	//	"PerspectiveProjection", [](Camera& obj) {obj.PerspectiveProjection();}
-//	//);
-//	//
-//	//std::string main = "";
-//	//main += BindManager::ExportLuaAPIHeader<Camera>();
-//	//main += BindManager::ExportLuaAPIFromFunc("OrthographicProjection",&Camera::OrthographicProjection, "");
-//	//main += BindManager::ExportLuaAPIFromFunc("PerspectiveProjection",&Camera::PerspectiveProjection, "");
-//	return "";
-//}

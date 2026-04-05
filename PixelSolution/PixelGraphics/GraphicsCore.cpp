@@ -12,6 +12,10 @@ ID3D11DepthStencilView* GraphicsCore::mDepthStencilView = nullptr;
 D3D11_VIEWPORT			GraphicsCore::mScreenViewport;
 D3D_DRIVER_TYPE			GraphicsCore::mDriverType;
 ID3D11BlendState*		GraphicsCore::pAlphaBlendState  = nullptr;
+
+DirectX::SimpleMath::Matrix GraphicsCore::mView;
+DirectX::SimpleMath::Matrix GraphicsCore::mProj;
+
 int GraphicsCore::ClientHeight = 0;
 int GraphicsCore::ClientWidth  = 0;
 HWND GraphicsCore::mHwnd;
@@ -178,10 +182,9 @@ void GraphicsCore::GraphicsRelease()
 void GraphicsCore::BeginRender(float R, float G, float B, float A)
 {
 	float DeepDarkGray[4] = { R, G, B, A };
-
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
-	mDeviceContext->ClearRenderTargetView(mRenderTargetView, DeepDarkGray);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	mDeviceContext->ClearRenderTargetView(mRenderTargetView, DeepDarkGray);
 	mDeviceContext->RSSetViewports(1, &mScreenViewport);
 }
 

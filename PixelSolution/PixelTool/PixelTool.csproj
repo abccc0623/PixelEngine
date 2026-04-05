@@ -21,12 +21,24 @@
 </PropertyGroup>
 
  <ItemGroup>
+   <None Remove="LuaCode\main.lua" />
+   <None Remove="LuaCode\Module.lua" />
+   <None Remove="LuaCode\Scene.lua" />
    <None Remove="Tool\EditorLuaWindow\Lua.xshd" />
    <None Remove="Tool\LuaDark.xshd" />
  </ItemGroup>
 
  <ItemGroup>
-   <EmbeddedResource Include="LuaCode\Event_Key.lua">
+   <EmbeddedResource Include="LuaCode\EventFunction.lua">
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </EmbeddedResource>
+   <EmbeddedResource Include="LuaCode\main.lua">
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </EmbeddedResource>
+   <EmbeddedResource Include="LuaCode\Module.lua">
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </EmbeddedResource>
+   <EmbeddedResource Include="LuaCode\Scene.lua">
      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
    </EmbeddedResource>
  </ItemGroup>

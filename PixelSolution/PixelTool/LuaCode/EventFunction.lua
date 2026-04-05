@@ -1,17 +1,17 @@
-function self:Event_KeyDown(KeyCode)  
+function self:KeyDownEvent(KeyCode)  
 	--if KeyCode == 'W' then
 	--self.transfrom.Position.X = 1	
 	--end
 end 
 
-function self:Event_KeyUp(KeyCode)  
+function self:KeyUpEvent(KeyCode)  
 	--if KeyCode == 'W' then
 	--self.transfrom.Position.X = 1	
 	--end
 end 
 
 function self:CustomEvent(MessageType,Message)  
-	--if 	MessageType == "YourCustomMessageName" then
+	--if MessageType == "YourCustomMessageName" then
 	
 	--end
 end 

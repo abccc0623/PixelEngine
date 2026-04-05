@@ -47,9 +47,10 @@ void TextureManager::Update()
 
 void TextureManager::Release()
 {
-
+	TextureMap.clear();
 }
 
 void TextureManager::Clear()
 {
+	TextureMap.clear();
 }

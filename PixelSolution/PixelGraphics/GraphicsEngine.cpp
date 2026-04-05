@@ -12,6 +12,7 @@
 #include "RenderingFactory.h"
 #include "RenderringData.h"
 #include "BufferFactory.h"
+#include "MaterialFactory.h"
 
 GraphicsEngine::GraphicsEngine()
 {
@@ -35,6 +36,7 @@ void GraphicsEngine::Initialize(HWND WindowHandle, int Width, int Height)
 	BindFactory<DirectModel, ModelFactory>();
 	BindFactory<RenderingData,RenderingFactory>();
 	BindFactory<BufferResources, BufferFactory>();
+	BindFactory<MaterialResources, MaterialFactory>();
 
 	for (auto& k : factoryMap)
 	{
@@ -89,6 +91,11 @@ void GraphicsEngine::SetBackGroundColor(float* mColor)
 ObjectID GraphicsEngine::LoadTexture(const char* filePath)
 {
 	return Set<TextureResources>(filePath);
+}
+
+ObjectID GraphicsEngine::LoadMaterial(const char* filePath)
+{
+	return Set<MaterialResources>(filePath);
 }
 
 RenderingData* GraphicsEngine::GetRenderingData()

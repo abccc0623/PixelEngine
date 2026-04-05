@@ -226,7 +226,21 @@ void Import(const char* path)
 			}
 			else if (ext == ".png" || ext == ".jpg")
 			{
-				LoadTexture(path);
+				if (Engine != nullptr)
+				{
+					std::string strPath(path);
+					auto resource = Engine->GetFactory<ResourceManager>();
+					resource->Load(TEXTURE, strPath);
+				}
+			}
+			else if (ext == ".mat")
+			{
+				if (Engine != nullptr)
+				{
+					std::string strPath(path);
+					auto resource = Engine->GetFactory<ResourceManager>();
+					resource->Load(MATERIAL, strPath);
+				}
 			}
 		}
 		else 

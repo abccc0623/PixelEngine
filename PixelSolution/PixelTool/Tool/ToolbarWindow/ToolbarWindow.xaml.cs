@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using AvalonDock.Layout;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,18 +46,15 @@ namespace PixelTool
                     return;
                 }
             }
-            string content = "--게임 로직에 진입점 입니다 \n";
-            content += "function Main() \n";
-            content += "\n";
-            content += "end\n";
-            File.WriteAllText(luafilePath, content, Encoding.UTF8);
+            string content = LuaFileManager.GetFileContent("main");
+            var utf8WithBom = new System.Text.UTF8Encoding(true);
+            File.WriteAllText(luafilePath, content, utf8WithBom);
 
             var luaWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
             if(luaWindow != null)
             {
                 luaWindow.OpenFile(luafilePath);
             }
-
             var findWindow = GlobalFunction.GetDockedWindow<AssetWindow>();
             if (findWindow != null)
             {
@@ -71,24 +69,7 @@ namespace PixelTool
                 luafilePath = $"./Asset/NewScene{createSceneindex}.scene";
                 createSceneindex++;
             }
-            string content = "--게임 씬 파일입니다. \n";
-            content += "local Scene = {} \n";
-            content += "\n";
-            content += "--씬이 변경될 때 한번 실행됩니다. \n";
-            content += "function Scene:Start() \n";
-            content += "\n";
-            content += "end\n";
-            content += "\n";
-            content += "--매 프래임 실행됩니다. \n";
-            content += "function Scene:Update() \n";
-            content += "\n";
-            content += "end\n";
-            content += "\n";
-            content += "--씬이 변경되거나 삭제될 때 실행됩니다.\n";
-            content += "function Scene:Release() \n";
-            content += "\n";
-            content += "end\n";
-            content += "return Scene\n";
+            string content = LuaFileManager.GetFileContent("Scene");
             File.WriteAllText(luafilePath, content, Encoding.UTF8);
 
             var luaWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
@@ -104,83 +85,12 @@ namespace PixelTool
             }
         }
 
-
-
-        ///-----------------Create----------------------
-        private void CreateMainLuaFile(object sender, RoutedEventArgs e)
-        {
-            CreateMainLua();
-        }
-        private void CreateSceneLuaFile(object sender, RoutedEventArgs e)
-        {
-            CreateSceneLua();
-        }
-
-
-        private void QuadObject(object sender, RoutedEventArgs e)
-        {
-            // PixelEngine.LoadTexture("./Asset/test.png");
-            // var go = PixelEngine.CreateGameObject("DefaultQuad");
-            // go.AddModule(MODULE_TYPE.Renderer2D);
-            //
-            // var r = Renderer2D.SafeCast(go.GetModule(MODULE_TYPE.Renderer2D));
-            // if (r!= null)
-            // {
-            //     r.SetTexture("test");
-            // }
-        }
-        private void LuaObject(object sender, RoutedEventArgs e)
-        {
-            //var go = PixelEngine.CreateGameObject("DefaultLua");
-            //go.AddModule(MODULE_TYPE.LuaScript);
-        }
-        private void CameraObject(object sender, RoutedEventArgs e)
-        {
-            //var go = PixelEngine.CreateGameObject("Camera");
-            //go.AddModule(MODULE_TYPE.DebugCamera);
-        }
-        //-----------------Save----------------------
-        private void SceneSave(object sender, RoutedEventArgs e)
-        {
-            //PixelEngine.SaveScene();
-        }
-        private void LoadScene(object sender, RoutedEventArgs e)
-        {
-
-            //OpenFileDialog openFileDialog = new OpenFileDialog();
-            //openFileDialog.Filter = "Scene Files (*.scene)|*.scene;*.Scene";
-            //
-            //// 2. 초기 디렉토리 (프로젝트 경로가 있다면 지정)
-            //openFileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory + "Asset\\";
-            //
-            //// 3. 창 띄우기 및 결과 확인
-            //if (openFileDialog.ShowDialog() == true)
-            //{
-            //    string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            //    string fullPath = openFileDialog.FileName;
-            //    Uri baseUri = new Uri(baseDir);
-            //    Uri fullUri = new Uri(fullPath);
-            //
-            //    Uri relativeUri = baseUri.MakeRelativeUri(fullUri);
-            //
-            //    string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
-            //    relativePath =  "./" + relativePath.Replace('\\', '/');
-            //
-            //   PixelEngine.LoadScene(relativePath);
-            //}
-
-
-            //PixelEngine.SaveScene();
-        }
-
-
-
-        private void CreateModuleLuaFile(object sender, RoutedEventArgs e)
+        public void CreateModule()
         {
             string newNameOnly = Microsoft.VisualBasic.Interaction.InputBox(
-               "새 모듈 파일의 이름을 입력해주세요",
-               "새로운 모듈 파일 만들기",
-               "");
+              "새 모듈 파일의 이름을 입력해주세요",
+              "새로운 모듈 파일 만들기",
+              "");
 
             if (string.IsNullOrWhiteSpace(newNameOnly)) return;
             string directoryPath = "./Asset/";
@@ -192,25 +102,8 @@ namespace PixelTool
                 return;
             }
 
-           
-            string content = "";
-            content += "---@class LuaModule \n";
-            content += "---@field gameObject GameObject\n";
-            content += "---@field transform Transform\n";
-            content += "---@class self : LuaModule \n";
-            content += "self = self or {} \n";
+            string content = LuaFileManager.GetFileContent("Module");
 
-            content += "function  self:Awake() \n";
-            content += "\t\n";
-            content += "end  \n\n";
-            content += "function  self:Start()  \n";
-            content += "\t\n";
-            content += "end  \n\n";
-            content += "function  self:Update(dTime)   \n";
-            content += "\t\n";
-            content += "end  \n\n";
-
-            content = content.Replace("{{TYPE_NAME}}", newNameOnly);
             fullPath += ".pxm";
             File.WriteAllText(fullPath, content, Encoding.UTF8);
 
@@ -225,6 +118,52 @@ namespace PixelTool
             {
                 findWindow.Refresh();
             }
+        }
+
+
+        ///-----------------Create----------------------
+        private void CreateMainLuaFile(object sender, RoutedEventArgs e)
+        {
+            CreateMainLua();
+        }
+        private void CreateSceneLuaFile(object sender, RoutedEventArgs e)
+        {
+            CreateSceneLua();
+        }
+
+        private void CreateModuleLuaFile(object sender, RoutedEventArgs e)
+        {
+            CreateModule();
+        }
+
+        private void SceneSave(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void LoadScene(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CreateMaterial(object sender, RoutedEventArgs e)
+        {
+            var materialWindow = new MaterialWindow();
+            var newToolWindow = new AvalonDock.Layout.LayoutAnchorable()
+            {
+                Title = "Create Material",
+                Content = materialWindow, // 만들어둔 UserControl
+                FloatingWidth = 500,
+                FloatingHeight = 600,
+            };
+            MainWindow main = Application.Current.MainWindow as MainWindow;
+            newToolWindow.AddToLayout(main.dockManager, AnchorableShowStrategy.Right);
+            newToolWindow.IsActive = true;
+            newToolWindow.Float();
+            materialWindow.Close = () =>
+            {
+                newToolWindow.Close();
+            };
         }
     }
 }

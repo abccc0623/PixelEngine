@@ -150,7 +150,7 @@ namespace PixelTool
             // 2. 엔진 리소스 해제
             lock (_engineLock)
             {
-                PixelEngineNative.ReleaseEngine();
+                //PixelEngineNative.ReleaseEngine();
             }
 
             // 3. 창 핸들 파괴

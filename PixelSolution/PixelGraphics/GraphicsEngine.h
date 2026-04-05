@@ -39,6 +39,7 @@ public:
 
 
 	ObjectID LoadTexture(const char* filePath);
+	ObjectID LoadMaterial(const char* filePath);
 	ObjectID Model_Debug(float* VertexList, int VertexSize, int* IndexList, int indexSize);
 	ObjectID Model_Debug(Vertex_Debug* VertexList, int VertexSize, int* IndexList, int indexSize);
 

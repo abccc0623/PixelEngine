@@ -61,6 +61,11 @@ ObjectID LoadGraphicsTexture(const char* filePath)
 	return mEngine->LoadTexture(filePath);
 }
 
+ObjectID LoadGraphicsMaterial(const char* filePath)
+{
+	return mEngine->LoadMaterial(filePath);
+}
+
 ObjectID CreateDebugModel(Vertex_Debug* Vertex, int VertexSize, int* IndexList, int IndexSize)
 {
 	return mEngine->Model_Debug(Vertex, VertexSize, IndexList, IndexSize);

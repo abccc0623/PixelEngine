@@ -36,3 +36,11 @@ struct BufferResources
 	Handle16 key;
 	ID3D11Buffer* buffer = nullptr;
 };
+
+struct MaterialResources 
+{
+	Handle16 key;
+	const char* TexturePath;
+	float Offset[2] = { 1,1 };
+	float Tiling[2] = { 1,1 };
+};

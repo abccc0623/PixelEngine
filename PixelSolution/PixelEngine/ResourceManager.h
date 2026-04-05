@@ -4,9 +4,11 @@
 enum RESOURCE_TYPE
 {
 	TEXTURE = 0,
+	MATERIAL = 1,
 };
 using ObjectID = size_t;
 class TextureManager;
+class MaterialManager;
 class ResourceManager :public EngineManager
 {
 public:
@@ -22,5 +24,6 @@ public:
 	ObjectID Get(RESOURCE_TYPE type, const std::string& name);
 private:
 	TextureManager* textureManager;
+	MaterialManager* materialManager;
 };
 

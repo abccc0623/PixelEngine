@@ -14,5 +14,6 @@ private:
 	RenderingData* rendering;
 	std::string textureName;
 	ObjectID textureID = -1;
+	float testtime;
 };
 
