@@ -8,6 +8,8 @@ public:
 	void Release() override;
 	void Clear() override;
 	void* GetResource(std::string name) override;
+	void* GetResource(Handle16 key) override;
+
 	Handle16 SetResource(std::string name) override;
 private:
 	std::unordered_map<std::string, MaterialResources*> materialMap;

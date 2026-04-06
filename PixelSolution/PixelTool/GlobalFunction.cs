@@ -28,8 +28,5 @@ namespace PixelTool
             // 4. 찾았다면 그 안의 실체(Content)를 T 타입으로 변환해서 반환
             return layoutAnchorable?.Content as T;
         }
-
-     
-
     }
 }

@@ -7,25 +7,21 @@
 #include "Log.h"
 
 DebugCamera::DebugCamera():
-	rendering(nullptr),
 	isMove(false),
 	moveSpeed(10),
 	RotationSpeed(10),
 	mLastMousePosX(0),
 	mLastMousePosY(0)
 {
-
+	rendering.Type = CAMERA;
 }
 
 DebugCamera::~DebugCamera()
 {
-	rendering = nullptr;
 }
 
 void DebugCamera::Start()
 {
-	rendering = GetRenderingData();
-	rendering->Type = CAMERA;
 	transform->Position += (transform->GetLookVector() * -3);
 }
 
@@ -69,6 +65,7 @@ void DebugCamera::LastUpdate()
 	PMatrix local = transform->GetLocal();
 	for (int i = 0; i < 16; i++)
 	{
-		rendering->World[i] = local._m[i];
+		rendering.World[i] = local._m[i];
 	}
+	SetRenderingData(rendering);
 }

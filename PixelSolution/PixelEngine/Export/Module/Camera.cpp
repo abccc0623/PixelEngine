@@ -5,15 +5,12 @@
 #include "PixelGraphicsAPI.h"
 #include "LuaManager.h"
 #include "BindManager.h"
-Camera::Camera():
-	rendering(nullptr)
+Camera::Camera()
 {
-	rendering = GetRenderingData();
-	rendering->Type = CAMERA;
+	rendering.Type = CAMERA;
 }
 Camera::~Camera()
 {
-	DeleteRenderingData(rendering);
 }
 
 void Camera::Start()
@@ -26,23 +23,18 @@ void Camera::LastUpdate()
 	PMatrix local = transform->GetLocal();
 	for (int i = 0; i < 16; i++)
 	{
-		rendering->World[i] = local._m[i];
+		rendering.World[i] = local._m[i];
 	}
+	SetRenderingData(rendering);
 }
 
 void Camera::OrthographicProjection()
 {
-	if (rendering != nullptr)
-	{
-		rendering->camera.Projection = ProjectionType::Orthographic;
-	}
+	rendering.camera.Projection = ProjectionType::Orthographic;
 }
 
 void Camera::PerspectiveProjection()
 {
-	if (rendering != nullptr)
-	{
-		rendering->camera.Projection = ProjectionType::Perspective;
-	}
+	rendering.camera.Projection = ProjectionType::Perspective;
 }
 

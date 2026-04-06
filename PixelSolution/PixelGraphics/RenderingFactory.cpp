@@ -13,7 +13,6 @@ RenderingFactory::~RenderingFactory()
 
 void RenderingFactory::Initialize()
 {
-
 }
 
 void RenderingFactory::Release()
@@ -23,7 +22,10 @@ void RenderingFactory::Release()
 
 void RenderingFactory::Clear()
 {
+}
 
+void RenderingFactory::SetRenderingData(const RenderingData& mData)
+{
 }
 
 void* RenderingFactory::GetResource(std::string name)

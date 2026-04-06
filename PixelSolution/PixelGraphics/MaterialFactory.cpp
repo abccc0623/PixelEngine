@@ -38,6 +38,18 @@ void* MaterialFactory::GetResource(std::string name)
     return nullptr;
 }
 
+void* MaterialFactory::GetResource(Handle16 key)
+{
+    for (auto& K : materialMap)
+    {
+        if (K.second->key == key)
+        {
+            return K.second;
+        }
+    }
+    return nullptr;
+}
+
 Handle16 MaterialFactory::SetResource(std::string name)
 {
     std::filesystem::path p(name);

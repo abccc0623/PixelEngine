@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Module.h"
-struct RenderingData;
+#include "RenderringData.h"
 class Camera :public Module
 {
 public:
@@ -12,6 +12,6 @@ public:
 	PIXEL_ENGINEDLL void OrthographicProjection();
 	PIXEL_ENGINEDLL void PerspectiveProjection();
 private:
-	RenderingData* rendering;
+	RenderingData rendering;
 };
 

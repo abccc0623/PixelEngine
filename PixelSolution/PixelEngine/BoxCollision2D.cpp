@@ -10,17 +10,11 @@
 extern PixelEngine* Engine;
 BoxCollision2D::BoxCollision2D():collision(nullptr)
 {
-	rendering = GetRenderingData();
-	rendering->Type = BOX2D;
-	rendering->collision.offsetX = 0;
-	rendering->collision.offsetY = 0;
-	rendering->collision.sizeX = 0.5f;
-	rendering->collision.sizeY = 0.5f;
+
 }
 
 BoxCollision2D::~BoxCollision2D()
 {
-	DeleteRenderingData(rendering);
 }
 
 void BoxCollision2D::Awake()
@@ -54,11 +48,6 @@ void BoxCollision2D::SetRect(float offsetX, float offsetY, float sizeX, float si
 	originalRect.y = offsetY;
 	originalRect.width = sizeX;
 	originalRect.height = sizeY;
-
-	rendering->collision.offsetX = offsetX;
-	rendering->collision.offsetY = offsetY;
-	rendering->collision.sizeX = sizeX;
-	rendering->collision.sizeY = sizeY;
 }
 
 Rect BoxCollision2D::GetRect()
@@ -82,23 +71,23 @@ std::string BoxCollision2D::RegisterLua()
 
 void BoxCollision2D::LastUpdate()
 {
-	auto t = transform;
-
-	// 2. 렌더링용 행렬 계산
-	// 팁: 상용 엔진처럼 Offset(position)을 먼저 적용하고 부모의 World를 곱합니다.
-	PMatrix m = t->GetWorldMatrix();
-	PMatrix scale;
-	PMatrix position;
-
-	// Scale(크기) -> Translation(오프셋) -> 부모의 WorldMatrix
-	PMatrix S = scale.CreateScale(PVector3( originalRect.width, originalRect.height, 1.0f));
-	PMatrix T = position.CreateTranslation(PVector3(originalRect.x, originalRect.y, 0.0f));
-
-	PMatrix finalWorld = S * T * m;
-
-	for (int i = 0; i < 16; i++) {
-		rendering->World[i] = finalWorld._m[i];
-	}
+	//auto t = transform;
+	//
+	//// 2. 렌더링용 행렬 계산
+	//// 팁: 상용 엔진처럼 Offset(position)을 먼저 적용하고 부모의 World를 곱합니다.
+	//PMatrix m = t->GetWorldMatrix();
+	//PMatrix scale;
+	//PMatrix position;
+	//
+	//// Scale(크기) -> Translation(오프셋) -> 부모의 WorldMatrix
+	//PMatrix S = scale.CreateScale(PVector3( originalRect.width, originalRect.height, 1.0f));
+	//PMatrix T = position.CreateTranslation(PVector3(originalRect.x, originalRect.y, 0.0f));
+	//
+	//PMatrix finalWorld = S * T * m;
+	//
+	//for (int i = 0; i < 16; i++) {
+	//	rendering->World[i] = finalWorld._m[i];
+	//}
 }
 
 //void BoxCollision2D::OnCollisionEnter2D(WPointer<GameObject> target)

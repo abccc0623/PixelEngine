@@ -14,6 +14,7 @@ public:
 	bool ModelCheck(Handle64 now, Handle64 prev);
 	bool ShaderCheck(Handle64 now, Handle64 prev);
 	bool TextureCheck(Handle64 now, Handle64 prev);
+	bool MasterKeyCheck(int bit,Handle64 now, Handle64 prev);
 protected:
 	GraphicsEngine* engine;
 };

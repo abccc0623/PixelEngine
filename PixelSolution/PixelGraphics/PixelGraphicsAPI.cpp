@@ -41,19 +41,9 @@ void PixelGraphicsBackgroundColor(int R, int G, int B)
 	mEngine->SetBackGroundColor(color);
 }
 
-RenderingData* GetRenderingData()
+void SetRenderingData(RenderingData& mData)
 {
-	return mEngine->GetRenderingData();
-}
-
-void DeleteRenderingData(RenderingData* mData)
-{
-	mEngine->DeleteRenderingData(mData);
-}
-
-void ChangeRenderingData(RenderingData* mData)
-{
-	mEngine->ChangeRenderingData(mData);
+	mEngine->SetRenderingData(mData);
 }
 
 ObjectID LoadGraphicsTexture(const char* filePath)
@@ -72,7 +62,7 @@ ObjectID CreateDebugModel(Vertex_Debug* Vertex, int VertexSize, int* IndexList, 
 }
 void GraphicsClear()
 {
-
+	mEngine->Clear();
 }
 
 

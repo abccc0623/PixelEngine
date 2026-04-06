@@ -40,6 +40,9 @@ struct BufferResources
 struct MaterialResources 
 {
 	Handle16 key;
+
+	Handle16 ShaderKey;
+
 	const char* TexturePath;
 	float Offset[2] = { 1,1 };
 	float Tiling[2] = { 1,1 };

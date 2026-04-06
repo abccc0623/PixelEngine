@@ -52,9 +52,6 @@
     <Filter Include="PicnicGraphics\Manager\ResourceFactory\ModelFactory">
       <UniqueIdentifier>{20cd7bf5-7a25-4c05-b2fb-ab0b7252eac8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PicnicGraphics\Manager\ResourceFactory\RenderingFactory">
-      <UniqueIdentifier>{b3065e3a-262a-4f49-9a64-a8f06f05d4b1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="PicnicGraphics\Manager\BindingClass\BindingCamera">
       <UniqueIdentifier>{d8d1e901-fd13-4aee-8c8a-ff5ff67ec3eb}</UniqueIdentifier>
     </Filter>
@@ -144,9 +141,6 @@
     <ClInclude Include="resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="RenderingFactory.h">
-      <Filter>PicnicGraphics\Manager\ResourceFactory\RenderingFactory</Filter>
-    </ClInclude>
     <ClInclude Include="ModelFactory.h">
       <Filter>PicnicGraphics\Manager\ResourceFactory\ModelFactory</Filter>
     </ClInclude>
@@ -205,9 +199,6 @@
     </ClCompile>
     <ClCompile Include="TextureFactory.cpp">
       <Filter>PicnicGraphics\Manager\ResourceFactory\TextureFactory</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderingFactory.cpp">
-      <Filter>PicnicGraphics\Manager\ResourceFactory\RenderingFactory</Filter>
     </ClCompile>
     <ClCompile Include="ModelFactory.cpp">
       <Filter>PicnicGraphics\Manager\ResourceFactory\ModelFactory</Filter>

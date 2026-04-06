@@ -1,4 +1,3 @@
-
 //카메라 관련 버퍼
 cbuffer CameraBuffer : register(b0)
 {

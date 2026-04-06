@@ -101,6 +101,8 @@ inline void Generate_Renderer2D(sol::state& lua)
 {
 	sol::usertype<Renderer2D> ut = lua.new_usertype<Renderer2D>("Renderer2D");
 	ut["SetTexture"] = &Renderer2D::SetTexture;
+	ut["SetMaterial"] = &Renderer2D::SetMaterial;
+	ut["SetAnimation"] = &Renderer2D::SetAnimation;
 }
 inline void Generate_DebugCamera(sol::state& lua) 
 {

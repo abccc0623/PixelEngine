@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PixelTool
 {
@@ -53,8 +54,8 @@ namespace PixelTool
             MaterialContent += $"@Path {TexturePath.Text}\n";
             MaterialContent += $"@OffsetX {OffsetX.Text}\n";
             MaterialContent += $"@OffsetY {OffsetY.Text}\n";
-            MaterialContent += $"@TilingX {TilingX.Text}\n";
-            MaterialContent += $"@TilingY {TilingY.Text}\n";
+            MaterialContent += $"@TilingX {ChangeTiling(TilingX.Text)}\n";
+            MaterialContent += $"@TilingY {ChangeTiling(TilingY.Text)}\n";
             File.WriteAllText(filePath, MaterialContent);
 
             var window = GlobalFunction.GetDockedWindow<AssetWindow>();
@@ -110,7 +111,7 @@ namespace PixelTool
 
             // 4. 오프셋 (Translate) 적용
             // UV 좌표계에서는 값이 양수일 때 텍스처가 반대로 밀려야 직관적이므로 마이너스(-)를 붙이는 것이 좋습니다.
-            transformGroup.Children.Add(new System.Windows.Media.TranslateTransform(-offsetX, -offsetY));
+            transformGroup.Children.Add(new System.Windows.Media.TranslateTransform(1.0f/ offsetX, 1.0f/ offsetY));
 
             // 5. 브러시에 최종 행렬(Matrix) 적용
             PreviewBrush.RelativeTransform = transformGroup;
@@ -151,6 +152,10 @@ namespace PixelTool
                 TilingY.Text = "1";
             }
             UpdateMaterialPreview();
+        }
+        private float ChangeTiling(string value)
+        {
+            return 1.0f/ float.Parse(value);
         }
     }
 }

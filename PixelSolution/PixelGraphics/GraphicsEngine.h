@@ -33,10 +33,7 @@ public:
 	void Clear();
 	void SetBackGroundColor(float* mColor);
 	
-	RenderingData* GetRenderingData();
-	void DeleteRenderingData(RenderingData* mData);
-	void ChangeRenderingData(RenderingData* mData);
-
+	void SetRenderingData(RenderingData& mData);
 
 	ObjectID LoadTexture(const char* filePath);
 	ObjectID LoadMaterial(const char* filePath);

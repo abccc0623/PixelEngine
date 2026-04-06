@@ -42,7 +42,18 @@ bool BindingClass::TextureCheck(Handle64 now, Handle64 prev)
 {
 	Handle64 data1 = now;
 	Handle64 data2 = prev;
-	if (((data1 >> 32) & 0xFFFF) == ((data2 >> 32) & 0xFFFF))
+	if (((data1 >> 16) & 0xFFFF) == ((data2 >> 16) & 0xFFFF))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool BindingClass::MasterKeyCheck(int bit, Handle64 now, Handle64 prev)
+{
+	Handle64 data1 = now;
+	Handle64 data2 = prev;
+	if (((data1 >> bit) & 0xFFFF) == ((data2 >> bit) & 0xFFFF))
 	{
 		return true;
 	}

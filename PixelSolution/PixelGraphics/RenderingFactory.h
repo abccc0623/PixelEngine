@@ -11,8 +11,11 @@ public:
 	void Initialize() override;
 	void Release() override;
 	void Clear() override;
+	void SetRenderingData(const RenderingData& mData);
 protected:
 	std::unordered_map<Handle16, RenderingData*> renderingDataMap;
 	void* GetResource(std::string name) override;
+
+	
 };
 

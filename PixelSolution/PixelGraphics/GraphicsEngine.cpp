@@ -9,7 +9,6 @@
 #include "RasterizerStateFactory.h"
 #include "TextureFactory.h"
 #include "ModelFactory.h"
-#include "RenderingFactory.h"
 #include "RenderringData.h"
 #include "BufferFactory.h"
 #include "MaterialFactory.h"
@@ -34,7 +33,6 @@ void GraphicsEngine::Initialize(HWND WindowHandle, int Width, int Height)
 	BindFactory<ShaderResources, ShaderFactory>();
 	BindFactory<TextureResources,TextureFactory>();
 	BindFactory<DirectModel, ModelFactory>();
-	BindFactory<RenderingData,RenderingFactory>();
 	BindFactory<BufferResources, BufferFactory>();
 	BindFactory<MaterialResources, MaterialFactory>();
 
@@ -98,22 +96,10 @@ ObjectID GraphicsEngine::LoadMaterial(const char* filePath)
 	return Set<MaterialResources>(filePath);
 }
 
-RenderingData* GraphicsEngine::GetRenderingData()
-{
-	auto render = Get<RenderingData>("");
-	mRender->SetRendering(render);
-	return render;
-}
 
-void GraphicsEngine::DeleteRenderingData(RenderingData* mData)
+void GraphicsEngine::SetRenderingData(RenderingData& mData)
 {
-	mRender->DeleteRendering(mData);
-	delete mData;
-}
-
-void GraphicsEngine::ChangeRenderingData(RenderingData* mData)
-{
-	mRender->ChangeRendering(mData);
+	mRender->SetRendering(mData);
 }
 
 ObjectID GraphicsEngine::Model_Debug(float* VertexList, int VertexSize, int* IndexList, int indexSize)

@@ -189,7 +189,6 @@ namespace PixelTool
             string content = LuaFileManager.GetFunction("EventFunction", "KeyDownEvent");
             LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
         }
-
         private void CustomEvent(object sender, RoutedEventArgs e)
         {
             string content = LuaFileManager.GetFunction("EventFunction", "CustomEvent");

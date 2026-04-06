@@ -164,7 +164,6 @@
     <ClInclude Include="MaterialFactory.h" />
     <ClInclude Include="ModelFactory.h" />
     <ClInclude Include="PixelResources.h" />
-    <ClInclude Include="RenderingFactory.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="Export\PixelGraphicsAPI.h" />
@@ -197,7 +196,6 @@
     <ClCompile Include="DefaultShaderLoader.cpp" />
     <ClCompile Include="MaterialFactory.cpp" />
     <ClCompile Include="ModelFactory.cpp" />
-    <ClCompile Include="RenderingFactory.cpp" />
     <ClCompile Include="ResourceFactory.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="KeyAllocator.cpp" />

@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Module.h"
-struct RenderingData;
+#include "RenderringData.h"
 using ObjectID = size_t;
 class Renderer2D :public Module
 {
@@ -10,10 +10,15 @@ public:
 
 	void LastUpdate() override;
 	void SetTexture(const std::string& name);
+	void SetMaterial(const std::string& name);
+	void SetAnimation(int MaxFramesX, int MaxFramesY, float speed);
 private:
-	RenderingData* rendering;
+	RenderingData rendering;
 	std::string textureName;
 	ObjectID textureID = -1;
-	float testtime;
+	ObjectID materialID = -1;
+	float oneFrameTime = 0.0f;
+	float nowFrameTime = 0.0f;
+	float animationSpeed = 0.0f;
 };
 

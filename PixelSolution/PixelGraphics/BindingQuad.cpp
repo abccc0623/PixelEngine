@@ -6,6 +6,7 @@
 #include "RenderringData.h"
 #include "GraphicsEngine.h"
 #include "GraphicsCore.h"
+using Matrix = DirectX::SimpleMath::Matrix;
 void BindingQuad::Initialize()
 {
 	targetBuffer = engine->Get<BufferResources>("ObjectBuffer");
@@ -21,43 +22,75 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 	ObjectBuffer mbuffer;
 	DirectX::SimpleMath::Matrix mWorld = DirectX::SimpleMath::Matrix::Identity;
 	memcpy(&mWorld, mData->World, sizeof(float) * 16);
-	DirectX::SimpleMath::Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(mData->mesh.tilingX, mData->mesh.tilingY, 1.0f);
-	DirectX::SimpleMath::Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(mData->mesh.offsetX, mData->mesh.offsetY, 0.0f);
-	DirectX::SimpleMath::Matrix texMat = texScale * texTrans;
-	
+
+	//메터리얼을 비교해서 다르다면 바인드
+	if (MasterKeyCheck(32,mData->master_key, prev) == false)
+	{
+		MaterialResources* m =  engine->Get<MaterialResources>(mData->material_key);
+		if (m != nullptr)
+		{
+			if (mData->sprite.isAnimation == true)
+			{
+				AnimationBind(mData, &mbuffer);
+			}
+			else
+			{
+				DefaultBind(m->Tiling[0], m->Tiling[1], m->Offset[0], m->Offset[1], &mbuffer);
+			}
+		}
+		else
+		{
+			if (mData->sprite.isAnimation)
+			{
+				AnimationBind(mData, &mbuffer);
+			}
+			else
+			{
+				DefaultBind(1.0f, 1.0f, 1.0f, 1.0f, &mbuffer);
+			}
+		}
+	}
+	else
+	{
+		if (mData->sprite.isAnimation)
+		{
+			AnimationBind(mData, &mbuffer);
+		}
+		else
+		{
+			DefaultBind(1.0f, 1.0f, 1.0f, 1.0f, &mbuffer);
+		}
+	}
 	mbuffer.world		= DirectX::XMMatrixTranspose(mWorld);
-	DirectX::SimpleMath::Matrix mWVP = mWorld * GraphicsCore::mView * GraphicsCore::mProj;
+	Matrix mWVP			= mWorld * GraphicsCore::mView * GraphicsCore::mProj;
 	mbuffer.wvp			= mWVP.Transpose();
-	mbuffer.TexMatrix	= texMat.Transpose();
-
-
 	GraphicsCore::GetDeviceContext()->UpdateSubresource(targetBuffer->buffer, 0, nullptr, &mbuffer, 0, 0);
 	GraphicsCore::GetDeviceContext()->VSSetConstantBuffers(1, 1, &(targetBuffer->buffer));
 	
 	//텍스쳐 바인딩
-	if (TextureCheck(mData->master_key, prev) == false)
+	if (MasterKeyCheck(16,mData->master_key, prev) == false)
 	{
-		auto k = engine->Get<TextureResources>(mData->mesh.texture_key);
+		auto k = engine->Get<TextureResources>(mData->texture_key);
 		if (k != nullptr)
 		{
 			GraphicsCore::GetDeviceContext()->PSSetShaderResources(0, 1, &(k->Texture));
 		}
+		else
+		{
+			ID3D11ShaderResourceView* nullSRV = nullptr;
+			GraphicsCore::GetDeviceContext()->PSSetShaderResources(0, 1, &nullSRV);
+		}
 	}
-	//else
-	//{
-	//	ID3D11ShaderResourceView* nullSRV = nullptr;
-	//	GraphicsCore::GetDeviceContext()->PSSetShaderResources(0, 1, &nullSRV);
-	//}
 	
 	//모델 바인딩
-	if (ModelCheck(mData->master_key, prev) == false)
+	//if (ModelCheck(mData->master_key, prev) == false)
 	{
 		GraphicsCore::GetDeviceContext()->IASetVertexBuffers(0, 1, &(quadModel->VertexBuffer), &(quadModel->stride), &(quadModel->Offset));
 		GraphicsCore::GetDeviceContext()->IASetIndexBuffer(quadModel->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	}
 	
 	//레스터라이저바인딩
-	if (mData->master_key != prev)
+	//if (mData->master_key != prev)
 	{
 		GraphicsCore::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		GraphicsCore::GetDeviceContext()->RSSetState(rasterizerState->rasterizerState);
@@ -65,7 +98,7 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 		GraphicsCore::GetDeviceContext()->VSSetSamplers(0, 1, &sampler);
 	}
 	//쉐이더 바인딩
-	if (ShaderCheck(mData->master_key, prev) == false)
+	//if (ShaderCheck(mData->master_key, prev) == false)
 	{
 		GraphicsCore::GetDeviceContext()->IASetInputLayout(shader->mLayout);
    		GraphicsCore::GetDeviceContext()->VSSetShader(shader->mVertexShader, NULL, 0);
@@ -78,6 +111,30 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 	GraphicsCore::GetDeviceContext()->DrawIndexed(quadModel->IndexCount, 0, 0);
 	//GraphicsCore::GetDeviceContext()->OMSetDepthStencilState(pDisabledDepthState, 0);
 }
+
+void BindingQuad::AnimationBind(RenderingData* mData, ObjectBuffer* buffer)
+{
+	// 1. 타일링(크기) 계산은 완벽합니다!
+	float TilingX = 1.0f / mData->sprite.MaxFramesX;
+	float TilingY = 1.0f / mData->sprite.MaxFramesY;
+	int currentX = mData->sprite.FramesIndex % mData->sprite.MaxFramesX;
+	int currentY = mData->sprite.FramesIndex / mData->sprite.MaxFramesX;
+	float OffsetX = currentX * TilingX;
+	float OffsetY = currentY * TilingY;
+	Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(TilingX, TilingY, 1.0f);
+	Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(OffsetX, OffsetY, 0.0f);
+	Matrix texMat = texScale * texTrans;
+	buffer->TexMatrix = texMat.Transpose();
+}
+
+void BindingQuad::DefaultBind(float TilingX, float TilingY, float OffsetX, float OffsetY, ObjectBuffer* buffer)
+{
+	Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(TilingX, TilingY, 1.0f);
+	Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(OffsetX, OffsetY, 0.0f);
+	Matrix texMat = texScale * texTrans;
+	buffer->TexMatrix = texMat.Transpose();
+}
+
 ID3D11SamplerState* BindingQuad::CreateSampler()
 {
 	ID3D11SamplerState* Sampler = nullptr;

@@ -19,18 +19,12 @@ using Handle16 = unsigned short;
 using Handle32 = unsigned int;
 using Handle64 = unsigned long long;
 
-struct MeshData
+struct SpriteData
 {
-	Handle16 model_key;
-	Handle16 texture_key;
-	Handle16 shader_key;
-
-	float offsetX;
-	float offsetY;
-	float tilingX;
-	float tilingY;
-	bool  isSpriteSheet;
-	int   frameCount;
+	bool isAnimation;
+	int MaxFramesX;
+	int MaxFramesY;
+	int FramesIndex;
 };
 
 struct CameraData
@@ -38,29 +32,29 @@ struct CameraData
 	ProjectionType Projection;
 };
 
-struct BoxCollision2DData
-{
-	float sizeX;
-	float sizeY;      
-	float offsetX;  
-	float offsetY;  
-};
-
 struct RenderingData
 {
 public:
-
 	RENDER_TYPE Type = RENDER_TYPE::NONE;
 	float World[16];
-	Handle64 master_key = 0;
+
+	Handle64 master_key		= 0;
+	Handle16 mash_key		= 0;
+	Handle16 material_key	= 0;
+	Handle16 texture_key	= 0;
 	union
 	{
-		MeshData mesh;
-		CameraData camera;
-		BoxCollision2DData collision;
+		SpriteData	sprite;
+		CameraData	camera;
 	};
 	void Clear()
 	{
 		master_key = ~0ULL;
+	}
+	void Setting()
+	{
+		master_key |= (uint64_t)mash_key		<< 48;
+		master_key |= (uint64_t)material_key	<< 32;
+		master_key |= (uint64_t)texture_key		<< 16;
 	}
 };
