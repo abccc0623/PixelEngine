@@ -1,5 +1,5 @@
 #pragma once
-
+#include "RenderringData.h"
 #include "GraphicsCore.h"
 #include "KeyAllocator.h"
 #include <map>
@@ -26,6 +26,7 @@ private:
 
 	std::vector<BindingClass*> bindingClassList;
 	std::vector<RenderingData> renderingList;
+	RenderingData Camera;
 	Handle64 prevValue;
 };
 

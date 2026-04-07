@@ -151,7 +151,14 @@ void BindManager::BindRenderer2D()
 	AddMethod(table, "LastUpdate", GetMethodInfo(&Renderer2D::LastUpdate));
 	AddMethod(table, "SetTexture", GetMethodInfo(&Renderer2D::SetTexture), MetaFlag::LUABIND);
 	AddMethod(table, "SetMaterial", GetMethodInfo(&Renderer2D::SetMaterial), MetaFlag::LUABIND);
-	AddMethod(table, "SetAnimation", GetMethodInfo(&Renderer2D::SetAnimation), MetaFlag::LUABIND);
+
+	AddMethod(table, "CreateAnimation", GetMethodInfo(&Renderer2D::CreateAnimation), MetaFlag::LUABIND);
+	AddMethod(table, "PlayAnimation", GetMethodInfo(&Renderer2D::PlayAnimation), MetaFlag::LUABIND);
+
+	AddMethod(table, "SetTextureOffset", GetMethodInfo(&Renderer2D::SetTextureOffset), MetaFlag::LUABIND);
+	AddMethod(table, "AddTextureOffset", GetMethodInfo(&Renderer2D::AddTextureOffset), MetaFlag::LUABIND);
+	AddMethod(table, "SetTextureTiling", GetMethodInfo(&Renderer2D::SetTextureTiling), MetaFlag::LUABIND);
+	AddMethod(table, "AddTextureTiling", GetMethodInfo(&Renderer2D::AddTextureTiling), MetaFlag::LUABIND);
 }
 
 void BindManager::BindDebugCamera()
@@ -185,6 +192,8 @@ void BindManager::BindCamera()
 		});
 	AddMethod(table, "Start", GetMethodInfo(&Camera::Start));
 	AddMethod(table, "LastUpdate", GetMethodInfo(&Camera::LastUpdate));
+	AddMethod(table, "OrthographicProjection", GetMethodInfo(&Camera::OrthographicProjection));
+	AddMethod(table, "PerspectiveProjection", GetMethodInfo(&Camera::PerspectiveProjection));
 }
 
 void BindManager::BindMovement()

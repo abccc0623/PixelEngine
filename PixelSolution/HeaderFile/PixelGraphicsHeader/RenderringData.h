@@ -21,15 +21,20 @@ using Handle64 = unsigned long long;
 
 struct SpriteData
 {
-	bool isAnimation;
-	int MaxFramesX;
-	int MaxFramesY;
-	int FramesIndex;
+	bool isShared;
+	float TilingX;
+	float TilingY;
+	float OffsetX;
+	float OffsetY;
 };
 
 struct CameraData
 {
 	ProjectionType Projection;
+	float FovY;
+	float NearZ;
+	float FarZ;
+	float ZoomLevel;
 };
 
 struct RenderingData

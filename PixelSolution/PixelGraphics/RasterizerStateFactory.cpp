@@ -43,7 +43,7 @@ RasterizerStateResources* RasterizerStateFactory::CreateRasterizerState_Solid()
 	D3D11_RASTERIZER_DESC solidDesc;
 	ZeroMemory(&solidDesc, sizeof(D3D11_RASTERIZER_DESC));
 	solidDesc.FillMode = D3D11_FILL_SOLID;
-	solidDesc.CullMode = D3D11_CULL_BACK;
+	solidDesc.CullMode = D3D11_CULL_NONE;
 	solidDesc.FrontCounterClockwise = false;
 	solidDesc.DepthClipEnable = true;
 	GraphicsCore::GetDevice()->CreateRasterizerState(&solidDesc, &mSolid);

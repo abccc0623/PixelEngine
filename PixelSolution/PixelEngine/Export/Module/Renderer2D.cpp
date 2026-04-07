@@ -16,6 +16,11 @@ Renderer2D::Renderer2D() :
 	textureID(-1)
 {
 	rendering.Type = RENDER_TYPE::QUAD;
+	rendering.sprite.isShared = true;
+	rendering.sprite.TilingX = 1.0f;
+	rendering.sprite.TilingY = 1.0f;
+	rendering.sprite.OffsetX = 1.0f;
+	rendering.sprite.OffsetY = 1.0f;
 }
 
 Renderer2D::~Renderer2D()
@@ -25,22 +30,28 @@ Renderer2D::~Renderer2D()
 
 void Renderer2D::LastUpdate()
 {
-	if (rendering.sprite.isAnimation)
+	if (nowAnimationIndex != -1)
 	{
-		nowFrameTime += GetDeltaTime() * animationSpeed;
-		if (nowFrameTime >= oneFrameTime)
+		nowAnimation.nowFrameTime += GetDeltaTime() * nowAnimation.animationSpeed;
+		if (nowAnimation.nowFrameTime >= nowAnimation.oneFrameTime)
 		{
-			if (rendering.sprite.FramesIndex >= rendering.sprite.MaxFramesX)
+			if (nowAnimation.framesIndex >= nowAnimation.maxFramesX)
 			{
-				rendering.sprite.FramesIndex = 0;
+				nowAnimation.framesIndex = 0;
 			}
 			else
 			{
-				rendering.sprite.FramesIndex++;
+				nowAnimation.framesIndex++;
 			}
-			nowFrameTime -= oneFrameTime;
+			nowAnimation.nowFrameTime -= nowAnimation.oneFrameTime;
+
+			rendering.sprite.TilingX = 1.0f / nowAnimation.maxFramesX;
+			rendering.sprite.TilingY = 1.0f / nowAnimation.maxFramesY;
+			rendering.sprite.OffsetX = (nowAnimation.framesIndex % nowAnimation.maxFramesX) * rendering.sprite.TilingX;
+			rendering.sprite.OffsetY = (nowAnimation.framesIndex / nowAnimation.maxFramesX) * rendering.sprite.TilingY;
 		}
 	}
+
 
 
 	if (transform == nullptr) return;
@@ -64,13 +75,86 @@ void Renderer2D::SetMaterial(const std::string& name)
 	rendering.material_key = materialID;
 }
 
-void Renderer2D::SetAnimation(int MaxFramesX, int MaxFramesY, float speed)
+
+int Renderer2D::CreateAnimation(std::string textureName,int MaxFramesX, int MaxFramesY, float speed)
 {
-	rendering.sprite.isAnimation = true;
-	rendering.sprite.FramesIndex = 0;
-	rendering.sprite.MaxFramesX = MaxFramesX;
-	rendering.sprite.MaxFramesY = MaxFramesY;
-	oneFrameTime = 1.0f / rendering.sprite.MaxFramesX;
-	nowFrameTime = 0.0f;
-	animationSpeed = speed;
+	AnimationData data;
+	data.textureID = textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE,textureName);
+	data.framesIndex = 0;
+	data.maxFramesX = MaxFramesX;
+	data.maxFramesY = MaxFramesY;
+	data.oneFrameTime = 1.0f / MaxFramesX;
+	data.nowFrameTime = 0.0f;
+	data.animationSpeed = speed;
+	int index = animationList.size();
+	animationList.push_back(data);
+
+	rendering.sprite.TilingX = 1.0f / MaxFramesX;
+	rendering.sprite.TilingY = 1.0f / MaxFramesX;
+	rendering.sprite.OffsetX = (data.framesIndex % MaxFramesX) * rendering.sprite.TilingX;
+	rendering.sprite.OffsetY = (data.framesIndex / MaxFramesX) * rendering.sprite.TilingY;
+	return index;
+}
+
+void Renderer2D::PlayAnimation(int index)
+{
+	//예외처리
+	if (index > animationList.size() - 1)
+	{
+		PixelLog::Error("Index out of range");
+		PixelLog::Error("Now Max range:" + std::to_string(animationList.size() - 1));
+		return;
+	}
+
+	if (index == nowAnimationIndex) return;
+	//이제 이 Renderer는 다른오브젝트와 개별적으로 움직인다.
+	rendering.sprite.isShared = false;
+
+
+	//애니메이션 초기셋팅
+	nowAnimationIndex = index;
+	nowAnimation = animationList[nowAnimationIndex];
+	nowAnimation.framesIndex = 0;
+	nowAnimation.nowFrameTime = 0;
+	
+	//애니메이션 텍스쳐변경
+	textureID = nowAnimation.textureID;
+	rendering.texture_key = textureID;
+
+	rendering.sprite.TilingX = 1.0f / nowAnimation.maxFramesX;
+	rendering.sprite.TilingY = 1.0f / nowAnimation.maxFramesY;
+	rendering.sprite.OffsetX = (nowAnimation.framesIndex % nowAnimation.maxFramesX) * rendering.sprite.TilingX;
+	rendering.sprite.OffsetY = (nowAnimation.framesIndex / nowAnimation.maxFramesX) * rendering.sprite.TilingY;
+}
+
+void Renderer2D::SetTextureOffset(float OffsetX, float OffsetY)
+{
+	AnimationClear();
+	rendering.sprite.OffsetX = OffsetX;
+	rendering.sprite.OffsetY = OffsetY;
+}
+
+void Renderer2D::AddTextureOffset(float OffsetX, float OffsetY)
+{
+	AnimationClear();
+	//rendering.sprite.OffsetX
+	//rendering.sprite.OffsetY
+}
+
+void Renderer2D::SetTextureTiling(float TilingX, float TilingY)
+{
+	AnimationClear();
+	rendering.sprite.TilingX = TilingX;
+	rendering.sprite.TilingY = TilingY;
+}
+
+void Renderer2D::AddTextureTiling(float TilingX, float TilingY)
+{
+	AnimationClear();
+}
+
+void Renderer2D::AnimationClear()
+{
+	nowAnimationIndex = -1;
+	rendering.sprite.isShared = false;
 }

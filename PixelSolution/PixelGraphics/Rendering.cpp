@@ -72,13 +72,14 @@ void Rendering::Update()
 			return a.master_key < b.master_key;
 		});
 
+	bindingClassList[CAMERA]->Binding(&Camera, prevValue);
+
 	int MaxSize = renderingList.size();
 	for (int i = 0; i < MaxSize; i++)
 	{
 		switch (renderingList[i].Type)
 		{
 		case CAMERA:
-			bindingClassList[CAMERA]->Binding(&renderingList[i], prevValue);
 			break;
 		case QUAD:
 			bindingClassList[QUAD]->Binding(&renderingList[i], prevValue);
@@ -93,8 +94,15 @@ void Rendering::Update()
 
 void Rendering::SetRendering(RenderingData& data)
 {
-	data.Setting();
-	renderingList.push_back(data);
+	if (data.Type == CAMERA)
+	{
+		Camera = data;
+	}
+	else
+	{
+		data.Setting();
+		renderingList.push_back(data);
+	}
 }
 
 

@@ -27,39 +27,19 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 	if (MasterKeyCheck(32,mData->master_key, prev) == false)
 	{
 		MaterialResources* m =  engine->Get<MaterialResources>(mData->material_key);
-		if (m != nullptr)
+		if (mData->sprite.isShared == true) 
 		{
-			if (mData->sprite.isAnimation == true)
-			{
-				AnimationBind(mData, &mbuffer);
-			}
-			else
-			{
-				DefaultBind(m->Tiling[0], m->Tiling[1], m->Offset[0], m->Offset[1], &mbuffer);
-			}
+			DefaultBind(m->Tiling[0], m->Tiling[1], m->Offset[0], m->Offset[1], &mbuffer);
 		}
 		else
 		{
-			if (mData->sprite.isAnimation)
-			{
-				AnimationBind(mData, &mbuffer);
-			}
-			else
-			{
-				DefaultBind(1.0f, 1.0f, 1.0f, 1.0f, &mbuffer);
-			}
+			DefaultBind(mData->sprite.TilingX, mData->sprite.TilingY, mData->sprite.OffsetX,mData->sprite.OffsetY, &mbuffer);
 		}
 	}
 	else
 	{
-		if (mData->sprite.isAnimation)
-		{
-			AnimationBind(mData, &mbuffer);
-		}
-		else
-		{
-			DefaultBind(1.0f, 1.0f, 1.0f, 1.0f, &mbuffer);
-		}
+		//기본 메터리얼을 가져와야함...
+		DefaultBind(mData->sprite.TilingX, mData->sprite.TilingY, mData->sprite.OffsetX, mData->sprite.OffsetY, &mbuffer);
 	}
 	mbuffer.world		= DirectX::XMMatrixTranspose(mWorld);
 	Matrix mWVP			= mWorld * GraphicsCore::mView * GraphicsCore::mProj;
@@ -115,16 +95,16 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 void BindingQuad::AnimationBind(RenderingData* mData, ObjectBuffer* buffer)
 {
 	// 1. 타일링(크기) 계산은 완벽합니다!
-	float TilingX = 1.0f / mData->sprite.MaxFramesX;
-	float TilingY = 1.0f / mData->sprite.MaxFramesY;
-	int currentX = mData->sprite.FramesIndex % mData->sprite.MaxFramesX;
-	int currentY = mData->sprite.FramesIndex / mData->sprite.MaxFramesX;
-	float OffsetX = currentX * TilingX;
-	float OffsetY = currentY * TilingY;
-	Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(TilingX, TilingY, 1.0f);
-	Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(OffsetX, OffsetY, 0.0f);
-	Matrix texMat = texScale * texTrans;
-	buffer->TexMatrix = texMat.Transpose();
+	//float TilingX = 1.0f / mData->sprite.MaxFramesX;
+	//float TilingY = 1.0f / mData->sprite.MaxFramesY;
+	//int currentX = mData->sprite.FramesIndex % mData->sprite.MaxFramesX;
+	//int currentY = mData->sprite.FramesIndex / mData->sprite.MaxFramesX;
+	//float OffsetX = currentX * TilingX;
+	//float OffsetY = currentY * TilingY;
+	//Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(TilingX, TilingY, 1.0f);
+	//Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(OffsetX, OffsetY, 0.0f);
+	//Matrix texMat = texScale * texTrans;
+	//buffer->TexMatrix = texMat.Transpose();
 }
 
 void BindingQuad::DefaultBind(float TilingX, float TilingY, float OffsetX, float OffsetY, ObjectBuffer* buffer)

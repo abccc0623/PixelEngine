@@ -36,10 +36,9 @@ struct PixelInputType
 PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
-
     //월드변환
     //float4 worldPos = mul(float4(input.position, 1.0f), wvp);
-    output.posH = mul(wvp, float4(input.position, 1.0f));
+    output.posH = mul(float4(input.position, 1.0f), wvp);
     //uv값
     //output.UV = mul(TexMatrix,float4(input.UV, 0.0f, 1.0f)).xy;
     output.UV = mul(float4(input.UV, 0.0f, 1.0f), TexMatrix).xy;
