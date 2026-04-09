@@ -48,14 +48,14 @@ namespace PixelTool
 
         static string ExtractFunctionBlock(string fullCode, string functionName)
         {
-            string startKeyword = $"function self:{functionName}";
+            string startKeyword = $"function Script:{functionName}";
             int startIndex = fullCode.IndexOf(startKeyword);
 
             // 해당 함수가 없으면 빈 문자열 반환
             if (startIndex == -1) return "";
 
             // 현재 함수 내용이 끝나는 지점을 찾기 위해, '다음 함수'가 시작되는 위치를 찾습니다.
-            int nextFunctionIndex = fullCode.IndexOf("function self:", startIndex + startKeyword.Length);
+            int nextFunctionIndex = fullCode.IndexOf("function Script:", startIndex + startKeyword.Length);
 
             if (nextFunctionIndex != -1)
             {

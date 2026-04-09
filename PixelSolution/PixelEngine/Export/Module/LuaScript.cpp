@@ -107,8 +107,8 @@ void LuaScript::Register(std::string fileName)
     start = instance["Start"];
     update = instance["Update"];
 
-    keyDown     = instance["Event_KeyDown"];
-    keyUp       = instance["Event_KeyUp"];
+    keyDown     = instance["KeyDownEvent"];
+    keyUp       = instance["KeyUpEvent"];
     CustomEvent = instance["CustomEvent"];
     
     instance["gameObject"] = targetObject;
