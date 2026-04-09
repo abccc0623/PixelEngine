@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -64,6 +66,42 @@ namespace PixelTool
             {
                 // 다음 함수가 없다면 (즉, 파일의 마지막 함수라면) 끝까지 잘라냅니다.
                 return fullCode.Substring(startIndex).TrimEnd();
+            }
+        }
+
+        static public void  CreateLuaByJIT(string resourcePath, string exportPath)
+        {
+            try
+            {
+                // 1. 디렉토리가 없으면 생성
+                string directory = Path.GetDirectoryName(exportPath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                // 2. 어셈블리에서 리소스 스트림 가져오기
+                var assembly = Assembly.GetExecutingAssembly();
+                using (Stream stream = assembly.GetManifestResourceStream(resourcePath))
+                {
+                    if (stream == null)
+                    {
+                        Console.WriteLine($"[Error] 리소스를 찾을 수 없습니다: {resourcePath}");
+                        return;
+                    }
+
+                    // 3. 파일 스트림으로 복사 (가장 효율적인 방식)
+                    using (FileStream fileStream = new FileStream(exportPath, FileMode.Create, FileAccess.Write))
+                    {
+                        stream.CopyTo(fileStream);
+                    }
+
+                    Console.WriteLine($"[Success] 루아 파일 생성 완료: {exportPath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Exception] 파일 생성 중 오류 발생: {ex.Message}");
             }
         }
     }

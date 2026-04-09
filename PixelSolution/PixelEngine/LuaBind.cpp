@@ -183,6 +183,7 @@ void LuaBind::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
     main += FunctionString;
     main += AddModuleLuaString;
     main += FunctionCallString;
+
     std::ofstream file(outPath);
     file << main;
     file.close();

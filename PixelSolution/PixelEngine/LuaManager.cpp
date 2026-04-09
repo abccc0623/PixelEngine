@@ -22,6 +22,8 @@
 #include "Module/LuaScript.h"
 #include "GenerateLuaBind.h"
 
+
+
 #define SOL_ALL_SAFETIES_ON 1 // 안전장치 활성화 (권장)
 
 
@@ -29,6 +31,12 @@ extern PixelEngine* Engine;
 LuaManager::LuaManager()
 {
 	luaModuleTableMap = std::unordered_map<std::string, LuaModuleInfo*>();
+
+#ifdef LUAJIT_VERSION
+	std::cout << "컴파일 시점 확인: LuaJIT용으로 빌드됨!" << std::endl;
+#else
+	std::cout << "컴파일 시점 확인: 일반 Lua용으로 빌드됨!" << std::endl;
+#endif
 }
 
 LuaManager::~LuaManager()
@@ -106,6 +114,12 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 			if (mainFunc.valid())
 			{
 				auto result = mainFunc();
+				if (result.valid() == false)
+				{
+					sol::error err = result;
+					std::string what = err.what();
+					PixelLog::Error("mina 스크립트 로드 실패: " + what);
+				}
 			}
 		}
 		else if (ext == ".scene")
@@ -126,14 +140,24 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 		{
 			//이파일에 대한 공간을 할당 없는건 lua.globals()에서 찾아라
 			sol::environment prototypeEnv(lua, sol::create, lua.globals());
-			prototypeEnv["self"] = lua.create_table();
 
-			//이공간에서 사용할 파일로드
+			// 2. 스크립트 실행 (루아의 'return Script'가 result에 담깁니다!)
 			sol::protected_function_result result = lua.script_file(filePath, prototypeEnv);
-			if (result.valid()) 
+
+			// 3. 실행 성공 및 리턴값이 테이블인지 확인
+			if (result.valid() && result.get_type() == sol::type::table)
 			{
-				sol::table tabel = prototypeEnv;
-				luaModuleTableMap.insert({ filename , new LuaModuleInfo(tabel) });
+				// 4. 빈 환경이 아니라, 루아가 리턴한 진짜 '원본(Blueprint)'을 빼옵니다!
+				sol::table blueprint = result;
+
+				// 5. 이 원본을 캐싱합니다.
+				luaModuleTableMap.insert({ filename, new LuaModuleInfo(blueprint) });
+			}
+			else
+			{
+				sol::error err = result;
+				std::string what = err.what();
+				PixelLog::Error("스크립트 로드 실패 [" + filePath + "] : " + what);
 			}
 		}
 	}

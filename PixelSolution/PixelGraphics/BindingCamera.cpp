@@ -23,6 +23,16 @@ void BindingCamera::Initialize()
 
 void BindingCamera::Binding(RenderingData* mData, Handle64 prev)
 {
+	if (mData->camera.FarZ == 0.0f && mData->camera.FovY == 0.0f)
+	{
+		//기본값으로 셋팅
+		mData->camera.Projection = ProjectionType::Perspective;
+		mData->camera.FovY = 0.3f * 3.1415926535f;
+		mData->camera.NearZ = 0.1f;
+		mData->camera.FarZ = 4000.0f;
+		mData->camera.ZoomLevel = 1.0f;
+	}
+
 	// 1. 방어적 프로그래밍 (Zero Divide 방지)
 	float width = (float)GraphicsCore::GetClientWidth();
 	float height = (float)GraphicsCore::GetClientHeight();

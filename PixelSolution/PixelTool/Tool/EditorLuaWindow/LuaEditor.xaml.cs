@@ -98,7 +98,7 @@ namespace PixelTool
         {
             if (string.IsNullOrEmpty(e.Text)) return;
             char c = e.Text[0];
-            if (char.IsLetterOrDigit(c) || c == '.' || c == ':')
+            if (c == '.' || c == ':')
             {
                 if(completionWindow != null){completionWindow.Close();}
                 int currentLine = LuaEditor.TextArea.Caret.Line - 1;

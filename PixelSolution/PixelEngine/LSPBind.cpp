@@ -3,7 +3,7 @@
 
 void LSPBind::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
 {
-    main = "";
+    main = "---@mate\n";
     for (auto& K : types)
     {
         if (K.metaType == META_TYPE::PRIMITIVE)
@@ -44,6 +44,11 @@ void LSPBind::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
             main += "}\n";
         }
     }
+
+    main += "--- @class LuaInstance \n";
+    main += "--- @field gameObject GameObject\n";
+    main += "--- @field transform Transform\n";
+    main += "--- @field script LuaScript\n";
 
     std::ofstream file(outPath);
     file << main;
@@ -100,7 +105,11 @@ void LSPBind::SetMethodString(PixelClassMeta& meta)
             data["INDEX"] = std::to_string(i);
             main += ReplaceSimple(PropertyBind, data);
         }
-        main += ReplaceAll(ReturnBind, "TYPE", TypeChangeByLua(m.returnType));
+        
+        if (m.returnType != "void")
+        {
+            main += ReplaceAll(ReturnBind, "TYPE", TypeChangeByLua(m.returnType));
+        }
 
         std::unordered_map<std::string, std::string> data;
         data["CLASS_NAME"] = meta.thisName;

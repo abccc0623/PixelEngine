@@ -214,7 +214,12 @@ void Import(const char* path)
 
 		if (std::filesystem::is_directory(status)) 
 		{
-			
+			for (const auto& entry : std::filesystem::directory_iterator(path))
+			{
+				std::string targetPath = entry.path().string();
+				std::replace(targetPath.begin(), targetPath.end(), '\\', '/');
+				Import(targetPath.c_str());
+			}
 		}
 		else if (std::filesystem::is_regular_file(status))
 		{

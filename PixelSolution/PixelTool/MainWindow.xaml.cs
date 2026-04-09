@@ -19,6 +19,7 @@ namespace PixelTool
         {
             InitializeComponent();
 
+            LuaFileManager.CreateLuaByJIT("PixelTool.LuaCode.JIT.PVector3.lua", "./Asset/Scripts/PVector3.lua");
             IntPtr hWnd = new WindowInteropHelper(this).Handle;
         }
     }

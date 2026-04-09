@@ -16,23 +16,13 @@
 
 Rendering::Rendering()
 {
-	//renderingList = std::map<Handle64, std::vector<RenderingData*>>();
-	//bindingClassList = std::vector<BindingClass*>();
 	renderingList = std::vector<RenderingData>();
 	renderingList.reserve(1000);
 }
 
 Rendering::~Rendering()
 {
-	//for (auto& K : renderingList)
-	//{
-	//	for (auto& Q : K.second)
-	//	{
-	//		delete Q;
-	//		Q = nullptr;
-	//	}
-	//}
-	//renderingList.clear();
+	
 }
 
 void Rendering::Initialize(GraphicsEngine* engine)

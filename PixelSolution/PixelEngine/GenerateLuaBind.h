@@ -55,11 +55,13 @@ inline void Generate_Module(sol::state& lua)
 }
 inline void Generate_PVector3(sol::state& lua) 
 {
-	sol::usertype<PVector3> ut = lua.new_usertype<PVector3>("PVector3",sol::constructors<PVector3(float,float,float)>()); 
+	sol::usertype<PVector3> ut = lua.new_usertype<PVector3>("NativePV3");
 	ut["X"] = &PVector3::X;
 	ut["Y"] = &PVector3::Y;
 	ut["Z"] = &PVector3::Z;
-	ut["Normalize"] = &PVector3::Normalize;
+	//ut["Normalize"] = &PVector3::Normalize;
+
+
 }
 inline void Generate_LuaScript(sol::state& lua) 
 {
