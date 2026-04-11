@@ -120,10 +120,10 @@ void LuaScript::EventCall(EventType type, Event event)
 {
     switch (type)
     {
-    case EventType::KEY_DOWN:
+    case EventType::KeyDown:
         if (keyDown.valid()){keyDown(instance, event.key);}
         break;
-    case EventType::KEY_UP:
+    case EventType::KeyUp:
         if (keyUp.valid()) { keyUp(instance, event.key); }
         break;
     }

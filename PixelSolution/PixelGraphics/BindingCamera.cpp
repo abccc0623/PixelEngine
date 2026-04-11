@@ -41,7 +41,7 @@ void BindingCamera::Binding(RenderingData* mData, Handle64 prev)
 	// 2. View 행렬 계산 (World 행렬의 역행렬 적용)
 	DirectX::SimpleMath::Matrix worldMatrix;
 	memcpy(&worldMatrix, mData->World, sizeof(float) * 16);
-	DirectX::SimpleMath::Matrix viewMatrix = worldMatrix.Invert();
+	DirectX::SimpleMath::Matrix viewMatrix = worldMatrix;
 
 	DirectX::SimpleMath::Matrix projMatrix;
 

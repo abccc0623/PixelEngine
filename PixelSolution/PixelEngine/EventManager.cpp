@@ -27,10 +27,8 @@ void EventManager::Update()
 
 	float currentTime = GetTotalTime();
 
-	// ★ 핵심: 배열을 뒤에서부터 앞으로 순회 (인덱스 꼬임 방지)
-	for (int i = customDelayEvents.size() - 1; i >= 0; --i) {
-
-		// 목표 시간에 도달했는지 확인
+	for (int i = customDelayEvents.size() - 1; i >= 0; --i)
+	{
 		if (currentTime >= customDelayEvents[i].eventEndTime)
 		{
 			std::string typeName = customDelayEvents[i].eventType;
@@ -45,9 +43,8 @@ void EventManager::Update()
 				}
 			}
 
-			// 2. 배열에서 삭제 (Swap-and-Pop 기법 - O(1) 성능)
-			// 현재 요소를 맨 마지막 요소로 덮어씌우고, 마지막 요소를 날려버림
-			if (i != customDelayEvents.size() - 1) {
+			if (i != customDelayEvents.size() - 1) 
+			{
 				customDelayEvents[i] = customDelayEvents.back();
 				customDelayEvents.pop_back();
 			}

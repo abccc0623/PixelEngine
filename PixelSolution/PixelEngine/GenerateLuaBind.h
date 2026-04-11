@@ -55,13 +55,11 @@ inline void Generate_Module(sol::state& lua)
 }
 inline void Generate_PVector3(sol::state& lua) 
 {
-	sol::usertype<PVector3> ut = lua.new_usertype<PVector3>("NativePV3");
+	sol::usertype<PVector3> ut = lua.new_usertype<PVector3>("PVector3",sol::constructors<PVector3(float,float,float)>()); 
 	ut["X"] = &PVector3::X;
 	ut["Y"] = &PVector3::Y;
 	ut["Z"] = &PVector3::Z;
-	//ut["Normalize"] = &PVector3::Normalize;
-
-
+	ut["Normalize"] = &PVector3::Normalize;
 }
 inline void Generate_LuaScript(sol::state& lua) 
 {
@@ -94,10 +92,12 @@ inline void Generate_Transform(sol::state& lua)
 inline void Generate_Movement(sol::state& lua) 
 {
 	sol::usertype<Movement> ut = lua.new_usertype<Movement>("Movement");
-	ut["StartDistance"] = &Movement::StartDistance;
-	ut["StopDistance"] = &Movement::StopDistance;
+	ut["stopDistance"] = &Movement::stopDistance;
 	ut["speed"] = &Movement::speed;
 	ut["MoveToTarget"] = &Movement::MoveToTarget;
+	ut["StopMove"] = &Movement::StopMove;
+	ut["AddCompleteCallBack"] = &Movement::AddCompleteCallBack;
+	ut["AddStartedCallBack"] = &Movement::AddStartedCallBack;
 }
 inline void Generate_Renderer2D(sol::state& lua) 
 {
@@ -122,8 +122,8 @@ inline void Generate_Camera(sol::state& lua)
 inline void Generate_EventType(sol::state& lua) 
 {
 	lua.new_enum<EventType>("EventType", {
-	{ "KEY_UP", EventType::KEY_UP },
-	{ "KEY_DOWN", EventType::KEY_DOWN },
+	{ "KeyUp", EventType::KeyUp },
+	{ "KeyDown", EventType::KeyDown },
 });
 }
 inline void BindAll_AddModules() 

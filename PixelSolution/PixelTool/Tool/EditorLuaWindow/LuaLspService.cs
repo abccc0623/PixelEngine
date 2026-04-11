@@ -9,6 +9,8 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -162,7 +164,6 @@ namespace PixelTool
             string absolutePath = System.IO.Path.GetFullPath(System.IO.Path.Combine(baseDir, fileUri));
             string uri = new Uri(absolutePath.Replace("\\", "/")).AbsoluteUri;
 
-           
             targetFilePath = uri;
             var didOpenParams = new DidOpenTextDocumentParams
             {

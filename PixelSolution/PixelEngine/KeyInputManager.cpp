@@ -47,7 +47,7 @@ void KeyInputManager::Update()
 				Event eventMessage;
 				eventMessage.key.keyCode = i;
 				eventMessage.key.Pressed = true;
-				event->TriggerEvent(EventType::KEY_DOWN, eventMessage);
+				event->TriggerEvent(EventType::KeyDown, eventMessage);
 			}
         }
         else
@@ -58,7 +58,7 @@ void KeyInputManager::Update()
 				Event eventMessage;
 				eventMessage.key.keyCode = i;
 				eventMessage.key.Pressed = false;
-				event->TriggerEvent(EventType::KEY_UP, eventMessage);
+				event->TriggerEvent(EventType::KeyUp, eventMessage);
 			}
         }
 	}

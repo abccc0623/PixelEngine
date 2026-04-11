@@ -9,6 +9,8 @@ using PixelTool;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.RegularExpressions; // 정규식 사용
 using System.Threading.Tasks;
 using System.Windows;
@@ -81,6 +83,7 @@ namespace PixelTool
                         LuaEditor.Save(targetPath);
                     }
                 }
+
                 LuaEditor.Load(path);
                 targetPath = path;
                 string content = LuaEditor.Text;
@@ -98,7 +101,7 @@ namespace PixelTool
         {
             if (string.IsNullOrEmpty(e.Text)) return;
             char c = e.Text[0];
-            if (c == '.' || c == ':')
+            if (char.IsLetterOrDigit(c) || c == '.' || c == ':')
             {
                 if(completionWindow != null){completionWindow.Close();}
                 int currentLine = LuaEditor.TextArea.Caret.Line - 1;
@@ -122,12 +125,14 @@ namespace PixelTool
                 if(e.Key == Key.S)
                 {
                     e.Handled = true;
+                    //GeneratedLuaModuleType();
                     LuaEditor.Save(targetPath);
                     EditorChange.Foreground = Brushes.Green;
                 }
                 else if (e.Key == Key.R)
                 {
                     e.Handled = true;
+                    //GeneratedLuaModuleType();
                     LuaEditor.Save(targetPath);
                     PixelEngineNative.Reload();
                 }
@@ -178,6 +183,32 @@ namespace PixelTool
         {
             return LuaEditor.TextArea;
         }
+
+        //GENERATED
+        void GeneratedLuaModuleType()
+        {
+            string ext = Path.GetExtension(targetPath);
+            if (ext != ".pxm") return;
+
+            string originalCode = LuaEditor.Text;
+
+
+            // 패턴 설명:
+            // (---@type\s+\w+\s+)? : 이미 존재하는 주석 (있을 수도 있고 없을 수도 있음)
+            // (self\.([a-zA-Z0-9_]+)\s*=\s*.*:AddModule\("([a-zA-Z0-9_]+)"\)) : AddModule 할당 코드
+            string pattern = @"(---@type\s+\w+\s+)?(self\.([a-zA-Z0-9_]+)\s*=\s*.*:AddModule\(""([a-zA-Z0-9_]+)""\))";
+
+            LuaEditor.Text = Regex.Replace(originalCode, pattern, m =>
+            {
+                string currentCodeLine = m.Groups[2].Value; // 실제 코드 (self.xxx = ...)
+                string typeName = m.Groups[4].Value;       // 모듈 타입 (Movement 등)
+
+                // 기존 주석 여부 상관없이 "최신 타입 주석 + 코드" 형태로 반환
+                return $"---@type {typeName}\n    {currentCodeLine}";
+            }, RegexOptions.Multiline);
+        }
+
+
 
         private void Event_KeyUp(object sender, RoutedEventArgs e)
         {

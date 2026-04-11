@@ -28,8 +28,8 @@ enum class MODULE_FUNC : int
 
 enum class EventType : int
 {
-	KEY_UP,
-	KEY_DOWN
+	KeyUp,
+	KeyDown,
 };
 
 

@@ -52,6 +52,28 @@ Module* GameObject::GetModuleToEngine(PType* moduleClass)
 	return nullptr;
 }
 
+Module* GameObject::AddModuleToEngine(const std::string& moduleName)
+{
+	auto targetType = GetType(moduleName);
+	return AddModuleSetting(targetType);
+}
+
+Module* GameObject::AddModuleToEngine(PType* moduleClass)
+{
+	return AddModuleSetting(moduleClass);
+}
+
+Module* GameObject::GetModuleToEngine(const std::string& moduleName)
+{
+	auto targetType = GetType(moduleName);
+	if (HasModule(targetType))
+	{
+		uint64_t hash = GetTypeHash(targetType);
+		return ModuleMap[hash].GetPtr();
+	}
+	return nullptr;
+}
+
 Transform* GameObject::GetTransform()
 {
 	uint64_t hash = GetTypeHashByName("Transform");
@@ -62,6 +84,60 @@ unsigned long GameObject::GetHash()
 {
 	return hashCode;
 
+}
+
+Module* GameObject::AddModuleSetting(PType* moduleClass)
+{
+	if (HasModule(moduleClass) == true) return nullptr;
+	if (GetTypeParentByHash(moduleClass) != GetTypeHashByName("Module")) return nullptr;
+
+	//생성 함수 호출하여 모듈 생성
+	std::vector<void*> property;
+	PValue target = CallMethod(moduleClass, 0, moduleClass, property);
+	Module* targetModule = reinterpret_cast<Module*>(target.AsPointer());
+	auto module = SPointer<Module>(targetModule);
+
+	//함수 등록
+	int MethodCount = GetMethodCount(moduleClass);
+	for (int i = 0; i < MethodCount; i++)
+	{
+		std::string name = GetMethodName(moduleClass, i);
+		if (name == "Awake")
+		{
+			functionManager->AddOneTimeFunction(module, (int)MODULE_FUNC::AWAKE);
+		}
+		else if (name == "Start")
+		{
+			functionManager->AddOneTimeFunction(module, (int)MODULE_FUNC::START);
+		}
+		else if (name == "Update")
+		{
+			functionManager->AddTickFunction(module, (int)MODULE_FUNC::UPDATE);
+		}
+		else if (name == "MatrixUpdate")
+		{
+			functionManager->AddTickFunction(module, (int)MODULE_FUNC::MATRIX);
+		}
+		else if (name == "PhysicsUpdate")
+		{
+			functionManager->AddTickFunction(module, (int)MODULE_FUNC::PHYSICS);
+		}
+		else if (name == "LastUpdate")
+		{
+			functionManager->AddTickFunction(module, (int)MODULE_FUNC::LAST);
+		}
+	}
+	ModuleMap.insert({ GetTypeHash(moduleClass) ,module });
+	targetModule->targetObject = this;
+
+	//기본 Transform 넣어준다
+	auto hash = StringToByHash("Transform");
+	auto find = ModuleMap.find(hash);
+	if (find != ModuleMap.end())
+	{
+		targetModule->transform = reinterpret_cast<Transform*>(ModuleMap[hash].GetPtr());
+	}
+	return targetModule;
 }
 
 sol::object GameObject::AddModule(sol::this_state s,std::string moduleName)
@@ -90,56 +166,4 @@ sol::object GameObject::GetModule(sol::this_state s, std::string moduleName)
 	return sol::object();
 }
 
-Module* GameObject::AddModuleToEngine(PType* moduleClass)
-{
-	if (HasModule(moduleClass) == true) return nullptr;
-	if (GetTypeParentByHash(moduleClass) != GetTypeHashByName("Module")) return nullptr;
-	
-	//생성 함수 호출하여 모듈 생성
-	std::vector<void*> property;
-	PValue target = CallMethod(moduleClass, 0, moduleClass, property);
-	Module* targetModule = reinterpret_cast<Module*>(target.AsPointer());
-	auto module =  SPointer<Module>(targetModule);
 
-	//함수 등록
-	int MethodCount = GetMethodCount(moduleClass);
-	for (int i = 0; i < MethodCount; i++)
-	{
-		std::string name = GetMethodName(moduleClass, i);
-		if (name == "Awake")
-		{
-			functionManager->AddOneTimeFunction(module, (int)MODULE_FUNC::AWAKE);
-		}
-		else if (name == "Start")
-		{
-			functionManager->AddOneTimeFunction(module, (int)MODULE_FUNC::START);
-		}
-		else if (name == "Update")
-		{
-			functionManager->AddTickFunction(module, (int)MODULE_FUNC::UPDATE);
-		}
-		else if (name == "MatrixUpdate") 
-		{
-			functionManager->AddTickFunction(module, (int)MODULE_FUNC::MATRIX);
-		}
-		else if (name == "PhysicsUpdate")
-		{
-			functionManager->AddTickFunction(module, (int)MODULE_FUNC::PHYSICS);
-		}
-		else if (name == "LastUpdate")
-		{
-			functionManager->AddTickFunction(module, (int)MODULE_FUNC::LAST);
-		}
-	}
-	ModuleMap.insert({ GetTypeHash(moduleClass) ,module});
-	targetModule->targetObject = this;
-	
-	//기본 Transform 넣어준다
-	auto hash = StringToByHash("Transform");
-	auto find =  ModuleMap.find(hash);
-	if (find != ModuleMap.end())
-	{
-		targetModule->transform = reinterpret_cast<Transform*>(ModuleMap[hash].GetPtr());
-	}
-	return targetModule;
-}

@@ -31,5 +31,4 @@
 #include "sol.hpp"
 #include "Log.h"
 
-#pragma comment(lib ,"lua51.lib")
 #endif //PCH_H

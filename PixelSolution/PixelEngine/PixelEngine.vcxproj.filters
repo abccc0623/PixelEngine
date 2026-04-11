@@ -115,6 +115,9 @@
     <Filter Include="EngineAPI\Module\Movement">
       <UniqueIdentifier>{1c9090cc-7d2b-49f9-8c78-b20ce61e36e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Types\Bitmask">
+      <UniqueIdentifier>{373794c8-365c-4532-8871-134652a9e750}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -282,6 +285,9 @@
     <ClInclude Include="MaterialManager.h">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
     </ClInclude>
+    <ClInclude Include="BitMask8.h">
+      <Filter>EngineAPI\Types\Bitmask</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -406,6 +412,9 @@
     </ClCompile>
     <ClCompile Include="MaterialManager.cpp">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="BitMask8.cpp">
+      <Filter>EngineAPI\Types\Bitmask</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

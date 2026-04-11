@@ -45,10 +45,10 @@ void LSPBind::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
         }
     }
 
-    main += "--- @class LuaInstance \n";
-    main += "--- @field gameObject GameObject\n";
-    main += "--- @field transform Transform\n";
-    main += "--- @field script LuaScript\n";
+    main += "---@class LuaInstance \n";
+    main += "---@field gameObject GameObject\n";
+    main += "---@field transform Transform\n";
+    main += "---@field script LuaScript\n";
 
     std::ofstream file(outPath);
     file << main;
@@ -69,9 +69,22 @@ std::string LSPBind::TypeChangeByLua(std::string type)
     {
         type = "boolean";
     }
-    else if (type == "sol::basic_table_core<0,class sol::basic_reference<0> >")
+    else if (type.find("basic_protected_function") != std::string::npos ||
+        type.find("function") != std::string::npos)
+    {
+        type = "function";
+    }
+    // 2. 테이블(Table) 타입 걸러내기 (여기가 핵심!)
+    else if (type.find("sol::table") != std::string::npos ||
+        type.find("basic_table_core") != std::string::npos)
     {
         type = "table";
+    }
+    // 3. 아무거나(Any / Object) 타입 걸러내기
+    else if (type.find("sol::object") != std::string::npos ||
+        type.find("basic_object") != std::string::npos)
+    {
+        type = "any";
     }
     std::erase(type, '*');
     return type;

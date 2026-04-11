@@ -29,10 +29,6 @@ BindManager::~BindManager()
 
 }
 
-void Test() 
-{
-
-}
 void BindManager::Initialize()
 {
 	PStatic* globalCreate = CreateNewStatic("Engine");
@@ -207,11 +203,13 @@ void BindManager::BindMovement()
 		{
 			PixelLog::Info("Delete Movement");
 		});
-	AddMember(table, "StartDistance", GetMemberInfo(&Movement::StartDistance));
-	AddMember(table, "StopDistance",  GetMemberInfo(&Movement::StopDistance));
-	AddMember(table, "speed",		  GetMemberInfo(&Movement::speed));
-	AddMethod(table, "MoveToTarget",  GetMethodInfo(&Movement::MoveToTarget), MetaFlag::LUABIND);
-	AddMethod(table, "Update",		  GetMethodInfo(&Movement::Update));
+	AddMember(table, "stopDistance",			GetMemberInfo(&Movement::stopDistance));
+	AddMember(table, "speed",					GetMemberInfo(&Movement::speed));
+	AddMethod(table, "MoveToTarget",			GetMethodInfo(&Movement::MoveToTarget),			MetaFlag::LUABIND);
+	AddMethod(table, "StopMove",				GetMethodInfo(&Movement::StopMove),				MetaFlag::LUABIND);
+	AddMethod(table, "AddCompleteCallBack",		GetMethodInfo(&Movement::AddCompleteCallBack),	MetaFlag::LUABIND);
+	AddMethod(table, "AddStartedCallBack",		GetMethodInfo(&Movement::AddStartedCallBack),	MetaFlag::LUABIND);
+	AddMethod(table, "Update",					GetMethodInfo(&Movement::Update));
 }
 
 void BindManager::BindGameObject()
@@ -235,8 +233,8 @@ void BindManager::BindPVector3()
 void BindManager::BindEnum()
 {
 	PEnum* globalEnum = CreateNewEnum("EventType");
-	AddEnum(globalEnum, "KEY_UP");
-	AddEnum(globalEnum, "KEY_DOWN");
+	AddEnum(globalEnum, "KeyUp");
+	AddEnum(globalEnum, "KeyDown");
 }
 
 
