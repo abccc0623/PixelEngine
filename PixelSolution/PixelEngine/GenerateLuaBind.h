@@ -71,6 +71,7 @@ inline void Generate_LuaScript(sol::state& lua)
 	ut["UnregisterMessage"] = &LuaScript::UnregisterMessage;
 	ut["RegisterCustomMessage"] = &LuaScript::RegisterCustomMessage;
 	ut["UnregisterCustomMessage"] = &LuaScript::UnregisterCustomMessage;
+	ut["StartCoroutine"] = &LuaScript::StartCoroutine;
 }
 inline void Generate_GameObject(sol::state& lua) 
 {
@@ -98,6 +99,7 @@ inline void Generate_Movement(sol::state& lua)
 	ut["StopMove"] = &Movement::StopMove;
 	ut["AddCompleteCallBack"] = &Movement::AddCompleteCallBack;
 	ut["AddStartedCallBack"] = &Movement::AddStartedCallBack;
+	ut["AddDirectionCallBack"] = &Movement::AddDirectionCallBack;
 }
 inline void Generate_Renderer2D(sol::state& lua) 
 {

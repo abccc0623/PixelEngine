@@ -34,7 +34,7 @@ void Movement::Update()
 		if (distance > stopDistance)
 		{
 			//계속 이동해야 할떄
-			transform->Position += direction * (GetDeltaTime() * speed);
+			transform->Position += direction * (GetDeltaTime() * speed);		
 			bitmask.set(MOVE);
 		}
 		else
@@ -43,6 +43,20 @@ void Movement::Update()
 			bitmask.reset(MOVE);
 		}
 
+		//타겟과의 방향을 계산
+		if (direction != lastDirection)
+		{
+			lastDirection = direction;
+			auto result = directionChange(instance, lastDirection);
+			if (!result.valid())
+			{
+				sol::error err = result;
+				std::string what = err.what();
+				PixelLog::Error(what);
+			}
+		}
+
+
 		//이동중이고 START 비트가 켜져 있지 않으면
 		if (bitmask.hasAny(MOVE) == true && bitmask.hasAny(START) == false)
 		{
@@ -50,8 +64,7 @@ void Movement::Update()
 			bitmask.set(START);
 			bitmask.reset(END);
 		}
-
-		if (bitmask.hasAny(MOVE) == false && bitmask.hasAny(END) == false)
+		else if (bitmask.hasAny(MOVE) == false && bitmask.hasAny(END) == false)
 		{
 			//현재 이동X 이전에 complete 함수가 호출안됬다면
 			if (bitmask.hasAny(START))
@@ -97,6 +110,17 @@ void Movement::AddStartedCallBack(std::string functionName)
 		LuaScript* script = static_cast<LuaScript*>(targetModule);
 		instance = script->Get();
 		started = instance[functionName];
+	}
+}
+
+void Movement::AddDirectionCallBack(std::string functionName)
+{
+	Module* targetModule = this->GetGameObject()->GetModuleToEngine("LuaScript");
+	if (targetModule != nullptr)
+	{
+		LuaScript* script = static_cast<LuaScript*>(targetModule);
+		instance = script->Get();
+		directionChange = instance[functionName];
 	}
 }
 

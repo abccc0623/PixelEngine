@@ -118,6 +118,9 @@
     <Filter Include="EngineAPI\Types\Bitmask">
       <UniqueIdentifier>{373794c8-365c-4532-8871-134652a9e750}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Manager\CoroutineManager">
+      <UniqueIdentifier>{bfdf58e2-560c-413b-a0ca-094fb7c679b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -288,6 +291,9 @@
     <ClInclude Include="BitMask8.h">
       <Filter>EngineAPI\Types\Bitmask</Filter>
     </ClInclude>
+    <ClInclude Include="CoroutineManager.h">
+      <Filter>EngineAPI\Manager\CoroutineManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -415,6 +421,9 @@
     </ClCompile>
     <ClCompile Include="BitMask8.cpp">
       <Filter>EngineAPI\Types\Bitmask</Filter>
+    </ClCompile>
+    <ClCompile Include="CoroutineManager.cpp">
+      <Filter>EngineAPI\Manager\CoroutineManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

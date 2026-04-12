@@ -17,6 +17,7 @@
 #include "LuaSceneInfo.h"
 #include "PixelMetaAPI.h"
 #include "SceneManager.h"
+#include "CoroutineManager.h"
 
 #include "Module/Renderer2D.h"
 #include "Module/LuaScript.h"
@@ -138,27 +139,24 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 		}
 		else if (ext == ".pxm")
 		{
-			//이파일에 대한 공간을 할당 없는건 lua.globals()에서 찾아라
+			// 환경을 먼저 만들고
 			sol::environment prototypeEnv(lua, sol::create, lua.globals());
 
-			// 2. 스크립트 실행 (루아의 'return Script'가 result에 담깁니다!)
-			sol::protected_function_result result = lua.script_file(filePath, prototypeEnv);
+			// 해당 환경에 Wait를 직접 등록 (이래야 루아가 멈춥니다)
+			prototypeEnv.set_function("Wait", [this](float seconds, sol::this_state s) -> int
+				{
+					CoroutineManager* cm = Engine->GetFactory<CoroutineManager>();
+					if (cm) cm->MarkAsWaiting(s, seconds);
+					return lua_yield(s.L, 0); // 중단 신호 반환
+				});
 
-			// 3. 실행 성공 및 리턴값이 테이블인지 확인
+			sol::protected_function_result result = lua.script_file(filePath, prototypeEnv);
 			if (result.valid() && result.get_type() == sol::type::table)
 			{
-				// 4. 빈 환경이 아니라, 루아가 리턴한 진짜 '원본(Blueprint)'을 빼옵니다!
 				sol::table blueprint = result;
-
-				// 5. 이 원본을 캐싱합니다.
 				luaModuleTableMap.insert({ filename, new LuaModuleInfo(blueprint) });
 			}
-			else
-			{
-				sol::error err = result;
-				std::string what = err.what();
-				PixelLog::Error("스크립트 로드 실패 [" + filePath + "] : " + what);
-			}
+			else { /* 에러 처리 */ }
 		}
 	}
 	catch (const sol::error& e)

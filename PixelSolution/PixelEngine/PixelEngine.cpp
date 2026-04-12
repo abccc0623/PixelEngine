@@ -21,6 +21,7 @@
 #include "SPointer.h"
 #include "PixelMetaAPI.h"
 #include "EventManager.h"
+#include "CoroutineManager.h"
 
 void PixelEngine::Initialize(HWND hWnd, int width, int height)
 {
@@ -36,6 +37,7 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	BindFactory<JsonManager>();
 	BindFactory<GenerateManager>();
 	BindFactory<EventManager>();
+	BindFactory<CoroutineManager>();
 
 	if (hWnd != nullptr)
 	{

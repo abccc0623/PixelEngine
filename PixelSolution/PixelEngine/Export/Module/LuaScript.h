@@ -7,6 +7,7 @@ class GameObject;
 class LuaModuleInfo;
 class LuaManager;
 class EventManager;
+class CoroutineManager;
 class LuaScript : public Module
 {
 public:
@@ -23,6 +24,7 @@ public:
 	void CustomEventCall(std::string eventType, sol::table event);
 	
 
+	void StartCoroutine(const char* functionName);
 	void RegisterMessage(EventType type);
 	void RegisterCustomMessage(const char* type);
 	void UnregisterMessage(EventType type);
@@ -43,5 +45,6 @@ private:
 
 	static LuaManager* lua;
 	static EventManager* event;
+	static CoroutineManager* coroutine;
 };
 

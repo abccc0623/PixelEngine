@@ -100,13 +100,17 @@ void BindManager::BindLuaScript()
 	AddMethod(table, "Awake",					GetMethodInfo(&LuaScript::Awake));
 	AddMethod(table, "Start",					GetMethodInfo(&LuaScript::Start));
 	AddMethod(table, "Update",					GetMethodInfo(&LuaScript::Update));
+
 	AddMethod(table, "Register",				GetMethodInfo(&LuaScript::Register),				MetaFlag::LUABIND);
 	AddMethod(table, "Get",						GetMethodInfo(&LuaScript::Get),						MetaFlag::LUABIND);
 	AddMethod(table, "TriggerCustomEvent",		GetMethodInfo(&LuaScript::TriggerCustomEvent),		MetaFlag::LUABIND);
+	
 	AddMethod(table, "RegisterMessage",			GetMethodInfo(&LuaScript::RegisterMessage),			MetaFlag::LUABIND);
 	AddMethod(table, "UnregisterMessage",		GetMethodInfo(&LuaScript::UnregisterMessage),		MetaFlag::LUABIND);
 	AddMethod(table, "RegisterCustomMessage",	GetMethodInfo(&LuaScript::RegisterCustomMessage),	MetaFlag::LUABIND);
 	AddMethod(table, "UnregisterCustomMessage", GetMethodInfo(&LuaScript::UnregisterCustomMessage), MetaFlag::LUABIND);
+
+	AddMethod(table, "StartCoroutine",			GetMethodInfo(&LuaScript::StartCoroutine),			MetaFlag::LUABIND);
 }
 
 void BindManager::BindTransform()
@@ -209,6 +213,7 @@ void BindManager::BindMovement()
 	AddMethod(table, "StopMove",				GetMethodInfo(&Movement::StopMove),				MetaFlag::LUABIND);
 	AddMethod(table, "AddCompleteCallBack",		GetMethodInfo(&Movement::AddCompleteCallBack),	MetaFlag::LUABIND);
 	AddMethod(table, "AddStartedCallBack",		GetMethodInfo(&Movement::AddStartedCallBack),	MetaFlag::LUABIND);
+	AddMethod(table, "AddDirectionCallBack",	GetMethodInfo(&Movement::AddDirectionCallBack),	MetaFlag::LUABIND);
 	AddMethod(table, "Update",					GetMethodInfo(&Movement::Update));
 }
 

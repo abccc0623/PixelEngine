@@ -37,6 +37,7 @@ private:
 	KeyInputManager* input = nullptr;
 	ObjectManager* obj = nullptr;
 
+
 	std::unordered_map<std::string, LuaModuleInfo*> luaModuleTableMap;
 	std::unordered_map<std::string, LuaSceneInfo*> luaSceneTableMap;
 };

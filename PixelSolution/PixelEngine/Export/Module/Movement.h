@@ -3,6 +3,7 @@
 #include "SPointer.h"
 #include "WPointer.h"
 #include "BitMask8.h"
+#include "Type/PVector3.h"
 template <typename T> class WPointer;
 class GameObject;
 class Movement :public Module
@@ -18,12 +19,16 @@ public:
 	void StopMove();
 	void AddCompleteCallBack(std::string functionName);
 	void AddStartedCallBack(std::string functionName);
+	void AddDirectionCallBack(std::string functionName);
 private:
 	WPointer<GameObject> target;
 	sol::function complete;
 	sol::function started;
+	sol::function directionChange;
 	sol::table instance;
 
+
+	PVector3 lastDirection;
 	BitMask8 bitmask;
 	void CallFunction(sol::function& call);
 

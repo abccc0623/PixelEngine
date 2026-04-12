@@ -26,20 +26,20 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -79,6 +79,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/utf-8</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -109,6 +110,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir)include\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/utf-8</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,6 +143,7 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -161,6 +164,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BitMask8.h" />
+    <ClInclude Include="CoroutineManager.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="Export\Module\Movement.h" />
@@ -223,6 +227,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="BoxCollision2D.cpp" />
     <ClCompile Include="Collision2D.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="CoroutineManager.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EngineManager.cpp" />
     <ClCompile Include="EventManager.cpp" />

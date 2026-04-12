@@ -68,6 +68,7 @@ namespace PixelTool
                 // ListBox에 로그 추가
                 ListBoxItem item = new ListBoxItem();
                 string logEntry = $"[{timeTag}]{levelTag} {message}";
+                item.FontFamily = new System.Windows.Media.FontFamily("Consolas, Malgun Gothic");
                 switch (level)
                 {
                     case 0: // INFO
