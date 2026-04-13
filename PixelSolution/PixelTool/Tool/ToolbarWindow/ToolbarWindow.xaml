@@ -46,7 +46,7 @@
         <Border DockPanel.Dock="Top" 
         Background="{StaticResource PixelBorderBrush}" 
         BorderBrush="#3F3F46" 
-        Margin="10" 
+        Margin="5,5,5,5" 
         BorderThickness="1" 
         CornerRadius="10">
         

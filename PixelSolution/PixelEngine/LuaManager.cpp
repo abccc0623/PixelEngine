@@ -143,12 +143,14 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 			sol::environment prototypeEnv(lua, sol::create, lua.globals());
 
 			// 해당 환경에 Wait를 직접 등록 (이래야 루아가 멈춥니다)
-			prototypeEnv.set_function("Wait", [this](float seconds, sol::this_state s) -> int
+			prototypeEnv.set_function("WaitForSeconds", sol::yielding([this](float seconds, sol::this_state s)
 				{
 					CoroutineManager* cm = Engine->GetFactory<CoroutineManager>();
-					if (cm) cm->MarkAsWaiting(s, seconds);
-					return lua_yield(s.L, 0); // 중단 신호 반환
-				});
+					if (cm)
+					{
+						cm->MarkAsWaiting(s, seconds);
+					}
+				}));
 
 			sol::protected_function_result result = lua.script_file(filePath, prototypeEnv);
 			if (result.valid() && result.get_type() == sol::type::table)
