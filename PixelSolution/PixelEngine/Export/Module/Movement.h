@@ -15,12 +15,15 @@ public:
 
 	float stopDistance = 0;
 	float speed = 1;
+	void MoveToPosition(float x, float y, float z);
 	void MoveToTarget(GameObject* target);
 	void StopMove();
 	void AddCompleteCallBack(std::string functionName);
 	void AddStartedCallBack(std::string functionName);
 	void AddDirectionCallBack(std::string functionName);
 private:
+	bool isTargetingPosition = false; // 좌표로 이동 중인지 체크하는 플래그
+	PVector3 targetPosition;
 	WPointer<GameObject> target;
 	sol::function complete;
 	sol::function started;

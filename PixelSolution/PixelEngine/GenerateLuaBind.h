@@ -96,6 +96,7 @@ inline void Generate_Movement(sol::state& lua)
 	ut["stopDistance"] = &Movement::stopDistance;
 	ut["speed"] = &Movement::speed;
 	ut["MoveToTarget"] = &Movement::MoveToTarget;
+	ut["MoveToPosition"] = &Movement::MoveToPosition;
 	ut["StopMove"] = &Movement::StopMove;
 	ut["AddCompleteCallBack"] = &Movement::AddCompleteCallBack;
 	ut["AddStartedCallBack"] = &Movement::AddStartedCallBack;

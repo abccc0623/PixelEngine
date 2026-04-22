@@ -210,6 +210,7 @@ void BindManager::BindMovement()
 	AddMember(table, "stopDistance",			GetMemberInfo(&Movement::stopDistance));
 	AddMember(table, "speed",					GetMemberInfo(&Movement::speed));
 	AddMethod(table, "MoveToTarget",			GetMethodInfo(&Movement::MoveToTarget),			MetaFlag::LUABIND);
+	AddMethod(table, "MoveToPosition",			GetMethodInfo(&Movement::MoveToPosition),		MetaFlag::LUABIND);
 	AddMethod(table, "StopMove",				GetMethodInfo(&Movement::StopMove),				MetaFlag::LUABIND);
 	AddMethod(table, "AddCompleteCallBack",		GetMethodInfo(&Movement::AddCompleteCallBack),	MetaFlag::LUABIND);
 	AddMethod(table, "AddStartedCallBack",		GetMethodInfo(&Movement::AddStartedCallBack),	MetaFlag::LUABIND);
