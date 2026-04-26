@@ -3,6 +3,7 @@ enum RENDER_TYPE : int
 {
 	NONE ,
 	DEBUG,
+	LINE,
 	CAMERA,
 	QUAD,
 	BOX2D,
@@ -37,6 +38,13 @@ struct CameraData
 	float ZoomLevel;
 };
 
+struct LineData
+{
+	int start[3];
+	int end[3];
+};
+
+
 struct RenderingData
 {
 public:
@@ -51,6 +59,7 @@ public:
 	{
 		SpriteData	sprite;
 		CameraData	camera;
+		LineData	line;
 	};
 	void Clear()
 	{
@@ -58,6 +67,7 @@ public:
 	}
 	void Setting()
 	{
+		master_key = 0;
 		master_key |= (uint64_t)mash_key		<< 48;
 		master_key |= (uint64_t)material_key	<< 32;
 		master_key |= (uint64_t)texture_key		<< 16;

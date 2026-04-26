@@ -82,9 +82,6 @@
     <Filter Include="EngineAPI\Manager\BindManager">
       <UniqueIdentifier>{3bdc39e6-20c2-4ee3-bb49-4ae3d6cd2564}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Manager\CollisionManager">
-      <UniqueIdentifier>{9840a7a7-5341-4ad2-b197-d24b25780d09}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Module\Collision2D">
       <UniqueIdentifier>{a8cbb97f-5bb8-46a6-9e44-fba35d72d292}</UniqueIdentifier>
     </Filter>
@@ -120,6 +117,9 @@
     </Filter>
     <Filter Include="EngineAPI\Manager\CoroutineManager">
       <UniqueIdentifier>{bfdf58e2-560c-413b-a0ca-094fb7c679b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\PhysManager">
+      <UniqueIdentifier>{9840a7a7-5341-4ad2-b197-d24b25780d09}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -171,11 +171,8 @@
     <ClInclude Include="BindManager.h">
       <Filter>EngineAPI\Manager\BindManager</Filter>
     </ClInclude>
-    <ClInclude Include="CollisionManager.h">
-      <Filter>EngineAPI\Manager\CollisionManager</Filter>
-    </ClInclude>
-    <ClInclude Include="BoxCollision2D.h">
-      <Filter>EngineAPI\Module\Collision2D</Filter>
+    <ClInclude Include="PhysManager.h">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClInclude>
     <ClInclude Include="Rect.h">
       <Filter>EngineAPI\Types\Rect</Filter>
@@ -294,6 +291,9 @@
     <ClInclude Include="CoroutineManager.h">
       <Filter>EngineAPI\Manager\CoroutineManager</Filter>
     </ClInclude>
+    <ClInclude Include="Export\Module\BoxCollider2D.h">
+      <Filter>EngineAPI\Module\Collision2D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -341,11 +341,8 @@
     <ClCompile Include="BindManager.cpp">
       <Filter>EngineAPI\Manager\BindManager</Filter>
     </ClCompile>
-    <ClCompile Include="CollisionManager.cpp">
-      <Filter>EngineAPI\Manager\CollisionManager</Filter>
-    </ClCompile>
-    <ClCompile Include="BoxCollision2D.cpp">
-      <Filter>EngineAPI\Module\Collision2D</Filter>
+    <ClCompile Include="PhysManager.cpp">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClCompile>
     <ClCompile Include="Collision2D.cpp">
       <Filter>EngineAPI\Module\Collision2D</Filter>
@@ -424,6 +421,9 @@
     </ClCompile>
     <ClCompile Include="CoroutineManager.cpp">
       <Filter>EngineAPI\Manager\CoroutineManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\Module\BoxCollider2D.cpp">
+      <Filter>EngineAPI\Module\Collision2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

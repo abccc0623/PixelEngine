@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Renderer2D.h"
 #include "Core/GameObject.h"
 #include "Module/Transform.h"
@@ -35,7 +35,10 @@ void Renderer2D::LastUpdate()
 		nowAnimation.nowFrameTime += GetDeltaTime() * nowAnimation.animationSpeed;
 		if (nowAnimation.nowFrameTime >= nowAnimation.oneFrameTime)
 		{
-			if (nowAnimation.framesIndex >= nowAnimation.maxFramesX)
+			// â­ ì´ í”„ë ˆì„ ìˆ˜(X * Y)ë¥¼ ê³„ì‚°í•´ì„œ ë¹„êµí•©ë‹ˆë‹¤.
+			int totalFrames = nowAnimation.maxFramesX * nowAnimation.maxFramesY;
+
+			if (nowAnimation.framesIndex >= totalFrames - 1)
 			{
 				nowAnimation.framesIndex = 0;
 			}
@@ -47,6 +50,7 @@ void Renderer2D::LastUpdate()
 
 			rendering.sprite.TilingX = 1.0f / nowAnimation.maxFramesX;
 			rendering.sprite.TilingY = 1.0f / nowAnimation.maxFramesY;
+
 			rendering.sprite.OffsetX = (nowAnimation.framesIndex % nowAnimation.maxFramesX) * rendering.sprite.TilingX;
 			rendering.sprite.OffsetY = (nowAnimation.framesIndex / nowAnimation.maxFramesX) * rendering.sprite.TilingY;
 		}
@@ -90,7 +94,7 @@ int Renderer2D::CreateAnimation(std::string textureName,int MaxFramesX, int MaxF
 	animationList.push_back(data);
 
 	rendering.sprite.TilingX = 1.0f / MaxFramesX;
-	rendering.sprite.TilingY = 1.0f / MaxFramesX;
+	rendering.sprite.TilingY = 1.0f / MaxFramesY;
 	rendering.sprite.OffsetX = (data.framesIndex % MaxFramesX) * rendering.sprite.TilingX;
 	rendering.sprite.OffsetY = (data.framesIndex / MaxFramesX) * rendering.sprite.TilingY;
 	return index;
@@ -98,7 +102,7 @@ int Renderer2D::CreateAnimation(std::string textureName,int MaxFramesX, int MaxF
 
 void Renderer2D::PlayAnimation(int index)
 {
-	//¿¹¿ÜÃ³¸®
+	//ì˜ˆì™¸ì²˜ë¦¬
 	if (index > animationList.size() - 1)
 	{
 		PixelLog::Error("Index out of range");
@@ -107,17 +111,17 @@ void Renderer2D::PlayAnimation(int index)
 	}
 
 	if (index == nowAnimationIndex) return;
-	//ÀÌÁ¦ ÀÌ Renderer´Â ´Ù¸¥¿ÀºêÁ§Æ®¿Í °³º°ÀûÀ¸·Î ¿òÁ÷ÀÎ´Ù.
+	//ì´ì œ ì´ RendererëŠ” ë‹¤ë¥¸ì˜¤ë¸Œì íŠ¸ì™€ ê°œë³„ì ìœ¼ë¡œ ì›€ì§ì¸ë‹¤.
 	rendering.sprite.isShared = false;
 
 
-	//¾Ö´Ï¸ŞÀÌ¼Ç ÃÊ±â¼ÂÆÃ
+	//ì• ë‹ˆë©”ì´ì…˜ ì´ˆê¸°ì…‹íŒ…
 	nowAnimationIndex = index;
 	nowAnimation = animationList[nowAnimationIndex];
 	nowAnimation.framesIndex = 0;
 	nowAnimation.nowFrameTime = 0;
 	
-	//¾Ö´Ï¸ŞÀÌ¼Ç ÅØ½ºÃÄº¯°æ
+	//ì• ë‹ˆë©”ì´ì…˜ í…ìŠ¤ì³ë³€ê²½
 	textureID = nowAnimation.textureID;
 	rendering.texture_key = textureID;
 

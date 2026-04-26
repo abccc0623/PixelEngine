@@ -8,6 +8,7 @@
 #include "Module/DebugCamera.h"
 #include "Module/Camera.h"
 #include "Module/Movement.h"
+#include "Module/BoxCollider2D.h"
 
 #include "Type/GlobalEnum.h"
 #include "Type/PVector3.h"
@@ -67,6 +68,7 @@ void BindManager::Initialize()
 	BindRenderer2D();
 	BindDebugCamera();
 	BindCamera();
+	BindBoxCollider2D();
 	BindEnum();
 }
 
@@ -241,6 +243,29 @@ void BindManager::BindEnum()
 	PEnum* globalEnum = CreateNewEnum("EventType");
 	AddEnum(globalEnum, "KeyUp");
 	AddEnum(globalEnum, "KeyDown");
+}
+
+void BindManager::BindBoxCollider2D()
+{
+	auto table = CreateNewClass("BoxCollider2D", "Module");
+	CreateClassFunction(table, []() ->void*
+		{
+			return new BoxCollider2D();
+		});
+	DeleteClassFunction(table, []() ->void
+		{
+			PixelLog::Info("Delete BoxCollider2D");
+		});
+	AddMethod(table, "Awake", GetMethodInfo(&BoxCollider2D::Awake));
+	AddMethod(table, "LastUpdate", GetMethodInfo(&BoxCollider2D::LastUpdate));
+	AddMethod(table, "PhysicsUpdate", GetMethodInfo(&BoxCollider2D::PhysicsUpdate));
+
+	AddMethod(table, "SetCenter",		GetMethodInfo(&BoxCollider2D::SetCenter),		MetaFlag::LUABIND);
+	AddMethod(table, "SetOffset",		GetMethodInfo(&BoxCollider2D::SetOffset),		MetaFlag::LUABIND);
+	AddMethod(table, "SetGravity",		GetMethodInfo(&BoxCollider2D::SetGravity),		MetaFlag::LUABIND);
+	AddMethod(table, "SetCreateActive", GetMethodInfo(&BoxCollider2D::SetCreateActive), MetaFlag::LUABIND);
+	AddMethod(table, "SetPhysType",		GetMethodInfo(&BoxCollider2D::SetPhysType),		MetaFlag::LUABIND);
+	AddMethod(table, "CreatePhys",		GetMethodInfo(&BoxCollider2D::CreatePhys),		MetaFlag::LUABIND);
 }
 
 

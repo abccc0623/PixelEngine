@@ -9,6 +9,7 @@
 #include "Module/Renderer2D.h" 
 #include "Module/DebugCamera.h" 
 #include "Module/Camera.h" 
+#include "Module/BoxCollider2D.h" 
 extern std::unordered_map <std::string, std::function<sol::object(sol::this_state s, Module* target)>> AddModuleList;
 inline void Generate_Engine(sol::state& lua) 
 {
@@ -122,6 +123,16 @@ inline void Generate_Camera(sol::state& lua)
 {
 	sol::usertype<Camera> ut = lua.new_usertype<Camera>("Camera");
 }
+inline void Generate_BoxCollider2D(sol::state& lua) 
+{
+	sol::usertype<BoxCollider2D> ut = lua.new_usertype<BoxCollider2D>("BoxCollider2D");
+	ut["SetCenter"] = &BoxCollider2D::SetCenter;
+	ut["SetOffset"] = &BoxCollider2D::SetOffset;
+	ut["SetGravity"] = &BoxCollider2D::SetGravity;
+	ut["SetCreateActive"] = &BoxCollider2D::SetCreateActive;
+	ut["SetPhysType"] = &BoxCollider2D::SetPhysType;
+	ut["CreatePhys"] = &BoxCollider2D::CreatePhys;
+}
 inline void Generate_EventType(sol::state& lua) 
 {
 	lua.new_enum<EventType>("EventType", {
@@ -137,6 +148,7 @@ inline void BindAll_AddModules()
 	AddModuleList.insert({ "Renderer2D",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Renderer2D* > (target));return obj;}});
 	AddModuleList.insert({ "DebugCamera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<DebugCamera* > (target));return obj;}});
 	AddModuleList.insert({ "Camera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Camera* > (target));return obj;}});
+	AddModuleList.insert({ "BoxCollider2D",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<BoxCollider2D* > (target));return obj;}});
 }
 inline void BindAll_GeneratedLuaModules(sol::state& lua)
 {
@@ -156,5 +168,6 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_Renderer2D(lua); 
 	Generate_DebugCamera(lua); 
 	Generate_Camera(lua); 
+	Generate_BoxCollider2D(lua); 
 	Generate_EventType(lua); 
 }

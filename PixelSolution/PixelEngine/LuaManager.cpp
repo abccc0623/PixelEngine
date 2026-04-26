@@ -16,7 +16,6 @@
 #include "LuaModuleInfo.h"
 #include "LuaSceneInfo.h"
 #include "PixelMetaAPI.h"
-#include "SceneManager.h"
 #include "CoroutineManager.h"
 
 #include "Module/Renderer2D.h"

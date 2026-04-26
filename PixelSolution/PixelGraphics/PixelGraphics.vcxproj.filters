@@ -67,6 +67,9 @@
     <Filter Include="PicnicGraphics\Manager\ResourceFactory\MaterialFactory">
       <UniqueIdentifier>{7c594ab8-59d8-489e-87e3-e32472ac45fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PicnicGraphics\Manager\BindingClass\BindingLine">
+      <UniqueIdentifier>{95005d9f-0c90-45f4-a332-0a9f392251e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -162,6 +165,9 @@
     <ClInclude Include="MaterialFactory.h">
       <Filter>PicnicGraphics\Manager\ResourceFactory\MaterialFactory</Filter>
     </ClInclude>
+    <ClInclude Include="BindingLine.h">
+      <Filter>PicnicGraphics\Manager\BindingClass\BindingLine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -223,6 +229,9 @@
     </ClCompile>
     <ClCompile Include="MaterialFactory.cpp">
       <Filter>PicnicGraphics\Manager\ResourceFactory\MaterialFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="BindingLine.cpp">
+      <Filter>PicnicGraphics\Manager\BindingClass\BindingLine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

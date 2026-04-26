@@ -72,20 +72,21 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;PIXELENGINE_EXPORTS;_WINDOWS;_USRDLL;ENGINE_INTERFACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;PIXELENGINE_EXPORTS;_WINDOWS;_USRDLL;ENGINE_INTERFACE;%(PreprocessorDefinitions);JPH_USE_AVX2;JPH_USE_AVX;JPH_USE_SSE4_2;JPH_USE_SSE4_1;JPH_USE_SSSE3</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\;$(ProjectDir)Import\Jolt\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalOptions>/utf-8</AdditionalOptions>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(ProjectDir)Library\lua51.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)Library\lua51.lib;$(ProjectDir)Library\Debug\Jolt.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -103,20 +104,21 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>PIXEL_EDITOR;_DEBUG;PIXELENGINE_EXPORTS;_WINDOWS;_USRDLL;ENGINE_INTERFACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PIXEL_EDITOR;_DEBUG;PIXELENGINE_EXPORTS;_WINDOWS;_USRDLL;ENGINE_INTERFACE;%(PreprocessorDefinitions);JPH_USE_AVX2;JPH_USE_AVX;JPH_USE_SSE4_2;JPH_USE_SSE4_1;JPH_USE_SSSE3</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir)include\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir)include\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\;$(ProjectDir)Import\Jolt\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalOptions>/utf-8</AdditionalOptions>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(ProjectDir)Library\lua5.1.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)Library\lua51.lib;$(ProjectDir)Library\Jolt.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -136,20 +138,21 @@ copy /Y "$(ProjectDir)Library\lua5.1.dll" "$(OutDir)lua5.1.dll"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;PIXELENGINE_EXPORTS;_WINDOWS;_USRDLL;ENGINE_INTERFACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;PIXELENGINE_EXPORTS;_WINDOWS;_USRDLL;ENGINE_INTERFACE;%(PreprocessorDefinitions);JPH_USE_AVX2;JPH_USE_AVX;JPH_USE_SSE4_2;JPH_USE_SSE4_1;JPH_USE_SSSE3</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Export\;$(ProjectDir)Import\;$(ProjectDir)Import\sol\;$(SolutionDir)HeaderFile\PixelGraphicsHeader\;$(ProjectDir);%(AdditionalIncludeDirectories);$(SolutionDir)HeaderFile\PixelMetaHeader\;$(ProjectDir)Import\Jolt\</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8</AdditionalOptions>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(ProjectDir)Library\lua51.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)Library\lua51.lib;$(ProjectDir)Library\Jolt.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -167,13 +170,13 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="CoroutineManager.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />
+    <ClInclude Include="Export\Module\BoxCollider2D.h" />
     <ClInclude Include="Export\Module\Movement.h" />
     <ClInclude Include="IBind.h" />
     <ClInclude Include="Export\Core\GameObject.h" />
     <ClInclude Include="BindManager.h" />
-    <ClInclude Include="BoxCollision2D.h" />
     <ClInclude Include="Collision2D.h" />
-    <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="PhysManager.h" />
     <ClInclude Include="EngineManager.h" />
     <ClInclude Include="Export\Core\Module.h" />
     <ClInclude Include="Export\Core\PixelObject.h" />
@@ -224,9 +227,9 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
   <ItemGroup>
     <ClCompile Include="BindManager.cpp" />
     <ClCompile Include="BitMask8.cpp" />
-    <ClCompile Include="BoxCollision2D.cpp" />
     <ClCompile Include="Collision2D.cpp" />
-    <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="Export\Module\BoxCollider2D.cpp" />
+    <ClCompile Include="PhysManager.cpp" />
     <ClCompile Include="CoroutineManager.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EngineManager.cpp" />

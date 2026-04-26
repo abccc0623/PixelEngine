@@ -7,6 +7,28 @@
 #ifndef PCH_H
 #define PCH_H
 
+
+// 2. 링커 에러와 버전 미스매치를 일으키는 모든 범인들을 강제로 잠급니다.
+#ifndef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
+#define JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
+#endif
+
+#ifndef JPH_OBJECT_STREAM
+#define JPH_OBJECT_STREAM
+#endif
+
+// 3. Jolt 필수 헤더 직접 포함 (pch 의존성 탈피)
+#include <Jolt/Jolt.h>
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyInterface.h>
 // 여기에 미리 컴파일하려는 헤더 추가
 #include "framework.h"
 #include <string>

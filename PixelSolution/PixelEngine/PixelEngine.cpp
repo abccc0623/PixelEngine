@@ -14,7 +14,7 @@
 #include "SceneManager.h"
 #include "TextureManager.h"
 #include "ResourceManager.h"
-#include "CollisionManager.h"
+#include "PhysManager.h"
 #include "BindManager.h"
 #include "JsonManager.h"
 #include "GenerateManager.h"
@@ -33,7 +33,7 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	BindFactory<SceneManager>();
 	BindFactory<FunctionManager>();
 	BindFactory<ResourceManager>();
-	BindFactory<CollisionManager>();
+	BindFactory<PhysManager>();
 	BindFactory<JsonManager>();
 	BindFactory<GenerateManager>();
 	BindFactory<EventManager>();

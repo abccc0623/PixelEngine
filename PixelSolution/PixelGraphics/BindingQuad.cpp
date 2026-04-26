@@ -19,7 +19,7 @@ void BindingQuad::Initialize()
 
 void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 {
-	ObjectBuffer mbuffer;
+	ObjectBuffer mbuffer = {};
 	DirectX::SimpleMath::Matrix mWorld = DirectX::SimpleMath::Matrix::Identity;
 	memcpy(&mWorld, mData->World, sizeof(float) * 16);
 
@@ -92,20 +92,6 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 	//GraphicsCore::GetDeviceContext()->OMSetDepthStencilState(pDisabledDepthState, 0);
 }
 
-void BindingQuad::AnimationBind(RenderingData* mData, ObjectBuffer* buffer)
-{
-	// 1. 타일링(크기) 계산은 완벽합니다!
-	//float TilingX = 1.0f / mData->sprite.MaxFramesX;
-	//float TilingY = 1.0f / mData->sprite.MaxFramesY;
-	//int currentX = mData->sprite.FramesIndex % mData->sprite.MaxFramesX;
-	//int currentY = mData->sprite.FramesIndex / mData->sprite.MaxFramesX;
-	//float OffsetX = currentX * TilingX;
-	//float OffsetY = currentY * TilingY;
-	//Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(TilingX, TilingY, 1.0f);
-	//Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(OffsetX, OffsetY, 0.0f);
-	//Matrix texMat = texScale * texTrans;
-	//buffer->TexMatrix = texMat.Transpose();
-}
 
 void BindingQuad::DefaultBind(float TilingX, float TilingY, float OffsetX, float OffsetY, ObjectBuffer* buffer)
 {
