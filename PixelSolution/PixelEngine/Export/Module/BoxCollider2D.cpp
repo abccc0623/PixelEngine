@@ -73,14 +73,34 @@ void BoxCollider2D::CreateCollider()
 	float halfX = offsetX * 0.5f;
 	float halfY = offsetY * 0.5f;
 	float halfZ = 0.1f;
-	JPH::BoxShapeSettings box = JPH::BoxShapeSettings(JPH::Vec3(halfX, halfY, halfZ));
-	box.mConvexRadius = 0.01f;
-	JPH::ShapeSettings::ShapeResult boxResult = box.Create();
-	if (!boxResult.IsValid())
+
+	JPH::Ref<JPH::BoxShapeSettings> box = new JPH::BoxShapeSettings(JPH::Vec3(halfX, halfY, halfZ));
+	box->mConvexRadius = 0.01f;
+
+	if (centerX != 0.0f || centerY != 0.0f)
 	{
-		PixelLog::Info(boxResult.GetError().c_str());
+		// ?? 여기가 핵심! Compound 대신 RotatedTranslatedShapeSettings를 사용합니다.
+		// 이 녀석은 무게 중심은 그대로 두고, 껍데기만 우리가 원하는 곳으로 밀어줍니다.
+		JPH::Ref<JPH::RotatedTranslatedShapeSettings> offsetShape =
+			new JPH::RotatedTranslatedShapeSettings(JPH::Vec3(centerX, centerY, 0.0f), JPH::Quat::sIdentity(), box);
+
+		JPH::ShapeSettings::ShapeResult result = offsetShape->Create();
+		if (!result.IsValid())
+		{
+			PixelLog::Info(result.GetError().c_str());
+		}
+		targetRef = result.Get();
 	}
-	targetRef = boxResult.Get();
+	else
+	{
+		// 중심점이 0,0이면 그냥 기본 박스 사용
+		JPH::ShapeSettings::ShapeResult boxResult = box->Create();
+		if (!boxResult.IsValid())
+		{
+			PixelLog::Info(boxResult.GetError().c_str());
+		}
+		targetRef = boxResult.Get();
+	}
 }
 
 void BoxCollider2D::CreateBody()
@@ -92,7 +112,7 @@ void BoxCollider2D::CreateBody()
 	auto tr = targetObject->GetTransform();
 	float angleInRadians = tr->Rotation.Z;
 	JPH::Quat q = JPH::Quat::sRotation(JPH::Vec3::sAxisZ(), angleInRadians);
-	JPH::RVec3 v = JPH::RVec3(centerX + tr->Position.X, centerY + tr->Position.Y, 0.0f);
+	JPH::RVec3 v = JPH::RVec3(tr->Position.X,tr->Position.Y, 0.0f);
 
 	JPH::EMotionType type = JPH::EMotionType::Static;
 	switch (motionType)
@@ -116,6 +136,7 @@ void BoxCollider2D::CreateBody()
 		type == JPH::EMotionType::Static ? 0 : 1
 	);
 	settings.mGravityFactor = targetGravity;
+	settings.mAllowedDOFs = JPH::EAllowedDOFs::Plane2D;
 	targetBodyID = collision->CreateBody2D(&settings, active,targetObject);
 }
 

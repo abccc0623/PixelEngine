@@ -57,7 +57,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PixelEngine\PixelEngine.vcxproj" />
     <ProjectReference Include="..\PixelGraphics\PixelGraphics.vcxproj" />
-  </ItemGroup>
+  </ItemGroup>                       
 
   <ItemGroup>
     <EmbeddedResource Include="Tool\EditorLuaWindow\Lua.xshd" />
