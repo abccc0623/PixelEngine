@@ -46,17 +46,12 @@ void SetRenderingData(RenderingData& mData)
 	mEngine->SetRenderingData(mData);
 }
 
-void DrawLine(int start[3], int end[3])
+void DrawLine(float x1,float y1,float z1, float x2, float y2, float z2, float r, float g, float b)
 {
-	RenderingData data;
-	data.Type = RENDER_TYPE::LINE;
-	data.line.start[0] = start[0];
-	data.line.start[1] = start[1];
-	data.line.start[2] = start[2];
-	data.line.end[0]	= end[0];
-	data.line.end[1]	= end[1];
-	data.line.end[2]	= end[2];
-	mEngine->SetRenderingData(data);
+	float start[3] = { x1,y1,z1 };
+	float end[3] = { x2,y2,z2 };
+	float color[3] = { r,g,b };
+	mEngine->DrawLine(start, end, color);
 }
 
 ObjectID LoadGraphicsTexture(const char* filePath)

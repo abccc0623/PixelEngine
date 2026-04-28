@@ -33,6 +33,7 @@ void BoxCollider2D::Start()
 
 void BoxCollider2D::PhysicsUpdate()
 {
+	
 	if (collision == nullptr)
 	{
 		collision = Engine->GetFactory<PhysManager>();

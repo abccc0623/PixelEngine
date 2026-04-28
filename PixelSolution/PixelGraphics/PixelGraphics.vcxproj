@@ -157,7 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BindingClass.h" />
-    <ClInclude Include="BindingLine.h" />
+    <ClInclude Include="DrawDebugLine.h" />
     <ClInclude Include="BindingQuad.h" />
     <ClInclude Include="BindingRect.h" />
     <ClInclude Include="BufferFactory.h" />
@@ -191,7 +191,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BindingClass.cpp" />
-    <ClCompile Include="BindingLine.cpp" />
+    <ClCompile Include="DrawDebugLine.cpp" />
     <ClCompile Include="BindingQuad.cpp" />
     <ClCompile Include="BindingRect.cpp" />
     <ClCompile Include="BufferFactory.cpp" />

@@ -5,6 +5,7 @@
 #include "PixelEngineAPI.h"
 #include "Core/GameObject.h"
 #include "Module/Transform.h"
+#include "PixelGraphicsAPI.h"
 
 using namespace JPH;
 
@@ -150,7 +151,7 @@ JPH::ShapeRefC PhysManager::CreateBoxCollider2D(float x, float y)
 {
     float halfX = x * 0.5f;
     float halfY = y * 0.5f;
-    float halfZ = 0.1f;
+    float halfZ = 1.0f;
     JPH::BoxShapeSettings box = JPH::BoxShapeSettings(JPH::Vec3(halfX, halfY, halfZ));
     box.mConvexRadius = 0.01f;
     JPH::ShapeSettings::ShapeResult boxResult = box.Create();
@@ -188,5 +189,32 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
 
     float angleInRadians = rot.GetEulerAngles().GetZ();
     float angleInDegrees = angleInRadians * (180.0f / 3.141592f);
-    tr->Rotation.Z = angleInDegrees;
+    tr->Rotation.Z = -angleInDegrees;
+
+    JPH::ShapeRefC shape = mBodyInterface->GetShape(id);
+    JPH::AABox localBounds = shape->GetLocalBounds();
+    float hw = localBounds.GetExtent().GetX(); // 가로 절반
+    float hh = localBounds.GetExtent().GetY(); // 세로 절반
+
+    JPH::Vec3 p1(-hw, -hh, 0);
+    JPH::Vec3 p2(hw, -hh, 0);
+    JPH::Vec3 p3(hw, hh, 0);
+    JPH::Vec3 p4(-hw, hh, 0);
+
+    auto ToWorld = [&](JPH::Vec3 localPoint) {
+        JPH::Vec3 worldPoint = pos + rot * localPoint;
+        return worldPoint;
+        };
+
+    JPH::Vec3 w1 = ToWorld(p1);
+    JPH::Vec3 w2 = ToWorld(p2);
+    JPH::Vec3 w3 = ToWorld(p3);
+    JPH::Vec3 w4 = ToWorld(p4);
+
+    // 5. 4개의 선을 그어 박스 완성! (빨간색 255, 0, 0 가정)
+    // DrawLine(x1, y1, z1, x2, y2, z2, r, g, b)
+    DrawLine(w1.GetX(), w1.GetY(), 0, w2.GetX(), w2.GetY(), 0, 1.0f, 0.0f, 0.0f);
+    DrawLine(w2.GetX(), w2.GetY(), 0, w3.GetX(), w3.GetY(), 0, 1.0f, 0.0f, 0.0f);
+    DrawLine(w3.GetX(), w3.GetY(), 0, w4.GetX(), w4.GetY(), 0, 1.0f, 0.0f, 0.0f);
+    DrawLine(w4.GetX(), w4.GetY(), 0, w1.GetX(), w1.GetY(), 0, 1.0f, 0.0f, 0.0f);
 }

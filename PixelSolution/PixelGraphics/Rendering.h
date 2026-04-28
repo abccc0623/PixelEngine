@@ -26,6 +26,7 @@ private:
 
 	std::vector<BindingClass*> bindingClassList;
 	std::vector<RenderingData> renderingList;
+
 	RenderingData Camera;
 	Handle64 prevValue;
 };

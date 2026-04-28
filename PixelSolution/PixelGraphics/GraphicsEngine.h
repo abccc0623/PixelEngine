@@ -15,6 +15,7 @@ class RenderingFactory;
 class Rendering;
 class Factory;
 class ResourceFactory;
+class DrawDebugLine;
 struct RenderingData;
 struct Vertex_Debug;
 struct DirectModel;
@@ -34,6 +35,7 @@ public:
 	void SetBackGroundColor(float* mColor);
 	
 	void SetRenderingData(RenderingData& mData);
+	void DrawLine(float start[3], float end[3], float color[3]);
 
 	ObjectID LoadTexture(const char* filePath);
 	ObjectID LoadMaterial(const char* filePath);
@@ -106,6 +108,7 @@ public:
 	}
 private:
 	Rendering* mRender;
+	DrawDebugLine* mDebugRender;
 	float renderColor[4] = {0,0,0,1};
 };
 

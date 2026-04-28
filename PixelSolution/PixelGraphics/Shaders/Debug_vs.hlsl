@@ -31,8 +31,7 @@ PixelInputType main(VertexInputType input)
 {
    PixelInputType output;
 
-    float4 worldPos = mul(float4(input.PosL, 1.0f), world);
-
+    float4 worldPos = float4(input.PosL, 1.0f);
     output.posH = mul(worldPos, view_proj);
     output.Tex = input.Color;
     return output;

@@ -2,6 +2,7 @@
 #include "GraphicsEngine.h"
 #include "GraphicsCore.h"
 #include "Rendering.h"
+#include "DrawDebugLine.h"
 #include "ResourceFactory.h"
 
 #include "PixelResources.h"
@@ -17,6 +18,7 @@ GraphicsEngine::GraphicsEngine()
 {
 	//mRasterizerStateFactory = nullptr;
 	//shaderFactory = nullptr;
+
 }
 
 GraphicsEngine::~GraphicsEngine()
@@ -42,6 +44,8 @@ void GraphicsEngine::Initialize(HWND WindowHandle, int Width, int Height)
 	}
 	mRender = new Rendering();
 	mRender->Initialize(this);
+	mDebugRender = new DrawDebugLine();
+	mDebugRender->Initialize(this);
 }
 
 void GraphicsEngine::Release()
@@ -55,6 +59,7 @@ void GraphicsEngine::Release()
 	factoryMap.clear();
 	mRender->Release();
 	delete mRender;
+	delete mDebugRender;
 	GraphicsCore::GraphicsRelease();
 }
 
@@ -63,6 +68,7 @@ void GraphicsEngine::BeginRender()
 	GraphicsCore::BeginRender(renderColor[0], renderColor[1], renderColor[2], renderColor[3]);
 	
 	mRender->Update();
+	mDebugRender->Draw();
 }
 
 void GraphicsEngine::EndRender()
@@ -100,6 +106,25 @@ ObjectID GraphicsEngine::LoadMaterial(const char* filePath)
 void GraphicsEngine::SetRenderingData(RenderingData& mData)
 {
 	mRender->SetRendering(mData);
+}
+
+void GraphicsEngine::DrawLine(float start[3], float end[3],float color[3])
+{
+	DirectX::XMFLOAT3 XMColor;
+	XMColor.x = color[0];
+	XMColor.y = color[1];
+	XMColor.z = color[2];
+
+	DirectX::XMFLOAT3 XMStart;
+	XMStart.x = start[0];
+	XMStart.y = start[1];
+	XMStart.z = start[2];
+	DirectX::XMFLOAT3 XMEnd;
+	XMEnd.x = end[0];
+	XMEnd.y = end[1];
+	XMEnd.z = end[2];
+	mDebugRender->Set(XMStart,XMColor);
+	mDebugRender->Set(XMEnd,XMColor);
 }
 
 ObjectID GraphicsEngine::Model_Debug(float* VertexList, int VertexSize, int* IndexList, int indexSize)

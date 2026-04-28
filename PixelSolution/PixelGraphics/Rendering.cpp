@@ -12,6 +12,8 @@
 #include "BindingQuad.h"
 #include "BindingRect.h"
 
+#include "DrawDebugLine.h"
+
 #include <algorithm>
 
 Rendering::Rendering()
@@ -22,7 +24,6 @@ Rendering::Rendering()
 
 Rendering::~Rendering()
 {
-	
 }
 
 void Rendering::Initialize(GraphicsEngine* engine)
@@ -33,7 +34,6 @@ void Rendering::Initialize(GraphicsEngine* engine)
 	bindingClassList[RENDER_TYPE::QUAD] = new BindingQuad();
 	bindingClassList[RENDER_TYPE::BOX2D] = new BindingRect();
 	bindingClassList[RENDER_TYPE::BOX2D] = new BindingRect();
-
 
 	for (int i = 0; i < bindingClassList.size(); i++)
 	{

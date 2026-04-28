@@ -165,7 +165,7 @@
     <ClInclude Include="MaterialFactory.h">
       <Filter>PicnicGraphics\Manager\ResourceFactory\MaterialFactory</Filter>
     </ClInclude>
-    <ClInclude Include="BindingLine.h">
+    <ClInclude Include="DrawDebugLine.h">
       <Filter>PicnicGraphics\Manager\BindingClass\BindingLine</Filter>
     </ClInclude>
   </ItemGroup>
@@ -230,7 +230,7 @@
     <ClCompile Include="MaterialFactory.cpp">
       <Filter>PicnicGraphics\Manager\ResourceFactory\MaterialFactory</Filter>
     </ClCompile>
-    <ClCompile Include="BindingLine.cpp">
+    <ClCompile Include="DrawDebugLine.cpp">
       <Filter>PicnicGraphics\Manager\BindingClass\BindingLine</Filter>
     </ClCompile>
   </ItemGroup>
