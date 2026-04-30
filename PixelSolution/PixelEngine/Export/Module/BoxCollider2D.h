@@ -27,6 +27,15 @@ public:
 	void SetGravity(float gravity);
 	void SetCreateActive(bool active);
 	void SetPhysType(int type);
+
+	void SetVelocity(float x, float y);
+	void SetVelocityX(float x);
+	void SetVelocityY(float y);
+
+
+	void SetPosition(float x, float y);
+	void SetRotation(float x, float y);
+
 	void CreatePhys();
 private:
 	void CreateCollider();

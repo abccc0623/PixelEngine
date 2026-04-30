@@ -142,9 +142,114 @@ void PhysManager::Release()
 	
 }
 
+void PhysManager::SetVelocity(JPH::BodyID id, float x, float y, float z)
+{
+    JPH::Vec3 targetVelocity(x, y, z);
+    physicsSystem->GetBodyInterface().SetLinearVelocity(id, targetVelocity);
+}
+
+void PhysManager::SetVelocityX(JPH::BodyID id, float x)
+{
+    JPH::Vec3 targetVelocity = physicsSystem->GetBodyInterface().GetLinearVelocity(id);
+    targetVelocity.SetX(x);
+    physicsSystem->GetBodyInterface().SetLinearVelocity(id, targetVelocity);
+}
+
+void PhysManager::SetVelocityY(JPH::BodyID id, float y)
+{
+    JPH::Vec3 targetVelocity = physicsSystem->GetBodyInterface().GetLinearVelocity(id);
+    targetVelocity.SetY(y);
+    physicsSystem->GetBodyInterface().SetLinearVelocity(id, targetVelocity);
+}
+
+void PhysManager::SetVelocityZ(JPH::BodyID id, float z)
+{
+    JPH::Vec3 targetVelocity = physicsSystem->GetBodyInterface().GetLinearVelocity(id);
+    targetVelocity.SetZ(z);
+    physicsSystem->GetBodyInterface().SetLinearVelocity(id, targetVelocity);
+}
+
+void PhysManager::SetPosition(JPH::BodyID id, float x, float y, float z,bool active)
+{
+    JPH::Vec3 targetPosition(x, y, z);
+    physicsSystem->GetBodyInterface().SetPosition(id, targetPosition, (active) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
+}
+
+void PhysManager::SetRotation(JPH::BodyID id, float x, float y, float z, bool active)
+{
+    constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
+    JPH::Vec3 eulerRadians(x * DEG_TO_RAD, y * DEG_TO_RAD, z * DEG_TO_RAD);
+
+    JPH::Quat targetRotation = JPH::Quat::sIdentity();
+    physicsSystem->GetBodyInterface().SetRotation(id, targetRotation, (active) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
+}
+
 void PhysManager::CollisionUpdate()
 {
 	
+}
+
+void PhysManager::DebugDraw(JPH::BodyID id)
+{
+    JPH::ShapeRefC shape = mBodyInterface->GetShape(id);
+
+    float cx = 0.0f;
+    float cy = 0.0f;
+    float hw = 0.0f;
+    float hh = 0.0f;
+
+    JPH::RVec3 pos = mBodyInterface->GetPosition(id);
+    JPH::Quat rot = mBodyInterface->GetRotation(id);
+
+    // 3. 오프셋(Center)이 적용된 모양인지 확인 후 값 직접 추출!
+    if (shape->GetSubType() == JPH::EShapeSubType::RotatedTranslated)
+    {
+        // Jolt의 껍데기를 벗겨서 우리가 만든 RotatedTranslatedShape로 캐스팅합니다.
+        auto rtShape = static_cast<const JPH::RotatedTranslatedShape*>(shape.GetPtr());
+
+        // 우리가 BoxCollider2D에서 넣었던 (centerX, centerY) 값을 직접 뜯어옵니다.
+        JPH::Vec3 offset = rtShape->GetPosition();
+        cx = offset.GetX();
+        cy = offset.GetY();
+
+        // 진짜 알맹이(Box)의 크기를 가져옵니다.
+        JPH::AABox innerBounds = rtShape->GetInnerShape()->GetLocalBounds();
+        hw = innerBounds.GetExtent().GetX();
+        hh = innerBounds.GetExtent().GetY();
+    }
+    else
+    {
+        // 오프셋이 없는 기본 박스라면 기존 방식대로 처리
+        JPH::AABox localBounds = shape->GetLocalBounds();
+        cx = localBounds.GetCenter().GetX();
+        cy = localBounds.GetCenter().GetY();
+        hw = localBounds.GetExtent().GetX();
+        hh = localBounds.GetExtent().GetY();
+    }
+
+    // 4. (cx, cy)를 기준으로 박스의 4개 꼭짓점 계산
+    JPH::Vec3 p1(cx - hw, cy - hh, 0);
+    JPH::Vec3 p2(cx + hw, cy - hh, 0);
+    JPH::Vec3 p3(cx + hw, cy + hh, 0);
+    JPH::Vec3 p4(cx - hw, cy + hh, 0);
+
+    // 5. 로컬 좌표를 월드 좌표로 변환
+    auto ToWorld = [&](JPH::Vec3 localPoint)
+        {
+        // 회전과 위치를 적용하여 월드에 배치
+        return pos + rot * localPoint;
+        };
+
+    JPH::Vec3 w1 = ToWorld(p1);
+    JPH::Vec3 w2 = ToWorld(p2);
+    JPH::Vec3 w3 = ToWorld(p3);
+    JPH::Vec3 w4 = ToWorld(p4);
+
+    // 6. 드디어! 정확한 위치에 디버그 선 그리기
+    DrawLine(w1.GetX(), w1.GetY(), 0, w2.GetX(), w2.GetY(), 0, 1.0f, 0.0f, 0.0f);
+    DrawLine(w2.GetX(), w2.GetY(), 0, w3.GetX(), w3.GetY(), 0, 1.0f, 0.0f, 0.0f);
+    DrawLine(w3.GetX(), w3.GetY(), 0, w4.GetX(), w4.GetY(), 0, 1.0f, 0.0f, 0.0f);
+    DrawLine(w4.GetX(), w4.GetY(), 0, w1.GetX(), w1.GetY(), 0, 1.0f, 0.0f, 0.0f);
 }
 
 JPH::ShapeRefC PhysManager::CreateBoxCollider2D(float x, float y)
@@ -192,60 +297,5 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
     float angleInDegrees = angleInRadians * (180.0f / 3.141592f);
     tr->Rotation.Z = -angleInDegrees;
 
-    // 2. 콜라이더 모양 정보 가져오기
-    JPH::ShapeRefC shape = mBodyInterface->GetShape(id);
-
-    float cx = 0.0f;
-    float cy = 0.0f;
-    float hw = 0.0f;
-    float hh = 0.0f;
-
-    // 3. 오프셋(Center)이 적용된 모양인지 확인 후 값 직접 추출!
-    if (shape->GetSubType() == JPH::EShapeSubType::RotatedTranslated)
-    {
-        // Jolt의 껍데기를 벗겨서 우리가 만든 RotatedTranslatedShape로 캐스팅합니다.
-        auto rtShape = static_cast<const JPH::RotatedTranslatedShape*>(shape.GetPtr());
-
-        // 우리가 BoxCollider2D에서 넣었던 (centerX, centerY) 값을 직접 뜯어옵니다.
-        JPH::Vec3 offset = rtShape->GetPosition();
-        cx = offset.GetX();
-        cy = offset.GetY();
-
-        // 진짜 알맹이(Box)의 크기를 가져옵니다.
-        JPH::AABox innerBounds = rtShape->GetInnerShape()->GetLocalBounds();
-        hw = innerBounds.GetExtent().GetX();
-        hh = innerBounds.GetExtent().GetY();
-    }
-    else
-    {
-        // 오프셋이 없는 기본 박스라면 기존 방식대로 처리
-        JPH::AABox localBounds = shape->GetLocalBounds();
-        cx = localBounds.GetCenter().GetX();
-        cy = localBounds.GetCenter().GetY();
-        hw = localBounds.GetExtent().GetX();
-        hh = localBounds.GetExtent().GetY();
-    }
-
-    // 4. (cx, cy)를 기준으로 박스의 4개 꼭짓점 계산
-    JPH::Vec3 p1(cx - hw, cy - hh, 0);
-    JPH::Vec3 p2(cx + hw, cy - hh, 0);
-    JPH::Vec3 p3(cx + hw, cy + hh, 0);
-    JPH::Vec3 p4(cx - hw, cy + hh, 0);
-
-    // 5. 로컬 좌표를 월드 좌표로 변환
-    auto ToWorld = [&](JPH::Vec3 localPoint) {
-        // 회전과 위치를 적용하여 월드에 배치
-        return pos + rot * localPoint;
-        };
-
-    JPH::Vec3 w1 = ToWorld(p1);
-    JPH::Vec3 w2 = ToWorld(p2);
-    JPH::Vec3 w3 = ToWorld(p3);
-    JPH::Vec3 w4 = ToWorld(p4);
-
-    // 6. 드디어! 정확한 위치에 디버그 선 그리기
-    DrawLine(w1.GetX(), w1.GetY(), 0, w2.GetX(), w2.GetY(), 0, 1.0f, 0.0f, 0.0f);
-    DrawLine(w2.GetX(), w2.GetY(), 0, w3.GetX(), w3.GetY(), 0, 1.0f, 0.0f, 0.0f);
-    DrawLine(w3.GetX(), w3.GetY(), 0, w4.GetX(), w4.GetY(), 0, 1.0f, 0.0f, 0.0f);
-    DrawLine(w4.GetX(), w4.GetY(), 0, w1.GetX(), w1.GetY(), 0, 1.0f, 0.0f, 0.0f);
+    DebugDraw(id);
 }

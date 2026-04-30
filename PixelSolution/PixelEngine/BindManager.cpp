@@ -266,6 +266,14 @@ void BindManager::BindBoxCollider2D()
 	AddMethod(table, "SetCreateActive", GetMethodInfo(&BoxCollider2D::SetCreateActive), MetaFlag::LUABIND);
 	AddMethod(table, "SetPhysType",		GetMethodInfo(&BoxCollider2D::SetPhysType),		MetaFlag::LUABIND);
 	AddMethod(table, "CreatePhys",		GetMethodInfo(&BoxCollider2D::CreatePhys),		MetaFlag::LUABIND);
+
+	AddMethod(table, "SetVelocity",		GetMethodInfo(&BoxCollider2D::SetVelocity),		MetaFlag::LUABIND);
+	AddMethod(table, "SetVelocityX",	GetMethodInfo(&BoxCollider2D::SetVelocityX),	MetaFlag::LUABIND);
+	AddMethod(table, "SetVelocityY",	GetMethodInfo(&BoxCollider2D::SetVelocityY),	MetaFlag::LUABIND);
+
+
+	AddMethod(table, "SetPosition",		GetMethodInfo(&BoxCollider2D::SetPosition),		MetaFlag::LUABIND);
+	AddMethod(table, "SetRotation",		GetMethodInfo(&BoxCollider2D::SetRotation),		MetaFlag::LUABIND);
 }
 
 

@@ -62,6 +62,46 @@ void BoxCollider2D::SetPhysType(int type)
 	motionType = type;
 }
 
+void BoxCollider2D::SetVelocity(float x, float y)
+{
+	if(!targetBodyID.IsInvalid())
+	{
+		collision->SetVelocity(targetBodyID,x, y, 0.0f);
+	}
+}
+
+void BoxCollider2D::SetVelocityX(float x)
+{
+	if (!targetBodyID.IsInvalid())
+	{
+		collision->SetVelocityX(targetBodyID, x);
+	}
+}
+
+void BoxCollider2D::SetVelocityY(float y)
+{
+	if (!targetBodyID.IsInvalid())
+	{
+		collision->SetVelocityY(targetBodyID, y);
+	}
+}
+
+void BoxCollider2D::SetPosition(float x, float y)
+{
+	if(!targetBodyID.IsInvalid())
+	{
+		collision->SetPosition(targetBodyID, x, y, 0.0f, active);
+	}
+}
+
+void BoxCollider2D::SetRotation(float x, float y)
+{
+	if(!targetBodyID.IsInvalid())
+	{
+		collision->SetRotation(targetBodyID, x, y, 0.0f, active);
+	}
+}
+
 void BoxCollider2D::CreatePhys()
 {
 	CreateCollider();

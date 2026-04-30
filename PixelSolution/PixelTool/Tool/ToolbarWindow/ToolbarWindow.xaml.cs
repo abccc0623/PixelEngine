@@ -165,5 +165,25 @@ namespace PixelTool
                 newToolWindow.Close();
             };
         }
+
+        private void CreateCollider(object sender, RoutedEventArgs e)
+        {
+            var colliderWindow = new ColliderWindow();
+            var newToolWindow = new AvalonDock.Layout.LayoutAnchorable()
+            {
+                Title = "Create Collider",
+                Content = colliderWindow, // 만들어둔 UserControl
+                FloatingWidth = 500,
+                FloatingHeight = 600,
+            };
+            MainWindow main = Application.Current.MainWindow as MainWindow;
+            newToolWindow.AddToLayout(main.dockManager, AnchorableShowStrategy.Right);
+            newToolWindow.IsActive = true;
+            newToolWindow.Float();
+            colliderWindow.Close = () =>
+            {
+                newToolWindow.Close();
+            };
+        }
     }
 }

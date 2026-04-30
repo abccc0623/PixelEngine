@@ -132,6 +132,11 @@ inline void Generate_BoxCollider2D(sol::state& lua)
 	ut["SetCreateActive"] = &BoxCollider2D::SetCreateActive;
 	ut["SetPhysType"] = &BoxCollider2D::SetPhysType;
 	ut["CreatePhys"] = &BoxCollider2D::CreatePhys;
+	ut["SetVelocity"] = &BoxCollider2D::SetVelocity;
+	ut["SetVelocityX"] = &BoxCollider2D::SetVelocityX;
+	ut["SetVelocityY"] = &BoxCollider2D::SetVelocityY;
+	ut["SetPosition"] = &BoxCollider2D::SetPosition;
+	ut["SetRotation"] = &BoxCollider2D::SetRotation;
 }
 inline void Generate_EventType(sol::state& lua) 
 {

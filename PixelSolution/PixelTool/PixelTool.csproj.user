@@ -2,10 +2,16 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
+    <Compile Update="Custom\PVector2.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Modules\TransformView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Tool\AssetWindow\AssetWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Tool\ColliderWindow\ColliderWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Tool\ConsoleWindow\ConsoleWindow.xaml.cs">
