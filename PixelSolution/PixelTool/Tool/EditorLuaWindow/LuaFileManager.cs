@@ -104,5 +104,35 @@ namespace PixelTool
                 Console.WriteLine($"[Exception] 파일 생성 중 오류 발생: {ex.Message}");
             }
         }
+
+        public static string GetBlockByMarker(string FileName, string MarkerName)
+        {
+            string resourceName = $"PixelTool.LuaCode.{FileName}.lua";
+            string beginMarker = $"--#BEGIN_TABLE {MarkerName}";
+            string endMarker = $"--#END_TABLE {MarkerName}";
+            using (var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            {
+                if (stream == null) return "";
+
+                using (var reader = new System.IO.StreamReader(stream, System.Text.Encoding.UTF8, true))
+                {
+                    string fullCode = reader.ReadToEnd();
+
+                    // 1. 시작 마커 위치 검색
+                    int startIndex = fullCode.IndexOf(beginMarker);
+                    if (startIndex == -1) return "";
+
+                    // 시작 마커가 끝나는 다음 줄(개행 문자 다음)부터 추출 시작
+                    startIndex += beginMarker.Length;
+
+                    // 2. 종료 마커 위치 검색
+                    int endIndex = fullCode.IndexOf(endMarker, startIndex);
+                    if (endIndex == -1) return "";
+
+                    // 3. 내용 추출 및 앞뒤 공백(개행) 제거
+                    return fullCode.Substring(startIndex, endIndex - startIndex).Trim();
+                }
+            }
+        }
     }
 }

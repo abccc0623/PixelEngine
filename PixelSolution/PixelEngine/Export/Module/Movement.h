@@ -6,11 +6,13 @@
 #include "Type/PVector3.h"
 template <typename T> class WPointer;
 class GameObject;
+class Physics2D;
 class Movement :public Module
 {
 public:
 	Movement();
 	~Movement();
+	void Start() override;
 	void Update() override;
 
 	float stopDistance = 0;
@@ -22,6 +24,8 @@ public:
 	void AddStartedCallBack(std::string functionName);
 	void AddDirectionCallBack(std::string functionName);
 private:
+	bool isPhysics = false;
+	Physics2D* physics2D;
 	bool isTargetingPosition = false; // 좌표로 이동 중인지 체크하는 플래그
 	PVector3 targetPosition;
 	WPointer<GameObject> target;

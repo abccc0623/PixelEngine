@@ -225,5 +225,22 @@ namespace PixelTool
             string content = LuaFileManager.GetFunction("EventFunction", "CustomEvent");
             LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
         }
+        private void Create_Box2D(object sender, RoutedEventArgs e)
+        {
+            string content = LuaFileManager.GetBlockByMarker("CreateCollider", "Box2DCollider");
+            LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
+        }
+
+        private void Create_Circle2D(object sender, RoutedEventArgs e)
+        {
+            string content = LuaFileManager.GetBlockByMarker("CreateCollider", "Circle2DCollider");
+            LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
+        }
+
+        private void Create_RigidBody(object sender, RoutedEventArgs e)
+        {
+            string content = LuaFileManager.GetBlockByMarker("CreateCollider", "RigidBody");
+            LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
+        }
     }
 }

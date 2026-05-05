@@ -30,7 +30,7 @@ private:
 	const std::string CreateClassBind			= "\tsol::usertype<{{CLASS_NAME}}> ut = lua.new_usertype<{{CLASS_NAME}}>(\"{{CLASS_NAME}}\",sol::constructors<{{CLASS_NAME}}({{PROPERTY}})>()); \n";
 	const std::string ClassMemberBind			= "\tut[\"{{MEMBER_NAME}}\"] = &{{CLASS_NAME}}::{{MEMBER_NAME}};\n";
 	const std::string ClassMethodBind			= "\tut[\"{{METHOD_NAME}}\"] = &{{CLASS_NAME}}::{{METHOD_NAME}};\n";
-	const std::string ClassEnumBind				= "\tlua.new_enum<EventType>(\"{{ENUM_NAME}}\", {\n";
+	const std::string ClassEnumBind				= "\tlua.new_enum<{{ENUM_NAME}}>(\"{{ENUM_NAME}}\", {\n";
 	const std::string ClassEnumValueBind		= "\t{ \"{{ENUM_VALUE}}\", {{ENUM_NAME}}::{{ENUM_VALUE}} },\n";
 	const std::string ClassGlobalMethodBind		= "\tut[\"{{METHOD_NAME}}\"] = &{{METHOD_NAME}};\n";
 	const std::string LuaAddModuleBind			= "\tAddModuleList.insert({ \"{{CLASS_NAME}}\",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<{{CLASS_NAME}}* > (target));return obj;}});\n";

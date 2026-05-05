@@ -8,7 +8,7 @@
 #include "Module/DebugCamera.h"
 #include "Module/Camera.h"
 #include "Module/Movement.h"
-#include "Module/BoxCollider2D.h"
+#include "Module/Physics2D.h"
 
 #include "Type/GlobalEnum.h"
 #include "Type/PVector3.h"
@@ -68,7 +68,7 @@ void BindManager::Initialize()
 	BindRenderer2D();
 	BindDebugCamera();
 	BindCamera();
-	BindBoxCollider2D();
+	BindPhysics2D();
 	BindEnum();
 }
 
@@ -218,6 +218,7 @@ void BindManager::BindMovement()
 	AddMethod(table, "AddStartedCallBack",		GetMethodInfo(&Movement::AddStartedCallBack),	MetaFlag::LUABIND);
 	AddMethod(table, "AddDirectionCallBack",	GetMethodInfo(&Movement::AddDirectionCallBack),	MetaFlag::LUABIND);
 	AddMethod(table, "Update",					GetMethodInfo(&Movement::Update));
+	AddMethod(table, "Start",					GetMethodInfo(&Movement::Start));
 }
 
 void BindManager::BindGameObject()
@@ -240,40 +241,50 @@ void BindManager::BindPVector3()
 
 void BindManager::BindEnum()
 {
-	PEnum* globalEnum = CreateNewEnum("EventType");
+	PEnum* globalEnum = nullptr;
+	globalEnum = CreateNewEnum("EventType");
 	AddEnum(globalEnum, "KeyUp");
 	AddEnum(globalEnum, "KeyDown");
+	AddEnum(globalEnum, "CollisionIn");
+	AddEnum(globalEnum, "CollisionOut");
+
+	globalEnum = CreateNewEnum("ColliderMotionType");
+	AddEnum(globalEnum, "Static");
+	AddEnum(globalEnum, "Kinematic");
+	AddEnum(globalEnum, "Dynamic");
+
+	globalEnum = CreateNewEnum("ColliderType");
+	AddEnum(globalEnum, "Box2D");
+	AddEnum(globalEnum, "Circle2D");
+
 }
 
-void BindManager::BindBoxCollider2D()
+void BindManager::BindPhysics2D()
 {
-	auto table = CreateNewClass("BoxCollider2D", "Module");
+	auto table = CreateNewClass("Physics2D", "Module");
 	CreateClassFunction(table, []() ->void*
 		{
-			return new BoxCollider2D();
+			return new Physics2D();
 		});
 	DeleteClassFunction(table, []() ->void
 		{
-			PixelLog::Info("Delete BoxCollider2D");
+			PixelLog::Info("Delete Physics2D");
 		});
-	AddMethod(table, "Awake", GetMethodInfo(&BoxCollider2D::Awake));
-	AddMethod(table, "LastUpdate", GetMethodInfo(&BoxCollider2D::LastUpdate));
-	AddMethod(table, "PhysicsUpdate", GetMethodInfo(&BoxCollider2D::PhysicsUpdate));
+	AddMethod(table, "Awake", GetMethodInfo(&Physics2D::Awake));
+	AddMethod(table, "LastUpdate", GetMethodInfo(&Physics2D::LastUpdate));
+	AddMethod(table, "PhysicsUpdate", GetMethodInfo(&Physics2D::PhysicsUpdate));
 
-	AddMethod(table, "SetCenter",		GetMethodInfo(&BoxCollider2D::SetCenter),		MetaFlag::LUABIND);
-	AddMethod(table, "SetOffset",		GetMethodInfo(&BoxCollider2D::SetOffset),		MetaFlag::LUABIND);
-	AddMethod(table, "SetGravity",		GetMethodInfo(&BoxCollider2D::SetGravity),		MetaFlag::LUABIND);
-	AddMethod(table, "SetCreateActive", GetMethodInfo(&BoxCollider2D::SetCreateActive), MetaFlag::LUABIND);
-	AddMethod(table, "SetPhysType",		GetMethodInfo(&BoxCollider2D::SetPhysType),		MetaFlag::LUABIND);
-	AddMethod(table, "CreatePhys",		GetMethodInfo(&BoxCollider2D::CreatePhys),		MetaFlag::LUABIND);
+	AddMethod(table, "SetCollider",		GetMethodInfo(&Physics2D::SetCollider),		MetaFlag::LUABIND);
+	AddMethod(table, "SetRigidbody",		GetMethodInfo(&Physics2D::SetRigidbody),	MetaFlag::LUABIND);
 
-	AddMethod(table, "SetVelocity",		GetMethodInfo(&BoxCollider2D::SetVelocity),		MetaFlag::LUABIND);
-	AddMethod(table, "SetVelocityX",	GetMethodInfo(&BoxCollider2D::SetVelocityX),	MetaFlag::LUABIND);
-	AddMethod(table, "SetVelocityY",	GetMethodInfo(&BoxCollider2D::SetVelocityY),	MetaFlag::LUABIND);
+	AddMethod(table, "SetVelocity",		GetMethodInfo(&Physics2D::SetVelocity),		MetaFlag::LUABIND);
+	AddMethod(table, "SetVelocityX",	GetMethodInfo(&Physics2D::SetVelocityX),	MetaFlag::LUABIND);
+	AddMethod(table, "SetVelocityY",	GetMethodInfo(&Physics2D::SetVelocityY),	MetaFlag::LUABIND);
+	AddMethod(table, "SetPosition",		GetMethodInfo(&Physics2D::SetPosition),		MetaFlag::LUABIND);
+	AddMethod(table, "SetRotation",		GetMethodInfo(&Physics2D::SetRotation),		MetaFlag::LUABIND);
 
-
-	AddMethod(table, "SetPosition",		GetMethodInfo(&BoxCollider2D::SetPosition),		MetaFlag::LUABIND);
-	AddMethod(table, "SetRotation",		GetMethodInfo(&BoxCollider2D::SetRotation),		MetaFlag::LUABIND);
+	AddMethod(table, "AddImpulse",		GetMethodInfo(&Physics2D::AddImpulse),		MetaFlag::LUABIND);
+	AddMethod(table, "AddForce",		GetMethodInfo(&Physics2D::AddForce),		MetaFlag::LUABIND);
 }
 
 

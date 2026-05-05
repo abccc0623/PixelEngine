@@ -2,9 +2,10 @@
 #include "EngineManager.h"
 #include <Jolt/Core/Reference.h>
 #include <Jolt/Physics/Body/BodyID.h>       
-#include <Jolt/Physics/Body/MotionType.h> 
+#include <Jolt/Physics/Body/MotionType.h>
+#include <unordered_map>
 #include <vector>
-
+#include "PhysStruct.h"
 namespace JPH 
 {
 	class PhysicsSystem;
@@ -14,8 +15,11 @@ namespace JPH
 	class Shape;
 	class BodyCreationSettings;
 }
-
+struct CollisionEvent;
+class PhysListener;
+class ColliderFactory;
 class Transform;
+class EventManager;
 class PhysManager : public EngineManager
 {
 public:
@@ -34,14 +38,19 @@ public:
 	void SetPosition(JPH::BodyID id, float x, float y, float z, bool active);
 	void SetRotation(JPH::BodyID id, float x, float y, float z, bool active);
 
+	void AddImpulse(JPH::BodyID id, float x, float y, float z);
+	void AddForce(JPH::BodyID id, float x, float y, float z);
 
-	void CollisionUpdate();
-	JPH::ShapeRefC CreateBoxCollider2D(float x,float y);
-	JPH::BodyID CreateBody2D(JPH::BodyCreationSettings* setting,bool active, void* pOwner);
+	JPH::ShapeRefC CreateCollider(PhysCollider& collider);
+	JPH::BodyID CreateRigidbody(PhysRigidbody& rigidbody, JPH::ShapeRefC shapeRef, void* pOwner);
 
 	void DebugDraw(JPH::BodyID id);
 	void SyncPhysics(JPH::BodyID id);
 private:
+	ColliderFactory*	colliderFactory		= nullptr;
+	PhysListener*		eventListener		= nullptr;
+	EventManager*		event;
+
 	JPH::PhysicsSystem* physicsSystem		= nullptr;
 	JPH::TempAllocatorImpl* tempAllocator	= nullptr;
 	JPH::JobSystemThreadPool* jobSystem		= nullptr;
@@ -50,5 +59,8 @@ private:
 	void* mBpInterface = nullptr;
 	void* mObjVsBpFilter = nullptr;
 	void* mObjVsObjFilter = nullptr;
+
+	std::unordered_map<std::string, JPH::ShapeRefC> colliderMap;
+	std::vector<CollisionEvent> mFrameCollisionEvents;
 };
 

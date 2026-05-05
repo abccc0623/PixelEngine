@@ -113,6 +113,9 @@ void LuaScript::Register(std::string fileName)
     keyDown     = instance["KeyDownEvent"];
     keyUp       = instance["KeyUpEvent"];
     CustomEvent = instance["CustomEvent"];
+
+    OnCollisionIn = instance["OnCollisionIn"];
+    OnCollisionOut = instance["OnCollisionOut"];
     
     instance["gameObject"] = targetObject;
     instance["transform"] = transform;
@@ -128,6 +131,27 @@ void LuaScript::EventCall(EventType type, Event event)
         break;
     case EventType::KeyUp:
         if (keyUp.valid()) { keyUp(instance, event.key); }
+        break;
+    case EventType::CollisionIn:
+        if (OnCollisionIn.valid()) 
+        {
+            if (event.Collision.target1 == targetObject)
+            {
+                OnCollisionIn(instance, event.Collision.target2);
+            }
+            else if(event.Collision.target2 == targetObject)
+            {
+                OnCollisionIn(instance, event.Collision.target1);
+            }
+            else
+            {
+
+            }
+        }
+
+        break;
+    case EventType::CollisionOut:
+        if (OnCollisionOut.valid()) { OnCollisionOut(instance); }
         break;
     }
 }

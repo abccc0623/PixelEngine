@@ -14,7 +14,7 @@ class GameObject;
 class Camera;
 class Renderer2D;
 class LuaScript;
-class BoxCollider2D;
+class Physics2D;
 class Collision2D;
 
 #define BIND_TYPE_NAME(Type,Name) \
@@ -39,7 +39,7 @@ BIND_TYPE_NAME(GameObject, "GameObject")
 BIND_TYPE_NAME(Camera, "Camera")
 BIND_TYPE_NAME(Renderer2D, "Renderer2D")
 BIND_TYPE_NAME(LuaScript, "LuaScript")
-BIND_TYPE_NAME(BoxCollider2D, "BoxCollision2D")
+BIND_TYPE_NAME(Physics2D, "BoxCollision2D")
 BIND_TYPE_NAME(Collision2D, "Collision2D")
 
 

@@ -9,7 +9,7 @@
 #include "Module/Renderer2D.h" 
 #include "Module/DebugCamera.h" 
 #include "Module/Camera.h" 
-#include "Module/BoxCollider2D.h" 
+#include "Module/Physics2D.h" 
 extern std::unordered_map <std::string, std::function<sol::object(sol::this_state s, Module* target)>> AddModuleList;
 inline void Generate_Engine(sol::state& lua) 
 {
@@ -123,26 +123,41 @@ inline void Generate_Camera(sol::state& lua)
 {
 	sol::usertype<Camera> ut = lua.new_usertype<Camera>("Camera");
 }
-inline void Generate_BoxCollider2D(sol::state& lua) 
+inline void Generate_Physics2D(sol::state& lua) 
 {
-	sol::usertype<BoxCollider2D> ut = lua.new_usertype<BoxCollider2D>("BoxCollider2D");
-	ut["SetCenter"] = &BoxCollider2D::SetCenter;
-	ut["SetOffset"] = &BoxCollider2D::SetOffset;
-	ut["SetGravity"] = &BoxCollider2D::SetGravity;
-	ut["SetCreateActive"] = &BoxCollider2D::SetCreateActive;
-	ut["SetPhysType"] = &BoxCollider2D::SetPhysType;
-	ut["CreatePhys"] = &BoxCollider2D::CreatePhys;
-	ut["SetVelocity"] = &BoxCollider2D::SetVelocity;
-	ut["SetVelocityX"] = &BoxCollider2D::SetVelocityX;
-	ut["SetVelocityY"] = &BoxCollider2D::SetVelocityY;
-	ut["SetPosition"] = &BoxCollider2D::SetPosition;
-	ut["SetRotation"] = &BoxCollider2D::SetRotation;
+	sol::usertype<Physics2D> ut = lua.new_usertype<Physics2D>("Physics2D");
+	ut["SetCollider"] = &Physics2D::SetCollider;
+	ut["SetRigidbody"] = &Physics2D::SetRigidbody;
+	ut["SetVelocity"] = &Physics2D::SetVelocity;
+	ut["SetVelocityX"] = &Physics2D::SetVelocityX;
+	ut["SetVelocityY"] = &Physics2D::SetVelocityY;
+	ut["SetPosition"] = &Physics2D::SetPosition;
+	ut["SetRotation"] = &Physics2D::SetRotation;
+	ut["AddImpulse"] = &Physics2D::AddImpulse;
+	ut["AddForce"] = &Physics2D::AddForce;
 }
 inline void Generate_EventType(sol::state& lua) 
 {
 	lua.new_enum<EventType>("EventType", {
 	{ "KeyUp", EventType::KeyUp },
 	{ "KeyDown", EventType::KeyDown },
+	{ "CollisionIn", EventType::CollisionIn },
+	{ "CollisionOut", EventType::CollisionOut },
+});
+}
+inline void Generate_ColliderMotionType(sol::state& lua) 
+{
+	lua.new_enum<ColliderMotionType>("ColliderMotionType", {
+	{ "Static", ColliderMotionType::Static },
+	{ "Kinematic", ColliderMotionType::Kinematic },
+	{ "Dynamic", ColliderMotionType::Dynamic },
+});
+}
+inline void Generate_ColliderType(sol::state& lua) 
+{
+	lua.new_enum<ColliderType>("ColliderType", {
+	{ "Box2D", ColliderType::Box2D },
+	{ "Circle2D", ColliderType::Circle2D },
 });
 }
 inline void BindAll_AddModules() 
@@ -153,7 +168,7 @@ inline void BindAll_AddModules()
 	AddModuleList.insert({ "Renderer2D",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Renderer2D* > (target));return obj;}});
 	AddModuleList.insert({ "DebugCamera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<DebugCamera* > (target));return obj;}});
 	AddModuleList.insert({ "Camera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Camera* > (target));return obj;}});
-	AddModuleList.insert({ "BoxCollider2D",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<BoxCollider2D* > (target));return obj;}});
+	AddModuleList.insert({ "Physics2D",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Physics2D* > (target));return obj;}});
 }
 inline void BindAll_GeneratedLuaModules(sol::state& lua)
 {
@@ -173,6 +188,8 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_Renderer2D(lua); 
 	Generate_DebugCamera(lua); 
 	Generate_Camera(lua); 
-	Generate_BoxCollider2D(lua); 
+	Generate_Physics2D(lua); 
 	Generate_EventType(lua); 
+	Generate_ColliderMotionType(lua); 
+	Generate_ColliderType(lua); 
 }

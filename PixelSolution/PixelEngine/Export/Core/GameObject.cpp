@@ -74,6 +74,12 @@ Module* GameObject::GetModuleToEngine(const std::string& moduleName)
 	return nullptr;
 }
 
+bool GameObject::HasModuleToEngine(const std::string& moduleName)
+{
+	auto targetType = GetType(moduleName);
+	return HasModule(targetType);
+}
+
 Transform* GameObject::GetTransform()
 {
 	uint64_t hash = GetTypeHashByName("Transform");

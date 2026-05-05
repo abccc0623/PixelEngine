@@ -44,6 +44,16 @@
                         <MenuItem Header="KeyDown" Tag="Event_KeyDown" Click="Event_KeyDown"/>
                         <MenuItem Header="KeyUp" Tag="Event_KeyUp" Click="Event_KeyUp"/>
                     </MenuItem>
+                    
+                    <MenuItem Header="Create Collider Table" IsCheckable= "False">
+                        <MenuItem Header="Box2D"    Tag="Box2D" Click="Create_Box2D"/>
+                        <MenuItem Header="Circle2D" Tag="Circle2D" Click="Create_Circle2D"/>
+                    </MenuItem>
+
+                    <MenuItem Header="Create Rigidbody Table" IsCheckable= "False">
+                        <MenuItem Header="RigidBody" Tag="CreateBox2D" Click="Create_RigidBody"/>
+                    </MenuItem>
+
                     <Separator />
                 </ContextMenu>
             </avalonedit:TextEditor.ContextMenu>

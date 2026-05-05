@@ -23,8 +23,10 @@ public:
 
 	 Module* AddModuleToEngine(PType* moduleClass);
 	 Module* GetModuleToEngine(PType* moduleClass);
+
 	 Module* AddModuleToEngine(const std::string& moduleName);
 	 Module* GetModuleToEngine(const std::string& moduleName);
+	 bool HasModuleToEngine(const std::string& moduleName);
 
 	 Transform* GetTransform();
 	 unsigned long GetHash();

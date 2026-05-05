@@ -43,6 +43,9 @@ private:
 	sol::function keyUp;
 	sol::function CustomEvent;
 
+	sol::function OnCollisionIn;
+	sol::function OnCollisionOut;
+
 	static LuaManager* lua;
 	static EventManager* event;
 	static CoroutineManager* coroutine;

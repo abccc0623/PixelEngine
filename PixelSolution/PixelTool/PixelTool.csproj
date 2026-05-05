@@ -30,6 +30,9 @@
  </ItemGroup>
 
  <ItemGroup>
+   <EmbeddedResource Include="LuaCode\CreateCollider.lua">
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </EmbeddedResource>
    <EmbeddedResource Include="LuaCode\EventFunction.lua">
      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
    </EmbeddedResource>

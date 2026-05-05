@@ -4,6 +4,7 @@
 #include "SceneManager.h"
 #include "Module/Transform.h"
 #include "Module/LuaScript.h"
+#include "Module/Physics2D.h"
 #include "Core/GameObject.h"
 #include "Type/PVector3.h"
 #include "Scene.h"
@@ -16,6 +17,15 @@ Movement::Movement()
 Movement::~Movement()
 {
 
+}
+
+void Movement::Start()
+{
+	if (targetObject->HasModuleToEngine("Physics2D"))
+	{
+		isPhysics = true;
+		physics2D = static_cast<Physics2D*>(targetObject->GetModuleToEngine("Physics2D"));
+	}
 }
 
 void Movement::Update()
@@ -57,15 +67,21 @@ void Movement::Update()
 	// 3. 이동 및 비트마스크 처리
 	if (distance > stopDistance)
 	{
-		// 계속 이동해야 할 때
-		transform->Position += direction * (GetDeltaTime() * speed);
+		if (isPhysics == false)
+		{
+			transform->Position += direction * (GetDeltaTime() * speed);
+		}
+		else
+		{
+			PVector3 v = direction * speed;
+			physics2D->SetVelocity(v.X, v.Y);
+		}
 		bitmask.set(MOVE);
 	}
 	else
 	{
 		// 멈춰야 할 때
 		bitmask.reset(MOVE);
-
 		// [선택 사항] 좌표 이동의 경우, 도착하면 타겟팅 모드를 꺼버립니다.
 		if (isTargetingPosition) {
 			isTargetingPosition = false;

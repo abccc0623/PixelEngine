@@ -29,7 +29,7 @@ private:
 	void BindGameObject();
 	void BindPVector3();
 	void BindEnum();
-	void BindBoxCollider2D();
+	void BindPhysics2D();
 private:
 
 };
