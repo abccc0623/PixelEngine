@@ -34,6 +34,8 @@ void BindManager::Initialize()
 {
 	PStatic* globalCreate = CreateNewStatic("Engine");
 	AddGlobalMethod(globalCreate,"CreateGameObject", GeGlobalMethodInfo(&CreateGameObject), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCreate,"CreateLuaGameObject", GeGlobalMethodInfo(&CreateLuaGameObject), MetaFlag::LUABIND);
+
 	AddGlobalMethod(globalCreate,"FindGameObject", GeGlobalMethodInfo(&FindGameObject), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCreate,"BackgroundColor", GeGlobalMethodInfo(&BackgroundColor), MetaFlag::LUABIND);
 	
@@ -282,6 +284,7 @@ void BindManager::BindPhysics2D()
 	AddMethod(table, "SetVelocityY",	GetMethodInfo(&Physics2D::SetVelocityY),	MetaFlag::LUABIND);
 	AddMethod(table, "SetPosition",		GetMethodInfo(&Physics2D::SetPosition),		MetaFlag::LUABIND);
 	AddMethod(table, "SetRotation",		GetMethodInfo(&Physics2D::SetRotation),		MetaFlag::LUABIND);
+	AddMethod(table, "SetActive",		GetMethodInfo(&Physics2D::SetActive),		MetaFlag::LUABIND);
 
 	AddMethod(table, "AddImpulse",		GetMethodInfo(&Physics2D::AddImpulse),		MetaFlag::LUABIND);
 	AddMethod(table, "AddForce",		GetMethodInfo(&Physics2D::AddForce),		MetaFlag::LUABIND);

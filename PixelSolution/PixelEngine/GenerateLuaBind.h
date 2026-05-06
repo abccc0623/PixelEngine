@@ -15,6 +15,7 @@ inline void Generate_Engine(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Engine");
 	ut["CreateGameObject"] = &CreateGameObject;
+	ut["CreateLuaGameObject"] = &CreateLuaGameObject;
 	ut["FindGameObject"] = &FindGameObject;
 	ut["BackgroundColor"] = &BackgroundColor;
 }
@@ -133,6 +134,7 @@ inline void Generate_Physics2D(sol::state& lua)
 	ut["SetVelocityY"] = &Physics2D::SetVelocityY;
 	ut["SetPosition"] = &Physics2D::SetPosition;
 	ut["SetRotation"] = &Physics2D::SetRotation;
+	ut["SetActive"] = &Physics2D::SetActive;
 	ut["AddImpulse"] = &Physics2D::AddImpulse;
 	ut["AddForce"] = &Physics2D::AddForce;
 }

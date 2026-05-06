@@ -157,15 +157,38 @@ void PhysManager::Clear()
 {
     if (mBodyInterface == nullptr) return;
 
-    // 1. 모든 바디 ID를 다 가져옵니다.
     JPH::BodyIDVector allBodies;
     physicsSystem->GetBodies(allBodies);
 
-    if (!allBodies.empty())
+    JPH::BodyIDVector addedBodies;
+    JPH::BodyIDVector removedBodies;
+    addedBodies.reserve(allBodies.size());
+    removedBodies.reserve(allBodies.size());
+
+
+    for (const JPH::BodyID& id : allBodies)
     {
-        mBodyInterface->RemoveBodies(allBodies.data(), (int)allBodies.size());
-        mBodyInterface->DestroyBodies(allBodies.data(), (int)allBodies.size());
+        if (mBodyInterface->IsAdded(id))
+        {
+            addedBodies.push_back(id);
+        }
+        else
+        {
+            // 이미 Remove된 상태의 객체 (오브젝트 풀 대기열 등)
+            removedBodies.push_back(id);
+        }
     }
+    if (!addedBodies.empty())
+    {
+        mBodyInterface->RemoveBodies(addedBodies.data(), (int)addedBodies.size());
+        mBodyInterface->DestroyBodies(addedBodies.data(), (int)addedBodies.size());
+    }
+
+    if (!removedBodies.empty())
+    {
+        mBodyInterface->DestroyBodies(removedBodies.data(), (int)removedBodies.size());
+    }
+
     colliderMap.clear();
     colliderFactory->Clear();
 }
@@ -218,6 +241,42 @@ void PhysManager::SetRotation(JPH::BodyID id, float x, float y, float z, bool ac
         targetRotation,
         (active) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate
     );
+}
+
+void PhysManager::SetActive(JPH::BodyID id, bool active)
+{
+    if (id.IsInvalid()) return;
+
+    if (active)
+    {
+        if (mBodyInterface->IsAdded(id))
+        {
+            PixelLog::Warn("ActivatePhysics: BodyID {} is already added to the world!");
+            return;
+        }
+
+        GameObject* target = reinterpret_cast<GameObject*>(mBodyInterface->GetUserData(id));
+        auto Pos = target->GetTransform()->Position;
+        auto Rot = target->GetTransform()->Rotation;
+
+        JPH::RVec3 RPos(Pos.X, Pos.Y, Pos.Z);
+        constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
+        JPH::Vec3 eulerRadians(Rot.X * DEG_TO_RAD, Rot.Y * DEG_TO_RAD, Rot.Z * DEG_TO_RAD);
+        JPH::Quat RRot = JPH::Quat::sEulerAngles(eulerRadians);
+
+        mBodyInterface->SetLinearAndAngularVelocity(id, JPH::Vec3::sZero(), JPH::Vec3::sZero());
+        mBodyInterface->SetPositionAndRotation(id, RPos, RRot, JPH::EActivation::DontActivate);
+        mBodyInterface->AddBody(id, JPH::EActivation::Activate);
+    }
+    else
+    {
+        mBodyInterface->RemoveBody(id);
+    }
+}
+
+bool PhysManager::GetActive(JPH::BodyID id)
+{
+    return mBodyInterface->IsAdded(id) ? true : false;
 }
 
 void PhysManager::AddImpulse(JPH::BodyID id, float x, float y, float z)
@@ -294,6 +353,8 @@ void PhysManager::DebugDraw(JPH::BodyID id)
    JPH::ShapeRefC rootShape = mBodyInterface->GetShape(id);
     if (rootShape == nullptr) return;
 
+    if (mBodyInterface->IsAdded(id) == false) return;
+
     JPH::RVec3 pos = mBodyInterface->GetPosition(id);
     JPH::Quat rot = mBodyInterface->GetRotation(id);
 
@@ -354,6 +415,7 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
     uint64 userData = mBodyInterface->GetUserData(id);
     if (userData == 0) return;
 
+    if (mBodyInterface->IsAdded(id) == false) return;
     GameObject* obj = reinterpret_cast<GameObject*>(userData);
 
     if (obj == nullptr) return;

@@ -28,6 +28,7 @@ public:
 
 
 	SPointer<GameObject> Create(std::string name);
+	SPointer<GameObject> CreateLua(std::string name, std::string script);
 private:
 	FunctionManager* functionManager = nullptr;
 	SceneManager* sceneManager = nullptr;

@@ -83,3 +83,19 @@ SPointer<GameObject> ObjectManager::Create(std::string name)
 	return p;
 }
 
+SPointer<GameObject> ObjectManager::CreateLua(std::string name,std::string script)
+{
+	//새로운 게임 오브젝트 생성
+	SPointer<GameObject> p = SPointer<GameObject>::Make_SPointer();
+	p->name = name;
+
+	p->AddModuleToEngine(GetType("Transform"));
+	auto targetModule = p->AddModuleToEngine(GetType("LuaScript"));
+	auto targetLua = reinterpret_cast<LuaScript*>(targetModule);
+	targetLua->Register(script);
+
+	//씬 매니저에 등록
+	sceneManager->RegisterGameObject(p);
+	return p;
+}
+

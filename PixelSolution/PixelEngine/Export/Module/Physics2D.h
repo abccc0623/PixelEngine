@@ -25,6 +25,9 @@ public:
 	void Start() override;
 	void PhysicsUpdate() override;
 
+	void SetActive(bool active);
+	bool GetActive();
+
 	void SetVelocity(float x, float y);
 	void SetVelocityX(float x);
 	void SetVelocityY(float y);

@@ -300,6 +300,9 @@
     <ClInclude Include="PhysStruct.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClInclude>
+    <ClInclude Include="PhysLayer.h">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -432,6 +435,9 @@
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClCompile>
     <ClCompile Include="PhysListener.cpp">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysLayer.cpp">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClCompile>
   </ItemGroup>

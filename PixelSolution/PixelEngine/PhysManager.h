@@ -37,6 +37,8 @@ public:
 	void SetVelocityZ(JPH::BodyID id,float z);
 	void SetPosition(JPH::BodyID id, float x, float y, float z, bool active);
 	void SetRotation(JPH::BodyID id, float x, float y, float z, bool active);
+	void SetActive(JPH::BodyID id, bool active);
+	bool GetActive(JPH::BodyID id);
 
 	void AddImpulse(JPH::BodyID id, float x, float y, float z);
 	void AddForce(JPH::BodyID id, float x, float y, float z);

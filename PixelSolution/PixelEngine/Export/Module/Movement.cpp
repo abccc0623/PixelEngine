@@ -23,7 +23,6 @@ void Movement::Start()
 {
 	if (targetObject->HasModuleToEngine("Physics2D"))
 	{
-		isPhysics = true;
 		physics2D = static_cast<Physics2D*>(targetObject->GetModuleToEngine("Physics2D"));
 	}
 }
@@ -67,7 +66,7 @@ void Movement::Update()
 	// 3. 이동 및 비트마스크 처리
 	if (distance > stopDistance)
 	{
-		if (isPhysics == false)
+		if (physics2D == nullptr || physics2D->GetActive() == false)
 		{
 			transform->Position += direction * (GetDeltaTime() * speed);
 		}

@@ -65,6 +65,16 @@ void Physics2D::PhysicsUpdate()
 	collision->SyncPhysics(targetBodyID);
 }
 
+void Physics2D::SetActive(bool active)
+{
+	collision->SetActive(targetBodyID, active);
+}
+
+bool Physics2D::GetActive()
+{
+	return collision->GetActive(targetBodyID);
+}
+
 void Physics2D::SetVelocity(float x, float y)
 {
 	if(!targetBodyID.IsInvalid())

@@ -168,6 +168,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
   <ItemGroup>
     <ClInclude Include="BitMask8.h" />
     <ClInclude Include="ColliderFactory.h" />
+    <ClInclude Include="PhysLayer.h" />
     <ClInclude Include="PhysListener.h" />
     <ClInclude Include="CoroutineManager.h" />
     <ClInclude Include="Event.h" />
@@ -230,6 +231,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="BindManager.cpp" />
     <ClCompile Include="BitMask8.cpp" />
     <ClCompile Include="ColliderFactory.cpp" />
+    <ClCompile Include="PhysLayer.cpp" />
     <ClCompile Include="PhysListener.cpp" />
     <ClCompile Include="Export\Module\Physics2D.cpp" />
     <ClCompile Include="PhysManager.cpp" />

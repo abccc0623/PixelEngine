@@ -266,6 +266,17 @@ GameObject* CreateGameObject(const char* name)
 	return nullptr;
 }
 
+GameObject* CreateLuaGameObject(const char* name, const char* script)
+{
+	if (Engine != nullptr)
+	{
+		auto objManager = Engine->GetFactory<ObjectManager>();
+		SPointer<GameObject> target = objManager->CreateLua(name, script);
+		return target.GetPtr();
+	}
+	return nullptr;
+}
+
 GameObject* FindGameObject(const char* name)
 {
 	auto sceneManager = Engine->GetFactory<SceneManager>();
