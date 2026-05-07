@@ -15,11 +15,7 @@ public:
 	virtual void MatrixUpdate();
 	virtual void PhysicsUpdate();
 	virtual void LastUpdate();
-	virtual std::string Save();
-	virtual void Load();
 
-
-	GameObject* GetGameObject();
 protected:
 	Transform* transform;
 	GameObject* targetObject;

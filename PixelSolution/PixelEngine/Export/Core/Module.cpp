@@ -21,25 +21,6 @@ void Module::Update(){}
 void Module::MatrixUpdate(){}
 void Module::PhysicsUpdate(){}
 void Module::LastUpdate(){}
-std::string Module::Save()
-{
-	nlohmann::ordered_json j;
-	return j.dump(4);
-}
-
-void Module::Load()
-{
-	
-}
-
-GameObject* Module::GetGameObject()
-{
-	if (targetObject != nullptr)
-	{
-		return targetObject;
-	}
-	return nullptr;
-}
 
 
 //void Module::OnCollisionEnter2D(WPointer<GameObject> target){}

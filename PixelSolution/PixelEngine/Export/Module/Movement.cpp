@@ -144,7 +144,7 @@ void Movement::StopMove()
 
 void Movement::AddCompleteCallBack(std::string functionName)
 {
-	Module* targetModule = this->GetGameObject()->GetModuleToEngine("LuaScript");
+	Module* targetModule = targetObject->GetModuleToEngine("LuaScript");
 	if (targetModule != nullptr)
 	{
 		LuaScript* script = static_cast<LuaScript*>(targetModule);
@@ -155,7 +155,7 @@ void Movement::AddCompleteCallBack(std::string functionName)
 
 void Movement::AddStartedCallBack(std::string functionName)
 {
-	Module* targetModule = this->GetGameObject()->GetModuleToEngine("LuaScript");
+	Module* targetModule = targetObject->GetModuleToEngine("LuaScript");
 	if (targetModule != nullptr)
 	{
 		LuaScript* script = static_cast<LuaScript*>(targetModule);
@@ -166,7 +166,7 @@ void Movement::AddStartedCallBack(std::string functionName)
 
 void Movement::AddDirectionCallBack(std::string functionName)
 {
-	Module* targetModule = this->GetGameObject()->GetModuleToEngine("LuaScript");
+	Module* targetModule = targetObject->GetModuleToEngine("LuaScript");
 	if (targetModule != nullptr)
 	{
 		LuaScript* script = static_cast<LuaScript*>(targetModule);
