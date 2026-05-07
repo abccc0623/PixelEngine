@@ -121,6 +121,12 @@
     <Filter Include="EngineAPI\Module\Physics2D">
       <UniqueIdentifier>{a8cbb97f-5bb8-46a6-9e44-fba35d72d292}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Manager\SystemManager">
+      <UniqueIdentifier>{875a91a6-3a95-4934-8d9b-7b95a2a7e101}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Types\Math">
+      <UniqueIdentifier>{b159098f-8947-4137-a1bb-2574b22c6a5d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -303,6 +309,24 @@
     <ClInclude Include="PhysLayer.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClInclude>
+    <ClInclude Include="TransformSystem.h">
+      <Filter>EngineAPI\Module\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleSystem.h">
+      <Filter>EngineAPI\Module\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleEntry.h">
+      <Filter>EngineAPI\Module\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemManager.h">
+      <Filter>EngineAPI\Manager\SystemManager</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformEntry.h">
+      <Filter>EngineAPI\Module\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelMath.h">
+      <Filter>EngineAPI\Types\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -439,6 +463,15 @@
     </ClCompile>
     <ClCompile Include="PhysLayer.cpp">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformSystem.cpp">
+      <Filter>EngineAPI\Module\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleSystem.cpp">
+      <Filter>EngineAPI\Module\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemManager.cpp">
+      <Filter>EngineAPI\Manager\SystemManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

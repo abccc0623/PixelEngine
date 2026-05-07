@@ -168,6 +168,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
   <ItemGroup>
     <ClInclude Include="BitMask8.h" />
     <ClInclude Include="ColliderFactory.h" />
+    <ClInclude Include="ModuleEntry.h" />
+    <ClInclude Include="ModuleSystem.h" />
     <ClInclude Include="PhysLayer.h" />
     <ClInclude Include="PhysListener.h" />
     <ClInclude Include="CoroutineManager.h" />
@@ -213,6 +215,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="pch.h" />
     <ClInclude Include="PhysStruct.h" />
     <ClInclude Include="PixelEngine.h" />
+    <ClInclude Include="PixelMath.h" />
     <ClInclude Include="PixelMeta.h" />
     <ClInclude Include="SPointer.h" />
     <ClInclude Include="PtrControlBlock.h" />
@@ -222,7 +225,10 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="SystemManager.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="TransformEntry.h" />
+    <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="UPointer.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="WPointer.h" />
@@ -231,6 +237,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="BindManager.cpp" />
     <ClCompile Include="BitMask8.cpp" />
     <ClCompile Include="ColliderFactory.cpp" />
+    <ClCompile Include="ModuleSystem.cpp" />
     <ClCompile Include="PhysLayer.cpp" />
     <ClCompile Include="PhysListener.cpp" />
     <ClCompile Include="Export\Module\Physics2D.cpp" />
@@ -275,8 +282,10 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="SystemManager.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="TimeManager.cpp" />
+    <ClCompile Include="TransformSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

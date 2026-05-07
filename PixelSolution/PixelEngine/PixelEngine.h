@@ -17,6 +17,7 @@ class Scene;
 class TextureManager;
 class ResourceManager;
 class EventManager;
+class SystemManager;
 
 template <typename T> class SPointer;
 class PixelEngine
@@ -64,5 +65,7 @@ public:
 	}
 private:
 	std::unordered_map<std::type_index, EngineManager*> factoryMap;
+
+
 };
 

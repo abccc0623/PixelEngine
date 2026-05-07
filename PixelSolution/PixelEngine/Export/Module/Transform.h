@@ -9,6 +9,11 @@ public:
 	Transform();
 	virtual ~Transform();
 public:
+	void SetPosition(float x, float y, float z);
+	void SetRotation(float x, float y, float z);
+	void SetScale(float x, float y, float z);
+
+
 	void MatrixUpdate() override;
 	void Start() override;
 

@@ -54,5 +54,6 @@
 #include <sol/forward.hpp>
 #include "sol.hpp"
 #include "Log.h"
+#include "PixelMath.h"
 
 #endif //PCH_H
