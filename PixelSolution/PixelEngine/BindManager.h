@@ -30,6 +30,7 @@ private:
 	void BindPVector3();
 	void BindEnum();
 	void BindPhysics2D();
+	void BindEntity();
 private:
 
 };

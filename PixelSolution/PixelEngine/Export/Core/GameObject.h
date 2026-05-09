@@ -28,7 +28,7 @@ public:
 	 Module* GetModuleToEngine(const std::string& moduleName);
 	 bool HasModuleToEngine(const std::string& moduleName);
 
-	 Transform* GetTransform();
+	 //Transform* GetTransform();
 	 unsigned long GetHash();
 
 	//sol::object AddModuleToLua(std::string moduleName);

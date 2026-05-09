@@ -256,17 +256,17 @@ void PhysManager::SetActive(JPH::BodyID id, bool active)
         }
 
         GameObject* target = reinterpret_cast<GameObject*>(mBodyInterface->GetUserData(id));
-        auto Pos = target->GetTransform()->Position;
-        auto Rot = target->GetTransform()->Rotation;
-
-        JPH::RVec3 RPos(Pos.X, Pos.Y, Pos.Z);
-        constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
-        JPH::Vec3 eulerRadians(Rot.X * DEG_TO_RAD, Rot.Y * DEG_TO_RAD, Rot.Z * DEG_TO_RAD);
-        JPH::Quat RRot = JPH::Quat::sEulerAngles(eulerRadians);
-
-        mBodyInterface->SetLinearAndAngularVelocity(id, JPH::Vec3::sZero(), JPH::Vec3::sZero());
-        mBodyInterface->SetPositionAndRotation(id, RPos, RRot, JPH::EActivation::DontActivate);
-        mBodyInterface->AddBody(id, JPH::EActivation::Activate);
+        //auto Pos = target->GetTransform()->Position;
+        //auto Rot = target->GetTransform()->Rotation;
+        //
+        //JPH::RVec3 RPos(Pos.X, Pos.Y, Pos.Z);
+        //constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
+        //JPH::Vec3 eulerRadians(Rot.X * DEG_TO_RAD, Rot.Y * DEG_TO_RAD, Rot.Z * DEG_TO_RAD);
+        //JPH::Quat RRot = JPH::Quat::sEulerAngles(eulerRadians);
+        //
+        //mBodyInterface->SetLinearAndAngularVelocity(id, JPH::Vec3::sZero(), JPH::Vec3::sZero());
+        //mBodyInterface->SetPositionAndRotation(id, RPos, RRot, JPH::EActivation::DontActivate);
+        //mBodyInterface->AddBody(id, JPH::EActivation::Activate);
     }
     else
     {
@@ -422,15 +422,15 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
     JPH::RVec3 pos = mBodyInterface->GetPosition(id);
     JPH::Quat rot = mBodyInterface->GetRotation(id);
 
-    auto tr = obj->GetTransform();
-    if (tr == nullptr) return;
-
-    tr->Position.X = pos.GetX();
-    tr->Position.Y = pos.GetY();
-
-    float angleInRadians = rot.GetEulerAngles().GetZ();
-    tr->Rotation.Z = -JPH::RadiansToDegrees(angleInRadians);
-    DebugDraw(id);
+    //auto tr = obj->GetTransform();
+    //if (tr == nullptr) return;
+    //
+    //tr->Position.X = pos.GetX();
+    //tr->Position.Y = pos.GetY();
+    //
+    //float angleInRadians = rot.GetEulerAngles().GetZ();
+    //tr->Rotation.Z = -JPH::RadiansToDegrees(angleInRadians);
+    //DebugDraw(id);
 }
 
 

@@ -18,6 +18,9 @@ public:
 	void Release() override;
 	void Clear() override;
 
+	uint32_t CreateEntity(const std::string& scriptName);
+	void DestroyEntity(uint32_t id);
+
 	void RegisterGameObject(SPointer<GameObject> newObject);
 	GameObject* FindGameObject(const std::string& name);
 

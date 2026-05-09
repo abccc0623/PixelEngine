@@ -50,7 +50,8 @@
 #include <cstdlib>
 #include <json.hpp>
 #include <json_fwd.hpp>
-
+#include <cstdint>
+#include <typeindex>
 #include <sol/forward.hpp>
 #include "sol.hpp"
 #include "Log.h"

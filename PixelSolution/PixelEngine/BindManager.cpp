@@ -16,6 +16,8 @@
 
 #include "PixelMetaAPI.h"
 #include "PixelEngineAPI.h"
+#include "Entity.h"
+#include "PTransform.h"
 
 
 BindManager::BindManager()
@@ -33,10 +35,9 @@ BindManager::~BindManager()
 void BindManager::Initialize()
 {
 	PStatic* globalCreate = CreateNewStatic("Engine");
-	AddGlobalMethod(globalCreate,"CreateGameObject", GeGlobalMethodInfo(&CreateGameObject), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCreate,"CreateLuaGameObject", GeGlobalMethodInfo(&CreateLuaGameObject), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCreate,"CreateEntity", GeGlobalMethodInfo(&CreateEntity), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCreate,"DestroyEntity", GeGlobalMethodInfo(&DestroyEntity), MetaFlag::LUABIND);
 
-	AddGlobalMethod(globalCreate,"FindGameObject", GeGlobalMethodInfo(&FindGameObject), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCreate,"BackgroundColor", GeGlobalMethodInfo(&BackgroundColor), MetaFlag::LUABIND);
 	
 	PStatic* globalScene = CreateNewStatic("Scene");
@@ -57,21 +58,14 @@ void BindManager::Initialize()
 	AddGlobalMethod(globaDebug, "LogError", GeGlobalMethodInfo(&LogError), MetaFlag::LUABIND);
 	AddGlobalMethod(globaDebug, "LogWarning", GeGlobalMethodInfo(&LogWarning), MetaFlag::LUABIND);
 	
-	PStatic* globaVector3 = CreateNewStatic("Vector3");
-	AddGlobalMethod(globaVector3, "Lerp",		GeGlobalMethodInfo(&Lerp),		MetaFlag::LUABIND);
-	AddGlobalMethod(globaVector3, "Distance",	GeGlobalMethodInfo(&Distance),	MetaFlag::LUABIND);
-	CreateNewClass("Module");
-	
-	BindPVector3();
-	BindLuaScript();
-	BindGameObject();
-	BindTransform();
-	BindMovement();
-	BindRenderer2D();
-	BindDebugCamera();
-	BindCamera();
-	BindPhysics2D();
-	BindEnum();
+	PStatic* globalTransform = CreateNewStatic("Transform");
+	AddGlobalMethod(globalTransform, "Add", GeGlobalMethodInfo(&ECS::Transform::Add), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "SetPosition", GeGlobalMethodInfo(&ECS::Transform::SetPosition), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "SetRotation", GeGlobalMethodInfo(&ECS::Transform::SetRotation), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "SetScale", GeGlobalMethodInfo(&ECS::Transform::SetScale), MetaFlag::LUABIND);
+
+
+	BindEntity();
 }
 
 void BindManager::Update()
@@ -228,7 +222,6 @@ void BindManager::BindGameObject()
 	auto table = CreateNewClass("GameObject");
 	AddMethod(table, "AddModule", GetMethodInfo(&GameObject::AddModule), MetaFlag::LUABIND);
 	AddMethod(table, "GetModule", GetMethodInfo(&GameObject::GetModule), MetaFlag::LUABIND);
-	AddMethod(table, "GetTransform", GetMethodInfo(&GameObject::GetTransform), MetaFlag::LUABIND);
 }
 
 void BindManager::BindPVector3()
@@ -288,6 +281,12 @@ void BindManager::BindPhysics2D()
 
 	AddMethod(table, "AddImpulse",		GetMethodInfo(&Physics2D::AddImpulse),		MetaFlag::LUABIND);
 	AddMethod(table, "AddForce",		GetMethodInfo(&Physics2D::AddForce),		MetaFlag::LUABIND);
+}
+
+void BindManager::BindEntity()
+{
+	auto table = CreateNewClass("Entity");
+	AddMember(table, "Active", GetMemberInfo(&ECS::Entity::Active), MetaFlag::LUABIND);
 }
 
 

@@ -42,10 +42,10 @@ void Movement::Update()
 	else if (target.IsValid())
 	{
 		// 객체 추적 모드일 경우
-		auto k = target.Lock();
-		auto tr = k->GetTransform();
-		destPos = tr->Position;
-		hasDestination = true;
+		//auto k = target.Lock();
+		//auto tr = k->GetTransform();
+		//destPos = tr->Position;
+		//hasDestination = true;
 	}
 
 	// 목적지가 없으면(타겟 객체도 없고 좌표 설정도 안 됨) 리턴

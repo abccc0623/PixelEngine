@@ -10,6 +10,8 @@
 #include "Log.h"
 #include "Export/PixelEngineAPI.h"
 #include "LuaSceneInfo.h"
+#include "EntityArray.h"
+#include "Registry.h"
 extern PixelEngine* Engine;
 extern SceneChangeCallbackFunc g_SceneObjectChangeCallBack;
 Scene::Scene()
@@ -29,6 +31,9 @@ void Scene::Initialize(const std::string& luaPath, const std::string& name)
     lua  = Engine->GetFactory<LuaManager>();
     func = Engine->GetFactory<FunctionManager>();
     info = lua->GetSceneLua(name);
+
+    entityArray = new ECS::EntityArray();
+    registry = new ECS::Registry();
 }
 
 
@@ -46,7 +51,7 @@ void Scene::Update()
     {
         info->Update();
     }
-    func->FunctionUpdate();
+    entityArray->Update();
 }
 
 void Scene::Release()
@@ -55,7 +60,20 @@ void Scene::Release()
     {
         info->Release();
     }
+    delete entityArray;
+    delete registry;
     ObjectList.clear();
+}
+
+uint32_t Scene::CreateEntity(const std::string& scriptName)
+{
+   return entityArray->Create(scriptName);
+}
+
+void Scene::DestroyEntity(uint32_t id)
+{
+    ECS::EntityID entityID(id);
+    entityArray->Destroy(entityID);
 }
 
 void Scene::CreateGameObject(SPointer<GameObject> Obj)
@@ -80,6 +98,11 @@ void Scene::DeleteGameObject(size_t targetObject)
     {
         g_SceneObjectChangeCallBack();
     }
+}
+
+ECS::Registry* Scene::GetRegistry()
+{
+    return registry;
 }
 
 GameObject** Scene::GetAllSceneObjects(int* maxCount)

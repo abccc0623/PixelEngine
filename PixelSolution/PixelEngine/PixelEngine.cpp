@@ -24,6 +24,8 @@
 #include "SystemManager.h"
 #include "CoroutineManager.h"
 
+#include "Entity.h"
+
 void PixelEngine::Initialize(HWND hWnd, int width, int height)
 {
 	BindFactory<KeyInputManager>();
@@ -108,6 +110,13 @@ void PixelEngine::Resize(int width, int height)
 void PixelEngine::Clear()
 {
 	IsClear = true;
+}
+
+void PixelEngine::CreateEntity(std::string scriptName)
+{
+	
+
+
 }
 
 void PixelEngine::QuitWindow()

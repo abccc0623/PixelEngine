@@ -127,6 +127,24 @@
     <Filter Include="EngineAPI\Types\Math">
       <UniqueIdentifier>{b159098f-8947-4137-a1bb-2574b22c6a5d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\ECS">
+      <UniqueIdentifier>{3c873b64-e82c-4259-97b0-a927728ae160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\ECS\Entity">
+      <UniqueIdentifier>{86e0b90d-93d5-4fb2-bbee-7732ec9e874e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\ECS\ID">
+      <UniqueIdentifier>{a89f8a82-48c7-4d1f-b098-344e4f22397c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\ECS\System">
+      <UniqueIdentifier>{f95c0794-7ec4-4b00-976c-3f8d32a88f34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\ECS\Component">
+      <UniqueIdentifier>{c71a270c-99a9-4af7-b601-f5918ac8b664}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\ECS\Registry">
+      <UniqueIdentifier>{54ec37f7-3b8c-497a-94e8-c90a205c6dc9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -327,6 +345,33 @@
     <ClInclude Include="PixelMath.h">
       <Filter>EngineAPI\Types\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>EngineAPI\ECS\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityLuaData.h">
+      <Filter>EngineAPI\ECS\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityArray.h">
+      <Filter>EngineAPI\ECS\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityID.h">
+      <Filter>EngineAPI\ECS\ID</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentID.h">
+      <Filter>EngineAPI\ECS\ID</Filter>
+    </ClInclude>
+    <ClInclude Include="PTransform.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Registry.h">
+      <Filter>EngineAPI\ECS\Registry</Filter>
+    </ClInclude>
+    <ClInclude Include="IComponentArray.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentArray.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -472,6 +517,21 @@
     </ClCompile>
     <ClCompile Include="SystemManager.cpp">
       <Filter>EngineAPI\Manager\SystemManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>EngineAPI\ECS\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityLuaData.cpp">
+      <Filter>EngineAPI\ECS\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityArray.cpp">
+      <Filter>EngineAPI\ECS\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Registry.cpp">
+      <Filter>EngineAPI\ECS\Registry</Filter>
+    </ClCompile>
+    <ClCompile Include="PTransform.cpp">
+      <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

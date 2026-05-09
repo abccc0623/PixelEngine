@@ -30,6 +30,7 @@ public:
 	void ReleaseShared();
 	void Resize(int width, int height);
 	void Clear();
+	void CreateEntity(std::string scriptName);
 public:
 	void QuitWindow();
 	void ClientUpdate();

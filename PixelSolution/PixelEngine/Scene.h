@@ -13,6 +13,12 @@ class LuaManager;
 class FunctionManager;
 class SceneManager;
 class LuaSceneInfo;
+
+namespace ECS
+{
+	class EntityArray;
+	class Registry;
+}
 class Scene : public PixelObject
 {
 public:
@@ -23,8 +29,14 @@ public:
 	void Update();
 	void Release();
 
+	uint32_t CreateEntity(const std::string& scriptName);
+	void DestroyEntity(uint32_t id);
+
 	void CreateGameObject(SPointer<GameObject> Obj);
 	void DeleteGameObject(size_t targetObject);
+	ECS::Registry* GetRegistry();
+
+
 	GameObject** GetAllSceneObjects(int* maxCount);
 	GameObject* FindGameObject(const std::string& name);
 	WPointer<GameObject> FindGameObjectToEngine(const std::string& name);
@@ -40,5 +52,8 @@ private:
 private:
 	LuaManager* lua;
 	FunctionManager* func;
+
+	ECS::EntityArray* entityArray;
+	ECS::Registry* registry;
 };
 

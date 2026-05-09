@@ -277,6 +277,20 @@ GameObject* CreateLuaGameObject(const char* name, const char* script)
 	return nullptr;
 }
 
+unsigned int CreateEntity(const char* script)
+{
+	std::string scriptName(script);
+	auto sceneManager = Engine->GetFactory<SceneManager>();
+	return sceneManager->CreateEntity(scriptName);
+}
+
+void DestroyEntity(unsigned int id)
+{
+	auto sceneManager = Engine->GetFactory<SceneManager>();
+	uint32_t u(id);
+	sceneManager->DestroyEntity(u);
+}
+
 GameObject* FindGameObject(const char* name)
 {
 	auto sceneManager = Engine->GetFactory<SceneManager>();

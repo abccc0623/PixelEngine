@@ -80,11 +80,11 @@ bool GameObject::HasModuleToEngine(const std::string& moduleName)
 	return HasModule(targetType);
 }
 
-Transform* GameObject::GetTransform()
-{
-	uint64_t hash = GetTypeHashByName("Transform");
-	return static_cast<Transform*>(ModuleMap[hash].GetPtr());
-}
+//Transform* GameObject::GetTransform()
+//{
+//	uint64_t hash = GetTypeHashByName("Transform");
+//	return static_cast<Transform*>(ModuleMap[hash].GetPtr());
+//}
 
 unsigned long GameObject::GetHash()
 {
@@ -141,7 +141,7 @@ Module* GameObject::AddModuleSetting(PType* moduleClass)
 	auto find = ModuleMap.find(hash);
 	if (find != ModuleMap.end())
 	{
-		targetModule->transform = reinterpret_cast<Transform*>(ModuleMap[hash].GetPtr());
+		//targetModule->transform = reinterpret_cast<Transform*>(ModuleMap[hash].GetPtr());
 	}
 	return targetModule;
 }

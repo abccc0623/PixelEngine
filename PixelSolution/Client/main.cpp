@@ -54,7 +54,6 @@ int main()
     EngineInitialize(hWnd,800,600);
 
     Import("./Asset/main.lua");
-    //Start();
 
     MSG msg = { 0 };
     while (true)

@@ -128,6 +128,28 @@ void SceneManager::Clear()
 	SceneMap.clear();
 }
 
+uint32_t SceneManager::CreateEntity(const std::string& scriptName)
+{
+	if (nowScene.IsValid() == false)
+	{
+		CreateScene("DefaultScene");
+		ChangeScene("DefaultScene");
+	}
+	auto block = nowScene.Lock();
+	return block->CreateEntity(scriptName);
+}
+
+void SceneManager::DestroyEntity(uint32_t id)
+{
+	if (nowScene.IsValid() == false)
+	{
+		CreateScene("DefaultScene");
+		ChangeScene("DefaultScene");
+	}
+	auto block = nowScene.Lock();
+	block->DestroyEntity(id);
+}
+
 
 void SceneManager::CreateScene(const std::string& luaPath)
 {

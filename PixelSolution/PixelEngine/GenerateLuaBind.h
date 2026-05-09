@@ -1,22 +1,15 @@
 #include "sol.hpp"
 #include "PixelEngineAPI.h" 
 #include <unordered_map>
-#include "Type/PVector3.h" 
-#include "Module/LuaScript.h" 
-#include "Core/GameObject.h" 
-#include "Module/Transform.h" 
-#include "Module/Movement.h" 
-#include "Module/Renderer2D.h" 
-#include "Module/DebugCamera.h" 
-#include "Module/Camera.h" 
-#include "Module/Physics2D.h" 
+#include "Entity.h" 
+#include "PTransform.h"
+using namespace ECS;
 extern std::unordered_map <std::string, std::function<sol::object(sol::this_state s, Module* target)>> AddModuleList;
 inline void Generate_Engine(sol::state& lua) 
 {
 	sol::table ut = lua.create_named_table("Engine");
-	ut["CreateGameObject"] = &CreateGameObject;
-	ut["CreateLuaGameObject"] = &CreateLuaGameObject;
-	ut["FindGameObject"] = &FindGameObject;
+	ut["CreateEntity"] = &CreateEntity;
+	ut["DestroyEntity"] = &DestroyEntity;
 	ut["BackgroundColor"] = &BackgroundColor;
 }
 inline void Generate_Scene(sol::state& lua) 
@@ -45,132 +38,19 @@ inline void Generate_Debug(sol::state& lua)
 	ut["LogError"] = &LogError;
 	ut["LogWarning"] = &LogWarning;
 }
-inline void Generate_Vector3(sol::state& lua) 
-{
-	sol::table ut = lua.create_named_table("Vector3");
-	ut["Lerp"] = &Lerp;
-	ut["Distance"] = &Distance;
-}
-inline void Generate_Module(sol::state& lua) 
-{
-	sol::usertype<Module> ut = lua.new_usertype<Module>("Module");
-}
-inline void Generate_PVector3(sol::state& lua) 
-{
-	sol::usertype<PVector3> ut = lua.new_usertype<PVector3>("PVector3",sol::constructors<PVector3(float,float,float)>()); 
-	ut["X"] = &PVector3::X;
-	ut["Y"] = &PVector3::Y;
-	ut["Z"] = &PVector3::Z;
-	ut["Normalize"] = &PVector3::Normalize;
-}
-inline void Generate_LuaScript(sol::state& lua) 
-{
-	sol::usertype<LuaScript> ut = lua.new_usertype<LuaScript>("LuaScript");
-	ut["Register"] = &LuaScript::Register;
-	ut["Get"] = &LuaScript::Get;
-	ut["TriggerCustomEvent"] = &LuaScript::TriggerCustomEvent;
-	ut["RegisterMessage"] = &LuaScript::RegisterMessage;
-	ut["UnregisterMessage"] = &LuaScript::UnregisterMessage;
-	ut["RegisterCustomMessage"] = &LuaScript::RegisterCustomMessage;
-	ut["UnregisterCustomMessage"] = &LuaScript::UnregisterCustomMessage;
-	ut["StartCoroutine"] = &LuaScript::StartCoroutine;
-}
-inline void Generate_GameObject(sol::state& lua) 
-{
-	sol::usertype<GameObject> ut = lua.new_usertype<GameObject>("GameObject");
-	ut["AddModule"] = &GameObject::AddModule;
-	ut["GetModule"] = &GameObject::GetModule;
-	ut["GetTransform"] = &GameObject::GetTransform;
-}
 inline void Generate_Transform(sol::state& lua) 
 {
-	sol::usertype<Transform> ut = lua.new_usertype<Transform>("Transform");
-	ut["Position"] = &Transform::Position;
-	ut["Rotation"] = &Transform::Rotation;
-	ut["Scale"] = &Transform::Scale;
-	ut["GetLookVector"] = &Transform::GetLookVector;
-	ut["GetRightVector"] = &Transform::GetRightVector;
-	ut["GetUpVector"] = &Transform::GetUpVector;
+	sol::table ut = lua.create_named_table("Transform");
+	ut["AddTransform"] = &ECS::Transform::AddTransform;
+	ut["SetPosition"] = &ECS::Transform::SetPosition;
 }
-inline void Generate_Movement(sol::state& lua) 
+inline void Generate_Entity(sol::state& lua) 
 {
-	sol::usertype<Movement> ut = lua.new_usertype<Movement>("Movement");
-	ut["stopDistance"] = &Movement::stopDistance;
-	ut["speed"] = &Movement::speed;
-	ut["MoveToTarget"] = &Movement::MoveToTarget;
-	ut["MoveToPosition"] = &Movement::MoveToPosition;
-	ut["StopMove"] = &Movement::StopMove;
-	ut["AddCompleteCallBack"] = &Movement::AddCompleteCallBack;
-	ut["AddStartedCallBack"] = &Movement::AddStartedCallBack;
-	ut["AddDirectionCallBack"] = &Movement::AddDirectionCallBack;
-}
-inline void Generate_Renderer2D(sol::state& lua) 
-{
-	sol::usertype<Renderer2D> ut = lua.new_usertype<Renderer2D>("Renderer2D");
-	ut["SetTexture"] = &Renderer2D::SetTexture;
-	ut["SetMaterial"] = &Renderer2D::SetMaterial;
-	ut["CreateAnimation"] = &Renderer2D::CreateAnimation;
-	ut["PlayAnimation"] = &Renderer2D::PlayAnimation;
-	ut["SetTextureOffset"] = &Renderer2D::SetTextureOffset;
-	ut["AddTextureOffset"] = &Renderer2D::AddTextureOffset;
-	ut["SetTextureTiling"] = &Renderer2D::SetTextureTiling;
-	ut["AddTextureTiling"] = &Renderer2D::AddTextureTiling;
-}
-inline void Generate_DebugCamera(sol::state& lua) 
-{
-	sol::usertype<DebugCamera> ut = lua.new_usertype<DebugCamera>("DebugCamera");
-}
-inline void Generate_Camera(sol::state& lua) 
-{
-	sol::usertype<Camera> ut = lua.new_usertype<Camera>("Camera");
-}
-inline void Generate_Physics2D(sol::state& lua) 
-{
-	sol::usertype<Physics2D> ut = lua.new_usertype<Physics2D>("Physics2D");
-	ut["SetCollider"] = &Physics2D::SetCollider;
-	ut["SetRigidbody"] = &Physics2D::SetRigidbody;
-	ut["SetVelocity"] = &Physics2D::SetVelocity;
-	ut["SetVelocityX"] = &Physics2D::SetVelocityX;
-	ut["SetVelocityY"] = &Physics2D::SetVelocityY;
-	ut["SetPosition"] = &Physics2D::SetPosition;
-	ut["SetRotation"] = &Physics2D::SetRotation;
-	ut["SetActive"] = &Physics2D::SetActive;
-	ut["AddImpulse"] = &Physics2D::AddImpulse;
-	ut["AddForce"] = &Physics2D::AddForce;
-}
-inline void Generate_EventType(sol::state& lua) 
-{
-	lua.new_enum<EventType>("EventType", {
-	{ "KeyUp", EventType::KeyUp },
-	{ "KeyDown", EventType::KeyDown },
-	{ "CollisionIn", EventType::CollisionIn },
-	{ "CollisionOut", EventType::CollisionOut },
-});
-}
-inline void Generate_ColliderMotionType(sol::state& lua) 
-{
-	lua.new_enum<ColliderMotionType>("ColliderMotionType", {
-	{ "Static", ColliderMotionType::Static },
-	{ "Kinematic", ColliderMotionType::Kinematic },
-	{ "Dynamic", ColliderMotionType::Dynamic },
-});
-}
-inline void Generate_ColliderType(sol::state& lua) 
-{
-	lua.new_enum<ColliderType>("ColliderType", {
-	{ "Box2D", ColliderType::Box2D },
-	{ "Circle2D", ColliderType::Circle2D },
-});
+	sol::usertype<Entity> ut = lua.new_usertype<Entity>("Entity");
+	ut["Active"] = &Entity::Active;
 }
 inline void BindAll_AddModules() 
 { 
-	AddModuleList.insert({ "LuaScript",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<LuaScript* > (target));return obj;}});
-	AddModuleList.insert({ "Transform",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Transform* > (target));return obj;}});
-	AddModuleList.insert({ "Movement",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Movement* > (target));return obj;}});
-	AddModuleList.insert({ "Renderer2D",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Renderer2D* > (target));return obj;}});
-	AddModuleList.insert({ "DebugCamera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<DebugCamera* > (target));return obj;}});
-	AddModuleList.insert({ "Camera",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Camera* > (target));return obj;}});
-	AddModuleList.insert({ "Physics2D",[](sol::this_state s, Module* target) -> sol::object{sol::object obj = sol::make_object(s, static_cast<Physics2D* > (target));return obj;}});
 }
 inline void BindAll_GeneratedLuaModules(sol::state& lua)
 {
@@ -180,18 +60,6 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_Asset(lua); 
 	Generate_Input(lua); 
 	Generate_Debug(lua); 
-	Generate_Vector3(lua); 
-	Generate_Module(lua); 
-	Generate_PVector3(lua); 
-	Generate_LuaScript(lua); 
-	Generate_GameObject(lua); 
 	Generate_Transform(lua); 
-	Generate_Movement(lua); 
-	Generate_Renderer2D(lua); 
-	Generate_DebugCamera(lua); 
-	Generate_Camera(lua); 
-	Generate_Physics2D(lua); 
-	Generate_EventType(lua); 
-	Generate_ColliderMotionType(lua); 
-	Generate_ColliderType(lua); 
+	Generate_Entity(lua); 
 }
