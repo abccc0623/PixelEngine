@@ -61,9 +61,6 @@
     <Filter Include="EngineAPI\Module\DebugCamera">
       <UniqueIdentifier>{dbbcd275-3e77-41d3-9c4d-cc58a12c6021}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Module\LuaScript">
-      <UniqueIdentifier>{4a286522-28ec-4098-bc1e-2c1d09fbc887}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Manager\ResourceManager">
       <UniqueIdentifier>{d6f518e3-501d-4b3a-b189-73aef13abd36}</UniqueIdentifier>
     </Filter>
@@ -218,9 +215,6 @@
     </ClInclude>
     <ClInclude Include="LuaModuleInfo.h">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Export\Module\LuaScript.h">
-      <Filter>EngineAPI\Module\LuaScript</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
       <Filter>EngineAPI\Log</Filter>
@@ -412,9 +406,6 @@
     </ClCompile>
     <ClCompile Include="LuaModuleInfo.cpp">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Export\Module\LuaScript.cpp">
-      <Filter>EngineAPI\Module\LuaScript</Filter>
     </ClCompile>
     <ClCompile Include="Log.cpp">
       <Filter>EngineAPI\Log</Filter>

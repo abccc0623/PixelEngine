@@ -16,7 +16,6 @@
 #include "CoroutineManager.h"
 
 #include "Module/Renderer2D.h"
-#include "Module/LuaScript.h"
 #include "GenerateLuaBind.h"
 
 

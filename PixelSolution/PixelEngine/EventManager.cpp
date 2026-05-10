@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "EventManager.h"
 #include <algorithm>
-#include "Module/LuaScript.h"
 #include "PixelMetaAPI.h"
 #include "PixelEngineAPI.h"
 

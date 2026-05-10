@@ -2,7 +2,6 @@
 #include "BindManager.h"
 
 #include "Module/Renderer2D.h"
-#include "Module/LuaScript.h"
 #include "Module/Movement.h"
 #include "Module/Physics2D.h"
 
@@ -90,34 +89,6 @@ void BindManager::Release()
 
 }
 
-
-
-void BindManager::BindLuaScript()
-{
-	auto table = CreateNewClass("LuaScript", "Module");
-	CreateClassFunction(table, []() ->void*
-		{
-			return new LuaScript();
-		});
-	DeleteClassFunction(table, []() ->void
-		{
-			PixelLog::Info("Delete LuaScript");
-		});
-	AddMethod(table, "Awake", GetMethodInfo(&LuaScript::Awake));
-	AddMethod(table, "Start", GetMethodInfo(&LuaScript::Start));
-	AddMethod(table, "Update", GetMethodInfo(&LuaScript::Update));
-
-	AddMethod(table, "Register", GetMethodInfo(&LuaScript::Register), MetaFlag::LUABIND);
-	AddMethod(table, "Get", GetMethodInfo(&LuaScript::Get), MetaFlag::LUABIND);
-	AddMethod(table, "TriggerCustomEvent", GetMethodInfo(&LuaScript::TriggerCustomEvent), MetaFlag::LUABIND);
-
-	AddMethod(table, "RegisterMessage", GetMethodInfo(&LuaScript::RegisterMessage), MetaFlag::LUABIND);
-	AddMethod(table, "UnregisterMessage", GetMethodInfo(&LuaScript::UnregisterMessage), MetaFlag::LUABIND);
-	AddMethod(table, "RegisterCustomMessage", GetMethodInfo(&LuaScript::RegisterCustomMessage), MetaFlag::LUABIND);
-	AddMethod(table, "UnregisterCustomMessage", GetMethodInfo(&LuaScript::UnregisterCustomMessage), MetaFlag::LUABIND);
-
-	AddMethod(table, "StartCoroutine", GetMethodInfo(&LuaScript::StartCoroutine), MetaFlag::LUABIND);
-}
 void BindManager::BindMovement()
 {
 	auto table = CreateNewClass("Movement", "Module");
