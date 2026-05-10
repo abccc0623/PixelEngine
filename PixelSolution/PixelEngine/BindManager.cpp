@@ -13,9 +13,9 @@
 #include "PixelEngineAPI.h"
 #include "Entity.h"
 
-#include "PTransform.h"
-#include "PCamera.h"
-#include "PRenderer2D.h"
+#include "Transform.h"
+#include "Camera.h"
+#include "Renderer2D.h"
 
 BindManager::BindManager()
 {

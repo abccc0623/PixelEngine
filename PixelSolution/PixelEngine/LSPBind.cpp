@@ -57,7 +57,7 @@ void LSPBind::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
 
 std::string LSPBind::TypeChangeByLua(std::string type)
 {
-	if (type == "int" || type == "float" || type == "double" || type == "char")
+	if (type == "int" || type == "float" || type == "double" || type == "char" || type == "unsigned int")
 	{
 		type = "number";
 	}

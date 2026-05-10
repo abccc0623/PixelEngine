@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "PCamera.h"
+#include "Camera.h"
 #include "Registry.h"
 #include "PixelEngineAPI.h"
 void ECS::Camera::Add(unsigned int id)

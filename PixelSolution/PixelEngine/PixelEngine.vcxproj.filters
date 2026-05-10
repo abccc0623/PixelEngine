@@ -309,7 +309,7 @@
     <ClInclude Include="ComponentID.h">
       <Filter>EngineAPI\ECS\ID</Filter>
     </ClInclude>
-    <ClInclude Include="PTransform.h">
+    <ClInclude Include="Transform.h">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClInclude>
     <ClInclude Include="Registry.h">
@@ -327,10 +327,10 @@
     <ClInclude Include="Renderer2DSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
-    <ClInclude Include="PRenderer2D.h">
+    <ClInclude Include="Renderer2D.h">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClInclude>
-    <ClInclude Include="PCamera.h">
+    <ClInclude Include="Camera.h">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClInclude>
     <ClInclude Include="CameraSystem.h">
@@ -470,7 +470,7 @@
     <ClCompile Include="Registry.cpp">
       <Filter>EngineAPI\ECS\Registry</Filter>
     </ClCompile>
-    <ClCompile Include="PTransform.cpp">
+    <ClCompile Include="Transform.cpp">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
     <ClCompile Include="TransformSystem.cpp">
@@ -479,10 +479,10 @@
     <ClCompile Include="Renderer2DSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
-    <ClCompile Include="PRenderer2D.cpp">
+    <ClCompile Include="Renderer2D.cpp">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
-    <ClCompile Include="PCamera.cpp">
+    <ClCompile Include="Camera.cpp">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
     <ClCompile Include="CameraSystem.cpp">

@@ -181,7 +181,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="ISystem.h" />
     <ClInclude Include="ModuleEntry.h" />
     <ClInclude Include="EntityID.h" />
-    <ClInclude Include="PCamera.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="PhysLayer.h" />
     <ClInclude Include="PhysListener.h" />
     <ClInclude Include="CoroutineManager.h" />
@@ -221,8 +221,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="PixelEngine.h" />
     <ClInclude Include="PixelMath.h" />
     <ClInclude Include="PixelMeta.h" />
-    <ClInclude Include="PRenderer2D.h" />
-    <ClInclude Include="PTransform.h" />
+    <ClInclude Include="Renderer2D.h" />
+    <ClInclude Include="Transform.h" />
     <ClInclude Include="Registry.h" />
     <ClInclude Include="Renderer2DSystem.h" />
     <ClInclude Include="SPointer.h" />
@@ -249,7 +249,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="EntityArray.cpp" />
     <ClCompile Include="EntityLuaData.cpp" />
     <ClCompile Include="ISystem.cpp" />
-    <ClCompile Include="PCamera.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="PhysLayer.cpp" />
     <ClCompile Include="PhysListener.cpp" />
     <ClCompile Include="Export\Module\Physics2D.cpp" />
@@ -282,8 +282,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PRenderer2D.cpp" />
-    <ClCompile Include="PTransform.cpp" />
+    <ClCompile Include="Renderer2D.cpp" />
+    <ClCompile Include="Transform.cpp" />
     <ClCompile Include="PtrControlBlock.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Renderer.cpp" />

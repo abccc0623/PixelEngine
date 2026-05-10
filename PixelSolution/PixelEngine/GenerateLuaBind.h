@@ -3,11 +3,11 @@
 #include <unordered_map>
 #include "Entity.h" 
 
-#include "PTransform.h"
-#include "PCamera.h"
-#include "PRenderer2D.h"
+#include "Transform.h"
+#include "Camera.h"
+#include "Renderer2D.h"
+
 using namespace ECS;
-extern std::unordered_map <std::string, std::function<sol::object(sol::this_state s, Module* target)>> AddModuleList;
 inline void Generate_Engine(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Engine");

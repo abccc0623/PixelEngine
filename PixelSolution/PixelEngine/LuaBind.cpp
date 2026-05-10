@@ -175,7 +175,9 @@ void LuaBind::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
 		SetFunctionString(K);
 	}
 	IncludeString += "using namespace ECS;\n";
-	IncludeString += "extern std::unordered_map <std::string, std::function<sol::object(sol::this_state s, Module* target)>> AddModuleList;\n";
+	IncludeString += "using namespace ECS::Transform;\n";
+	IncludeString += "using namespace ECS::Renderer2D;\n";
+	IncludeString += "using namespace ECS::Camera;\n";
 	FunctionCallString += "}\n";
 	AddModuleLuaString += "}\n";
 

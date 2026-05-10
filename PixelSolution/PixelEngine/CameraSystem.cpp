@@ -1,8 +1,8 @@
 ﻿#include "pch.h"
 #include "CameraSystem.h"
 #include "Registry.h"
-#include "PTransform.h"
-#include "PCamera.h"
+#include "Transform.h"
+#include "Camera.h"
 #include <glm/gtc/type_ptr.hpp>
 ECS::CameraSystem::CameraSystem()
 {
