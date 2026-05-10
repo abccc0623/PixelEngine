@@ -43,7 +43,7 @@ void EventManager::Update()
 				}
 			}
 
-			if (i != customDelayEvents.size() - 1) 
+			if (i != customDelayEvents.size() - 1)
 			{
 				customDelayEvents[i] = customDelayEvents.back();
 				customDelayEvents.pop_back();
@@ -111,7 +111,7 @@ void EventManager::RegisterMessage(GameObject* target, EventType type)
 	{
 		list.push_back(target);
 	}
-	else 
+	else
 	{
 		PixelLog::Error("[Event] 이미 등록된 오브젝트 :" + target->name);
 	}
@@ -163,7 +163,7 @@ void EventManager::TriggerEvent(EventType type, Event event)
 	{
 		for (auto& K : eventList[type])
 		{
-			auto targetModule =  K->GetModuleToEngine(GetType("LuaScript"));
+			auto targetModule = K->GetModuleToEngine(GetType("LuaScript"));
 			auto lua = static_cast<LuaScript*>(targetModule);
 			lua->EventCall(type, event);
 		}

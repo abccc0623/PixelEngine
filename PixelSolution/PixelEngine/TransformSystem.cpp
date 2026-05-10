@@ -30,7 +30,7 @@ void ECS::TransformSystem::Update(ECS::Registry* registry)
 
 		// 3. T(이동), R(회전), S(크기) 개별 행렬 생성
 		glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), pos);
-		glm::mat4 rotationMatrix = glm::mat4_cast(rot); 
+		glm::mat4 rotationMatrix = glm::mat4_cast(rot);
 		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scl);
 
 		glm::mat4 worldMatrix = translationMatrix * rotationMatrix * scaleMatrix;

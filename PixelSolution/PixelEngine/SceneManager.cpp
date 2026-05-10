@@ -8,7 +8,7 @@
 #include "PixelEngine.h"
 
 extern PixelEngine* Engine;
-SceneManager::SceneManager() 
+SceneManager::SceneManager()
 {
 	nowScene = nullptr;
 	SceneMap = std::unordered_map<std::string, SPointer<Scene>>();
@@ -51,7 +51,7 @@ void SceneManager::ChangeScene(std::string name)
 		//이전 씬이 있다면 정리
 		if (nowScene != nullptr)
 		{
-			if (nowScene.IsValid()) 
+			if (nowScene.IsValid())
 			{
 				SPointer<Scene> p = nowScene.Lock();
 				p->Release();
@@ -59,7 +59,7 @@ void SceneManager::ChangeScene(std::string name)
 		}
 		//씬 변경
 		nowScene = SceneMap[name];
-		
+
 		//현재 씬 초기화
 		if (nowScene.IsValid())
 		{
@@ -129,10 +129,10 @@ void SceneManager::CreateScene(const std::string& luaPath)
 {
 	std::filesystem::path p(luaPath);
 
-	std::string directory = p.parent_path().string(); 
-	std::string fileName = p.filename().string();    
-	std::string stem = p.stem().string();            
-	std::string extension = p.extension().string();  
+	std::string directory = p.parent_path().string();
+	std::string fileName = p.filename().string();
+	std::string stem = p.stem().string();
+	std::string extension = p.extension().string();
 
 	auto find = SceneMap.find(stem);
 	if (find == SceneMap.end())
@@ -141,7 +141,7 @@ void SceneManager::CreateScene(const std::string& luaPath)
 		s->Initialize(luaPath, stem);
 		SceneMap.insert({ stem,s });
 	}
-	else 
+	else
 	{
 		PixelLog::Error("This scene name is already in use :" + stem);
 	}

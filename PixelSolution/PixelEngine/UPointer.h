@@ -19,9 +19,9 @@ public:
 
 	~UPointer()
 	{
-		if(p){delete p;}
+		if (p) { delete p; }
 	}
-	
+
 	T* operator->() const { return p; }
 	T& operator*() const { return *p; }
 
@@ -29,7 +29,7 @@ public:
 
 	UPointer& operator=(UPointer&& other) noexcept
 	{
-		if (this != &other) 
+		if (this != &other)
 		{
 			if (p != nullptr) delete p;
 			p = other.p;

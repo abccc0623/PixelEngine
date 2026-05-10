@@ -33,7 +33,7 @@ bool EngineInitialize(PixelWindowHandle hWnd, int width, int height)
 {
 	Engine = new PixelEngine();
 	Engine->Initialize((HWND)hWnd, width, height);
-    return true;
+	return true;
 }
 
 void UpdateEngine()
@@ -55,7 +55,7 @@ bool RunningEngineCheck()
 
 void ReleaseEngine()
 {
-	if (Engine != nullptr) 
+	if (Engine != nullptr)
 	{
 		Engine->ReleaseShared();
 	}
@@ -65,7 +65,7 @@ void ReleaseEngine()
 
 void QuitWindow()
 {
-	
+
 }
 
 bool ResizeEngine(int width, int height)
@@ -211,13 +211,13 @@ void Import(const char* path)
 		std::filesystem::file_status status = std::filesystem::status(p);
 		std::string fileName = p.stem().string();
 
-		if (!std::filesystem::exists(status)) 
+		if (!std::filesystem::exists(status))
 		{
 			PixelLog::Error("Path does not exist: " + targetPath);
 			return;
 		}
 
-		if (std::filesystem::is_directory(status)) 
+		if (std::filesystem::is_directory(status))
 		{
 			for (const auto& entry : std::filesystem::directory_iterator(path))
 			{
@@ -253,7 +253,7 @@ void Import(const char* path)
 				}
 			}
 		}
-		else 
+		else
 		{
 			std::cout << "[Other] (Symlink, Device, etc.)" << std::endl;
 		}
@@ -439,4 +439,3 @@ void  RegisterSceneObjectChange(SceneChangeCallbackFunc callBack)
 	g_SceneObjectChangeCallBack = callBack;
 }
 
-						

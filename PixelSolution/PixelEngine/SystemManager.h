@@ -2,7 +2,7 @@
 #include <vector>
 
 class TimeManager;
-namespace ECS 
+namespace ECS
 {
 	class ISystem;
 	class Registry;

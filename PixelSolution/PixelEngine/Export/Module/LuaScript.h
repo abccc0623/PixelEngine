@@ -20,9 +20,9 @@ public:
 	void Reload();
 	void Register(std::string fileName);
 	void EventCall(EventType type, Event event);
-	void TriggerCustomEvent(std::string eventType, sol::table event,float time);
+	void TriggerCustomEvent(std::string eventType, sol::table event, float time);
 	void CustomEventCall(std::string eventType, sol::table event);
-	
+
 
 	void StartCoroutine(const char* functionName);
 	void RegisterMessage(EventType type);

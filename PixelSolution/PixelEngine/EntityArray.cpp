@@ -21,18 +21,18 @@ void ECS::EntityArray::Clear()
 uint32_t ECS::EntityArray::Create(const std::string& scriptName)
 {
 	int index = entityArray.size();
-	
+
 	//배열의 빈곳이 없는 상태라면
 	if (freeIndices.size() == 0)
 	{
-		entityIDArray.emplace_back(index,1);
-		entityArray.emplace_back(entityIDArray[index].value,scriptName);
+		entityIDArray.emplace_back(index, 1);
+		entityArray.emplace_back(entityIDArray[index].value, scriptName);
 	}
 	else
 	{
 		index = freeIndices.front();
 		freeIndices.pop();
-		entityArray[index] = ECS::Entity(entityIDArray[index].value,scriptName);
+		entityArray[index] = ECS::Entity(entityIDArray[index].value, scriptName);
 	}
 	entityArray[index].SpawnCall();
 	return entityIDArray[index].value;

@@ -8,7 +8,7 @@ PtrControlBlock::PtrControlBlock()
 }
 PtrControlBlock::~PtrControlBlock()
 {
-	
+
 }
 void PtrControlBlock::AddRefWeak()
 {

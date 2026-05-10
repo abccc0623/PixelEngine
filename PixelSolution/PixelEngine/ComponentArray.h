@@ -7,8 +7,8 @@ namespace ECS
 	class ComponentArray : public IComponentArray
 	{
 	public:
-		ComponentArray(){}
-		virtual ~ComponentArray(){};
+		ComponentArray() {}
+		virtual ~ComponentArray() {};
 		void Destroy(unsigned int entityID) override
 		{
 
@@ -21,7 +21,7 @@ namespace ECS
 			}
 
 			size_t newIndex = componentArray.size();
-			entityToIndexMap[entityID] = newIndex; 
+			entityToIndexMap[entityID] = newIndex;
 			indexToEntityMap[newIndex] = entityID;
 
 			componentArray.push_back(T());
@@ -48,7 +48,7 @@ namespace ECS
 		{
 			return componentArray;
 		}
-		
+
 		void Update()
 		{
 

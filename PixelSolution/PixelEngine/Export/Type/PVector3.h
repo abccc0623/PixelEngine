@@ -1,5 +1,5 @@
 #pragma once
-class PVector3 
+class PVector3
 {
 public:
 	PVector3();
@@ -12,10 +12,10 @@ public:
 		X = Vec.X; Y = Vec.Y; Z = Vec.Z;
 		return *this;
 	}
-	inline PVector3 operator +(const PVector3& Vec) const {return PVector3(X + Vec.X, Y + Vec.Y, Z + Vec.Z);}
-	inline PVector3 operator -(const PVector3& Vec) const {return PVector3(X - Vec.X, Y - Vec.Y, Z - Vec.Z);}
-	inline PVector3 operator *(const PVector3& Vec) const {return PVector3(X * Vec.X, Y * Vec.Y, Z * Vec.Z);}
-	inline PVector3 operator /(const PVector3& Vec) const {return PVector3(X / Vec.X, Y / Vec.Y, Z / Vec.Z);}
+	inline PVector3 operator +(const PVector3& Vec) const { return PVector3(X + Vec.X, Y + Vec.Y, Z + Vec.Z); }
+	inline PVector3 operator -(const PVector3& Vec) const { return PVector3(X - Vec.X, Y - Vec.Y, Z - Vec.Z); }
+	inline PVector3 operator *(const PVector3& Vec) const { return PVector3(X * Vec.X, Y * Vec.Y, Z * Vec.Z); }
+	inline PVector3 operator /(const PVector3& Vec) const { return PVector3(X / Vec.X, Y / Vec.Y, Z / Vec.Z); }
 
 	inline PVector3 operator =(float f) { X = f, Y = f, Z = f; return *this; };
 	inline PVector3 operator +(float f) { X += f, Y += f, Z += f; return *this; };
@@ -37,7 +37,7 @@ public:
 	}
 
 	// 성능을 위해 단순 == 보다는 Equals 사용을 권장
-	bool operator==(const PVector3& other) const 
+	bool operator==(const PVector3& other) const
 	{
 		return Equals(other);
 	}

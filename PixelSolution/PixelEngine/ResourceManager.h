@@ -20,7 +20,7 @@ public:
 	void Release() override;
 	void Clear() override;
 
-	void Load(RESOURCE_TYPE type,const std::string& filePath);
+	void Load(RESOURCE_TYPE type, const std::string& filePath);
 	ObjectID Get(RESOURCE_TYPE type, const std::string& name);
 private:
 	TextureManager* textureManager;

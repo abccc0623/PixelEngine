@@ -6,7 +6,7 @@ namespace ECS
 	class Entity
 	{
 	public:
-		Entity(unsigned int ID,const std::string& scriptName);
+		Entity(unsigned int ID, const std::string& scriptName);
 		Entity(Entity&& other) noexcept;
 		Entity& operator=(Entity&& other) noexcept;
 		Entity(const Entity&) = delete;

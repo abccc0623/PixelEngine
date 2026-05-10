@@ -5,30 +5,30 @@
 class TimeManager : public EngineManager
 {
 public:
-    TimeManager() = default;
-    ~TimeManager() = default;
-  
+	TimeManager() = default;
+	~TimeManager() = default;
 
-    float GetDeltaTime();
-    double GetTotalTime();
-    int GetFPS();
 
-    void Update() override;
-    void Initialize() override;
-    void Release() override;
-    void Clear() override;
+	float GetDeltaTime();
+	double GetTotalTime();
+	int GetFPS();
+
+	void Update() override;
+	void Initialize() override;
+	void Release() override;
+	void Clear() override;
 private:
-    using Clock = ::std::chrono::high_resolution_clock;
-    using TimePoint = ::std::chrono::time_point<Clock>;
+	using Clock = ::std::chrono::high_resolution_clock;
+	using TimePoint = ::std::chrono::time_point<Clock>;
 
-    TimePoint _startTime;
-    TimePoint _prevTime;
+	TimePoint _startTime;
+	TimePoint _prevTime;
 
-    float deltaTime = 0.0f;
+	float deltaTime = 0.0f;
 
-    // FPS 계산용
-    float frameTime = 0.0f;
-    unsigned int frameCount = 0;
-    unsigned int fps = 0;
+	// FPS 계산용
+	float frameTime = 0.0f;
+	unsigned int frameCount = 0;
+	unsigned int fps = 0;
 };
 

@@ -9,9 +9,9 @@ Camera::Camera()
 {
 	rendering.Type = CAMERA;
 	rendering.camera.Projection = ProjectionType::Perspective;
-	rendering.camera.FovY	= 0.3f * 3.1415926535f;
-	rendering.camera.NearZ	= 0.1f;
-	rendering.camera.FarZ	= 4000.0f;
+	rendering.camera.FovY = 0.3f * 3.1415926535f;
+	rendering.camera.NearZ = 0.1f;
+	rendering.camera.FarZ = 4000.0f;
 	rendering.camera.ZoomLevel = 1.0f;
 }
 Camera::~Camera()

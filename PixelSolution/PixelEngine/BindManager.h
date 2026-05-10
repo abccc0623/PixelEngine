@@ -8,7 +8,7 @@
 
 class GameObject;
 class Module;
-class BindManager : public EngineManager 
+class BindManager : public EngineManager
 {
 public:
 	BindManager();

@@ -32,7 +32,7 @@ void ResourceManager::Release()
 	materialManager = nullptr;
 }
 
-void ResourceManager::Load(RESOURCE_TYPE type,const std::string& filePath)
+void ResourceManager::Load(RESOURCE_TYPE type, const std::string& filePath)
 {
 	switch (type)
 	{
@@ -49,10 +49,10 @@ ObjectID ResourceManager::Get(RESOURCE_TYPE type, const std::string& name)
 {
 	switch (type)
 	{
-		case RESOURCE_TYPE::TEXTURE:
-			return textureManager->Get(name);
-		case RESOURCE_TYPE::MATERIAL:
-			return materialManager->Get(name);
+	case RESOURCE_TYPE::TEXTURE:
+		return textureManager->Get(name);
+	case RESOURCE_TYPE::MATERIAL:
+		return materialManager->Get(name);
 	}
 	return ObjectID();
 }

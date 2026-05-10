@@ -34,7 +34,7 @@ enum class EventType : int
 	CollisionOut,
 };
 
-enum class ColliderMotionType : int 
+enum class ColliderMotionType : int
 {
 	Static,
 	Kinematic,

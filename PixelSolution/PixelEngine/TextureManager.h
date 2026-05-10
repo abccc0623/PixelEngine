@@ -18,6 +18,6 @@ public:
 	void Load(const std::string& path);
 	ObjectID Get(const std::string& name);
 private:
-	std::unordered_map<std::string,ObjectID> TextureMap;
+	std::unordered_map<std::string, ObjectID> TextureMap;
 };
 

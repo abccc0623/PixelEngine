@@ -3,7 +3,7 @@
 #include <queue>
 #include "Entity.h"
 #include "EntityID.h"
-namespace ECS 
+namespace ECS
 {
 	class EntityArray
 	{

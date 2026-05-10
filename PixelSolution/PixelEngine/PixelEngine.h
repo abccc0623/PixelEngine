@@ -42,7 +42,7 @@ public:
 	SPointer<GameObject> CreateGameObject(std::string name = "GameObject");
 	Scene* CreateScene(std::string name);
 
-	ObjectID GetResourceID(RESOURCE_TYPE type,const std::string& path);
+	ObjectID GetResourceID(RESOURCE_TYPE type, const std::string& path);
 
 	void AddFunction(GameObject* obj, Module* module, int type);
 
@@ -50,7 +50,7 @@ public:
 	void BindFactory()
 	{
 		std::type_index key = typeid(T);
-		factoryMap.insert({ key ,new T()});
+		factoryMap.insert({ key ,new T() });
 	};
 
 	template<std::derived_from<EngineManager> T>

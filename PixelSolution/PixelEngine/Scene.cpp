@@ -19,70 +19,70 @@ extern PixelEngine* Engine;
 extern SceneChangeCallbackFunc g_SceneObjectChangeCallBack;
 Scene::Scene()
 {
-    sceneName = "";
-    path = "";
-    info = nullptr;
+	sceneName = "";
+	path = "";
+	info = nullptr;
 }
-Scene::~Scene(){}
+Scene::~Scene() {}
 void Scene::Initialize(const std::string& luaPath, const std::string& name)
 {
-    sceneName = name;
-    path = luaPath;
-    auto lua  = Engine->GetFactory<LuaManager>();
-    info = lua->GetSceneLua(name);
+	sceneName = name;
+	path = luaPath;
+	auto lua = Engine->GetFactory<LuaManager>();
+	info = lua->GetSceneLua(name);
 
-    entityArray = new ECS::EntityArray();
-    registry = new ECS::Registry();
-    system = new ECS::SystemManager();
+	entityArray = new ECS::EntityArray();
+	registry = new ECS::Registry();
+	system = new ECS::SystemManager();
 }
 
 
 void Scene::Start()
 {
-    if (info != nullptr)
-    {
-        info->Start();
-        system->Initialize();
-    }
+	if (info != nullptr)
+	{
+		info->Start();
+		system->Initialize();
+	}
 }
 
 void Scene::Update()
 {
-    if (info != nullptr)
-    {
-        info->Update();
-    }
-    entityArray->Update();
-    system->Update(registry);
+	if (info != nullptr)
+	{
+		info->Update();
+	}
+	entityArray->Update();
+	system->Update(registry);
 }
 
 void Scene::Release()
 {
-    if (info != nullptr)
-    {
-        info->Release();
-    }
-    system->Release();
+	if (info != nullptr)
+	{
+		info->Release();
+	}
+	system->Release();
 
-    delete entityArray;
-    delete registry;
-    delete system;
+	delete entityArray;
+	delete registry;
+	delete system;
 }
 
 uint32_t Scene::CreateEntity(const std::string& scriptName)
 {
-   PixelLog::Info("[" + sceneName + "] CreateEntity :" + scriptName);
-   return entityArray->Create(scriptName);
+	PixelLog::Info("[" + sceneName + "] CreateEntity :" + scriptName);
+	return entityArray->Create(scriptName);
 }
 
 void Scene::DestroyEntity(uint32_t id)
 {
-    PixelLog::Info("[" + sceneName + "] DeleteEntity");
-    ECS::EntityID entityID(id);
-    entityArray->Destroy(entityID);
+	PixelLog::Info("[" + sceneName + "] DeleteEntity");
+	ECS::EntityID entityID(id);
+	entityArray->Destroy(entityID);
 }
 
 ECS::Registry* Scene::GetRegistry()
 {
-    return registry;
+	return registry;
 }

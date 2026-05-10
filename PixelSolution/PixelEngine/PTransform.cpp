@@ -13,7 +13,7 @@ void ECS::Transform::SetPosition(unsigned int id, float x, float y, float z)
 {
 	auto registry = GetRegistry();
 	TransformData* data = registry->Get<TransformData>(id);
-	data->position = {x,y,z};
+	data->position = { x,y,z };
 }
 
 void ECS::Transform::SetRotation(unsigned int id, float x, float y, float z)
@@ -27,5 +27,5 @@ void ECS::Transform::SetScale(unsigned int id, float x, float y, float z)
 {
 	auto registry = GetRegistry();
 	TransformData* data = registry->Get<TransformData>(id);
-	data->scale = { x ,y,z};
+	data->scale = { x ,y,z };
 }

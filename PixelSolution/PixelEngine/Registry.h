@@ -20,9 +20,9 @@ namespace ECS
 			auto find = componentArrays.find(key);
 			if (find == componentArrays.end())
 			{
-				componentArrays.insert({key,new ComponentArray<T>()});
+				componentArrays.insert({ key,new ComponentArray<T>() });
 			}
- 			componentArrays[key]->Create(entityID);
+			componentArrays[key]->Create(entityID);
 		};
 		template<typename T>
 		T* Get(unsigned int entityID)
@@ -63,7 +63,7 @@ namespace ECS
 			return realChild->GetArray();
 		}
 	private:
-		std::unordered_map<std::type_index,IComponentArray*> componentArrays;
+		std::unordered_map<std::type_index, IComponentArray*> componentArrays;
 	};
 }
 

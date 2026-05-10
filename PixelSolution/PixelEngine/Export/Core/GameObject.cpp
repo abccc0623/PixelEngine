@@ -146,11 +146,11 @@ Module* GameObject::AddModuleSetting(PType* moduleClass)
 	return targetModule;
 }
 
-sol::object GameObject::AddModule(sol::this_state s,std::string moduleName)
+sol::object GameObject::AddModule(sol::this_state s, std::string moduleName)
 {
 	PType* targetClass = GetType(moduleName);
 	Module* targetModule = AddModuleToEngine(targetClass);
-	
+
 	auto find = AddModuleList.find(moduleName);
 	if (find != AddModuleList.end())
 	{

@@ -3,22 +3,22 @@
 #include "PVector3.h"
 
 //Static 변수 초기화
-const PVector3 PVector3::Zero	= { 0.0f,0.0f,0.0f };
-const PVector3 PVector3::One	= { 1.0f,1.0f,1.0f };
-const PVector3 PVector3::Up		= { 0.0f,1.0f,0.0f };
-const PVector3 PVector3::Down	= { 0.0f,-1.0f,0.0f };
-const PVector3 PVector3::Right	= { -1.0f,0.0f,0.0f };
-const PVector3 PVector3::Left	= { 1.0f,0.0f,0.0f };
-const PVector3 PVector3::Front	= { 0.0f,0.0f,1.0f };
-const PVector3 PVector3::Back	= { 0.0f,0.0f,-1.0f };
+const PVector3 PVector3::Zero = { 0.0f,0.0f,0.0f };
+const PVector3 PVector3::One = { 1.0f,1.0f,1.0f };
+const PVector3 PVector3::Up = { 0.0f,1.0f,0.0f };
+const PVector3 PVector3::Down = { 0.0f,-1.0f,0.0f };
+const PVector3 PVector3::Right = { -1.0f,0.0f,0.0f };
+const PVector3 PVector3::Left = { 1.0f,0.0f,0.0f };
+const PVector3 PVector3::Front = { 0.0f,0.0f,1.0f };
+const PVector3 PVector3::Back = { 0.0f,0.0f,-1.0f };
 
 //기본 생성자, 복사 생성자, 이동 생성자
-PVector3::PVector3() :X(0.0f), Y(0.0f), Z(0.0f){}
+PVector3::PVector3() :X(0.0f), Y(0.0f), Z(0.0f) {}
 PVector3::PVector3(const float& X, const float& Y, const float& Z) : X(X), Y(Y), Z(Z) {}
 
 PVector3 PVector3::Create(const float& X, const float& Y, const float& Z)
 {
-	return PVector3(X,Y,Z);
+	return PVector3(X, Y, Z);
 }
 
 float PVector3::Dot(const PVector3& V1, const PVector3 V2)

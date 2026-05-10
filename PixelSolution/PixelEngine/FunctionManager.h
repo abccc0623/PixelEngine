@@ -35,10 +35,10 @@ public:
 
 	//template <std::derived_from<Module> T>
 	//void Register(GameObject* target);
-	
+
 	void FunctionUpdate();
-	void AddOneTimeFunction(SPointer<Module> module,int type);
-	void AddTickFunction(SPointer<Module> module,int type);
+	void AddOneTimeFunction(SPointer<Module> module, int type);
+	void AddTickFunction(SPointer<Module> module, int type);
 
 	void AddLuaAwake(void(*Func)());
 	void AddLuaStart(void(*Func)());
@@ -46,8 +46,8 @@ private:
 	void CallLuaAwake();
 	void CallLuaStart();
 
-	std::map<int,std::queue <std::function<bool()>>> oneTime;
-	std::map<int,std::vector <std::function<bool()>>> tickUpdate;
+	std::map<int, std::queue <std::function<bool()>>> oneTime;
+	std::map<int, std::vector <std::function<bool()>>> tickUpdate;
 	std::map<int, std::queue <std::function<bool()>>> pendingTickUpdate;
 	std::queue<void(*)()> LuaAWAKECall;
 	std::queue<void(*)()> LuaSTARTCall;

@@ -11,7 +11,7 @@ public:
 	void ReleaseShared();
 	void ReleaseWeak();
 
-	int strongCount = 0;        
+	int strongCount = 0;
 	int weakCount = 0;
 
 	PixelObject* target = nullptr;

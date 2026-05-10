@@ -6,7 +6,7 @@
 #include "Module/Transform.h"
 #include "Log.h"
 
-DebugCamera::DebugCamera():
+DebugCamera::DebugCamera() :
 	isMove(false),
 	moveSpeed(10),
 	RotationSpeed(10),

@@ -8,7 +8,7 @@ namespace ECS
 	{
 		const uint32_t FNV_OFFSET_BASIS = 2166136261u;
 		const uint32_t FNV_PRIME = 16777619u;
-		constexpr uint32_t HashString(const char* str, uint32_t hash = FNV_OFFSET_BASIS) 
+		constexpr uint32_t HashString(const char* str, uint32_t hash = FNV_OFFSET_BASIS)
 		{
 			return (*str == '\0') ? hash : HashString(str + 1, (hash ^ static_cast<uint32_t>(*str)) * FNV_PRIME);
 		}
@@ -18,7 +18,7 @@ namespace ECS
 	class EntityLuaData
 	{
 	public:
-		EntityLuaData(Entity* target,std::string scriptName);
+		EntityLuaData(Entity* target, std::string scriptName);
 		~EntityLuaData();
 		EntityLuaData(EntityLuaData&& other) noexcept = default;
 		void SpawnCall();
@@ -26,7 +26,7 @@ namespace ECS
 
 		template <typename... Args>
 		void FunctionCall(const char* functionName, Args&&... args);
-		
+
 	private:
 		std::string scriptName;
 		sol::table instance;

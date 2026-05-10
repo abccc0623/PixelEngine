@@ -44,13 +44,13 @@ BIND_TYPE_NAME(Collision2D, "Collision2D")
 
 
 
-struct ModuleTypeInfo 
+struct ModuleTypeInfo
 {
 	MODULE_TYPE type;
 	std::string TypeName;
 	std::string LuaTypeName;
 	bool functionCheck[6] = { false, };
-	std::function<Module*(void)> CreateModule;
+	std::function<Module* (void)> CreateModule;
 };
 
 class ModuleTypeManager
@@ -87,7 +87,7 @@ public:
 		info.TypeName = ModuleTypeBind<T>::GetType();
 		info.LuaTypeName = ModuleTypeBind<T>::GetLuaType();
 		info.type = type;
-		constexpr bool check[6] = 
+		constexpr bool check[6] =
 		{
 			!std::is_same_v<decltype(&T::Awake), decltype(&Module::Awake)>,
 			!std::is_same_v<decltype(&T::Start), decltype(&Module::Start)>,

@@ -11,9 +11,9 @@ class PhysManager;
 class Transform;
 struct RenderingData;
 
-namespace JPH 
+namespace JPH
 {
-	class Shape; 
+	class Shape;
 }
 class Physics2D : public Module
 {
@@ -31,8 +31,8 @@ public:
 	void SetVelocity(float x, float y);
 	void SetVelocityX(float x);
 	void SetVelocityY(float y);
-	void SetPosition(float x, float y ,float z);
-	void SetRotation(float x, float y ,float z);
+	void SetPosition(float x, float y, float z);
+	void SetRotation(float x, float y, float z);
 	void AddForce(float x, float y, float z);
 	void AddImpulse(float x, float y, float z);
 

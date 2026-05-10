@@ -4,17 +4,17 @@ class PVector3;
 enum MATRIX_LOCAL : int
 {
 	RIGHT_X = 0,
-	UP_X	= 1,
-	LOOK_X	= 2,
+	UP_X = 1,
+	LOOK_X = 2,
 	RIGHT_Y = 4,
-	UP_Y	= 5,
-	LOOK_Y	= 6,
+	UP_Y = 5,
+	LOOK_Y = 6,
 	RIGHT_Z = 8,
-	UP_Z	= 9,
-	LOOK_Z	= 10,
-	POX_X   = 12, 
-	POX_Y   = 13, 
-	POX_Z   = 14, 
+	UP_Z = 9,
+	LOOK_Z = 10,
+	POX_X = 12,
+	POX_Y = 13,
+	POX_Z = 14,
 };
 
 class PMatrix
@@ -38,7 +38,7 @@ public:
 
 	//¿ªÇà·Ä
 	bool Invert(PMatrix& OutMatrix);
-	
+
 	float _m[16] = { 0.0f };
 };
 

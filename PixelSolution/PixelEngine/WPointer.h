@@ -2,79 +2,79 @@
 #include "PtrControlBlock.h"
 #include <cstddef>
 template <typename T>
-class WPointer 
+class WPointer
 {
 public:
-    WPointer(std::nullptr_t = nullptr)
-    {
-        cBlock = nullptr;
-    }
-    WPointer(const SPointer<T>& other)
-    {
-        cBlock = other.cBlock;
-        if (cBlock)
-        {
-            cBlock->AddRefWeak();
-        }
-    }
-    WPointer(const WPointer& other)
-    {
-        cBlock = other.cBlock;
-        if (cBlock)
-        {
-            cBlock->AddRefWeak();
-        }
-    }
+	WPointer(std::nullptr_t = nullptr)
+	{
+		cBlock = nullptr;
+	}
+	WPointer(const SPointer<T>& other)
+	{
+		cBlock = other.cBlock;
+		if (cBlock)
+		{
+			cBlock->AddRefWeak();
+		}
+	}
+	WPointer(const WPointer& other)
+	{
+		cBlock = other.cBlock;
+		if (cBlock)
+		{
+			cBlock->AddRefWeak();
+		}
+	}
 
-    WPointer(SPointer<T>&& other)
-    {
-        cBlock = other.cBlock;
-        if (cBlock)
-        {
-            cBlock->AddRefWeak();
-        }
-    }
-    WPointer& operator=(const WPointer<T>& other)
-    {
-        if (this != &other)
-        {
-            if (cBlock) { cBlock->ReleaseWeak(); }
-            cBlock = other.cBlock;
-            if (cBlock) { cBlock->AddRefWeak(); }
-        }
-        return *this;
-    }
-    bool operator==(const WPointer<T>& other) const
-    {
-        if (cBlock == nullptr && other.cBlock == nullptr) return true;
-        if (cBlock == nullptr || other.cBlock == nullptr) return false;
-        if (cBlock == nullptr) return false;
-        if (cBlock->target != other.cBlock->target) return false;
+	WPointer(SPointer<T>&& other)
+	{
+		cBlock = other.cBlock;
+		if (cBlock)
+		{
+			cBlock->AddRefWeak();
+		}
+	}
+	WPointer& operator=(const WPointer<T>& other)
+	{
+		if (this != &other)
+		{
+			if (cBlock) { cBlock->ReleaseWeak(); }
+			cBlock = other.cBlock;
+			if (cBlock) { cBlock->AddRefWeak(); }
+		}
+		return *this;
+	}
+	bool operator==(const WPointer<T>& other) const
+	{
+		if (cBlock == nullptr && other.cBlock == nullptr) return true;
+		if (cBlock == nullptr || other.cBlock == nullptr) return false;
+		if (cBlock == nullptr) return false;
+		if (cBlock->target != other.cBlock->target) return false;
 
-        return true;
+		return true;
 
-    }
-    bool IsValid() const
-    {
-        if (cBlock == nullptr) return false;
-        if (cBlock->strongCount <= 0) return false;
-        return true;
-    }
+	}
+	bool IsValid() const
+	{
+		if (cBlock == nullptr) return false;
+		if (cBlock->strongCount <= 0) return false;
+		return true;
+	}
 
-    SPointer<T> Lock() const
-    {
-        if (!IsValid()) return nullptr; // 안전장치 추가
-        return SPointer<T>(static_cast<T*>(cBlock->target));
-    }
-    
+	SPointer<T> Lock() const
+	{
+		if (!IsValid()) return nullptr; // 안전장치 추가
+		return SPointer<T>(static_cast<T*>(cBlock->target));
+	}
 
-    ~WPointer()
-    {
-        if (cBlock != nullptr)
-        {
-            cBlock->ReleaseWeak();
-        }
-    }
-    PtrControlBlock* cBlock = nullptr;
+
+	~WPointer()
+	{
+		if (cBlock != nullptr)
+		{
+			cBlock->ReleaseWeak();
+		}
+	}
+	PtrControlBlock* cBlock = nullptr;
 };
 

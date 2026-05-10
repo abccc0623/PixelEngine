@@ -8,7 +8,7 @@ public:
 	~Camera();
 	void Start() override;
 	void LastUpdate() override;
-	
+
 	PIXEL_ENGINEDLL void OrthographicProjection();
 	PIXEL_ENGINEDLL void PerspectiveProjection();
 private:

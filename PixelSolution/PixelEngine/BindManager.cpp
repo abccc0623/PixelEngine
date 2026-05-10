@@ -37,29 +37,29 @@ BindManager::~BindManager()
 void BindManager::Initialize()
 {
 	PStatic* globalCreate = CreateNewStatic("Engine");
-	AddGlobalMethod(globalCreate,"CreateEntity", GeGlobalMethodInfo(&CreateEntity), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCreate,"DestroyEntity", GeGlobalMethodInfo(&DestroyEntity), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCreate, "CreateEntity", GeGlobalMethodInfo(&CreateEntity), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCreate, "DestroyEntity", GeGlobalMethodInfo(&DestroyEntity), MetaFlag::LUABIND);
 
-	AddGlobalMethod(globalCreate,"BackgroundColor", GeGlobalMethodInfo(&BackgroundColor), MetaFlag::LUABIND);
-	
+	AddGlobalMethod(globalCreate, "BackgroundColor", GeGlobalMethodInfo(&BackgroundColor), MetaFlag::LUABIND);
+
 	PStatic* globalScene = CreateNewStatic("Scene");
-	AddGlobalMethod(globalScene,"ChangeScene",GeGlobalMethodInfo(&ChangeScene), MetaFlag::LUABIND);
-	
+	AddGlobalMethod(globalScene, "ChangeScene", GeGlobalMethodInfo(&ChangeScene), MetaFlag::LUABIND);
+
 	PStatic* globalAsset = CreateNewStatic("Asset");
-	AddGlobalMethod(globalAsset,"Import",GeGlobalMethodInfo(&Import), MetaFlag::LUABIND);
-	
+	AddGlobalMethod(globalAsset, "Import", GeGlobalMethodInfo(&Import), MetaFlag::LUABIND);
+
 	PStatic* globalInput = CreateNewStatic("Input");
-	AddGlobalMethod(globalInput,"GetKey",GeGlobalMethodInfo(&GetKey), MetaFlag::LUABIND);
-	AddGlobalMethod(globalInput,"GetKeyDown",GeGlobalMethodInfo(&GetKeyDown), MetaFlag::LUABIND);
-	AddGlobalMethod(globalInput,"GetKeyUp",GeGlobalMethodInfo(&GetKeyUp), MetaFlag::LUABIND);
-	AddGlobalMethod(globalInput,"GetMousePosition_X",GeGlobalMethodInfo(&GetMousePosition_X), MetaFlag::LUABIND);
-	AddGlobalMethod(globalInput,"GetMousePosition_Y",GeGlobalMethodInfo(&GetMousePosition_Y), MetaFlag::LUABIND);
-	
+	AddGlobalMethod(globalInput, "GetKey", GeGlobalMethodInfo(&GetKey), MetaFlag::LUABIND);
+	AddGlobalMethod(globalInput, "GetKeyDown", GeGlobalMethodInfo(&GetKeyDown), MetaFlag::LUABIND);
+	AddGlobalMethod(globalInput, "GetKeyUp", GeGlobalMethodInfo(&GetKeyUp), MetaFlag::LUABIND);
+	AddGlobalMethod(globalInput, "GetMousePosition_X", GeGlobalMethodInfo(&GetMousePosition_X), MetaFlag::LUABIND);
+	AddGlobalMethod(globalInput, "GetMousePosition_Y", GeGlobalMethodInfo(&GetMousePosition_Y), MetaFlag::LUABIND);
+
 	PStatic* globaDebug = CreateNewStatic("Debug");
 	AddGlobalMethod(globaDebug, "LogInfo", GeGlobalMethodInfo(&LogInfo), MetaFlag::LUABIND);
 	AddGlobalMethod(globaDebug, "LogError", GeGlobalMethodInfo(&LogError), MetaFlag::LUABIND);
 	AddGlobalMethod(globaDebug, "LogWarning", GeGlobalMethodInfo(&LogWarning), MetaFlag::LUABIND);
-	
+
 	PStatic* globalTransform = CreateNewStatic("Transform");
 	AddGlobalMethod(globalTransform, "Add", GeGlobalMethodInfo(&ECS::Transform::Add), MetaFlag::LUABIND);
 	AddGlobalMethod(globalTransform, "SetPosition", GeGlobalMethodInfo(&ECS::Transform::SetPosition), MetaFlag::LUABIND);
@@ -107,20 +107,20 @@ void BindManager::BindLuaScript()
 		{
 			PixelLog::Info("Delete LuaScript");
 		});
-	AddMethod(table, "Awake",					GetMethodInfo(&LuaScript::Awake));
-	AddMethod(table, "Start",					GetMethodInfo(&LuaScript::Start));
-	AddMethod(table, "Update",					GetMethodInfo(&LuaScript::Update));
+	AddMethod(table, "Awake", GetMethodInfo(&LuaScript::Awake));
+	AddMethod(table, "Start", GetMethodInfo(&LuaScript::Start));
+	AddMethod(table, "Update", GetMethodInfo(&LuaScript::Update));
 
-	AddMethod(table, "Register",				GetMethodInfo(&LuaScript::Register),				MetaFlag::LUABIND);
-	AddMethod(table, "Get",						GetMethodInfo(&LuaScript::Get),						MetaFlag::LUABIND);
-	AddMethod(table, "TriggerCustomEvent",		GetMethodInfo(&LuaScript::TriggerCustomEvent),		MetaFlag::LUABIND);
-	
-	AddMethod(table, "RegisterMessage",			GetMethodInfo(&LuaScript::RegisterMessage),			MetaFlag::LUABIND);
-	AddMethod(table, "UnregisterMessage",		GetMethodInfo(&LuaScript::UnregisterMessage),		MetaFlag::LUABIND);
-	AddMethod(table, "RegisterCustomMessage",	GetMethodInfo(&LuaScript::RegisterCustomMessage),	MetaFlag::LUABIND);
+	AddMethod(table, "Register", GetMethodInfo(&LuaScript::Register), MetaFlag::LUABIND);
+	AddMethod(table, "Get", GetMethodInfo(&LuaScript::Get), MetaFlag::LUABIND);
+	AddMethod(table, "TriggerCustomEvent", GetMethodInfo(&LuaScript::TriggerCustomEvent), MetaFlag::LUABIND);
+
+	AddMethod(table, "RegisterMessage", GetMethodInfo(&LuaScript::RegisterMessage), MetaFlag::LUABIND);
+	AddMethod(table, "UnregisterMessage", GetMethodInfo(&LuaScript::UnregisterMessage), MetaFlag::LUABIND);
+	AddMethod(table, "RegisterCustomMessage", GetMethodInfo(&LuaScript::RegisterCustomMessage), MetaFlag::LUABIND);
 	AddMethod(table, "UnregisterCustomMessage", GetMethodInfo(&LuaScript::UnregisterCustomMessage), MetaFlag::LUABIND);
 
-	AddMethod(table, "StartCoroutine",			GetMethodInfo(&LuaScript::StartCoroutine),			MetaFlag::LUABIND);
+	AddMethod(table, "StartCoroutine", GetMethodInfo(&LuaScript::StartCoroutine), MetaFlag::LUABIND);
 }
 
 void BindManager::BindTransform()
@@ -135,12 +135,12 @@ void BindManager::BindTransform()
 		{
 			PixelLog::Info("Delete Transform");
 		});
-	AddMember(table, "Position", GetMemberInfo(&Transform::Position), MetaFlag::LUABIND| MetaFlag::SAVE);
+	AddMember(table, "Position", GetMemberInfo(&Transform::Position), MetaFlag::LUABIND | MetaFlag::SAVE);
 	AddMember(table, "Rotation", GetMemberInfo(&Transform::Rotation), MetaFlag::LUABIND | MetaFlag::SAVE);
-	AddMember(table, "Scale", GetMemberInfo(&Transform::Scale),MetaFlag::LUABIND | MetaFlag::SAVE);
+	AddMember(table, "Scale", GetMemberInfo(&Transform::Scale), MetaFlag::LUABIND | MetaFlag::SAVE);
 	AddMethod(table, "Start", GetMethodInfo(&Transform::Start));
 	AddMethod(table, "MatrixUpdate", GetMethodInfo(&Transform::MatrixUpdate));
-	
+
 	AddMethod(table, "GetLookVector", GetMethodInfo(&Transform::GetLookVector), MetaFlag::LUABIND | MetaFlag::SAVE);
 	AddMethod(table, "GetRightVector", GetMethodInfo(&Transform::GetRightVector), MetaFlag::LUABIND | MetaFlag::SAVE);
 	AddMethod(table, "GetUpVector", GetMethodInfo(&Transform::GetUpVector), MetaFlag::LUABIND | MetaFlag::SAVE);
@@ -217,16 +217,16 @@ void BindManager::BindMovement()
 		{
 			PixelLog::Info("Delete Movement");
 		});
-	AddMember(table, "stopDistance",			GetMemberInfo(&Movement::stopDistance));
-	AddMember(table, "speed",					GetMemberInfo(&Movement::speed));
-	AddMethod(table, "MoveToTarget",			GetMethodInfo(&Movement::MoveToTarget),			MetaFlag::LUABIND);
-	AddMethod(table, "MoveToPosition",			GetMethodInfo(&Movement::MoveToPosition),		MetaFlag::LUABIND);
-	AddMethod(table, "StopMove",				GetMethodInfo(&Movement::StopMove),				MetaFlag::LUABIND);
-	AddMethod(table, "AddCompleteCallBack",		GetMethodInfo(&Movement::AddCompleteCallBack),	MetaFlag::LUABIND);
-	AddMethod(table, "AddStartedCallBack",		GetMethodInfo(&Movement::AddStartedCallBack),	MetaFlag::LUABIND);
-	AddMethod(table, "AddDirectionCallBack",	GetMethodInfo(&Movement::AddDirectionCallBack),	MetaFlag::LUABIND);
-	AddMethod(table, "Update",					GetMethodInfo(&Movement::Update));
-	AddMethod(table, "Start",					GetMethodInfo(&Movement::Start));
+	AddMember(table, "stopDistance", GetMemberInfo(&Movement::stopDistance));
+	AddMember(table, "speed", GetMemberInfo(&Movement::speed));
+	AddMethod(table, "MoveToTarget", GetMethodInfo(&Movement::MoveToTarget), MetaFlag::LUABIND);
+	AddMethod(table, "MoveToPosition", GetMethodInfo(&Movement::MoveToPosition), MetaFlag::LUABIND);
+	AddMethod(table, "StopMove", GetMethodInfo(&Movement::StopMove), MetaFlag::LUABIND);
+	AddMethod(table, "AddCompleteCallBack", GetMethodInfo(&Movement::AddCompleteCallBack), MetaFlag::LUABIND);
+	AddMethod(table, "AddStartedCallBack", GetMethodInfo(&Movement::AddStartedCallBack), MetaFlag::LUABIND);
+	AddMethod(table, "AddDirectionCallBack", GetMethodInfo(&Movement::AddDirectionCallBack), MetaFlag::LUABIND);
+	AddMethod(table, "Update", GetMethodInfo(&Movement::Update));
+	AddMethod(table, "Start", GetMethodInfo(&Movement::Start));
 }
 
 void BindManager::BindGameObject()
@@ -281,18 +281,18 @@ void BindManager::BindPhysics2D()
 	AddMethod(table, "LastUpdate", GetMethodInfo(&Physics2D::LastUpdate));
 	AddMethod(table, "PhysicsUpdate", GetMethodInfo(&Physics2D::PhysicsUpdate));
 
-	AddMethod(table, "SetCollider",		GetMethodInfo(&Physics2D::SetCollider),		MetaFlag::LUABIND);
-	AddMethod(table, "SetRigidbody",		GetMethodInfo(&Physics2D::SetRigidbody),	MetaFlag::LUABIND);
+	AddMethod(table, "SetCollider", GetMethodInfo(&Physics2D::SetCollider), MetaFlag::LUABIND);
+	AddMethod(table, "SetRigidbody", GetMethodInfo(&Physics2D::SetRigidbody), MetaFlag::LUABIND);
 
-	AddMethod(table, "SetVelocity",		GetMethodInfo(&Physics2D::SetVelocity),		MetaFlag::LUABIND);
-	AddMethod(table, "SetVelocityX",	GetMethodInfo(&Physics2D::SetVelocityX),	MetaFlag::LUABIND);
-	AddMethod(table, "SetVelocityY",	GetMethodInfo(&Physics2D::SetVelocityY),	MetaFlag::LUABIND);
-	AddMethod(table, "SetPosition",		GetMethodInfo(&Physics2D::SetPosition),		MetaFlag::LUABIND);
-	AddMethod(table, "SetRotation",		GetMethodInfo(&Physics2D::SetRotation),		MetaFlag::LUABIND);
-	AddMethod(table, "SetActive",		GetMethodInfo(&Physics2D::SetActive),		MetaFlag::LUABIND);
+	AddMethod(table, "SetVelocity", GetMethodInfo(&Physics2D::SetVelocity), MetaFlag::LUABIND);
+	AddMethod(table, "SetVelocityX", GetMethodInfo(&Physics2D::SetVelocityX), MetaFlag::LUABIND);
+	AddMethod(table, "SetVelocityY", GetMethodInfo(&Physics2D::SetVelocityY), MetaFlag::LUABIND);
+	AddMethod(table, "SetPosition", GetMethodInfo(&Physics2D::SetPosition), MetaFlag::LUABIND);
+	AddMethod(table, "SetRotation", GetMethodInfo(&Physics2D::SetRotation), MetaFlag::LUABIND);
+	AddMethod(table, "SetActive", GetMethodInfo(&Physics2D::SetActive), MetaFlag::LUABIND);
 
-	AddMethod(table, "AddImpulse",		GetMethodInfo(&Physics2D::AddImpulse),		MetaFlag::LUABIND);
-	AddMethod(table, "AddForce",		GetMethodInfo(&Physics2D::AddForce),		MetaFlag::LUABIND);
+	AddMethod(table, "AddImpulse", GetMethodInfo(&Physics2D::AddImpulse), MetaFlag::LUABIND);
+	AddMethod(table, "AddForce", GetMethodInfo(&Physics2D::AddForce), MetaFlag::LUABIND);
 }
 
 void BindManager::BindEntity()

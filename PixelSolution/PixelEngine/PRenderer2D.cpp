@@ -11,7 +11,7 @@ void ECS::Renderer2D::Add(unsigned int id)
 	registry->AddComponent<Renderer2DData>(id);
 }
 
-void ECS::Renderer2D::SetTexture(unsigned int id,const char* name)
+void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
 {
 	auto registry = GetRegistry();
 	auto data = registry->Get<Renderer2DData>(id);
@@ -27,22 +27,22 @@ void ECS::Renderer2D::SetTexture(unsigned int id,const char* name)
 
 }
 
-void ECS::Renderer2D::SetTextureOffset(unsigned int id,float OffsetX, float OffsetY)
+void ECS::Renderer2D::SetTextureOffset(unsigned int id, float OffsetX, float OffsetY)
 {
 
 
 }
 
-void ECS::Renderer2D::AddTextureOffset(unsigned int id,float OffsetX, float OffsetY)
+void ECS::Renderer2D::AddTextureOffset(unsigned int id, float OffsetX, float OffsetY)
 {
 
 
 }
-void ECS::Renderer2D::SetTextureTiling(unsigned int id,float TilingX, float TilingY)
+void ECS::Renderer2D::SetTextureTiling(unsigned int id, float TilingX, float TilingY)
 {
 
 }
-void ECS::Renderer2D::AddTextureTiling(unsigned int id,float TilingX, float TilingY)
+void ECS::Renderer2D::AddTextureTiling(unsigned int id, float TilingX, float TilingY)
 {
 
 }

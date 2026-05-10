@@ -9,7 +9,7 @@
 
 FunctionManager::FunctionManager()
 {
-	
+
 	oneTime.insert({ AWAKE_FUNCTION , std::queue<std::function<bool()>>() });
 	oneTime.insert({ START_FUNCTION , std::queue<std::function<bool()>>() });
 	tickUpdate.insert({ UPDATE_FUNCTION ,std::vector <std::function<bool()>>() });
@@ -31,9 +31,9 @@ FunctionManager::~FunctionManager()
 
 }
 
-void FunctionManager::Initialize(){}
-void FunctionManager::Update(){}
-void FunctionManager::Release(){}
+void FunctionManager::Initialize() {}
+void FunctionManager::Update() {}
+void FunctionManager::Release() {}
 
 void FunctionManager::FunctionUpdate()
 {
@@ -49,7 +49,7 @@ void FunctionManager::FunctionUpdate()
 			{
 				oneTime[priority].push(func);
 			}
-			else 
+			else
 			{
 				tickUpdate[priority].push_back(func);
 			}
@@ -68,7 +68,7 @@ void FunctionManager::FunctionUpdate()
 	}
 	for (auto& [priority, funcVector] : tickUpdate)
 	{
-		std::erase_if(funcVector, [](auto& func) 
+		std::erase_if(funcVector, [](auto& func)
 			{
 				return !func();
 			});
@@ -93,7 +93,7 @@ void FunctionManager::Clear()
 void FunctionManager::AddOneTimeFunction(SPointer<Module> module, int type)
 {
 	WPointer<Module> w = module;
-	
+
 	//한번만 호출되는애들 전용
 	auto OneTimeFunction = [w, type]() mutable
 		{
@@ -112,12 +112,12 @@ void FunctionManager::AddOneTimeFunction(SPointer<Module> module, int type)
 			}
 			return false;
 		};
-	
+
 	if (isRun == false)
 	{
 		oneTime[type].push(OneTimeFunction);
 	}
-	else 
+	else
 	{
 		pendingTickUpdate[type].push(OneTimeFunction);
 	}
@@ -126,9 +126,9 @@ void FunctionManager::AddOneTimeFunction(SPointer<Module> module, int type)
 void FunctionManager::AddTickFunction(SPointer<Module> module, int type)
 {
 	WPointer<Module> w = module;
-	
+
 	//매프래임 호출되는 애들 전용
-	auto TickFunction = [w,type]() mutable
+	auto TickFunction = [w, type]() mutable
 		{
 			if (w.IsValid())
 			{
@@ -152,7 +152,7 @@ void FunctionManager::AddTickFunction(SPointer<Module> module, int type)
 			}
 			return false;
 		};
-	
+
 	if (isRun == false)
 	{
 		tickUpdate[type].push_back(TickFunction);

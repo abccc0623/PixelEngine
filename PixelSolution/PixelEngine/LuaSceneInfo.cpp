@@ -14,17 +14,17 @@ LuaSceneInfo::~LuaSceneInfo()
 
 void LuaSceneInfo::Start()
 {
-    sol::protected_function startFunc = table["Start"];
-    if (startFunc.valid())
-    {
-        auto result = startFunc(table); 
-        if (!result.valid())
-        {
-            sol::error err = result;
-            std::string errorMsg = err.what();
+	sol::protected_function startFunc = table["Start"];
+	if (startFunc.valid())
+	{
+		auto result = startFunc(table);
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::string errorMsg = err.what();
 			PixelLog::Error(errorMsg.c_str());
-        }
-    }
+		}
+	}
 }
 
 void LuaSceneInfo::Update()

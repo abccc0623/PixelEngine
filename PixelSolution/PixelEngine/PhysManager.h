@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include "PhysStruct.h"
-namespace JPH 
+namespace JPH
 {
 	class PhysicsSystem;
 	class TempAllocatorImpl;
@@ -31,10 +31,10 @@ public:
 	void Release() override;
 	void Clear() override;
 
-	void SetVelocity(JPH::BodyID id,float x, float y, float z);
-	void SetVelocityX(JPH::BodyID id,float x);
-	void SetVelocityY(JPH::BodyID id,float y);
-	void SetVelocityZ(JPH::BodyID id,float z);
+	void SetVelocity(JPH::BodyID id, float x, float y, float z);
+	void SetVelocityX(JPH::BodyID id, float x);
+	void SetVelocityY(JPH::BodyID id, float y);
+	void SetVelocityZ(JPH::BodyID id, float z);
 	void SetPosition(JPH::BodyID id, float x, float y, float z, bool active);
 	void SetRotation(JPH::BodyID id, float x, float y, float z, bool active);
 	void SetActive(JPH::BodyID id, bool active);
@@ -49,14 +49,14 @@ public:
 	void DebugDraw(JPH::BodyID id);
 	void SyncPhysics(JPH::BodyID id);
 private:
-	ColliderFactory*	colliderFactory		= nullptr;
-	PhysListener*		eventListener		= nullptr;
-	EventManager*		event;
+	ColliderFactory* colliderFactory = nullptr;
+	PhysListener* eventListener = nullptr;
+	EventManager* event;
 
-	JPH::PhysicsSystem* physicsSystem		= nullptr;
-	JPH::TempAllocatorImpl* tempAllocator	= nullptr;
-	JPH::JobSystemThreadPool* jobSystem		= nullptr;
-	JPH::BodyInterface* mBodyInterface		= nullptr;
+	JPH::PhysicsSystem* physicsSystem = nullptr;
+	JPH::TempAllocatorImpl* tempAllocator = nullptr;
+	JPH::JobSystemThreadPool* jobSystem = nullptr;
+	JPH::BodyInterface* mBodyInterface = nullptr;
 
 	void* mBpInterface = nullptr;
 	void* mObjVsBpFilter = nullptr;

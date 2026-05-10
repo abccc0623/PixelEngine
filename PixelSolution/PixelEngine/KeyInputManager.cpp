@@ -7,7 +7,7 @@
 extern PixelEngine* Engine;
 KeyInputManager::KeyInputManager()
 {
-	
+
 }
 KeyInputManager::~KeyInputManager()
 {
@@ -24,7 +24,7 @@ void KeyInputManager::Initialize()
 
 void KeyInputManager::Update()
 {
-	if(Focus != pastFocus)
+	if (Focus != pastFocus)
 	{
 		for (int i = 0; i < arraySize; i++)
 		{
@@ -39,8 +39,8 @@ void KeyInputManager::Update()
 		bool isCurrentPressed = (GetAsyncKeyState(i) & 0x8000) != 0;
 		bool wasPressed = (keyStates[i] & PRESSED) != 0;
 
-        if (isCurrentPressed)
-        {
+		if (isCurrentPressed)
+		{
 			keyStates[i] = wasPressed ? PRESSED : PRESSED | DOWN;
 			if (keyStates[i] & DOWN)
 			{
@@ -49,9 +49,9 @@ void KeyInputManager::Update()
 				eventMessage.key.Pressed = true;
 				event->TriggerEvent(EventType::KeyDown, eventMessage);
 			}
-        }
-        else
-        {
+		}
+		else
+		{
 			keyStates[i] = wasPressed ? UP : KEY_NONE;
 			if (keyStates[i] & UP)
 			{
@@ -60,7 +60,7 @@ void KeyInputManager::Update()
 				eventMessage.key.Pressed = false;
 				event->TriggerEvent(EventType::KeyUp, eventMessage);
 			}
-        }
+		}
 	}
 }
 

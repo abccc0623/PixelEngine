@@ -41,16 +41,16 @@ void PixelLog::Print(LogLevel Level, const std::string& msg, const std::string& 
 
 	std::string strLevel = "";
 	switch (Level) {
-	case LogLevel::INFO: 
+	case LogLevel::INFO:
 		strLevel = "INFO";
 		break;
 	case LogLevel::WARN:
-		strLevel =  "WARN";
+		strLevel = "WARN";
 		break;
-	case LogLevel::ERR:  
-		strLevel = "ERR"; 
+	case LogLevel::ERR:
+		strLevel = "ERR";
 		break;
-	default:             
+	default:
 		strLevel = "UNKNOWN";
 		break;
 	}

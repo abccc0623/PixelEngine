@@ -14,17 +14,17 @@ namespace ECS
 }
 ECS::Registry* GetRegistry();
 
-extern "C" PIXEL_ENGINEDLL bool EngineInitialize(PixelWindowHandle hWnd,int width,int height);
+extern "C" PIXEL_ENGINEDLL bool EngineInitialize(PixelWindowHandle hWnd, int width, int height);
 extern "C" PIXEL_ENGINEDLL void UpdateEngine();
-extern "C" PIXEL_ENGINEDLL void ReleaseEngine();							
+extern "C" PIXEL_ENGINEDLL void ReleaseEngine();
 extern "C" PIXEL_ENGINEDLL void QuitWindow();
-extern "C" PIXEL_ENGINEDLL bool ResizeEngine(int width,int height);
+extern "C" PIXEL_ENGINEDLL bool ResizeEngine(int width, int height);
 extern "C" PIXEL_ENGINEDLL void SetWindowFocus(bool focus);
 extern "C" PIXEL_ENGINEDLL void Reload();
 
 extern "C" PIXEL_ENGINEDLL void Import(const char* path);
 extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name);
-extern "C" PIXEL_ENGINEDLL GameObject* CreateLuaGameObject(const char* name,const char* script);
+extern "C" PIXEL_ENGINEDLL GameObject* CreateLuaGameObject(const char* name, const char* script);
 
 extern "C" PIXEL_ENGINEDLL unsigned int CreateEntity(const char* script);
 extern "C" PIXEL_ENGINEDLL void DestroyEntity(unsigned int id);
@@ -51,7 +51,7 @@ extern "C" PIXEL_ENGINEDLL void LSPGenerate(const char* outPath);
 extern "C" PIXEL_ENGINEDLL void JsonGenerate(const char* outPath);
 
 //KeyInput
-extern "C" PIXEL_ENGINEDLL bool GetKeyDown(char number);		
+extern "C" PIXEL_ENGINEDLL bool GetKeyDown(char number);
 extern "C" PIXEL_ENGINEDLL bool GetKeyUp(char number);
 extern "C" PIXEL_ENGINEDLL bool GetKey(char number);
 extern "C" PIXEL_ENGINEDLL int GetMousePosition_X();

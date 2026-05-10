@@ -3,7 +3,7 @@
 #include "Transform.h"
 #include <json.hpp>
 
-Transform::Transform():
+Transform::Transform() :
 	Rotation_Pitch(),
 	Rotation_Yaw(),
 	Rotation_Roll(),
@@ -14,9 +14,9 @@ Transform::Transform():
 	IsChange_Postion(true),
 	IsChange_Rotation(true),
 	IsChange_Scale(true),
-	Position({0,0,0}),
-	Rotation({0,0,0}),
-	Scale({1,1,1})
+	Position({ 0,0,0 }),
+	Rotation({ 0,0,0 }),
+	Scale({ 1,1,1 })
 {
 
 }
@@ -70,7 +70,7 @@ void Transform::WorldMatrixUpdate()
 	if (PastRotation != Rotation)
 	{
 		Rotation_Pitch = Rotation_Pitch.CreateRotationPitch(Rotation.X);
-		Rotation_Yaw  = Rotation_Yaw.CreateRotationYaw(Rotation.Y);
+		Rotation_Yaw = Rotation_Yaw.CreateRotationYaw(Rotation.Y);
 		Rotation_Roll = Rotation_Roll.CreateRotationRoll(Rotation.Z);
 		Rotation_Matrix = Rotation_Pitch * Rotation_Yaw * Rotation_Roll;
 		PastRotation = Rotation;
@@ -82,22 +82,22 @@ void Transform::WorldMatrixUpdate()
 		PastScale = Scale;
 		IsChange_Scale = true;
 	}
-	
 
-	if (IsChange_Postion == true ||IsChange_Rotation == true || IsChange_Scale == true)
+
+	if (IsChange_Postion == true || IsChange_Rotation == true || IsChange_Scale == true)
 	{
 		World_Matrix = Scale_Matrix * Rotation_Matrix * Position_Matrix;
-		if(World_Matrix.Invert(Local_Matrix) == true)
+		if (World_Matrix.Invert(Local_Matrix) == true)
 		{
-			Local_Right.X	= Local_Matrix._m[MATRIX_LOCAL::RIGHT_X];
-			Local_Right.Y	= Local_Matrix._m[MATRIX_LOCAL::RIGHT_Y];
-			Local_Right.Z	= Local_Matrix._m[MATRIX_LOCAL::RIGHT_Z];
-			Local_Look.X	= Local_Matrix._m[MATRIX_LOCAL::LOOK_X];
-			Local_Look.Y	= Local_Matrix._m[MATRIX_LOCAL::LOOK_Y];
-			Local_Look.Z	= Local_Matrix._m[MATRIX_LOCAL::LOOK_Z];
-			Local_Up.X		= Local_Matrix._m[MATRIX_LOCAL::UP_X];
-			Local_Up.Y		= Local_Matrix._m[MATRIX_LOCAL::UP_Y];
-			Local_Up.Z		= Local_Matrix._m[MATRIX_LOCAL::UP_Z];
+			Local_Right.X = Local_Matrix._m[MATRIX_LOCAL::RIGHT_X];
+			Local_Right.Y = Local_Matrix._m[MATRIX_LOCAL::RIGHT_Y];
+			Local_Right.Z = Local_Matrix._m[MATRIX_LOCAL::RIGHT_Z];
+			Local_Look.X = Local_Matrix._m[MATRIX_LOCAL::LOOK_X];
+			Local_Look.Y = Local_Matrix._m[MATRIX_LOCAL::LOOK_Y];
+			Local_Look.Z = Local_Matrix._m[MATRIX_LOCAL::LOOK_Z];
+			Local_Up.X = Local_Matrix._m[MATRIX_LOCAL::UP_X];
+			Local_Up.Y = Local_Matrix._m[MATRIX_LOCAL::UP_Y];
+			Local_Up.Z = Local_Matrix._m[MATRIX_LOCAL::UP_Z];
 			Local_Matrix._m[MATRIX_LOCAL::POX_X] = -PVector3::Dot(Position, Local_Right);
 			Local_Matrix._m[MATRIX_LOCAL::POX_Y] = -PVector3::Dot(Position, Local_Up);
 			Local_Matrix._m[MATRIX_LOCAL::POX_Z] = -PVector3::Dot(Position, Local_Look);
@@ -106,8 +106,8 @@ void Transform::WorldMatrixUpdate()
 			Local_Matrix._m[7] = 0.0f;
 			Local_Matrix._m[11] = 0.0f;
 		}
-		IsChange_Scale		= false;
-		IsChange_Rotation	= false;
-		IsChange_Postion	= false;
+		IsChange_Scale = false;
+		IsChange_Rotation = false;
+		IsChange_Postion = false;
 	}
 }

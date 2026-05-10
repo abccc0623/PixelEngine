@@ -2,10 +2,10 @@
 #include "EngineManager.h"
 #include <windows.h>
 enum KeyState {
-	KEY_NONE	= 0,		// 0000 0000
+	KEY_NONE = 0,		// 0000 0000
 	PRESSED = 1 << 0,   // 0001 : 현재 눌려있음
-	DOWN	= 1 << 1,   // 0010 : 이번에 막 눌림
-	UP		= 1 << 2,   // 0100 : 이번에 막 떨어짐
+	DOWN = 1 << 1,   // 0010 : 이번에 막 눌림
+	UP = 1 << 2,   // 0100 : 이번에 막 떨어짐
 };
 class EventManager;
 typedef unsigned char byte;

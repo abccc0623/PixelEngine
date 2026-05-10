@@ -9,7 +9,7 @@ TextureManager::TextureManager()
 }
 TextureManager::~TextureManager()
 {
-	
+
 }
 
 void TextureManager::Load(const std::string& path)
@@ -27,7 +27,7 @@ ObjectID TextureManager::Get(const std::string& name)
 	{
 		return findData->second;
 	}
-	else 
+	else
 	{
 		PixelLog::Error("Not Find Texture : " + name);
 		return ObjectID();

@@ -34,7 +34,7 @@ public:
 	void RegisterMessage(GameObject* target, EventType type);
 	void UnregisterMessage(GameObject* target, EventType type);
 
-	void TriggerCustomEvent(std::string eventType,sol::table event, float time);
+	void TriggerCustomEvent(std::string eventType, sol::table event, float time);
 	void TriggerEvent(EventType type, Event event);
 private:
 	std::unordered_map<EventType, std::vector<GameObject*>> eventList;

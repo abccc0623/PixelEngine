@@ -25,7 +25,7 @@ class Scene : public PixelObject
 public:
 	Scene();
 	~Scene();
-	void Initialize(const std::string& luaPath,const std::string& name);
+	void Initialize(const std::string& luaPath, const std::string& name);
 	void Start();
 	void Update();
 	void Release();

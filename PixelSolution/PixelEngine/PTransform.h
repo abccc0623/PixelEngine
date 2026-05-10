@@ -8,10 +8,10 @@ namespace ECS::Transform
 		//빠른 계산을 위한 16+16+16 정렬
 		Pixel::Vector3 position{ 0.0f, 0.0f, 0.0f };
 		unsigned int bitmask;
-		
+
 		Pixel::Vector4 rotation{ 0.0f, 0.0f, 0.0f, 0.0f };
-		
-		Pixel::Vector3 scale{ 1.0f, 1.0f, 1.0f};
+
+		Pixel::Vector3 scale{ 1.0f, 1.0f, 1.0f };
 		unsigned int  unused2;
 	};
 	struct WorldData

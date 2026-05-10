@@ -18,8 +18,8 @@ ECS::Renderer2DSystem::~Renderer2DSystem()
 
 void ECS::Renderer2DSystem::Update(Registry* registry)
 {
-	auto& renderer2DArray	= registry->GetArray<ECS::Renderer2D::Renderer2DData>();
-	auto& worldArray		= registry->GetArray<ECS::Transform::WorldData>();
+	auto& renderer2DArray = registry->GetArray<ECS::Renderer2D::Renderer2DData>();
+	auto& worldArray = registry->GetArray<ECS::Transform::WorldData>();
 	int size = renderer2DArray.size();
 	for (int i = 0; i < size; i++)
 	{

@@ -40,11 +40,11 @@ private:
 
 	enum MOVE_STATE
 	{
-		NONE	= 0,
-		MOVE	= 1 << 0,
-		STOP	= 1 << 1,
-		START	= 1 << 2,
-		END		= 1 << 3,
+		NONE = 0,
+		MOVE = 1 << 0,
+		STOP = 1 << 1,
+		START = 1 << 2,
+		END = 1 << 3,
 	};
 };
 

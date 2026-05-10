@@ -26,7 +26,7 @@ PMatrix::~PMatrix()
 
 }
 const float DEG2RAD = 3.141592f / 180.0f;
-PMatrix PMatrix::Identity() 
+PMatrix PMatrix::Identity()
 {
 	PMatrix res;
 	res._m[0] = 1.0f; res._m[5] = 1.0f; res._m[10] = 1.0f; res._m[15] = 1.0f;
@@ -223,7 +223,7 @@ bool PMatrix::PMatrix::Invert(PMatrix& OutMatrix)
 
 }
 
-PMatrix PMatrix::operator*(float A) const 
+PMatrix PMatrix::operator*(float A) const
 {
 	PMatrix res = *this;
 	for (int i = 0; i < 16; i++) res._m[i] *= A;

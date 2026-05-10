@@ -58,7 +58,7 @@ void PixelEngine::Update()
 
 void PixelEngine::ClientUpdate()
 {
-	
+
 }
 
 void PixelEngine::EngineUpdate()
@@ -111,14 +111,14 @@ void PixelEngine::Clear()
 
 void PixelEngine::CreateEntity(std::string scriptName)
 {
-	
+
 
 
 }
 
 void PixelEngine::QuitWindow()
 {
-	
+
 }
 
 Scene* PixelEngine::CreateScene(std::string name)

@@ -11,7 +11,7 @@
 #include "Type/GlobalEnum.h"
 
 extern PixelEngine* Engine;
-Physics2D::Physics2D():collision(nullptr)
+Physics2D::Physics2D() :collision(nullptr)
 {
 	colliderSetting.colliderType = 0;
 	colliderSetting.Key = "KeyName";
@@ -45,7 +45,7 @@ void Physics2D::Awake()
 
 void Physics2D::Start()
 {
-	
+
 }
 
 void Physics2D::PhysicsUpdate()
@@ -60,7 +60,7 @@ void Physics2D::PhysicsUpdate()
 	}
 	if (targetBodyID.IsInvalid())
 	{
-		targetBodyID = collision->CreateRigidbody(rigidbodySetting,targetRef, targetObject);
+		targetBodyID = collision->CreateRigidbody(rigidbodySetting, targetRef, targetObject);
 	}
 	collision->SyncPhysics(targetBodyID);
 }
@@ -77,9 +77,9 @@ bool Physics2D::GetActive()
 
 void Physics2D::SetVelocity(float x, float y)
 {
-	if(!targetBodyID.IsInvalid())
+	if (!targetBodyID.IsInvalid())
 	{
-		collision->SetVelocity(targetBodyID,x, y, 0.0f);
+		collision->SetVelocity(targetBodyID, x, y, 0.0f);
 	}
 }
 
@@ -150,9 +150,9 @@ void Physics2D::SetCollider(sol::table table)
 				colliderSetting.circle2D.CenterX = centerTable["x"];
 				colliderSetting.circle2D.CenterY = centerTable["y"];
 			}
-			colliderSetting.circle2D.Radius= 0.5f;
+			colliderSetting.circle2D.Radius = 0.5f;
 			sol::optional<float> Radius = table["Radius"];
-			if (Radius) 
+			if (Radius)
 			{
 				colliderSetting.circle2D.Radius = Radius.value();
 			}
@@ -224,14 +224,14 @@ void Physics2D::SetRigidbody(sol::table table)
 	if (targetRef.GetPtr() == nullptr)
 	{
 		targetRef = collision->CreateCollider(colliderSetting);
-		PixelLog::Warn(targetObject->name +  "정의된 Collider가 없어 기본 Collider로 변경합니다.");
+		PixelLog::Warn(targetObject->name + "정의된 Collider가 없어 기본 Collider로 변경합니다.");
 	}
-	targetBodyID = collision->CreateRigidbody(rigidbodySetting, targetRef,targetObject);
+	targetBodyID = collision->CreateRigidbody(rigidbodySetting, targetRef, targetObject);
 }
 
-void Physics2D::SetPosition(float x, float y,float z)
+void Physics2D::SetPosition(float x, float y, float z)
 {
-	if(!targetBodyID.IsInvalid())
+	if (!targetBodyID.IsInvalid())
 	{
 		collision->SetPosition(targetBodyID, x, y, 0.0f, rigidbodySetting.Active);
 	}
@@ -245,7 +245,7 @@ void Physics2D::SetPosition(float x, float y,float z)
 
 void Physics2D::SetRotation(float x, float y, float z)
 {
-	if(!targetBodyID.IsInvalid())
+	if (!targetBodyID.IsInvalid())
 	{
 		collision->SetRotation(targetBodyID, x, y, z, rigidbodySetting.Active);
 	}

@@ -14,7 +14,7 @@ public:
 
 	static void LoadGameObject(nlohmann::ordered_json file);
 	static void LoadScene(nlohmann::ordered_json file);
-	
+
 
 	static bool Load(const std::string& path);
 	static bool Save(const std::string& path, const nlohmann::ordered_json& j);

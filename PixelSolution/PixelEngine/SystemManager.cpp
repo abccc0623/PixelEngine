@@ -7,8 +7,8 @@
 #include "CameraSystem.h"
 #include "Renderer2DSystem.h"
 
-ECS::SystemManager::SystemManager(){}
-ECS::SystemManager::~SystemManager(){}
+ECS::SystemManager::SystemManager() {}
+ECS::SystemManager::~SystemManager() {}
 
 void ECS::SystemManager::Initialize()
 {

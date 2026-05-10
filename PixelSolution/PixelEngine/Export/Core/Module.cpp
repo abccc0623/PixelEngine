@@ -15,12 +15,12 @@ Module::~Module()
 	targetObject = nullptr;
 }
 
-void Module::Awake(){}
-void Module::Start(){}
-void Module::Update(){}
-void Module::MatrixUpdate(){}
-void Module::PhysicsUpdate(){}
-void Module::LastUpdate(){}
+void Module::Awake() {}
+void Module::Start() {}
+void Module::Update() {}
+void Module::MatrixUpdate() {}
+void Module::PhysicsUpdate() {}
+void Module::LastUpdate() {}
 
 
 //void Module::OnCollisionEnter2D(WPointer<GameObject> target){}

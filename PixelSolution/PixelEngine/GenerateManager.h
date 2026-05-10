@@ -19,8 +19,8 @@ public:
 	void LSPGenerate(const char* outPath);
 	void JsonGenerate(const char* outPath);
 private:
-	void TypeMember(PixelClassMeta& PixelClass,PType* type);
-	void TypeMethod(PixelClassMeta& PixelClass,PType* type);
+	void TypeMember(PixelClassMeta& PixelClass, PType* type);
+	void TypeMethod(PixelClassMeta& PixelClass, PType* type);
 	void TypeEnum(PixelClassMeta& PixelClass, PType* type);
 
 	LuaBind* luaBind;
