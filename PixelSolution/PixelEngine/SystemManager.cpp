@@ -5,6 +5,7 @@
 
 #include "TransformSystem.h"
 #include "CameraSystem.h"
+#include "Animation2DSystem.h"
 #include "Renderer2DSystem.h"
 
 ECS::SystemManager::SystemManager() {}
@@ -14,6 +15,7 @@ void ECS::SystemManager::Initialize()
 {
 	SystemList.push_back(new TransformSystem());
 	SystemList.push_back(new CameraSystem());
+	SystemList.push_back(new Animation2DSystem);
 	SystemList.push_back(new Renderer2DSystem());
 }
 

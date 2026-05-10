@@ -15,6 +15,7 @@
 
 #include "Transform.h"
 #include "Camera.h"
+#include "Animation2D.h"
 #include "Renderer2D.h"
 
 BindManager::BindManager()
@@ -74,6 +75,11 @@ void BindManager::Initialize()
 
 	PStatic* globalCamera = CreateNewStatic("Camera");
 	AddGlobalMethod(globalCamera, "Add", GeGlobalMethodInfo(&ECS::Camera::Add), MetaFlag::LUABIND);
+
+	PStatic* globalAnimation2D = CreateNewStatic("Animation2D");
+	AddGlobalMethod(globalAnimation2D, "Add", GeGlobalMethodInfo(&ECS::Animation2D::Add), MetaFlag::LUABIND);
+	AddGlobalMethod(globalAnimation2D, "CreateAnimation", GeGlobalMethodInfo(&ECS::Animation2D::CreateAnimation), MetaFlag::LUABIND);
+	AddGlobalMethod(globalAnimation2D, "PlayAnimation", GeGlobalMethodInfo(&ECS::Animation2D::PlayAnimation), MetaFlag::LUABIND);
 
 	BindEntity();
 }

@@ -336,6 +336,12 @@
     <ClInclude Include="SystemManager.h">
       <Filter>EngineAPI\ECS\System\Manager</Filter>
     </ClInclude>
+    <ClInclude Include="Animation2D.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation2DSystem.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -484,6 +490,12 @@
     </ClCompile>
     <ClCompile Include="SystemManager.cpp">
       <Filter>EngineAPI\ECS\System\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation2D.cpp">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation2DSystem.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

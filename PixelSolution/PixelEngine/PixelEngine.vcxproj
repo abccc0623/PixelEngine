@@ -169,6 +169,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animation2D.h" />
+    <ClInclude Include="Animation2DSystem.h" />
     <ClInclude Include="BitMask8.h" />
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="ColliderFactory.h" />
@@ -240,6 +242,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="WPointer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Animation2D.cpp" />
+    <ClCompile Include="Animation2DSystem.cpp" />
     <ClCompile Include="BindManager.cpp" />
     <ClCompile Include="BitMask8.cpp" />
     <ClCompile Include="CameraSystem.cpp" />

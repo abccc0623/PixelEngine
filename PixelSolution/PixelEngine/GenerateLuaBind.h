@@ -4,6 +4,7 @@
 #include "Transform.h" 
 #include "Renderer2D.h" 
 #include "Camera.h" 
+#include "Animation2D.h" 
 #include "Entity.h" 
 using namespace ECS;
 inline void Generate_Engine(sol::state& lua) 
@@ -65,6 +66,13 @@ inline void Generate_Camera(sol::state& lua)
 	sol::table ut = lua.create_named_table("Camera");
 	ut["Add"] = &ECS::Camera::Add;
 }
+inline void Generate_Animation2D(sol::state& lua) 
+{
+	sol::table ut = lua.create_named_table("Animation2D");
+	ut["Add"] = &ECS::Animation2D::Add;
+	ut["CreateAnimation"] = &ECS::Animation2D::CreateAnimation;
+	ut["PlayAnimation"] = &ECS::Animation2D::PlayAnimation;
+}
 inline void Generate_Entity(sol::state& lua) 
 {
 	sol::usertype<Entity> ut = lua.new_usertype<Entity>("Entity");
@@ -84,5 +92,6 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_Transform(lua); 
 	Generate_Renderer2D(lua); 
 	Generate_Camera(lua); 
+	Generate_Animation2D(lua); 
 	Generate_Entity(lua); 
 }
