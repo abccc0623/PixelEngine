@@ -3,7 +3,6 @@
 #include "Scene.h"
 #include "Log.h"
 #include "Core/PixelObject.h"
-#include "Core/GameObject.h"
 #include "JsonManager.h"
 #include "PixelEngine.h"
 

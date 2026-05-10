@@ -1,12 +1,8 @@
 #include "pch.h"
 #include "BindManager.h"
 
-#include "Core/GameObject.h"
 #include "Module/Renderer2D.h"
-#include "Module/Transform.h"
 #include "Module/LuaScript.h"
-#include "Module/DebugCamera.h"
-#include "Module/Camera.h"
 #include "Module/Movement.h"
 #include "Module/Physics2D.h"
 
@@ -122,90 +118,6 @@ void BindManager::BindLuaScript()
 
 	AddMethod(table, "StartCoroutine", GetMethodInfo(&LuaScript::StartCoroutine), MetaFlag::LUABIND);
 }
-
-void BindManager::BindTransform()
-{
-	///Transform
-	auto table = CreateNewClass("Transform", "Module");
-	CreateClassFunction(table, []() ->void*
-		{
-			return new Transform();
-		});
-	DeleteClassFunction(table, []() ->void
-		{
-			PixelLog::Info("Delete Transform");
-		});
-	AddMember(table, "Position", GetMemberInfo(&Transform::Position), MetaFlag::LUABIND | MetaFlag::SAVE);
-	AddMember(table, "Rotation", GetMemberInfo(&Transform::Rotation), MetaFlag::LUABIND | MetaFlag::SAVE);
-	AddMember(table, "Scale", GetMemberInfo(&Transform::Scale), MetaFlag::LUABIND | MetaFlag::SAVE);
-	AddMethod(table, "Start", GetMethodInfo(&Transform::Start));
-	AddMethod(table, "MatrixUpdate", GetMethodInfo(&Transform::MatrixUpdate));
-
-	AddMethod(table, "GetLookVector", GetMethodInfo(&Transform::GetLookVector), MetaFlag::LUABIND | MetaFlag::SAVE);
-	AddMethod(table, "GetRightVector", GetMethodInfo(&Transform::GetRightVector), MetaFlag::LUABIND | MetaFlag::SAVE);
-	AddMethod(table, "GetUpVector", GetMethodInfo(&Transform::GetUpVector), MetaFlag::LUABIND | MetaFlag::SAVE);
-}
-
-//void BindManager::BindRenderer2D()
-//{
-//	///Renderer2D 
-//	auto table = CreateNewClass("Renderer2D", "Module");
-//	CreateClassFunction(table, []() ->void*
-//		{
-//			return new Renderer2D();
-//		});
-//	DeleteClassFunction(table, []() ->void
-//		{
-//			PixelLog::Info("Delete Renderer2D");
-//		});
-//	AddMethod(table, "LastUpdate", GetMethodInfo(&Renderer2D::LastUpdate));
-//	AddMethod(table, "SetTexture", GetMethodInfo(&Renderer2D::SetTexture), MetaFlag::LUABIND);
-//	AddMethod(table, "SetMaterial", GetMethodInfo(&Renderer2D::SetMaterial), MetaFlag::LUABIND);
-//
-//	AddMethod(table, "CreateAnimation", GetMethodInfo(&Renderer2D::CreateAnimation), MetaFlag::LUABIND);
-//	AddMethod(table, "PlayAnimation", GetMethodInfo(&Renderer2D::PlayAnimation), MetaFlag::LUABIND);
-//
-//	AddMethod(table, "SetTextureOffset", GetMethodInfo(&Renderer2D::SetTextureOffset), MetaFlag::LUABIND);
-//	AddMethod(table, "AddTextureOffset", GetMethodInfo(&Renderer2D::AddTextureOffset), MetaFlag::LUABIND);
-//	AddMethod(table, "SetTextureTiling", GetMethodInfo(&Renderer2D::SetTextureTiling), MetaFlag::LUABIND);
-//	AddMethod(table, "AddTextureTiling", GetMethodInfo(&Renderer2D::AddTextureTiling), MetaFlag::LUABIND);
-//}
-
-void BindManager::BindDebugCamera()
-{
-	///DebugCamera
-	auto table = CreateNewClass("DebugCamera", "Module");
-	CreateClassFunction(table, []() ->void*
-		{
-			return new DebugCamera();
-		});
-	DeleteClassFunction(table, []() ->void
-		{
-			PixelLog::Info("Delete DebugCamera");
-		});
-	AddMethod(table, "Start", GetMethodInfo(&DebugCamera::Start));
-	AddMethod(table, "Update", GetMethodInfo(&DebugCamera::Update));
-	AddMethod(table, "LastUpdate", GetMethodInfo(&DebugCamera::LastUpdate));
-}
-
-void BindManager::BindCamera()
-{
-	///Camera
-	auto table = CreateNewClass("Camera", "Module");
-	CreateClassFunction(table, []() ->void*
-		{
-			return new Camera();
-		});
-	DeleteClassFunction(table, []() ->void
-		{
-			PixelLog::Info("Delete Camera");
-		});
-	AddMethod(table, "Start", GetMethodInfo(&Camera::Start));
-	AddMethod(table, "LastUpdate", GetMethodInfo(&Camera::LastUpdate));
-	AddMethod(table, "OrthographicProjection", GetMethodInfo(&Camera::OrthographicProjection));
-	AddMethod(table, "PerspectiveProjection", GetMethodInfo(&Camera::PerspectiveProjection));
-}
-
 void BindManager::BindMovement()
 {
 	auto table = CreateNewClass("Movement", "Module");
@@ -219,7 +131,7 @@ void BindManager::BindMovement()
 		});
 	AddMember(table, "stopDistance", GetMemberInfo(&Movement::stopDistance));
 	AddMember(table, "speed", GetMemberInfo(&Movement::speed));
-	AddMethod(table, "MoveToTarget", GetMethodInfo(&Movement::MoveToTarget), MetaFlag::LUABIND);
+	//AddMethod(table, "MoveToTarget", GetMethodInfo(&Movement::MoveToTarget), MetaFlag::LUABIND);
 	AddMethod(table, "MoveToPosition", GetMethodInfo(&Movement::MoveToPosition), MetaFlag::LUABIND);
 	AddMethod(table, "StopMove", GetMethodInfo(&Movement::StopMove), MetaFlag::LUABIND);
 	AddMethod(table, "AddCompleteCallBack", GetMethodInfo(&Movement::AddCompleteCallBack), MetaFlag::LUABIND);
@@ -229,12 +141,6 @@ void BindManager::BindMovement()
 	AddMethod(table, "Start", GetMethodInfo(&Movement::Start));
 }
 
-void BindManager::BindGameObject()
-{
-	auto table = CreateNewClass("GameObject");
-	AddMethod(table, "AddModule", GetMethodInfo(&GameObject::AddModule), MetaFlag::LUABIND);
-	AddMethod(table, "GetModule", GetMethodInfo(&GameObject::GetModule), MetaFlag::LUABIND);
-}
 
 void BindManager::BindPVector3()
 {

@@ -2,8 +2,6 @@
 #include "Core/PixelObject.h"
 #include <string>
 #include <vector>
-class GameObject;
-class Transform;
 class Module : public PixelObject
 {
 public:
@@ -17,9 +15,8 @@ public:
 	virtual void LastUpdate();
 
 protected:
-	Transform* transform;
-	GameObject* targetObject;
+	//Transform* transform;
+	//GameObject* targetObject;
 private:
-	friend GameObject;
 };
 

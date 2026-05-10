@@ -3,15 +3,12 @@
 #include <Jolt/Physics/Body/BodyInterface.h>
 #include "PhysManager.h"
 #include "PixelEngineAPI.h"
-#include "Core/GameObject.h"
-#include "Module/Transform.h"
 #include "Type/GlobalEnum.h"
 #include "ColliderFactory.h"
 #include "PixelGraphicsAPI.h"
 #include "PhysListener.h"
 #include "EventManager.h"
 #include "PixelEngine.h"
-#include "Core/GameObject.h"
 
 using namespace JPH;
 
@@ -70,16 +67,28 @@ PhysManager::PhysManager()
 
 PhysManager::~PhysManager()
 {
-	delete tempAllocator;
-	delete jobSystem;
-	delete physicsSystem;
-
-	delete mBpInterface;
-	delete mObjVsBpFilter;
-	delete mObjVsObjFilter;
+	if (physicsSystem)
+	{
+		physicsSystem->SetContactListener(nullptr);
+	}
 
 	delete colliderFactory;
 	delete eventListener;
+
+	delete physicsSystem;
+	physicsSystem = nullptr;
+
+	delete mObjVsObjFilter;
+	delete mObjVsBpFilter;
+	delete mBpInterface;
+
+	delete jobSystem;
+	delete tempAllocator;
+
+	JPH::UnregisterTypes();
+
+	delete JPH::Factory::sInstance;
+	JPH::Factory::sInstance = nullptr;
 }
 void MyTrace(const char* inFMT, ...) {
 	char buffer[1024];
@@ -140,16 +149,16 @@ void PhysManager::Update()
 	{
 		Event eventMessage;
 		eventMessage.Collision.targetIn = ev.isEnter;
-		eventMessage.Collision.target1 = reinterpret_cast<GameObject*>(mBodyInterface->GetUserData(ev.body1));
-		eventMessage.Collision.target2 = reinterpret_cast<GameObject*>(mBodyInterface->GetUserData(ev.body2));
-		if (ev.isEnter)
-		{
-			event->TriggerEvent(EventType::CollisionIn, eventMessage);
-		}
-		else
-		{
-			event->TriggerEvent(EventType::CollisionOut, eventMessage);
-		}
+		//eventMessage.Collision.target1 = reinterpret_cast<GameObject*>(mBodyInterface->GetUserData(ev.body1));
+		//eventMessage.Collision.target2 = reinterpret_cast<GameObject*>(mBodyInterface->GetUserData(ev.body2));
+		//if (ev.isEnter)
+		//{
+		//	event->TriggerEvent(EventType::CollisionIn, eventMessage);
+		//}
+		//else
+		//{
+		//	event->TriggerEvent(EventType::CollisionOut, eventMessage);
+		//}
 	}
 }
 

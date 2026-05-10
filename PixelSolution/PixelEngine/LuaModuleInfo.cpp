@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "LuaModuleInfo.h"
 #include "PixelEngineAPI.h"
-#include "Core/GameObject.h"
-#include "Module/Transform.h"
 #include "Log.h"
 LuaModuleInfo::LuaModuleInfo(sol::table table)
 {

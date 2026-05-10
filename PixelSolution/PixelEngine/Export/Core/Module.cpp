@@ -1,18 +1,15 @@
 #include "pch.h"
 #include "Module.h"
 #include "Core/PixelObject.h"
-#include "Core/GameObject.h"
 #include "PixelEngine.h"
 #include "LuaManager.h"
 #include "json.hpp"
 extern PixelEngine* Engine;
 Module::Module()
 {
-	targetObject = nullptr;
 }
 Module::~Module()
 {
-	targetObject = nullptr;
 }
 
 void Module::Awake() {}

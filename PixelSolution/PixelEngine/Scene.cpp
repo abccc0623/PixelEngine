@@ -2,8 +2,6 @@
 #include "Scene.h"
 #include "PixelEngine.h"
 #include "LuaManager.h"
-#include "FunctionManager.h"
-#include "Core/GameObject.h"
 #include "sol.hpp"
 #include "SPointer.h"
 #include "WPointer.h"

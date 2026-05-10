@@ -11,8 +11,8 @@ class GameObject;
 struct PhysEvent
 {
 	bool targetIn;
-	GameObject* target1;
-	GameObject* target2;
+	//GameObject* target1;
+	//GameObject* target2;
 };
 
 struct Event

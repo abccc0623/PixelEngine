@@ -1,7 +1,5 @@
 #include "pch.h"
 #include "Renderer.h"
-#include "Core/GameObject.h"
-#include "Module/Transform.h"
 #include "Type/PMatrix.h"
 #include "PixelGraphicsAPI.h"
 #include "PixelEngineAPI.h"

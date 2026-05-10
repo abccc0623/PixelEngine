@@ -7,8 +7,6 @@
 #include "LuaManager.h"
 #include "EventManager.h"
 #include "CoroutineManager.h"
-#include "Core/GameObject.h"
-#include "Module/Transform.h"
 #include "Type/GlobalEnum.h"
 #include "Log.h"
 extern PixelEngine* Engine;
@@ -117,8 +115,8 @@ void LuaScript::Register(std::string fileName)
 	OnCollisionIn = instance["OnCollisionIn"];
 	OnCollisionOut = instance["OnCollisionOut"];
 
-	instance["gameObject"] = targetObject;
-	instance["transform"] = transform;
+	//instance["gameObject"] = targetObject;
+	//instance["transform"] = transform;
 	instance["script"] = this;
 }
 
@@ -135,18 +133,18 @@ void LuaScript::EventCall(EventType type, Event event)
 	case EventType::CollisionIn:
 		if (OnCollisionIn.valid())
 		{
-			if (event.Collision.target1 == targetObject)
-			{
-				OnCollisionIn(instance, event.Collision.target2);
-			}
-			else if (event.Collision.target2 == targetObject)
-			{
-				OnCollisionIn(instance, event.Collision.target1);
-			}
-			else
-			{
-
-			}
+			//if (event.Collision.target1 == targetObject)
+			//{
+			//	OnCollisionIn(instance, event.Collision.target2);
+			//}
+			//else if (event.Collision.target2 == targetObject)
+			//{
+			//	OnCollisionIn(instance, event.Collision.target1);
+			//}
+			//else
+			//{
+			//
+			//}
 		}
 
 		break;
@@ -197,22 +195,22 @@ void LuaScript::StartCoroutine(const char* functionName)
 
 void LuaScript::RegisterMessage(EventType type)
 {
-	event->RegisterMessage(targetObject, type);
+	//event->RegisterMessage(targetObject, type);
 }
 
 void LuaScript::RegisterCustomMessage(const char* type)
 {
-	event->RegisterMessageCustom(targetObject, type);
+	//event->RegisterMessageCustom(targetObject, type);
 }
 
 void LuaScript::UnregisterMessage(EventType type)
 {
-	event->UnregisterMessage(targetObject, type);
+	//event->UnregisterMessage(targetObject, type);
 }
 
 void LuaScript::UnregisterCustomMessage(const char* type)
 {
-	event->UnregisterMessageCustom(targetObject, type);
+	//event->UnregisterMessageCustom(targetObject, type);
 }
 
 

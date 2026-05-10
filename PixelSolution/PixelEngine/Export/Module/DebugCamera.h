@@ -1,7 +1,6 @@
 #pragma once
 #include "Core/Module.h"
 #include "RenderringData.h"
-class GameObject;
 class DebugCamera : public Module
 {
 public:

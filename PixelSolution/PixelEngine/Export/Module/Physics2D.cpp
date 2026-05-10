@@ -1,13 +1,10 @@
 #include "pch.h"
 #include "Physics2D.h"
 #include "PixelEngine.h"
-#include "Core/GameObject.h"
-#include "Module/Transform.h"
 #include "PhysManager.h"
 #include "PixelGraphicsAPI.h"
 #include "RenderringData.h"
 #include "BindManager.h"
-#include "Module/Transform.h"
 #include "Type/GlobalEnum.h"
 
 extern PixelEngine* Engine;
@@ -60,7 +57,7 @@ void Physics2D::PhysicsUpdate()
 	}
 	if (targetBodyID.IsInvalid())
 	{
-		targetBodyID = collision->CreateRigidbody(rigidbodySetting, targetRef, targetObject);
+		//targetBodyID = collision->CreateRigidbody(rigidbodySetting, targetRef, targetObject);
 	}
 	collision->SyncPhysics(targetBodyID);
 }
@@ -224,37 +221,37 @@ void Physics2D::SetRigidbody(sol::table table)
 	if (targetRef.GetPtr() == nullptr)
 	{
 		targetRef = collision->CreateCollider(colliderSetting);
-		PixelLog::Warn(targetObject->name + "정의된 Collider가 없어 기본 Collider로 변경합니다.");
+		//PixelLog::Warn(targetObject->name + "정의된 Collider가 없어 기본 Collider로 변경합니다.");
 	}
-	targetBodyID = collision->CreateRigidbody(rigidbodySetting, targetRef, targetObject);
+	//targetBodyID = collision->CreateRigidbody(rigidbodySetting, targetRef, targetObject);
 }
 
 void Physics2D::SetPosition(float x, float y, float z)
 {
-	if (!targetBodyID.IsInvalid())
-	{
-		collision->SetPosition(targetBodyID, x, y, 0.0f, rigidbodySetting.Active);
-	}
-	else
-	{
-		transform->Position.X = x;
-		transform->Position.Y = y;
-		transform->Position.Z = z;
-	}
+	//if (!targetBodyID.IsInvalid())
+	//{
+	//	collision->SetPosition(targetBodyID, x, y, 0.0f, rigidbodySetting.Active);
+	//}
+	//else
+	//{
+	//	transform->Position.X = x;
+	//	transform->Position.Y = y;
+	//	transform->Position.Z = z;
+	//}
 }
 
 void Physics2D::SetRotation(float x, float y, float z)
 {
-	if (!targetBodyID.IsInvalid())
-	{
-		collision->SetRotation(targetBodyID, x, y, z, rigidbodySetting.Active);
-	}
-	else
-	{
-		transform->Rotation.X = x;
-		transform->Rotation.Y = y;
-		transform->Rotation.Z = z;
-	}
+	//if (!targetBodyID.IsInvalid())
+	//{
+	//	collision->SetRotation(targetBodyID, x, y, z, rigidbodySetting.Active);
+	//}
+	//else
+	//{
+	//	transform->Rotation.X = x;
+	//	transform->Rotation.Y = y;
+	//	transform->Rotation.Z = z;
+	//}
 }
 
 void Physics2D::AddForce(float x, float y, float z)

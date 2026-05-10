@@ -8,7 +8,6 @@
 #include "PhysStruct.h"
 class GameObject;
 class PhysManager;
-class Transform;
 struct RenderingData;
 
 namespace JPH

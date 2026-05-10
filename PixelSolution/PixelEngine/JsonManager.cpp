@@ -3,9 +3,7 @@
 #include "json.hpp"
 #include <fstream>
 #include "PixelEngineAPI.h"
-#include "Export/Core/GameObject.h"
 #include "Export/Core/Module.h"
-#include "Export/Module/Transform.h"
 
 
 JsonManager::JsonManager()

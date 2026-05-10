@@ -7,12 +7,10 @@
 #include "KeyInputManager.h"
 #include "LuaManager.h"
 #include "GenerateManager.h"
-#include "FunctionManager.h"
 #include "SceneManager.h"
 #include "TextureManager.h"
 #include "ResourceManager.h"
 #include "TimeManager.h"
-#include "Core/GameObject.h"
 #include "JsonManager.h"
 #include "EventManager.h"
 #include "PixelMetaAPI.h"
@@ -280,27 +278,27 @@ void DestroyEntity(unsigned int id)
 void RegisterMessage(GameObject* target, EventType type)
 {
 	auto eventManager = Engine->GetFactory<EventManager>();
-	eventManager->RegisterMessage(target, type);
+	//eventManager->RegisterMessage(target, type);
 }
 
 void RegisterCustomMessage(GameObject* target, const char* type)
 {
 	std::string eventType(type);
 	auto eventManager = Engine->GetFactory<EventManager>();
-	eventManager->RegisterMessageCustom(target, eventType);
+	//eventManager->RegisterMessageCustom(target, eventType);
 }
 
 void UnregisterMessage(GameObject* target, EventType type)
 {
 	auto eventManager = Engine->GetFactory<EventManager>();
-	eventManager->UnregisterMessage(target, type);
+	//eventManager->UnregisterMessage(target, type);
 }
 
 void UnregisterCustomMessage(GameObject* target, const char* type)
 {
 	std::string eventType(type);
 	auto eventManager = Engine->GetFactory<EventManager>();
-	eventManager->UnregisterMessageCustom(target, eventType);
+	//eventManager->UnregisterMessageCustom(target, eventType);
 }
 
 void BackgroundColor(int R, int G, int B)
@@ -308,17 +306,6 @@ void BackgroundColor(int R, int G, int B)
 	PixelGraphicsBackgroundColor(R, G, B);
 }
 
-
-Module* AddModule(GameObject* target, PType* moduleClass)
-{
-	return target->AddModuleToEngine(moduleClass);
-}
-
-
-Module* GetModule(GameObject* target, PType* moduleClass)
-{
-	return target->GetModuleToEngine(moduleClass);
-}
 
 Module* GetModuleByString(GameObject* target, const char* name)
 {

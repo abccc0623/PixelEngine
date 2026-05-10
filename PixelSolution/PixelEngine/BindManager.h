@@ -4,9 +4,7 @@
 #include <functional>
 #include <typeindex>
 #include <string>
-#include "GlobalBind.h"
 
-class GameObject;
 class Module;
 class BindManager : public EngineManager
 {
@@ -21,12 +19,7 @@ public:
 
 private:
 	void BindLuaScript();
-	void BindTransform();
-	void BindRenderer2D();
-	void BindDebugCamera();
-	void BindCamera();
 	void BindMovement();
-	void BindGameObject();
 	void BindPVector3();
 	void BindEnum();
 	void BindPhysics2D();

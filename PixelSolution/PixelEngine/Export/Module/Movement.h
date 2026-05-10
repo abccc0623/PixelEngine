@@ -18,7 +18,7 @@ public:
 	float stopDistance = 0;
 	float speed = 1;
 	void MoveToPosition(float x, float y, float z);
-	void MoveToTarget(GameObject* target);
+	//void MoveToTarget(GameObject* target);
 	void StopMove();
 	void AddCompleteCallBack(std::string functionName);
 	void AddStartedCallBack(std::string functionName);

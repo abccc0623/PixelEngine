@@ -2,7 +2,6 @@
 #include "PixelEngineDLL.h"
 
 enum class EventType : int;
-class GameObject;
 class PObject;
 class PClass;
 class Module;
@@ -23,15 +22,11 @@ extern "C" PIXEL_ENGINEDLL void SetWindowFocus(bool focus);
 extern "C" PIXEL_ENGINEDLL void Reload();
 
 extern "C" PIXEL_ENGINEDLL void Import(const char* path);
-extern "C" PIXEL_ENGINEDLL GameObject* CreateGameObject(const char* name);
-extern "C" PIXEL_ENGINEDLL GameObject* CreateLuaGameObject(const char* name, const char* script);
 
 extern "C" PIXEL_ENGINEDLL unsigned int CreateEntity(const char* script);
 extern "C" PIXEL_ENGINEDLL void DestroyEntity(unsigned int id);
 
 
-
-extern "C" PIXEL_ENGINEDLL GameObject* FindGameObject(const char* name);
 extern "C" PIXEL_ENGINEDLL void BackgroundColor(int R, int G, int B);
 
 #pragma region MetaType
@@ -76,9 +71,8 @@ typedef void(__stdcall* SceneChangeCallbackFunc)();
 extern "C" PIXEL_ENGINEDLL bool CreateScene(const char* sceneName);
 extern "C" PIXEL_ENGINEDLL void ChangeScene(const char* sceneName);
 extern "C" PIXEL_ENGINEDLL void RegisterSceneObjectChange(SceneChangeCallbackFunc callBack);
-extern "C" PIXEL_ENGINEDLL GameObject** GetAllSceneObjects(int* outCount);
+//extern "C" PIXEL_ENGINEDLL GameObject** GetAllSceneObjects(int* outCount);
 
-extern "C" PIXEL_ENGINEDLL void SaveScene();
 extern "C" PIXEL_ENGINEDLL void LoadScene(const char* sceneName);
 
 

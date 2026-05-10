@@ -16,7 +16,6 @@ struct CustomDelayEvent
 
 
 enum class EventType : int;
-class GameObject;
 class EventManager : public  EngineManager
 {
 public:
@@ -28,17 +27,17 @@ public:
 	void Release() override;
 	void Clear() override;
 
-	void RegisterMessageCustom(GameObject* target, std::string EventName);
-	void UnregisterMessageCustom(GameObject* target, std::string EventName);
-
-	void RegisterMessage(GameObject* target, EventType type);
-	void UnregisterMessage(GameObject* target, EventType type);
+	//void RegisterMessageCustom(GameObject* target, std::string EventName);
+	//void UnregisterMessageCustom(GameObject* target, std::string EventName);
+	//
+	//void RegisterMessage(GameObject* target, EventType type);
+	//void UnregisterMessage(GameObject* target, EventType type);
 
 	void TriggerCustomEvent(std::string eventType, sol::table event, float time);
 	void TriggerEvent(EventType type, Event event);
 private:
-	std::unordered_map<EventType, std::vector<GameObject*>> eventList;
-	std::unordered_map<std::string, std::vector<GameObject*>> customEventList;
+	//std::unordered_map<EventType, std::vector<GameObject*>> eventList;
+	//std::unordered_map<std::string, std::vector<GameObject*>> customEventList;
 	std::vector<CustomDelayEvent> customDelayEvents;
 };
 

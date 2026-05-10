@@ -9,7 +9,6 @@
 
 #include "KeyInputManager.h"
 #include "LuaManager.h"
-#include "FunctionManager.h"
 #include "SceneManager.h"
 #include "TextureManager.h"
 #include "ResourceManager.h"
@@ -30,15 +29,14 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	BindFactory<KeyInputManager>();
 	BindFactory<TimeManager>();
 	BindFactory<BindManager>();
-	BindFactory<LuaManager>();
 	BindFactory<SceneManager>();
+	BindFactory<LuaManager>();
 	BindFactory<ResourceManager>();
 	BindFactory<PhysManager>();
 	BindFactory<JsonManager>();
 	BindFactory<GenerateManager>();
 	BindFactory<EventManager>();
 	BindFactory<CoroutineManager>();
-	//BindFactory<SystemManager>();
 
 	if (hWnd != nullptr)
 	{
