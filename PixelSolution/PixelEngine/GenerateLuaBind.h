@@ -2,7 +2,10 @@
 #include "PixelEngineAPI.h" 
 #include <unordered_map>
 #include "Entity.h" 
+
 #include "PTransform.h"
+#include "PCamera.h"
+#include "PRenderer2D.h"
 using namespace ECS;
 extern std::unordered_map <std::string, std::function<sol::object(sol::this_state s, Module* target)>> AddModuleList;
 inline void Generate_Engine(sol::state& lua) 
@@ -41,8 +44,25 @@ inline void Generate_Debug(sol::state& lua)
 inline void Generate_Transform(sol::state& lua) 
 {
 	sol::table ut = lua.create_named_table("Transform");
-	ut["AddTransform"] = &ECS::Transform::AddTransform;
+	ut["Add"] = &ECS::Transform::Add;
 	ut["SetPosition"] = &ECS::Transform::SetPosition;
+	ut["SetRotation"] = &ECS::Transform::SetRotation;
+	ut["SetScale"] = &ECS::Transform::SetScale;
+}
+inline void Generate_Renderer2D(sol::state& lua) 
+{
+	sol::table ut = lua.create_named_table("Renderer2D");
+	ut["Add"] = &ECS::Renderer2D::Add;
+	ut["SetTexture"] = &ECS::Renderer2D::SetTexture;
+	ut["SetTextureOffset"] = &ECS::Renderer2D::SetTextureOffset;
+	ut["AddTextureOffset"] = &ECS::Renderer2D::AddTextureOffset;
+	ut["SetTextureTiling"] = &ECS::Renderer2D::SetTextureTiling;
+	ut["AddTextureTiling"] = &ECS::Renderer2D::AddTextureTiling;
+}
+inline void Generate_Camera(sol::state& lua) 
+{
+	sol::table ut = lua.create_named_table("Camera");
+	ut["Add"] = &ECS::Camera::Add;
 }
 inline void Generate_Entity(sol::state& lua) 
 {
@@ -61,5 +81,7 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_Input(lua); 
 	Generate_Debug(lua); 
 	Generate_Transform(lua); 
+	Generate_Renderer2D(lua); 
+	Generate_Camera(lua); 
 	Generate_Entity(lua); 
 }

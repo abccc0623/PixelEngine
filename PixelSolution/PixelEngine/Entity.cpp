@@ -67,7 +67,10 @@ void ECS::Entity::UpdateCall(float DTime)
     }
 }
 
-
+unsigned int ECS::Entity::GetID()
+{
+    return ID;
+}
 
 ECS::EntityLuaData* ECS::Entity::GetLua()
 {

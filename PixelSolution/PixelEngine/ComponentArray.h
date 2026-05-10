@@ -39,7 +39,16 @@ namespace ECS
 				return nullptr;
 			}
 		}
+		unsigned int GetEntityID(int index) override
+		{
+			return indexToEntityMap[index];
+		}
 
+		std::vector<T>& GetArray()
+		{
+			return componentArray;
+		}
+		
 		void Update()
 		{
 

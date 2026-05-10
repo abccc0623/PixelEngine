@@ -17,8 +17,10 @@
 #include "PixelMetaAPI.h"
 #include "PixelEngineAPI.h"
 #include "Entity.h"
-#include "PTransform.h"
 
+#include "PTransform.h"
+#include "PCamera.h"
+#include "PRenderer2D.h"
 
 BindManager::BindManager()
 {
@@ -64,6 +66,16 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalTransform, "SetRotation", GeGlobalMethodInfo(&ECS::Transform::SetRotation), MetaFlag::LUABIND);
 	AddGlobalMethod(globalTransform, "SetScale", GeGlobalMethodInfo(&ECS::Transform::SetScale), MetaFlag::LUABIND);
 
+	PStatic* globalRenderer2D = CreateNewStatic("Renderer2D");
+	AddGlobalMethod(globalRenderer2D, "Add", GeGlobalMethodInfo(&ECS::Renderer2D::Add), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRenderer2D, "SetTexture", GeGlobalMethodInfo(&ECS::Renderer2D::SetTexture), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRenderer2D, "SetTextureOffset", GeGlobalMethodInfo(&ECS::Renderer2D::SetTextureOffset), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRenderer2D, "AddTextureOffset", GeGlobalMethodInfo(&ECS::Renderer2D::AddTextureOffset), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRenderer2D, "SetTextureTiling", GeGlobalMethodInfo(&ECS::Renderer2D::SetTextureTiling), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRenderer2D, "AddTextureTiling", GeGlobalMethodInfo(&ECS::Renderer2D::AddTextureTiling), MetaFlag::LUABIND);
+
+	PStatic* globalCamera = CreateNewStatic("Camera");
+	AddGlobalMethod(globalCamera, "Add", GeGlobalMethodInfo(&ECS::Camera::Add), MetaFlag::LUABIND);
 
 	BindEntity();
 }
@@ -134,30 +146,30 @@ void BindManager::BindTransform()
 	AddMethod(table, "GetUpVector", GetMethodInfo(&Transform::GetUpVector), MetaFlag::LUABIND | MetaFlag::SAVE);
 }
 
-void BindManager::BindRenderer2D()
-{
-	///Renderer2D 
-	auto table = CreateNewClass("Renderer2D", "Module");
-	CreateClassFunction(table, []() ->void*
-		{
-			return new Renderer2D();
-		});
-	DeleteClassFunction(table, []() ->void
-		{
-			PixelLog::Info("Delete Renderer2D");
-		});
-	AddMethod(table, "LastUpdate", GetMethodInfo(&Renderer2D::LastUpdate));
-	AddMethod(table, "SetTexture", GetMethodInfo(&Renderer2D::SetTexture), MetaFlag::LUABIND);
-	AddMethod(table, "SetMaterial", GetMethodInfo(&Renderer2D::SetMaterial), MetaFlag::LUABIND);
-
-	AddMethod(table, "CreateAnimation", GetMethodInfo(&Renderer2D::CreateAnimation), MetaFlag::LUABIND);
-	AddMethod(table, "PlayAnimation", GetMethodInfo(&Renderer2D::PlayAnimation), MetaFlag::LUABIND);
-
-	AddMethod(table, "SetTextureOffset", GetMethodInfo(&Renderer2D::SetTextureOffset), MetaFlag::LUABIND);
-	AddMethod(table, "AddTextureOffset", GetMethodInfo(&Renderer2D::AddTextureOffset), MetaFlag::LUABIND);
-	AddMethod(table, "SetTextureTiling", GetMethodInfo(&Renderer2D::SetTextureTiling), MetaFlag::LUABIND);
-	AddMethod(table, "AddTextureTiling", GetMethodInfo(&Renderer2D::AddTextureTiling), MetaFlag::LUABIND);
-}
+//void BindManager::BindRenderer2D()
+//{
+//	///Renderer2D 
+//	auto table = CreateNewClass("Renderer2D", "Module");
+//	CreateClassFunction(table, []() ->void*
+//		{
+//			return new Renderer2D();
+//		});
+//	DeleteClassFunction(table, []() ->void
+//		{
+//			PixelLog::Info("Delete Renderer2D");
+//		});
+//	AddMethod(table, "LastUpdate", GetMethodInfo(&Renderer2D::LastUpdate));
+//	AddMethod(table, "SetTexture", GetMethodInfo(&Renderer2D::SetTexture), MetaFlag::LUABIND);
+//	AddMethod(table, "SetMaterial", GetMethodInfo(&Renderer2D::SetMaterial), MetaFlag::LUABIND);
+//
+//	AddMethod(table, "CreateAnimation", GetMethodInfo(&Renderer2D::CreateAnimation), MetaFlag::LUABIND);
+//	AddMethod(table, "PlayAnimation", GetMethodInfo(&Renderer2D::PlayAnimation), MetaFlag::LUABIND);
+//
+//	AddMethod(table, "SetTextureOffset", GetMethodInfo(&Renderer2D::SetTextureOffset), MetaFlag::LUABIND);
+//	AddMethod(table, "AddTextureOffset", GetMethodInfo(&Renderer2D::AddTextureOffset), MetaFlag::LUABIND);
+//	AddMethod(table, "SetTextureTiling", GetMethodInfo(&Renderer2D::SetTextureTiling), MetaFlag::LUABIND);
+//	AddMethod(table, "AddTextureTiling", GetMethodInfo(&Renderer2D::AddTextureTiling), MetaFlag::LUABIND);
+//}
 
 void BindManager::BindDebugCamera()
 {

@@ -1,11 +1,15 @@
 #pragma once
-#include "ModuleSystem.h"
-class TransformSystem : public ModuleSystem
+#include "ISystem.h"
+namespace ECS
 {
-public:
-	void Initialize() override;
-	void Update(float deltaTime) override;
-	void Clear() override;
-	void LuaBind() override;
+	class TransformSystem : public ISystem
+	{
+	public:
+		TransformSystem();
+		virtual ~TransformSystem();
+
+		void Update(ECS::Registry* registry) override;
+		void Release() override;
+	};
 };
 

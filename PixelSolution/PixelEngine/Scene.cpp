@@ -10,30 +10,30 @@
 #include "Log.h"
 #include "Export/PixelEngineAPI.h"
 #include "LuaSceneInfo.h"
+
 #include "EntityArray.h"
 #include "Registry.h"
+#include "SystemManager.h"
+
 extern PixelEngine* Engine;
 extern SceneChangeCallbackFunc g_SceneObjectChangeCallBack;
 Scene::Scene()
 {
     sceneName = "";
     path = "";
-    lua = nullptr;
-    func = nullptr;
     info = nullptr;
-    ObjectList = std::unordered_map<size_t, SPointer<GameObject>>();
 }
 Scene::~Scene(){}
 void Scene::Initialize(const std::string& luaPath, const std::string& name)
 {
     sceneName = name;
     path = luaPath;
-    lua  = Engine->GetFactory<LuaManager>();
-    func = Engine->GetFactory<FunctionManager>();
+    auto lua  = Engine->GetFactory<LuaManager>();
     info = lua->GetSceneLua(name);
 
     entityArray = new ECS::EntityArray();
     registry = new ECS::Registry();
+    system = new ECS::SystemManager();
 }
 
 
@@ -42,6 +42,7 @@ void Scene::Start()
     if (info != nullptr)
     {
         info->Start();
+        system->Initialize();
     }
 }
 
@@ -52,6 +53,7 @@ void Scene::Update()
         info->Update();
     }
     entityArray->Update();
+    system->Update(registry);
 }
 
 void Scene::Release()
@@ -60,94 +62,27 @@ void Scene::Release()
     {
         info->Release();
     }
+    system->Release();
+
     delete entityArray;
     delete registry;
-    ObjectList.clear();
+    delete system;
 }
 
 uint32_t Scene::CreateEntity(const std::string& scriptName)
 {
+   PixelLog::Info("[" + sceneName + "] CreateEntity :" + scriptName);
    return entityArray->Create(scriptName);
 }
 
 void Scene::DestroyEntity(uint32_t id)
 {
+    PixelLog::Info("[" + sceneName + "] DeleteEntity");
     ECS::EntityID entityID(id);
     entityArray->Destroy(entityID);
-}
-
-void Scene::CreateGameObject(SPointer<GameObject> Obj)
-{
-    ObjectList.insert({ Obj->GetHash(),Obj});
-    PixelLog::Info("[" + sceneName + "] CreateObject :" + Obj->name);
-    if (g_SceneObjectChangeCallBack != nullptr)
-    {
-        g_SceneObjectChangeCallBack();
-    }
-}
-
-void Scene::DeleteGameObject(size_t targetObject)
-{
-    auto find = ObjectList.find(targetObject);
-    if (find != ObjectList.end())
-    {
-        PixelLog::Info("[" + sceneName + "] DeleteObject :" + find->second->name);
-        ObjectList.erase(targetObject);
-    }
-    if (g_SceneObjectChangeCallBack != nullptr) 
-    {
-        g_SceneObjectChangeCallBack();
-    }
 }
 
 ECS::Registry* Scene::GetRegistry()
 {
     return registry;
-}
-
-GameObject** Scene::GetAllSceneObjects(int* maxCount)
-{
-    *maxCount = static_cast<int>(ObjectList.size());
-    Getter.clear();
-    Getter.reserve(*maxCount);
-
-    for (auto const& [key, sptr] : ObjectList)
-    {
-        Getter.push_back(sptr.GetPtr());
-    }
-    return Getter.empty() ? nullptr : Getter.data();
-}
-
-GameObject* Scene::FindGameObject(const std::string& name)
-{
-    for (auto const& [key, sptr] : ObjectList)
-    {
-        if (sptr->name == name)
-        {
-            return sptr.GetPtr();
-        }
-    }
-    return nullptr;
-}
-
-WPointer<GameObject> Scene::FindGameObjectToEngine(const std::string& name)
-{
-    for (auto const& [key, sptr] : ObjectList)
-    {
-        if (sptr->name == name)
-        {
-            return WPointer<GameObject>(sptr);
-        }
-    }
-}
-
-WPointer<GameObject> Scene::FindGameObjectToEngine(GameObject* target)
-{
-    for (auto const& [key, sptr] : ObjectList)
-    {
-        if (sptr == target)
-        {
-            return WPointer<GameObject>(sptr);
-        }
-    }
 }

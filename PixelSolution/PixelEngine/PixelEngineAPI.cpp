@@ -4,7 +4,6 @@
 #include "PixelEngine.h" 
 #include <filesystem>
 #include <windows.h>
-#include "ObjectManager.h"
 #include "KeyInputManager.h"
 #include "LuaManager.h"
 #include "GenerateManager.h"
@@ -23,6 +22,12 @@
 PixelEngine* Engine = nullptr;
 LogCallbackFunc g_logCallback = nullptr;
 SceneChangeCallbackFunc g_SceneObjectChangeCallBack = nullptr;
+
+ECS::Registry* GetRegistry()
+{
+	auto sceneManager = Engine->GetFactory<SceneManager>();
+	return sceneManager->GetRegistry();
+}
 
 bool EngineInitialize(PixelWindowHandle hWnd, int width, int height)
 {
@@ -255,27 +260,6 @@ void Import(const char* path)
 	}
 }
 
-GameObject* CreateGameObject(const char* name)
-{
-	if (Engine != nullptr)
-	{
-		auto objManager = Engine->GetFactory<ObjectManager>();
-		SPointer<GameObject> target = objManager->Create(name);
-		return target.GetPtr();
-	}
-	return nullptr;
-}
-
-GameObject* CreateLuaGameObject(const char* name, const char* script)
-{
-	if (Engine != nullptr)
-	{
-		auto objManager = Engine->GetFactory<ObjectManager>();
-		SPointer<GameObject> target = objManager->CreateLua(name, script);
-		return target.GetPtr();
-	}
-	return nullptr;
-}
 
 unsigned int CreateEntity(const char* script)
 {
@@ -291,12 +275,7 @@ void DestroyEntity(unsigned int id)
 	sceneManager->DestroyEntity(u);
 }
 
-GameObject* FindGameObject(const char* name)
-{
-	auto sceneManager = Engine->GetFactory<SceneManager>();
-	std::string objName(name);
-	return sceneManager->FindGameObject(objName);
-}
+
 
 void RegisterMessage(GameObject* target, EventType type)
 {
@@ -422,15 +401,6 @@ bool CreateScene(const char* sceneName)
 	return true;
 }
 
-void SaveScene()
-{
-	if (Engine != nullptr)
-	{
-		SceneManager* scene = Engine->GetFactory<SceneManager>();
-		scene->SaveScene();
-	}
-}
-
 void LoadScene(const char* sceneName)
 {
 	if (Engine != nullptr)
@@ -462,16 +432,6 @@ void ChangeScene(const char* sceneName)
 		SceneManager* scene = Engine->GetFactory<SceneManager>();
 		scene->ChangeScene(strPath);
 	}
-}
-
-GameObject** GetAllSceneObjects(int* outCount)
-{
-	if (Engine != nullptr)
-	{
-		SceneManager* scene = Engine->GetFactory<SceneManager>();
-		return scene->GetAllSceneObjects(outCount);
-	}
-	return 0;
 }
 
 void  RegisterSceneObjectChange(SceneChangeCallbackFunc callBack)

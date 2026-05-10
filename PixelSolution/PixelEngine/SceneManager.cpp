@@ -76,38 +76,6 @@ void SceneManager::ChangeScene(std::string name)
 	}
 }
 
-GameObject** SceneManager::GetAllSceneObjects(int* outCount)
-{
-	if (nowScene.IsValid())
-	{
-		auto block = nowScene.Lock();
-		Scene* targetScene = block.GetPtr();
-		return targetScene->GetAllSceneObjects(outCount);
-	}
-	else
-	{
-		PixelLog::Error("Not Select Scene");
-		return 0;
-	}
-}
-
-void SceneManager::DeleteGameObject(size_t targetObject)
-{
-	if (nowScene.IsValid() == false)
-	{
-		auto block = nowScene.Lock();
-		block->DeleteGameObject(targetObject);
-	}
-}
-
-void SceneManager::SaveScene()
-{
-	if (nowScene.IsValid())
-	{
-		
-	}
-}
-
 Scene* SceneManager::GetNowScene()
 {
 	if (nowScene.IsValid() == false)
@@ -150,6 +118,12 @@ void SceneManager::DestroyEntity(uint32_t id)
 	block->DestroyEntity(id);
 }
 
+ECS::Registry* SceneManager::GetRegistry()
+{
+	auto scene = GetNowScene();
+	return scene->GetRegistry();
+}
+
 
 void SceneManager::CreateScene(const std::string& luaPath)
 {
@@ -171,26 +145,4 @@ void SceneManager::CreateScene(const std::string& luaPath)
 	{
 		PixelLog::Error("This scene name is already in use :" + stem);
 	}
-}
-
-void SceneManager::RegisterGameObject(SPointer<GameObject> newObject)
-{
-	if (nowScene.IsValid() == false)
-	{
-		CreateScene("DefaultScene");
-		ChangeScene("DefaultScene");
-	}
-	auto block = nowScene.Lock();
-	block->CreateGameObject(newObject);
-}
-
-GameObject* SceneManager::FindGameObject(const std::string& name)
-{
-	if (nowScene.IsValid() == true)
-	{
-		auto block = nowScene.Lock();
-		return block->FindGameObject(name);
-	}
-
-	return nullptr;
 }

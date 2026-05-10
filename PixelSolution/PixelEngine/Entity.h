@@ -16,6 +16,7 @@ namespace ECS
 		void Clear();
 		void SpawnCall();
 		void UpdateCall(float DTime);
+		unsigned int GetID();
 	public:
 		bool Active;
 	private:

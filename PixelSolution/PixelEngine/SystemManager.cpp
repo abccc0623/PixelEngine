@@ -1,58 +1,38 @@
 #include "pch.h"
 #include "SystemManager.h"
-#include "ModuleSystem.h"
 #include "PixelEngine.h"
 #include "TimeManager.h"
 
-//System
 #include "TransformSystem.h"
+#include "CameraSystem.h"
+#include "Renderer2DSystem.h"
 
-extern PixelEngine* Engine;
-SystemManager::SystemManager()
+ECS::SystemManager::SystemManager(){}
+ECS::SystemManager::~SystemManager(){}
+
+void ECS::SystemManager::Initialize()
 {
-	SystemList = std::vector<ModuleSystem*>();
-	timeManager = Engine->GetFactory<TimeManager>();
-
 	SystemList.push_back(new TransformSystem());
+	SystemList.push_back(new CameraSystem());
+	SystemList.push_back(new Renderer2DSystem());
 }
 
-SystemManager::~SystemManager()
+void ECS::SystemManager::Update(ECS::Registry* registry)
 {
-	for (int i = 0; i < SystemList.size(); i++)
+	int size = SystemList.size();
+	for (int i = 0; i < size; i++)
 	{
+		SystemList[i]->Update(registry);
+	}
+}
+
+void ECS::SystemManager::Release()
+{
+	int size = SystemList.size();
+	for (int i = 0; i < size; i++)
+	{
+		SystemList[i]->Release();
 		delete SystemList[i];
-		SystemList[i] = nullptr;
 	}
-}
-
-void SystemManager::Initialize()
-{
-	for (int i = 0; i < SystemList.size(); i++)
-	{
-		SystemList[i]->Initialize();
-	}
-}
-
-void SystemManager::Update()
-{
-	float time =  timeManager->GetDeltaTime();
-	for (int i = 0; i < SystemList.size(); i++)
-	{
-		SystemList[i]->Update(time);
-	}
-}
-
-void SystemManager::Release()
-{
-	for (int i = 0; i < SystemList.size(); i++)
-	{
-		SystemList[i]->Clear();
-	}
-}
-void SystemManager::Clear()
-{
-	for (int i = 0; i < SystemList.size(); i++)
-	{
-		SystemList[i]->Clear();
-	}
+	SystemList.clear();
 }

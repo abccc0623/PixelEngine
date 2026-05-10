@@ -8,6 +8,12 @@ class PClass;
 class Module;
 typedef void* PixelWindowHandle;
 
+namespace ECS
+{
+	class Registry;
+}
+ECS::Registry* GetRegistry();
+
 extern "C" PIXEL_ENGINEDLL bool EngineInitialize(PixelWindowHandle hWnd,int width,int height);
 extern "C" PIXEL_ENGINEDLL void UpdateEngine();
 extern "C" PIXEL_ENGINEDLL void ReleaseEngine();							
@@ -22,6 +28,8 @@ extern "C" PIXEL_ENGINEDLL GameObject* CreateLuaGameObject(const char* name,cons
 
 extern "C" PIXEL_ENGINEDLL unsigned int CreateEntity(const char* script);
 extern "C" PIXEL_ENGINEDLL void DestroyEntity(unsigned int id);
+
+
 
 extern "C" PIXEL_ENGINEDLL GameObject* FindGameObject(const char* name);
 extern "C" PIXEL_ENGINEDLL void BackgroundColor(int R, int G, int B);

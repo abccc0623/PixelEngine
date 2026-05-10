@@ -8,6 +8,7 @@
 #include "ResourceManager.h"
 #include "LuaManager.h"
 #include "BindManager.h"
+#include "PRenderer2D.h"
 
 extern PixelEngine* Engine;
 Renderer2D::Renderer2D() :
@@ -130,6 +131,8 @@ void Renderer2D::PlayAnimation(int index)
 	rendering.sprite.OffsetX = (nowAnimation.framesIndex % nowAnimation.maxFramesX) * rendering.sprite.TilingX;
 	rendering.sprite.OffsetY = (nowAnimation.framesIndex / nowAnimation.maxFramesX) * rendering.sprite.TilingY;
 }
+
+
 
 void Renderer2D::SetTextureOffset(float OffsetX, float OffsetY)
 {

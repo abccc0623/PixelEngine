@@ -22,7 +22,6 @@ template <typename T> class SPointer;
 class GameObject;
 class Module;
 class PhysManager;
-class ObjectManager;
 class FunctionManager : public EngineManager
 {
 public:

@@ -9,7 +9,6 @@
 #include "Module/Transform.h"
 #include "BindManager.h"
 #include "KeyInputManager.h"
-#include "ObjectManager.h"
 #include "SceneManager.h"
 #include "SPointer.h"
 
@@ -59,7 +58,6 @@ void LuaManager::Initialize()
 	);
 	bind = Engine->GetFactory<BindManager>();
 	input = Engine->GetFactory<KeyInputManager>();
-	obj = Engine->GetFactory<ObjectManager>();
 
 	//BindLuaKey();
 	//BindLuaTime();

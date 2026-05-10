@@ -27,7 +27,7 @@ ECS::EntityLuaData::EntityLuaData(Entity* target,std::string scriptName)
     update = instance["Update"];
 
     instance["entity"] = target;
-    instance["ID"] = target;
+    instance["ID"] = target->GetID();
 }
 
 ECS::EntityLuaData::~EntityLuaData()

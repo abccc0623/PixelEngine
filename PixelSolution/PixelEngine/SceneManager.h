@@ -7,6 +7,10 @@
 #include <string>
 class Scene;
 class GameObject;
+namespace ECS
+{
+	class Registry;
+}
 class SceneManager : public EngineManager
 {
 public:
@@ -20,15 +24,10 @@ public:
 
 	uint32_t CreateEntity(const std::string& scriptName);
 	void DestroyEntity(uint32_t id);
-
-	void RegisterGameObject(SPointer<GameObject> newObject);
-	GameObject* FindGameObject(const std::string& name);
+	ECS::Registry* GetRegistry();
 
 	void CreateScene(const std::string& luaPath);
 	void ChangeScene(std::string SceneName);
-	GameObject** GetAllSceneObjects(int* outCount);
-	void DeleteGameObject(size_t targetObject);
-	void SaveScene();
 	Scene* GetNowScene();
 private:
 	WPointer<Scene> nowScene = WPointer<Scene>(nullptr);

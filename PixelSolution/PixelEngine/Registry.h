@@ -18,11 +18,7 @@ namespace ECS
 		{
 			std::type_index key = typeid(T);
 			auto find = componentArrays.find(key);
-			if (find != componentArrays.end())
-			{
-				componentArrays[key] = new ComponentArray<T>();
-			}
-			else
+			if (find == componentArrays.end())
 			{
 				componentArrays.insert({key,new ComponentArray<T>()});
 			}
@@ -35,12 +31,37 @@ namespace ECS
 			auto find = componentArrays.find(key);
 			if (find != componentArrays.end())
 			{
-				void* rawData = componentArrays[key]->Get(entityID);
+				void* rawData = find->second->Get(entityID);
 				return static_cast<T*>(rawData);
 			}
 			return nullptr;
 		}
 
+		template<typename T>
+		unsigned int GetEntityID(int index)
+		{
+			std::type_index key = typeid(T);
+			auto find = componentArrays.find(key);
+			if (find != componentArrays.end())
+			{
+				return find->second->GetEntityID(index);
+			}
+			return -1;
+		}
+
+		template<typename T>
+		std::vector<T>& GetArray()
+		{
+			std::type_index key = std::type_index(typeid(T));
+			auto find = componentArrays.find(key);
+
+			if (find == componentArrays.end())
+			{
+				componentArrays[key] = new ComponentArray<T>();
+			}
+			auto* realChild = static_cast<ComponentArray<T>*>(componentArrays[key]);
+			return realChild->GetArray();
+		}
 	private:
 		std::unordered_map<std::type_index,IComponentArray*> componentArrays;
 	};

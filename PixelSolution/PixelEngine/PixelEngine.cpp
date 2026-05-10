@@ -7,7 +7,6 @@
 #include <Windows.h>
 #include "TimeManager.h"
 
-#include "ObjectManager.h"
 #include "KeyInputManager.h"
 #include "LuaManager.h"
 #include "FunctionManager.h"
@@ -30,18 +29,16 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 {
 	BindFactory<KeyInputManager>();
 	BindFactory<TimeManager>();
-	BindFactory<ObjectManager>();
 	BindFactory<BindManager>();
 	BindFactory<LuaManager>();
 	BindFactory<SceneManager>();
-	BindFactory<FunctionManager>();
 	BindFactory<ResourceManager>();
 	BindFactory<PhysManager>();
 	BindFactory<JsonManager>();
 	BindFactory<GenerateManager>();
 	BindFactory<EventManager>();
 	BindFactory<CoroutineManager>();
-	BindFactory<SystemManager>();
+	//BindFactory<SystemManager>();
 
 	if (hWnd != nullptr)
 	{
@@ -122,12 +119,6 @@ void PixelEngine::CreateEntity(std::string scriptName)
 void PixelEngine::QuitWindow()
 {
 	
-}
-
-SPointer<GameObject> PixelEngine::CreateGameObject(std::string name)
-{
-	auto factory = GetFactory<ObjectManager>();
-	return factory->Create(name);
 }
 
 Scene* PixelEngine::CreateScene(std::string name)

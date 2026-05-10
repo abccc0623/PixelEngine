@@ -67,9 +67,6 @@
     <Filter Include="EngineAPI\Module\DebugCamera">
       <UniqueIdentifier>{dbbcd275-3e77-41d3-9c4d-cc58a12c6021}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Module\Renderer2D">
-      <UniqueIdentifier>{9bcc0a18-ef41-4021-b5a3-debac0af3999}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Module\LuaScript">
       <UniqueIdentifier>{4a286522-28ec-4098-bc1e-2c1d09fbc887}</UniqueIdentifier>
     </Filter>
@@ -84,9 +81,6 @@
     </Filter>
     <Filter Include="EngineAPI\Types\Rect">
       <UniqueIdentifier>{29cb6009-607d-4171-a3f9-9be0701c3c35}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EngineAPI\Manager\ObjectManager">
-      <UniqueIdentifier>{c250685d-9e98-4160-94a0-d6dcfa200ff4}</UniqueIdentifier>
     </Filter>
     <Filter Include="EngineAPI\SmartPointer">
       <UniqueIdentifier>{2c28ed61-3fef-4644-a1f0-5afc614173e2}</UniqueIdentifier>
@@ -120,9 +114,6 @@
     </Filter>
     <Filter Include="EngineAPI\Module\Physics2D">
       <UniqueIdentifier>{a8cbb97f-5bb8-46a6-9e44-fba35d72d292}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EngineAPI\Manager\SystemManager">
-      <UniqueIdentifier>{875a91a6-3a95-4934-8d9b-7b95a2a7e101}</UniqueIdentifier>
     </Filter>
     <Filter Include="EngineAPI\Types\Math">
       <UniqueIdentifier>{b159098f-8947-4137-a1bb-2574b22c6a5d}</UniqueIdentifier>
@@ -167,9 +158,6 @@
     </ClInclude>
     <ClInclude Include="TimeManager.h">
       <Filter>EngineAPI\Manager\TimeManager</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectManager.h">
-      <Filter>EngineAPI\Manager\ObjectManager</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>EngineAPI\Module\Renderer</Filter>
@@ -249,9 +237,6 @@
     <ClInclude Include="Export\Module\LuaScript.h">
       <Filter>EngineAPI\Module\LuaScript</Filter>
     </ClInclude>
-    <ClInclude Include="Export\Module\Renderer2D.h">
-      <Filter>EngineAPI\Module\Renderer2D</Filter>
-    </ClInclude>
     <ClInclude Include="Log.h">
       <Filter>EngineAPI\Log</Filter>
     </ClInclude>
@@ -327,17 +312,8 @@
     <ClInclude Include="PhysLayer.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClInclude>
-    <ClInclude Include="TransformSystem.h">
-      <Filter>EngineAPI\Module\Transform</Filter>
-    </ClInclude>
-    <ClInclude Include="ModuleSystem.h">
-      <Filter>EngineAPI\Module\Module</Filter>
-    </ClInclude>
     <ClInclude Include="ModuleEntry.h">
       <Filter>EngineAPI\Module\Module</Filter>
-    </ClInclude>
-    <ClInclude Include="SystemManager.h">
-      <Filter>EngineAPI\Manager\SystemManager</Filter>
     </ClInclude>
     <ClInclude Include="TransformEntry.h">
       <Filter>EngineAPI\Module\Transform</Filter>
@@ -372,6 +348,27 @@
     <ClInclude Include="ComponentArray.h">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClInclude>
+    <ClInclude Include="ISystem.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformSystem.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemManager.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer2DSystem.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
+    <ClInclude Include="PRenderer2D.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="PCamera.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -394,9 +391,6 @@
     </ClCompile>
     <ClCompile Include="TimeManager.cpp">
       <Filter>EngineAPI\Manager\TimeManager</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectManager.cpp">
-      <Filter>EngineAPI\Manager\ObjectManager</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>EngineAPI\Module\Renderer</Filter>
@@ -455,9 +449,6 @@
     <ClCompile Include="Export\Module\LuaScript.cpp">
       <Filter>EngineAPI\Module\LuaScript</Filter>
     </ClCompile>
-    <ClCompile Include="Export\Module\Renderer2D.cpp">
-      <Filter>EngineAPI\Module\Renderer2D</Filter>
-    </ClCompile>
     <ClCompile Include="Log.cpp">
       <Filter>EngineAPI\Log</Filter>
     </ClCompile>
@@ -509,15 +500,6 @@
     <ClCompile Include="PhysLayer.cpp">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClCompile>
-    <ClCompile Include="TransformSystem.cpp">
-      <Filter>EngineAPI\Module\Transform</Filter>
-    </ClCompile>
-    <ClCompile Include="ModuleSystem.cpp">
-      <Filter>EngineAPI\Module\Module</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemManager.cpp">
-      <Filter>EngineAPI\Manager\SystemManager</Filter>
-    </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClCompile>
@@ -532,6 +514,27 @@
     </ClCompile>
     <ClCompile Include="PTransform.cpp">
       <Filter>EngineAPI\ECS\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="ISystem.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformSystem.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemManager.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer2DSystem.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
+    <ClCompile Include="PRenderer2D.cpp">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="PCamera.cpp">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraSystem.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

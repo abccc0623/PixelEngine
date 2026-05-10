@@ -130,11 +130,11 @@ void Movement::MoveToPosition(float x, float y, float z)
 
 void Movement::MoveToTarget(GameObject* target)
 {
-	bitmask.reset(STOP);
-	isTargetingPosition = false;
-	auto manager = Engine->GetFactory<SceneManager>();
-	auto scene =  manager->GetNowScene();
-	this->target = scene->FindGameObjectToEngine(target);
+	//bitmask.reset(STOP);
+	//isTargetingPosition = false;
+	//auto manager = Engine->GetFactory<SceneManager>();
+	//auto scene =  manager->GetNowScene();
+	//this->target = scene->FindGameObjectToEngine(target);
 }
 
 void Movement::StopMove()

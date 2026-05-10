@@ -6,7 +6,6 @@
 #include <sol/forward.hpp>
 class BindManager;
 class KeyInputManager;
-class ObjectManager;
 class LuaModuleInfo;
 class LuaSceneInfo;
 class LuaManager : public EngineManager
@@ -35,8 +34,6 @@ private:
 private:
 	BindManager* bind = nullptr;
 	KeyInputManager* input = nullptr;
-	ObjectManager* obj = nullptr;
-
 
 	std::unordered_map<std::string, LuaModuleInfo*> luaModuleTableMap;
 	std::unordered_map<std::string, LuaSceneInfo*> luaSceneTableMap;

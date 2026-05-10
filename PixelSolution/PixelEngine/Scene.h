@@ -18,6 +18,7 @@ namespace ECS
 {
 	class EntityArray;
 	class Registry;
+	class SystemManager;
 }
 class Scene : public PixelObject
 {
@@ -31,29 +32,15 @@ public:
 
 	uint32_t CreateEntity(const std::string& scriptName);
 	void DestroyEntity(uint32_t id);
-
-	void CreateGameObject(SPointer<GameObject> Obj);
-	void DeleteGameObject(size_t targetObject);
 	ECS::Registry* GetRegistry();
-
-
-	GameObject** GetAllSceneObjects(int* maxCount);
-	GameObject* FindGameObject(const std::string& name);
-	WPointer<GameObject> FindGameObjectToEngine(const std::string& name);
-	WPointer<GameObject> FindGameObjectToEngine(GameObject* target);
 
 	std::string sceneName;
 private:
 	std::string path;
-	std::unordered_map<size_t, SPointer<GameObject>> ObjectList;
-	std::vector<GameObject*> Getter;
-	int ObjectCount = 0;
 	LuaSceneInfo* info;
 private:
-	LuaManager* lua;
-	FunctionManager* func;
-
 	ECS::EntityArray* entityArray;
 	ECS::Registry* registry;
+	ECS::SystemManager* system;
 };
 

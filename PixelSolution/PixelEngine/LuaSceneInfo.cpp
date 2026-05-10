@@ -44,15 +44,15 @@ void LuaSceneInfo::Update()
 
 void LuaSceneInfo::Release()
 {
-	sol::protected_function releaseFunc = table["Update"];
-	if (releaseFunc.valid())
-	{
-		auto result = releaseFunc(table);
-		if (!result.valid())
-		{
-			sol::error err = result;
-			std::string errorMsg = err.what();
-			PixelLog::Error(errorMsg.c_str());
-		}
-	}
+	//sol::protected_function releaseFunc = table["Update"];
+	//if (releaseFunc.valid())
+	//{
+	//	auto result = releaseFunc(table);
+	//	if (!result.valid())
+	//	{
+	//		sol::error err = result;
+	//		std::string errorMsg = err.what();
+	//		PixelLog::Error(errorMsg.c_str());
+	//	}
+	//}
 }
