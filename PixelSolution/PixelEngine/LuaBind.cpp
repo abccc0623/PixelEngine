@@ -16,23 +16,15 @@ LuaBind::~LuaBind()
 void LuaBind::SetIncludeString(PixelClassMeta& meta)
 {
 	if (meta.metaType == META_TYPE::PRIMITIVE) return;
-	if (meta.metaType == META_TYPE::STATIC) return;
 	if (meta.metaType == META_TYPE::ENUM) return;
 	if (meta.thisName == "Module") return;
 
-	if (meta.thisName == "GameObject")
-	{
-		IncludeString += ReplaceAll(Include, "INCLUDE_TYPE", "Core/" + meta.thisName);
-	}
-	else if (meta.thisName == "PVector3")
-	{
-		IncludeString += ReplaceAll(Include, "INCLUDE_TYPE", "Type/" + meta.thisName);
-	}
-	else  if (meta.parentHash == GetTypeHashByName("Module"))
-	{
-		IncludeString += ReplaceAll(Include, "INCLUDE_TYPE", "Module/" + meta.thisName);
-	}
-	else
+
+	if (meta.thisName != "Engine" &&
+		meta.thisName != "Scene" &&
+		meta.thisName != "Asset" &&
+		meta.thisName != "Input" &&
+		meta.thisName != "Debug")
 	{
 		IncludeString += ReplaceAll(Include, "INCLUDE_TYPE", meta.thisName);
 	}
@@ -109,9 +101,24 @@ void LuaBind::SetLuaMethodString(PixelClassMeta& meta)
 
 		if (meta.metaType == META_TYPE::STATIC)
 		{
-			std::unordered_map<std::string, std::string> data;
-			data["METHOD_NAME"] = m.name;
-			FunctionString += ReplaceSimple(ClassGlobalMethodBind, data);
+			if (meta.thisName != "Engine" &&
+				meta.thisName != "Scene" &&
+				meta.thisName != "Asset" &&
+				meta.thisName != "Input" &&
+				meta.thisName != "Debug")
+			{
+				std::string targetNamespace = "ECS::" + meta.thisName + "::" + m.name;
+				std::unordered_map<std::string, std::string> data;
+				data["METHOD_NAME"] = m.name;
+				data["METHOD_NAMESPACE"] = targetNamespace;
+				FunctionString += ReplaceSimple(ClassGlobalMethodBindComponent, data);
+			}
+			else
+			{
+				std::unordered_map<std::string, std::string> data;
+				data["METHOD_NAME"] = m.name;
+				FunctionString += ReplaceSimple(ClassGlobalMethodBind, data);
+			}
 		}
 		else
 		{
@@ -175,9 +182,6 @@ void LuaBind::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
 		SetFunctionString(K);
 	}
 	IncludeString += "using namespace ECS;\n";
-	IncludeString += "using namespace ECS::Transform;\n";
-	IncludeString += "using namespace ECS::Renderer2D;\n";
-	IncludeString += "using namespace ECS::Camera;\n";
 	FunctionCallString += "}\n";
 	AddModuleLuaString += "}\n";
 

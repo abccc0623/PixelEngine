@@ -2,7 +2,6 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "Log.h"
-#include "Core/PixelObject.h"
 #include "JsonManager.h"
 #include "PixelEngine.h"
 
@@ -10,7 +9,7 @@ extern PixelEngine* Engine;
 SceneManager::SceneManager()
 {
 	nowScene = nullptr;
-	SceneMap = std::unordered_map<std::string, SPointer<Scene>>();
+	SceneMap = std::unordered_map<std::string, Scene*>();
 }
 
 SceneManager::~SceneManager()
@@ -25,10 +24,9 @@ void SceneManager::Initialize()
 
 void SceneManager::Update()
 {
-	if (nowScene.IsValid())
+	if (nowScene != nullptr)
 	{
-		SPointer<Scene> p = nowScene.Lock();
-		p->Update();
+		nowScene->Update();
 	}
 }
 
@@ -50,24 +48,12 @@ void SceneManager::ChangeScene(std::string name)
 		//이전 씬이 있다면 정리
 		if (nowScene != nullptr)
 		{
-			if (nowScene.IsValid())
-			{
-				SPointer<Scene> p = nowScene.Lock();
-				p->Release();
-			}
+			nowScene->Release();
 		}
 		//씬 변경
 		nowScene = SceneMap[name];
 
-		//현재 씬 초기화
-		if (nowScene.IsValid())
-		{
-			if (nowScene.IsValid())
-			{
-				SPointer<Scene> p = nowScene.Lock();
-				p->Start();
-			}
-		}
+		nowScene->Start();
 	}
 	else
 	{
@@ -77,12 +63,12 @@ void SceneManager::ChangeScene(std::string name)
 
 Scene* SceneManager::GetNowScene()
 {
-	if (nowScene.IsValid() == false)
+	if (nowScene == nullptr)
 	{
 		CreateScene("DefaultScene");
 		ChangeScene("DefaultScene");
 	}
-	return nowScene.Lock().GetPtr();
+	return nowScene;
 }
 
 void SceneManager::Clear()
@@ -97,24 +83,22 @@ void SceneManager::Clear()
 
 uint32_t SceneManager::CreateEntity(const std::string& scriptName)
 {
-	if (nowScene.IsValid() == false)
+	if (nowScene == nullptr)
 	{
 		CreateScene("DefaultScene");
 		ChangeScene("DefaultScene");
 	}
-	auto block = nowScene.Lock();
-	return block->CreateEntity(scriptName);
+	return nowScene->CreateEntity(scriptName);
 }
 
 void SceneManager::DestroyEntity(uint32_t id)
 {
-	if (nowScene.IsValid() == false)
+	if (nowScene == nullptr)
 	{
 		CreateScene("DefaultScene");
 		ChangeScene("DefaultScene");
 	}
-	auto block = nowScene.Lock();
-	block->DestroyEntity(id);
+	return nowScene->DestroyEntity(id);
 }
 
 ECS::Registry* SceneManager::GetRegistry()
@@ -136,9 +120,9 @@ void SceneManager::CreateScene(const std::string& luaPath)
 	auto find = SceneMap.find(stem);
 	if (find == SceneMap.end())
 	{
-		auto s = SPointer<Scene>::Make_SPointer();
-		s->Initialize(luaPath, stem);
-		SceneMap.insert({ stem,s });
+		Scene* newScene = new Scene();
+		newScene->Initialize(luaPath, stem);
+		SceneMap.insert({ stem,newScene });
 	}
 	else
 	{

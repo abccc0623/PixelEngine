@@ -65,6 +65,8 @@ void Scene::Release()
 	delete entityArray;
 	delete registry;
 	delete system;
+
+	delete this;
 }
 
 uint32_t Scene::CreateEntity(const std::string& scriptName)
@@ -83,4 +85,9 @@ void Scene::DestroyEntity(uint32_t id)
 ECS::Registry* Scene::GetRegistry()
 {
 	return registry;
+}
+
+const std::string& Scene::GetSceneName()
+{
+	return sceneName;
 }

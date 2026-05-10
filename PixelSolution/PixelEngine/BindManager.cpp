@@ -60,6 +60,9 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalTransform, "SetPosition", GeGlobalMethodInfo(&ECS::Transform::SetPosition), MetaFlag::LUABIND);
 	AddGlobalMethod(globalTransform, "SetRotation", GeGlobalMethodInfo(&ECS::Transform::SetRotation), MetaFlag::LUABIND);
 	AddGlobalMethod(globalTransform, "SetScale", GeGlobalMethodInfo(&ECS::Transform::SetScale), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "AddPosition", GeGlobalMethodInfo(&ECS::Transform::AddPosition), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "AddRotation", GeGlobalMethodInfo(&ECS::Transform::AddRotation), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "AddScale", GeGlobalMethodInfo(&ECS::Transform::AddScale), MetaFlag::LUABIND);
 
 	PStatic* globalRenderer2D = CreateNewStatic("Renderer2D");
 	AddGlobalMethod(globalRenderer2D, "Add", GeGlobalMethodInfo(&ECS::Renderer2D::Add), MetaFlag::LUABIND);

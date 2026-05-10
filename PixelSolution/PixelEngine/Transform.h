@@ -7,9 +7,9 @@ namespace ECS::Transform
 	{
 		//빠른 계산을 위한 16+16+16 정렬
 		Pixel::Vector3 position{ 0.0f, 0.0f, 0.0f };
-		unsigned int bitmask;
+		unsigned int bitmask = 1;
 
-		Pixel::Vector4 rotation{ 0.0f, 0.0f, 0.0f, 0.0f };
+		Pixel::Vector4 rotation{ 0.0f, 0.0f, 0.0f, 1.0f };
 
 		Pixel::Vector3 scale{ 1.0f, 1.0f, 1.0f };
 		unsigned int  unused2;
@@ -23,4 +23,7 @@ namespace ECS::Transform
 	void SetPosition(unsigned int id, float x, float y, float z);
 	void SetRotation(unsigned int id, float x, float y, float z);
 	void SetScale(unsigned int id, float x, float y, float z);
+	void AddPosition(unsigned int id, float x, float y, float z);
+	void AddRotation(unsigned int id, float x, float y, float z);
+	void AddScale(unsigned int id, float x, float y, float z);
 }

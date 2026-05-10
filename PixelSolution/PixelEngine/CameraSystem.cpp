@@ -22,13 +22,12 @@ void ECS::CameraSystem::Update(Registry* registry)
 	for (int i = 0; i < size; i++)
 	{
 		auto id = registry->GetEntityID<ECS::Camera::CameraData>(i);
-		auto worldData = registry->Get<ECS::Transform::WorldData>(id);
+		auto data = registry->Get<ECS::Transform::WorldData>(id);
 
-		glm::mat4 viewMatrix = glm::inverse(worldData->world);
-		worldData->world = viewMatrix;
+		glm::mat4 viewMatrix = glm::inverse(data->world);
+		Pixel::Matrix4x4 camMatrix = viewMatrix;
 
-		cameraArray[i].renderingData.Type = CAMERA;
-		const float* sourcePtr = glm::value_ptr(worldData->world);
+		const float* sourcePtr = glm::value_ptr(camMatrix);
 		std::copy(sourcePtr, sourcePtr + 16, cameraArray[i].renderingData.World);
 		SetRenderingData(cameraArray[i].renderingData);
 	}

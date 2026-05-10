@@ -9,17 +9,18 @@ void ECS::Renderer2D::Add(unsigned int id)
 {
 	auto registry = GetRegistry();
 	registry->AddComponent<Renderer2DData>(id);
-}
-
-void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
-{
-	auto registry = GetRegistry();
 	auto data = registry->Get<Renderer2DData>(id);
 	data->renderingData.Type = RENDER_TYPE::QUAD;
 	data->renderingData.sprite.TilingX = 1.0f;
 	data->renderingData.sprite.TilingY = 1.0f;
 	data->renderingData.sprite.OffsetX = 1.0f;
 	data->renderingData.sprite.OffsetY = 1.0f;
+}
+
+void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<Renderer2DData>(id);
 
 	std::string textureName(name);
 	auto textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);

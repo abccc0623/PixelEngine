@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/PixelObject.h"
 #include <string>
 #include <windows.h>
 #include <vector>

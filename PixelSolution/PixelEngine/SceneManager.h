@@ -30,7 +30,7 @@ public:
 	void ChangeScene(std::string SceneName);
 	Scene* GetNowScene();
 private:
-	WPointer<Scene> nowScene = WPointer<Scene>(nullptr);
-	std::unordered_map<std::string, SPointer<Scene>> SceneMap;
+	Scene* nowScene = nullptr;
+	std::unordered_map<std::string, Scene*> SceneMap;
 };
 

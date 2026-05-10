@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/PixelObject.h"
 #include "sol.hpp"
 #include <unordered_map>
 #include <vector>
@@ -20,7 +19,7 @@ namespace ECS
 	class Registry;
 	class SystemManager;
 }
-class Scene : public PixelObject
+class Scene
 {
 public:
 	Scene();
@@ -34,8 +33,9 @@ public:
 	void DestroyEntity(uint32_t id);
 	ECS::Registry* GetRegistry();
 
-	std::string sceneName;
+	const std::string& GetSceneName();
 private:
+	std::string sceneName;
 	std::string path;
 	LuaSceneInfo* info;
 private:

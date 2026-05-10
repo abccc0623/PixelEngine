@@ -31,9 +31,6 @@
     <Filter Include="EngineAPI\Manager\TimeManager">
       <UniqueIdentifier>{d47675bc-5c4e-45a8-9193-712adc6f9d66}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\GameObject">
-      <UniqueIdentifier>{fd91ae43-897d-4d8d-8b7c-398fa825e79e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Module">
       <UniqueIdentifier>{c4a2fc1a-e97f-48c7-b9e2-b8c39a49d2b4}</UniqueIdentifier>
     </Filter>
@@ -197,9 +194,6 @@
     </ClInclude>
     <ClInclude Include="Export\Type\GlobalEnum.h">
       <Filter>EngineAPI\Types\Enum</Filter>
-    </ClInclude>
-    <ClInclude Include="Export\Core\PixelObject.h">
-      <Filter>EngineAPI\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Export\Core\Module.h">
       <Filter>EngineAPI\Module\Module</Filter>
@@ -388,9 +382,6 @@
     </ClCompile>
     <ClCompile Include="PtrControlBlock.cpp">
       <Filter>EngineAPI\SmartPointer</Filter>
-    </ClCompile>
-    <ClCompile Include="Export\Core\PixelObject.cpp">
-      <Filter>EngineAPI\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Export\Core\Module.cpp">
       <Filter>EngineAPI\Module\Module</Filter>

@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Module.h"
-#include "Core/PixelObject.h"
 #include "PixelEngine.h"
 #include "LuaManager.h"
 #include "json.hpp"
