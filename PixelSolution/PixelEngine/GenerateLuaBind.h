@@ -70,8 +70,10 @@ inline void Generate_Animation2D(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Animation2D");
 	ut["Add"] = &ECS::Animation2D::Add;
-	ut["CreateAnimation"] = &ECS::Animation2D::CreateAnimation;
-	ut["PlayAnimation"] = &ECS::Animation2D::PlayAnimation;
+	ut["Create"] = &ECS::Animation2D::Create;
+	ut["Play"] = &ECS::Animation2D::Play;
+	ut["Stop"] = &ECS::Animation2D::Stop;
+	ut["Reset"] = &ECS::Animation2D::Reset;
 }
 inline void Generate_Entity(sol::state& lua) 
 {

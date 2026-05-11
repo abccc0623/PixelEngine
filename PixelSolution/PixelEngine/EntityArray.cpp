@@ -2,6 +2,7 @@
 #include "EntityArray.h"
 #include "Entity.h"
 #include "PixelEngineAPI.h"
+#include "Registry.h"
 ECS::EntityArray::EntityArray()
 {
 	entityArray.reserve(1000);
@@ -59,6 +60,7 @@ void ECS::EntityArray::Destroy(ECS::EntityID id)
 	//버전업 시킨다
 	uint32_t nextVersion = id.Version() + 1;
 	entityIDArray[index].SetValue(index, nextVersion);
+
 
 	entityArray[index].Clear();
 	freeIndices.push(index);

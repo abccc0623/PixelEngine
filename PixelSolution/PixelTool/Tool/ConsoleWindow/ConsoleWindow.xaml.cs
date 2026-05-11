@@ -1,142 +1,127 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace PixelTool
 {
-    /// <summary>
-    /// ConsoleWindow.xaml에 대한 상호 작용 논리
-    /// </summary>
+    // 로그 데이터를 담는 가벼운 POCO 객체
+    public class LogEntry
+    {
+        public string Timestamp { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+        public int Level { get; set; }
+        public Brush DisplayColor => Level switch
+        {
+            0 => Brushes.White,   // INFO
+            1 => Brushes.Yellow,  // WARN
+            2 => Brushes.Red,     // ERR
+            _ => Brushes.Gray
+        };
+        public string Tag => Level == 0 ? "[INFO]" : (Level == 1 ? "[WARN]" : "[ERR ]");
+        public override string ToString() => $"[{Timestamp}]{Tag} {Message}";
+    }
+
     public partial class ConsoleWindow : UserControl
     {
-        // 1. C++ DLL의 함수 포인터와 일치하는 델리게이트 선언
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate void LogDelegate(string message, int level);
 
-        // 2. GC(가비지 컬렉터)가 콜백을 삭제하지 못하도록 static 변수로 들고 있음
         private static LogDelegate? _logCallback;
 
-        // C++ DLL 함수 가져오기 (DLL 이름이 PixelEngine.dll 이라고 가정)
         [DllImport("PixelEngine.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void RegisterLogCallback(LogDelegate callback);
 
-        static ConsoleWindow console;
+        // 고성능 처리를 위한 스레드 안전 큐 및 바인딩 컬렉션
+        private static readonly ConcurrentQueue<LogEntry> _pendingLogs = new ConcurrentQueue<LogEntry>();
+        private readonly ObservableCollection<LogEntry> _logItems = new ObservableCollection<LogEntry>();
+        private readonly DispatcherTimer _uiUpdateTimer;
+
+        private const int MAX_LOG_COUNT = 2000; // 최대 로그 보관 개수 (메모리 방어)
 
         public ConsoleWindow()
         {
             InitializeComponent();
 
-            // 3. 콜백 인스턴스 생성 및 등록
-            _logCallback = new LogDelegate(OnNativeLogReceived);
+            // 데이터 바인딩 설정 (XAML에서 ItemsSource={Binding _logItems} 형태로 연결되어 있어야 함)
+            EngineLogView.ItemsSource = _logItems;
+
+            // 콜백 등록
+            _logCallback = OnNativeLogReceived;
             RegisterLogCallback(_logCallback);
-            EngineLogView.SelectionChanged += EngineLogView_SelectionChanged;
-            console = GlobalFunction.GetDockedWindow<ConsoleWindow>();
+
+            // UI 업데이트를 위한 전용 타이머 (Batch Processing)
+            _uiUpdateTimer = new DispatcherTimer(DispatcherPriority.Background)
+            {
+                Interval = TimeSpan.FromMilliseconds(100) // 0.1초마다 UI 갱신
+            };
+            _uiUpdateTimer.Tick += ProcessLogQueue;
+            _uiUpdateTimer.Start();
         }
 
-        // 4. C++에서 호출되는 실제 함수
+        // 1. C# 툴 내부의 다른 시스템에서 호출하기 위한 정적 인터페이스
+        public static void LogMessage(string message, int level)
+        {
+            // 어느 스레드에서 호출하든 안전하게 큐에 적재
+            _pendingLogs.Enqueue(new LogEntry
+            {
+                Timestamp = DateTime.Now.ToString("HH:mm:ss"),
+                Message = message,
+                Level = level
+            });
+        }
+
+        // 2. C++ 엔진 네이티브 스레드에서 콜백으로 들어오는 지점
         private void OnNativeLogReceived(string message, int level)
         {
+            // 내부적으로 C# 호출용 LogMessage를 재사용하여 로직 일원화
             LogMessage(message, level);
         }
 
-        public static void LogMessage(string message, int level)
+        // 3. UI 스레드에서 주기적으로 실행되는 로그 배치 처리 로직
+        private void ProcessLogQueue(object? sender, EventArgs e)
         {
-            if(console == null)
+            if (_pendingLogs.IsEmpty) return;
+
+            // 큐 적체 현상(Queue Buildup)을 막기 위해 1회 최대 500개까지 신속하게 처리
+            int processCount = 0;
+            while (_pendingLogs.TryDequeue(out var log) && processCount < 500)
             {
-                console = GlobalFunction.GetDockedWindow<ConsoleWindow>();
+                if (_logItems.Count >= MAX_LOG_COUNT)
+                {
+                    _logItems.RemoveAt(0); // 가장 오래된 로그 삭제
+                }
+                _logItems.Add(log);
+                processCount++;
             }
-            if (console == null) return;
 
-            console.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
+            // 자동 스크롤: 갱신된 내역이 있을 때만 맨 아래로 포커스 이동
+            if (processCount > 0 && EngineLogView.Items.Count > 0)
             {
-                string timeTag = DateTime.Now.ToString("HH:mm:ss");
-                string levelTag = level == 0 ? "[INFO]" : (level == 1 ? "[WARN]" : "[ERR ]");
-            
-                // ListBox에 로그 추가
-                ListBoxItem item = new ListBoxItem();
-                string logEntry = $"[{timeTag}]{levelTag} {message}";
-                item.FontFamily = new System.Windows.Media.FontFamily("Consolas, Malgun Gothic");
-                switch (level)
-                {
-                    case 0: // INFO
-                        item.Foreground = Brushes.White;
-                        break;
-                    case 1: // WARN
-                        item.Foreground = Brushes.Yellow;
-                        break;
-                    case 2: // ERR
-                        item.Foreground = Brushes.Red;
-                        break;
-                    default:
-                        item.Foreground = Brushes.Gray;
-                        break;
-                }
-                var logView = console.EngineLogView;
-                item.Content = logEntry;
-                logView.Items.Add(item);
-            
-                // 자동 스크롤: 가장 최근 로그로 이동
-                if (console.EngineLogView.Items.Count > 0)
-                {
-                    logView.ScrollIntoView(logView.Items[logView.Items.Count - 1]);
-                }
-            }));
+                EngineLogView.ScrollIntoView(_logItems[_logItems.Count - 1]);
+            }
         }
-
 
         private void Clear(object sender, RoutedEventArgs e)
         {
-            EngineLogView.Items.Clear();
-        }
-
-        private void CopyMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Copy();
-        }
-
-        private void EngineLogView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            Copy();
+            _logItems.Clear();
+            while (_pendingLogs.TryDequeue(out _)) { } // 잔여 큐 완전히 비우기
         }
 
         void Copy()
         {
-            // 1. 선택된 아이템이 있는지 확인
-            if (EngineLogView.SelectedItem == null) return;
-
-            string logText = "";
-
-            // 2. 아이템 타입에 따라 텍스트 추출
-            if (EngineLogView.SelectedItem is ListBoxItem item)
+            if (EngineLogView.SelectedItem is LogEntry log)
             {
-                // ListBoxItem으로 넣었을 경우
-                logText = item.Content.ToString();
-            }
-            else
-            {
-                // 문자열로 넣었을 경우
-                logText = EngineLogView.SelectedItem.ToString();
-            }
-
-            // 3. 클립보드에 복사
-            if (!string.IsNullOrEmpty(logText))
-            {
-                Clipboard.SetText(logText);
-                EngineLogView.SelectedIndex = -1;
+                Clipboard.SetText(log.ToString());
+                // 필요시 EngineLogView.SelectedIndex = -1; 추가하여 선택 해제 가능
             }
         }
+
+        private void CopyMenuItem_Click(object sender, RoutedEventArgs e) => Copy();
+        private void EngineLogView_SelectionChanged(object sender, SelectionChangedEventArgs e) => Copy();
     }
 }

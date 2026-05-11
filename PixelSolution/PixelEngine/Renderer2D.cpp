@@ -15,6 +15,7 @@ void ECS::Renderer2D::Add(unsigned int id)
 	data->renderingData.sprite.TilingY = 1.0f;
 	data->renderingData.sprite.OffsetX = 1.0f;
 	data->renderingData.sprite.OffsetY = 1.0f;
+	//data->renderingData.sprite.isShared = true;
 }
 
 void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
@@ -22,27 +23,29 @@ void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
 	auto registry = GetRegistry();
 	auto data = registry->Get<Renderer2DData>(id);
 
-	std::string textureName(name);
-	auto textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
-	data->renderingData.texture_key = textureID;
-
+	if (data != nullptr)
+	{
+		std::string textureName(name);
+		auto textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
+		data->renderingData.texture_key = textureID;
+	}
 }
 
 void ECS::Renderer2D::SetTextureOffset(unsigned int id, float OffsetX, float OffsetY)
 {
-
 
 }
 
 void ECS::Renderer2D::AddTextureOffset(unsigned int id, float OffsetX, float OffsetY)
 {
 
-
 }
+
 void ECS::Renderer2D::SetTextureTiling(unsigned int id, float TilingX, float TilingY)
 {
 
 }
+
 void ECS::Renderer2D::AddTextureTiling(unsigned int id, float TilingX, float TilingY)
 {
 

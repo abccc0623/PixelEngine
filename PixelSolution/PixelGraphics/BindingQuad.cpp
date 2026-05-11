@@ -24,16 +24,16 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 	memcpy(&mWorld, mData->World, sizeof(float) * 16);
 
 	//메터리얼을 비교해서 다르다면 바인드
-	if (MasterKeyCheck(32,mData->master_key, prev) == false)
+	if (MasterKeyCheck(32, mData->master_key, prev) == false)
 	{
-		MaterialResources* m =  engine->Get<MaterialResources>(mData->material_key);
-		if (mData->sprite.isShared == true) 
+		MaterialResources* m = engine->Get<MaterialResources>(mData->material_key);
+		if (mData->sprite.isShared == true)
 		{
 			DefaultBind(m->Tiling[0], m->Tiling[1], m->Offset[0], m->Offset[1], &mbuffer);
 		}
 		else
 		{
-			DefaultBind(mData->sprite.TilingX, mData->sprite.TilingY, mData->sprite.OffsetX,mData->sprite.OffsetY, &mbuffer);
+			DefaultBind(mData->sprite.TilingX, mData->sprite.TilingY, mData->sprite.OffsetX, mData->sprite.OffsetY, &mbuffer);
 		}
 	}
 	else
@@ -41,14 +41,14 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 		//기본 메터리얼을 가져와야함...
 		DefaultBind(mData->sprite.TilingX, mData->sprite.TilingY, mData->sprite.OffsetX, mData->sprite.OffsetY, &mbuffer);
 	}
-	mbuffer.world		= DirectX::XMMatrixTranspose(mWorld);
-	Matrix mWVP			= mWorld * GraphicsCore::mView * GraphicsCore::mProj;
-	mbuffer.wvp			= mWVP.Transpose();
+	mbuffer.world = DirectX::XMMatrixTranspose(mWorld);
+	Matrix mWVP = mWorld * GraphicsCore::mView * GraphicsCore::mProj;
+	mbuffer.wvp = mWVP.Transpose();
 	GraphicsCore::GetDeviceContext()->UpdateSubresource(targetBuffer->buffer, 0, nullptr, &mbuffer, 0, 0);
 	GraphicsCore::GetDeviceContext()->VSSetConstantBuffers(1, 1, &(targetBuffer->buffer));
-	
+
 	//텍스쳐 바인딩
-	if (MasterKeyCheck(16,mData->master_key, prev) == false)
+	if (MasterKeyCheck(16, mData->master_key, prev) == false)
 	{
 		auto k = engine->Get<TextureResources>(mData->texture_key);
 		if (k != nullptr)
@@ -61,14 +61,14 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 			GraphicsCore::GetDeviceContext()->PSSetShaderResources(0, 1, &nullSRV);
 		}
 	}
-	
+
 	//모델 바인딩
 	//if (ModelCheck(mData->master_key, prev) == false)
 	{
 		GraphicsCore::GetDeviceContext()->IASetVertexBuffers(0, 1, &(quadModel->VertexBuffer), &(quadModel->stride), &(quadModel->Offset));
 		GraphicsCore::GetDeviceContext()->IASetIndexBuffer(quadModel->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	}
-	
+
 	//레스터라이저바인딩
 	//if (mData->master_key != prev)
 	{
@@ -81,7 +81,7 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 	//if (ShaderCheck(mData->master_key, prev) == false)
 	{
 		GraphicsCore::GetDeviceContext()->IASetInputLayout(shader->mLayout);
-   		GraphicsCore::GetDeviceContext()->VSSetShader(shader->mVertexShader, NULL, 0);
+		GraphicsCore::GetDeviceContext()->VSSetShader(shader->mVertexShader, NULL, 0);
 		GraphicsCore::GetDeviceContext()->PSSetShader(shader->mPixelShader, NULL, 0);
 	}
 
@@ -106,7 +106,7 @@ ID3D11SamplerState* BindingQuad::CreateSampler()
 	ID3D11SamplerState* Sampler = nullptr;
 	//기본 샘플러
 	D3D11_SAMPLER_DESC samplerDesc;
-	samplerDesc.Filter	 = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;

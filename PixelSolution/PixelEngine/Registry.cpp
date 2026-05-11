@@ -13,3 +13,11 @@ ECS::Registry::~Registry()
 		delete K.second;
 	}
 }
+
+void ECS::Registry::Remove(unsigned int entityID)
+{
+	for (auto& K : componentArrays)
+	{
+		K.second->Destroy(entityID);
+	}
+}

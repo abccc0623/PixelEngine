@@ -78,8 +78,10 @@ void BindManager::Initialize()
 
 	PStatic* globalAnimation2D = CreateNewStatic("Animation2D");
 	AddGlobalMethod(globalAnimation2D, "Add", GeGlobalMethodInfo(&ECS::Animation2D::Add), MetaFlag::LUABIND);
-	AddGlobalMethod(globalAnimation2D, "CreateAnimation", GeGlobalMethodInfo(&ECS::Animation2D::CreateAnimation), MetaFlag::LUABIND);
-	AddGlobalMethod(globalAnimation2D, "PlayAnimation", GeGlobalMethodInfo(&ECS::Animation2D::PlayAnimation), MetaFlag::LUABIND);
+	AddGlobalMethod(globalAnimation2D, "Create", GeGlobalMethodInfo(&ECS::Animation2D::Create), MetaFlag::LUABIND);
+	AddGlobalMethod(globalAnimation2D, "Play", GeGlobalMethodInfo(&ECS::Animation2D::Play), MetaFlag::LUABIND);
+	AddGlobalMethod(globalAnimation2D, "Stop", GeGlobalMethodInfo(&ECS::Animation2D::Stop), MetaFlag::LUABIND);
+	AddGlobalMethod(globalAnimation2D, "Reset", GeGlobalMethodInfo(&ECS::Animation2D::Reset), MetaFlag::LUABIND);
 
 	BindEntity();
 }

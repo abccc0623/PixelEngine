@@ -11,6 +11,26 @@ namespace ECS
 		virtual ~ComponentArray() {};
 		void Destroy(unsigned int entityID) override
 		{
+			// 1. 삭제할 엔티티가 실제로 존재하는지 확인
+			if (entityToIndexMap.find(entityID) == entityToIndexMap.end())
+			{
+				return;
+			}
+
+			size_t indexOfRemoved = entityToIndexMap[entityID];
+			size_t indexOfLast = componentArray.size() - 1;
+
+			if (indexOfRemoved != indexOfLast)
+			{
+				componentArray[indexOfRemoved] = componentArray[indexOfLast];
+
+				unsigned int lastEntityID = indexToEntityMap[indexOfLast];
+				entityToIndexMap[lastEntityID] = indexOfRemoved;
+				indexToEntityMap[indexOfRemoved] = lastEntityID;
+			}
+			componentArray.pop_back();
+			entityToIndexMap.erase(entityID);
+			indexToEntityMap.erase(indexOfLast);
 
 		}
 		void Create(unsigned int entityID) override

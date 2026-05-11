@@ -53,18 +53,18 @@ void LuaBind::SetFunctionString(PixelClassMeta& meta)
 void LuaBind::SetLuaClassString(PixelClassMeta& meta)
 {
 
-	auto it = std::find_if(meta.methods.begin(), meta.methods.end(), [](const auto& method)
-		{
-			return method.name == "Create";
-		});
-	if (it != meta.methods.end())
-	{
-		std::unordered_map<std::string, std::string> data;
-		data["PROPERTY"] = propertyToString(it->propertys);
-		data["CLASS_NAME"] = meta.thisName;
-		FunctionString += ReplaceSimple(CreateClassBind, data);
-	}
-	else if (meta.metaType == META_TYPE::STATIC)
+	//auto it = std::find_if(meta.methods.begin(), meta.methods.end(), [](const auto& method)
+	//	{
+	//		return method.name == "Create";
+	//	});
+	//if (it != meta.methods.end())
+	//{
+	//	std::unordered_map<std::string, std::string> data;
+	//	data["PROPERTY"] = propertyToString(it->propertys);
+	//	data["CLASS_NAME"] = meta.thisName;
+	//	FunctionString += ReplaceSimple(CreateClassBind, data);
+	//}
+	if (meta.metaType == META_TYPE::STATIC)
 	{
 		FunctionString += ReplaceAll(StaticClassBind, "CLASS_NAME", meta.thisName);
 	}
@@ -94,11 +94,6 @@ void LuaBind::SetLuaMethodString(PixelClassMeta& meta)
 {
 	for (auto& m : meta.methods)
 	{
-		if (m.name == "Create")
-		{
-			continue;
-		}
-
 		if (meta.metaType == META_TYPE::STATIC)
 		{
 			if (meta.thisName != "Engine" &&

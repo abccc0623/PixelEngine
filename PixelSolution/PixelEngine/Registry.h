@@ -13,6 +13,8 @@ namespace ECS
 		Registry();
 		~Registry();
 
+		void Remove(unsigned int entityID);
+
 		template<typename T>
 		void AddComponent(unsigned int entityID)
 		{

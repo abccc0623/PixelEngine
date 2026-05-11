@@ -79,6 +79,7 @@ void Scene::DestroyEntity(uint32_t id)
 {
 	PixelLog::Info("[" + sceneName + "] DeleteEntity");
 	ECS::EntityID entityID(id);
+	registry->Remove(id);
 	entityArray->Destroy(entityID);
 }
 
