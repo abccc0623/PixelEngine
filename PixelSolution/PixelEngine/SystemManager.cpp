@@ -5,6 +5,8 @@
 
 #include "TransformSystem.h"
 #include "CameraSystem.h"
+#include "Collider2DSystem.h"
+#include "Rigidbody2DSystem.h"
 #include "Animation2DSystem.h"
 #include "Renderer2DSystem.h"
 
@@ -16,7 +18,9 @@ void ECS::SystemManager::Initialize()
 	SystemList.push_back(new TransformSystem());
 	SystemList.push_back(new CameraSystem());
 	SystemList.push_back(new Animation2DSystem);
-	SystemList.push_back(new Renderer2DSystem());
+	SystemList.push_back(new Collider2DSystem);
+	SystemList.push_back(new Rigidbody2DSystem);
+	SystemList.push_back(new Renderer2DSystem);
 }
 
 void ECS::SystemManager::Update(ECS::Registry* registry)

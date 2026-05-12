@@ -53,7 +53,7 @@ void Physics2D::PhysicsUpdate()
 	}
 	if (targetRef.GetPtr() == nullptr)
 	{
-		targetRef = collision->CreateCollider(colliderSetting);
+		//targetRef = collision->CreateCollider(colliderSetting);
 	}
 	if (targetBodyID.IsInvalid())
 	{
@@ -111,53 +111,53 @@ void Physics2D::SetCollider(sol::table table)
 	sol::optional<ColliderType> type = table["ColliderType"];
 	if (type)
 	{
-		colliderSetting.colliderType = (int)type.value();
-		switch (colliderSetting.colliderType)
-		{
-		case (int)ColliderType::Box2D:
-		{
-			colliderSetting.box2D.CenterX = 0.0f;
-			colliderSetting.box2D.CenterY = 0.0f;
-			sol::optional<sol::table> centerOption = table["Center"];
-			if (centerOption)
-			{
-				sol::table centerTable = centerOption.value();
-				colliderSetting.box2D.CenterX = centerTable["x"];
-				colliderSetting.box2D.CenterY = centerTable["y"];
-			}
-			colliderSetting.box2D.OffsetX = 0.5f;
-			colliderSetting.box2D.OffsetY = 0.5f;
-			sol::optional<sol::table> offsetOption = table["Offset"];
-			if (offsetOption)
-			{
-				sol::table offsetTable = offsetOption.value();
-				colliderSetting.box2D.OffsetX = offsetTable["x"];
-				colliderSetting.box2D.OffsetY = offsetTable["y"];
-			}
-		}
-		break;
-		case (int)ColliderType::Circle2D:
-		{
-			colliderSetting.circle2D.CenterX = 0.0f;
-			colliderSetting.circle2D.CenterY = 0.0f;
-			sol::optional<sol::table> centerOption = table["Center"];
-			if (centerOption)
-			{
-				sol::table centerTable = centerOption.value();
-				colliderSetting.circle2D.CenterX = centerTable["x"];
-				colliderSetting.circle2D.CenterY = centerTable["y"];
-			}
-			colliderSetting.circle2D.Radius = 0.5f;
-			sol::optional<float> Radius = table["Radius"];
-			if (Radius)
-			{
-				colliderSetting.circle2D.Radius = Radius.value();
-			}
-			collision->CreateCollider(colliderSetting);
-		}
-		break;
-		}
-		targetRef = collision->CreateCollider(colliderSetting);
+		//colliderSetting.colliderType = (int)type.value();
+		//switch (colliderSetting.colliderType)
+		//{
+		//case (int)ColliderType::Box2D:
+		//{
+		//	colliderSetting.box2D.CenterX = 0.0f;
+		//	colliderSetting.box2D.CenterY = 0.0f;
+		//	sol::optional<sol::table> centerOption = table["Center"];
+		//	if (centerOption)
+		//	{
+		//		sol::table centerTable = centerOption.value();
+		//		colliderSetting.box2D.CenterX = centerTable["x"];
+		//		colliderSetting.box2D.CenterY = centerTable["y"];
+		//	}
+		//	colliderSetting.box2D.OffsetX = 0.5f;
+		//	colliderSetting.box2D.OffsetY = 0.5f;
+		//	sol::optional<sol::table> offsetOption = table["Offset"];
+		//	if (offsetOption)
+		//	{
+		//		sol::table offsetTable = offsetOption.value();
+		//		colliderSetting.box2D.OffsetX = offsetTable["x"];
+		//		colliderSetting.box2D.OffsetY = offsetTable["y"];
+		//	}
+		//}
+		//break;
+		//case (int)ColliderType::Circle2D:
+		//{
+		//	colliderSetting.circle2D.CenterX = 0.0f;
+		//	colliderSetting.circle2D.CenterY = 0.0f;
+		//	sol::optional<sol::table> centerOption = table["Center"];
+		//	if (centerOption)
+		//	{
+		//		sol::table centerTable = centerOption.value();
+		//		colliderSetting.circle2D.CenterX = centerTable["x"];
+		//		colliderSetting.circle2D.CenterY = centerTable["y"];
+		//	}
+		//	colliderSetting.circle2D.Radius = 0.5f;
+		//	sol::optional<float> Radius = table["Radius"];
+		//	if (Radius)
+		//	{
+		//		colliderSetting.circle2D.Radius = Radius.value();
+		//	}
+		//	collision->CreateCollider(colliderSetting);
+		//}
+		//break;
+		//}
+		//targetRef = collision->CreateCollider(colliderSetting);
 	}
 }
 
@@ -220,7 +220,7 @@ void Physics2D::SetRigidbody(sol::table table)
 	}
 	if (targetRef.GetPtr() == nullptr)
 	{
-		targetRef = collision->CreateCollider(colliderSetting);
+		//argetRef = collision->CreateCollider(colliderSetting);
 		//PixelLog::Warn(targetObject->name + "정의된 Collider가 없어 기본 Collider로 변경합니다.");
 	}
 	//targetBodyID = collision->CreateRigidbody(rigidbodySetting, targetRef, targetObject);

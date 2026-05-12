@@ -22,12 +22,15 @@ void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
 {
 	auto registry = GetRegistry();
 	auto data = registry->Get<Renderer2DData>(id);
-
 	if (data != nullptr)
 	{
 		std::string textureName(name);
 		auto textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
 		data->renderingData.texture_key = textureID;
+	}
+	else
+	{
+		PixelLog::Error("[Renderer2D][SetTexture] Not Find Component");
 	}
 }
 

@@ -342,6 +342,18 @@
     <ClInclude Include="Animation2DSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
+    <ClInclude Include="Collider2D.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider2DSystem.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Rigidbody2D.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Rigidbody2DSystem.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -495,6 +507,18 @@
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
     <ClCompile Include="Animation2DSystem.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider2D.cpp">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider2DSystem.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Rigidbody2D.cpp">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Rigidbody2DSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
   </ItemGroup>

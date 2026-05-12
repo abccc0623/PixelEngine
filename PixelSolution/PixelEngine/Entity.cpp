@@ -49,6 +49,7 @@ void ECS::Entity::Clear()
 	{
 		GetLua()->~EntityLuaData();
 		bHasLuaData = false;
+		Active = false;
 	}
 }
 void ECS::Entity::SpawnCall()

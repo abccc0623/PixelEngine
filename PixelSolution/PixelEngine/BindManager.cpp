@@ -17,6 +17,8 @@
 #include "Camera.h"
 #include "Animation2D.h"
 #include "Renderer2D.h"
+#include "Collider2D.h"
+#include "Rigidbody2D.h"
 
 BindManager::BindManager()
 {
@@ -82,6 +84,24 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalAnimation2D, "Play", GeGlobalMethodInfo(&ECS::Animation2D::Play), MetaFlag::LUABIND);
 	AddGlobalMethod(globalAnimation2D, "Stop", GeGlobalMethodInfo(&ECS::Animation2D::Stop), MetaFlag::LUABIND);
 	AddGlobalMethod(globalAnimation2D, "Reset", GeGlobalMethodInfo(&ECS::Animation2D::Reset), MetaFlag::LUABIND);
+
+	PStatic* globalCollider2D = CreateNewStatic("Collider2D");
+	AddGlobalMethod(globalCollider2D, "Add", GeGlobalMethodInfo(&ECS::Collider2D::Add), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCollider2D, "SetBoxOffset", GeGlobalMethodInfo(&ECS::Collider2D::SetBoxOffset), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCollider2D, "SetCircleOffset", GeGlobalMethodInfo(&ECS::Collider2D::SetCircleOffset), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCollider2D, "SetCenter", GeGlobalMethodInfo(&ECS::Collider2D::SetCenter), MetaFlag::LUABIND);
+
+	PStatic* globalRigidbody2D = CreateNewStatic("Rigidbody2D");
+	AddGlobalMethod(globalRigidbody2D, "Add", GeGlobalMethodInfo(&ECS::Rigidbody2D::Add), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetKinematic", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetKinematic), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetAutoSleep", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetAutoSleep), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetSensor", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetSensor), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetGravity", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetGravity), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetRestitution", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRestitution), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetFriction", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetFriction), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetLinearDamping", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetLinearDamping), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetPositionLock", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPositionLock), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetRotationLock", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotationLock), MetaFlag::LUABIND);
 
 	BindEntity();
 }

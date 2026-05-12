@@ -24,13 +24,16 @@ void ECS::Renderer2DSystem::Update(Registry* registry)
 	{
 		auto id = registry->GetEntityID<ECS::Renderer2D::Renderer2DData>(i);
 		auto data = registry->Get<ECS::Transform::WorldData>(id);
-
-		const float* sourcePtr = glm::value_ptr(data->world);
-		std::copy(sourcePtr, sourcePtr + 16, renderer2DArray[i].renderingData.World);
-		SetRenderingData(renderer2DArray[i].renderingData);
+		if (data != nullptr)
+		{
+			const float* sourcePtr = glm::value_ptr(data->world);
+			std::copy(sourcePtr, sourcePtr + 16, renderer2DArray[i].renderingData.World);
+			SetRenderingData(renderer2DArray[i].renderingData);
+		}
 	}
 }
 
 void ECS::Renderer2DSystem::Release()
 {
+
 }

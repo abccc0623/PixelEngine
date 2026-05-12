@@ -297,12 +297,12 @@ void PhysManager::AddForce(JPH::BodyID id, float x, float y, float z)
 	physicsSystem->GetBodyInterface().AddForce(id, JPH::Vec3(x, y, z));
 }
 
-JPH::ShapeRefC PhysManager::CreateCollider(PhysCollider& collider)
+JPH::ShapeRefC PhysManager::CreateCollider(ECS::Collider2D::Collider2DData* collider)
 {
-	switch (collider.colliderType)
+	switch (collider->type)
 	{
-	case 0: return colliderFactory->CreateBox2D(collider);
-	case 1: return colliderFactory->CreateCircle2D(collider);
+	case (int)ColliderType::Box2D: return colliderFactory->CreateBox2D(collider);
+	case (int)ColliderType::Circle2D: return colliderFactory->CreateCircle2D(collider);
 	}
 }
 

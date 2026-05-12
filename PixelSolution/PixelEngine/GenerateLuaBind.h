@@ -5,6 +5,8 @@
 #include "Renderer2D.h" 
 #include "Camera.h" 
 #include "Animation2D.h" 
+#include "Collider2D.h" 
+#include "Rigidbody2D.h" 
 #include "Entity.h" 
 using namespace ECS;
 inline void Generate_Engine(sol::state& lua) 
@@ -75,6 +77,28 @@ inline void Generate_Animation2D(sol::state& lua)
 	ut["Stop"] = &ECS::Animation2D::Stop;
 	ut["Reset"] = &ECS::Animation2D::Reset;
 }
+inline void Generate_Collider2D(sol::state& lua) 
+{
+	sol::table ut = lua.create_named_table("Collider2D");
+	ut["Add"] = &ECS::Collider2D::Add;
+	ut["SetBoxOffset"] = &ECS::Collider2D::SetBoxOffset;
+	ut["SetCircleOffset"] = &ECS::Collider2D::SetCircleOffset;
+	ut["SetCenter"] = &ECS::Collider2D::SetCenter;
+}
+inline void Generate_Rigidbody2D(sol::state& lua) 
+{
+	sol::table ut = lua.create_named_table("Rigidbody2D");
+	ut["Add"] = &ECS::Rigidbody2D::Add;
+	ut["SetKinematic"] = &ECS::Rigidbody2D::SetKinematic;
+	ut["SetAutoSleep"] = &ECS::Rigidbody2D::SetAutoSleep;
+	ut["SetSensor"] = &ECS::Rigidbody2D::SetSensor;
+	ut["SetGravity"] = &ECS::Rigidbody2D::SetGravity;
+	ut["SetRestitution"] = &ECS::Rigidbody2D::SetRestitution;
+	ut["SetFriction"] = &ECS::Rigidbody2D::SetFriction;
+	ut["SetLinearDamping"] = &ECS::Rigidbody2D::SetLinearDamping;
+	ut["SetPositionLock"] = &ECS::Rigidbody2D::SetPositionLock;
+	ut["SetRotationLock"] = &ECS::Rigidbody2D::SetRotationLock;
+}
 inline void Generate_Entity(sol::state& lua) 
 {
 	sol::usertype<Entity> ut = lua.new_usertype<Entity>("Entity");
@@ -95,5 +119,7 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_Renderer2D(lua); 
 	Generate_Camera(lua); 
 	Generate_Animation2D(lua); 
+	Generate_Collider2D(lua); 
+	Generate_Rigidbody2D(lua); 
 	Generate_Entity(lua); 
 }

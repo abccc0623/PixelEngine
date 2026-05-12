@@ -44,6 +44,7 @@ void ECS::EntityArray::Update()
 	float DTime = GetDeltaTime();
 	for (int i = 0; i < entityArray.size(); i++)
 	{
+		if (entityArray[i].Active == false) continue;
 		entityArray[i].UpdateCall(DTime);
 	}
 }
@@ -60,7 +61,6 @@ void ECS::EntityArray::Destroy(ECS::EntityID id)
 	//버전업 시킨다
 	uint32_t nextVersion = id.Version() + 1;
 	entityIDArray[index].SetValue(index, nextVersion);
-
 
 	entityArray[index].Clear();
 	freeIndices.push(index);

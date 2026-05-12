@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include "PhysStruct.h"
+#include "Collider2D.h"
 namespace JPH
 {
 	class PhysicsSystem;
@@ -15,6 +16,11 @@ namespace JPH
 	class Shape;
 	class BodyCreationSettings;
 }
+namespace ECS::Collider2D
+{
+	struct Collider2DData;
+}
+
 struct CollisionEvent;
 class PhysListener;
 class ColliderFactory;
@@ -43,7 +49,7 @@ public:
 	void AddImpulse(JPH::BodyID id, float x, float y, float z);
 	void AddForce(JPH::BodyID id, float x, float y, float z);
 
-	JPH::ShapeRefC CreateCollider(PhysCollider& collider);
+	JPH::ShapeRefC CreateCollider(ECS::Collider2D::Collider2DData* collider);
 	JPH::BodyID CreateRigidbody(PhysRigidbody& rigidbody, JPH::ShapeRefC shapeRef, void* pOwner);
 
 	void DebugDraw(JPH::BodyID id);
