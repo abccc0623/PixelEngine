@@ -2,10 +2,72 @@
 #include "Rigidbody2D.h"
 #include "PixelEngineAPI.h"
 #include "Registry.h"
+#include "PixelEngine.h"
+#include "PhysManager.h"
+
+extern PixelEngine* Engine;
 void ECS::Rigidbody2D::Add(unsigned int id)
 {
 	auto registry = GetRegistry();
 	registry->AddComponent<Rigidbody2DData>(id);
+}
+
+void ECS::Rigidbody2D::SetMotionType(unsigned int id, MotionType type)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<Rigidbody2DData>(id);
+	if (data != nullptr)
+	{
+		data->type = type;
+	}
+	else
+	{
+		PixelLog::Error("[Rigidbody2D][SetPosition] Not Find Component");
+	}
+}
+
+void ECS::Rigidbody2D::SetPosition(unsigned int id, float x, float y, float z)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<Rigidbody2DData>(id);
+	if (data != nullptr)
+	{
+		if (data->IsCreate == true)
+		{
+			auto phys = Engine->GetFactory<PhysManager>();
+			phys->SetPosition(JPH::BodyID(data->bodyID), x, y, z, true);
+		}
+		else
+		{
+			data->position = { x,y,z };
+		}
+	}
+	else
+	{
+		PixelLog::Error("[Rigidbody2D][SetPosition] Not Find Component");
+	}
+}
+
+void ECS::Rigidbody2D::SetRotation(unsigned int id, float x, float y, float z)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<Rigidbody2DData>(id);
+	if (data != nullptr)
+	{
+		if (data->IsCreate == true)
+		{
+			auto phys = Engine->GetFactory<PhysManager>();
+			phys->SetRotation(JPH::BodyID(data->bodyID), x, y, z, true);
+		}
+		else
+		{
+			data->rotation = { x,y,z };
+		}
+	}
+	else
+	{
+		PixelLog::Error("[Rigidbody2D][SetRotation] Not Find Component");
+	}
 }
 
 void ECS::Rigidbody2D::SetKinematic(unsigned int id, bool Kinematic)

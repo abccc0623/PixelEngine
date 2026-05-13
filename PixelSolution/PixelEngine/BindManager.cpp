@@ -93,6 +93,9 @@ void BindManager::Initialize()
 
 	PStatic* globalRigidbody2D = CreateNewStatic("Rigidbody2D");
 	AddGlobalMethod(globalRigidbody2D, "Add", GeGlobalMethodInfo(&ECS::Rigidbody2D::Add), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetMotionType", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetMotionType), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPosition), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotation), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "SetKinematic", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetKinematic), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "SetAutoSleep", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetAutoSleep), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "SetSensor", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetSensor), MetaFlag::LUABIND);
@@ -104,6 +107,7 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalRigidbody2D, "SetRotationLock", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotationLock), MetaFlag::LUABIND);
 
 	BindEntity();
+	BindEnum();
 }
 
 void BindManager::Update()
@@ -157,20 +161,20 @@ void BindManager::BindPVector3()
 void BindManager::BindEnum()
 {
 	PEnum* globalEnum = nullptr;
-	globalEnum = CreateNewEnum("EventType");
-	AddEnum(globalEnum, "KeyUp");
-	AddEnum(globalEnum, "KeyDown");
-	AddEnum(globalEnum, "CollisionIn");
-	AddEnum(globalEnum, "CollisionOut");
+	//globalEnum = CreateNewEnum("EventType");
+	//AddEnum(globalEnum, "KeyUp");
+	//AddEnum(globalEnum, "KeyDown");
+	//AddEnum(globalEnum, "CollisionIn");
+	//AddEnum(globalEnum, "CollisionOut");
 
-	globalEnum = CreateNewEnum("ColliderMotionType");
+	globalEnum = CreateNewEnum("MotionType");
 	AddEnum(globalEnum, "Static");
 	AddEnum(globalEnum, "Kinematic");
 	AddEnum(globalEnum, "Dynamic");
 
-	globalEnum = CreateNewEnum("ColliderType");
-	AddEnum(globalEnum, "Box2D");
-	AddEnum(globalEnum, "Circle2D");
+	//globalEnum = CreateNewEnum("ColliderType");
+	//AddEnum(globalEnum, "Box2D");
+	//AddEnum(globalEnum, "Circle2D");
 
 }
 

@@ -20,6 +20,10 @@ namespace ECS::Collider2D
 {
 	struct Collider2DData;
 }
+namespace ECS::Rigidbody2D
+{
+	struct Rigidbody2DData;
+}
 
 struct CollisionEvent;
 class PhysListener;
@@ -50,7 +54,7 @@ public:
 	void AddForce(JPH::BodyID id, float x, float y, float z);
 
 	JPH::ShapeRefC CreateCollider(ECS::Collider2D::Collider2DData* collider);
-	JPH::BodyID CreateRigidbody(PhysRigidbody& rigidbody, JPH::ShapeRefC shapeRef, void* pOwner);
+	JPH::BodyID CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigidbody, JPH::ShapeRefC shapeRef, unsigned int pOwner);
 
 	void DebugDraw(JPH::BodyID id);
 	void SyncPhysics(JPH::BodyID id);
