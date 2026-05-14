@@ -64,7 +64,7 @@ void ECS::Entity::UpdateCall(float DTime)
 {
 	if (Active == true)
 	{
-		GetLua()->FunctionCall("Update", DTime);
+		//GetLua()->FunctionCall("Update", DTime);
 	}
 }
 

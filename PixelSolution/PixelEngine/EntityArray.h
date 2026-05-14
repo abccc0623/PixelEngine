@@ -13,7 +13,6 @@ namespace ECS
 
 		void Clear();
 		uint32_t Create(const std::string& scriptName);
-		void Update();
 		void Destroy(ECS::EntityID id);
 	private:
 		std::vector<ECS::Entity>	entityArray;

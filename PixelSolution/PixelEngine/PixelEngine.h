@@ -64,7 +64,7 @@ public:
 		return nullptr;
 	}
 private:
-	std::unordered_map<std::type_index, EngineManager*> factoryMap;
+	std::map<std::type_index, EngineManager*> factoryMap;
 
 
 };

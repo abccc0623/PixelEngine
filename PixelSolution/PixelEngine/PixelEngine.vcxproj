@@ -233,7 +233,6 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="SPointer.h" />
     <ClInclude Include="PtrControlBlock.h" />
     <ClInclude Include="Rect.h" />
-    <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
@@ -296,7 +295,6 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="PtrControlBlock.cpp" />
     <ClCompile Include="Registry.cpp" />
-    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Renderer2DSystem.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />

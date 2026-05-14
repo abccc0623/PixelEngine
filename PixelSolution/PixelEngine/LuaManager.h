@@ -22,14 +22,19 @@ public:
 	LuaModuleInfo* GetModuleLua(const std::string& fileName);
 	LuaSceneInfo* GetSceneLua(const std::string& fileName);
 
-	std::string ChangeLuaType(std::string type);
-
 	void ImportLua(const std::string& filePath, const std::string filename, const std::string& ext);
+	void CreateLuaManager();
+	void AddEntityID(unsigned int id, sol::table target);
+	void RemoveEntityID(unsigned int id);
 
-	void BindLuaKey();
-	void BindLuaTime();
 private:
 	sol::state lua;
+	sol::table luaManager;
+
+	sol::protected_function AddFunction;
+	sol::protected_function RemoveFunction;
+	sol::protected_function UpdateFunction;
+
 	std::string SettingKeyEnum();
 private:
 	BindManager* bind = nullptr;

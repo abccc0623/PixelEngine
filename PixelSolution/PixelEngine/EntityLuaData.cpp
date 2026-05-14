@@ -24,10 +24,11 @@ ECS::EntityLuaData::EntityLuaData(Entity* target, std::string scriptName)
 	}
 	instance = luaInfo->Create();
 	spawn = instance["Spawn"];
-	update = instance["Update"];
 
+	entityID = target->GetID();
 	instance["entity"] = target;
-	instance["ID"] = target->GetID();
+	instance["ID"] = entityID;
+	lua->AddEntityID(entityID, instance);
 }
 
 ECS::EntityLuaData::~EntityLuaData()
@@ -35,6 +36,7 @@ ECS::EntityLuaData::~EntityLuaData()
 	if (instance.valid())
 	{
 		instance["entity"] = sol::lua_nil;
+		lua->RemoveEntityID(entityID);
 	}
 }
 
@@ -54,18 +56,4 @@ void ECS::EntityLuaData::SpawnCall()
 	}
 }
 
-void ECS::EntityLuaData::UpdateCall()
-{
-	if (update.valid())
-	{
-		auto result = update(instance, GetDeltaTime());
-		if (!result.valid())
-		{
-			sol::error err = result;
-			std::string what = err.what();
-			PixelLog::Error("--- LUA UPDATE ERROR ---");
-			PixelLog::Error(what);
-			PixelLog::Error("-----------------------");
-		}
-	}
-}
+

@@ -15,13 +15,14 @@
 #include "PixelMetaAPI.h"
 #include "CoroutineManager.h"
 
-#include "Module/Renderer2D.h"
 #include "GenerateLuaBind.h"
-
+#include "PixelEngineAPI.h"
+#include "resource.h"
 
 
 #define SOL_ALL_SAFETIES_ON 1 // 안전장치 활성화 (권장)
-
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+#define GET_CURRENT_MODULE() ((HMODULE)&__ImageBase)
 
 extern PixelEngine* Engine;
 LuaManager::LuaManager()
@@ -56,9 +57,8 @@ void LuaManager::Initialize()
 	bind = Engine->GetFactory<BindManager>();
 	input = Engine->GetFactory<KeyInputManager>();
 
-	//BindLuaKey();
-	//BindLuaTime();
 	BindAll_GeneratedLuaModules(lua);
+	CreateLuaManager();
 }
 
 LuaModuleInfo* LuaManager::GetModuleLua(const std::string& fileName)
@@ -80,23 +80,6 @@ LuaSceneInfo* LuaManager::GetSceneLua(const std::string& fileName)
 	}
 	return nullptr;
 }
-
-std::string LuaManager::ChangeLuaType(std::string type)
-{
-	if (type == "int" || type == "float")
-	{
-		return "number";
-	}
-	else if (type == "std::basic_string<char,std::char_traits<char>,class std::allocator<char> >")
-	{
-		return "string";
-	}
-	else
-	{
-		return type;
-	}
-}
-
 
 void LuaManager::ImportLua(const std::string& filePath, const std::string filename, const std::string& ext)
 {
@@ -161,22 +144,65 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 	}
 }
 
-void LuaManager::BindLuaKey()
+void LuaManager::CreateLuaManager()
 {
-	//Key관련 등록
-	sol::table input = lua.create_named_table("Input");
-	input["GetKey"] = [](int keyNumber)->bool { return GetKey(keyNumber); };
-	input["GetKeyDown"] = [](int keyNumber)->bool {return GetKeyDown(keyNumber); };
-	input["GetKeyUp"] = [](int keyNumber)->bool { return GetKeyUp(keyNumber); };
-	input["GetMousePosition_X"] = GetMousePosition_X;
-	input["GetMousePosition_Y"] = GetMousePosition_Y;
+	HMODULE hModule = GET_CURRENT_MODULE();
+	HRSRC hResInfo = FindResource(hModule, MAKEINTRESOURCE(IDR_LUA1), "LUA");
+	if (!hResInfo)
+	{
+		return;
+	}
+	HGLOBAL hResData = LoadResource(hModule, hResInfo);
+	void* pData = LockResource(hResData);
+	DWORD dataSize = SizeofResource(hModule, hResInfo);
+	std::string_view luaScript(static_cast<const char*>(pData), dataSize);
+	auto result = lua.safe_script(luaScript);
+
+
+	if (result.return_count() > 0 && result[0].is<sol::table>())
+	{
+		if (!result.valid())
+		{
+			sol::error err = result;
+			PixelLog::Error(err.what());
+		}
+		else
+		{
+			luaManager = result[0];
+			UpdateFunction = luaManager["Update"];
+			AddFunction = luaManager["Add"];
+			RemoveFunction = luaManager["Remove"];
+
+		}
+	}
 }
-void LuaManager::BindLuaTime()
+
+void LuaManager::AddEntityID(unsigned int id, sol::table target)
 {
-	sol::table time = lua.create_named_table("Time");
-	time["GetDeltaTime"] = GetDeltaTime;
-	time["GetTotalTime"] = GetTotalTime;
-	time["GetFPS"] = GetFPS;
+	if (AddFunction.valid())
+	{
+		auto result = AddFunction(luaManager, id, target);
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::string errorMsg = err.what();
+			PixelLog::Error(errorMsg.c_str());
+		}
+	}
+}
+
+void LuaManager::RemoveEntityID(unsigned int id)
+{
+	if (RemoveFunction.valid())
+	{
+		auto result = RemoveFunction(luaManager, id);
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::string errorMsg = err.what();
+			PixelLog::Error(errorMsg.c_str());
+		}
+	}
 }
 
 
@@ -223,7 +249,17 @@ std::string LuaManager::SettingKeyEnum()
 
 void LuaManager::Update()
 {
-
+	if (UpdateFunction.valid())
+	{
+		float DTime = GetDeltaTime();
+		auto result = UpdateFunction(luaManager, DTime);
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::string errorMsg = err.what();
+			PixelLog::Error(errorMsg.c_str());
+		}
+	}
 }
 
 void LuaManager::Release()

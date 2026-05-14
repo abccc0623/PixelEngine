@@ -50,7 +50,7 @@ void Scene::Update()
 	{
 		info->Update();
 	}
-	entityArray->Update();
+	//entityArray->Update();
 	system->Update(registry);
 }
 

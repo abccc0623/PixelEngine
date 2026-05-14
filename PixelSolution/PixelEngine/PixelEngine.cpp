@@ -29,8 +29,8 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	BindFactory<KeyInputManager>();
 	BindFactory<TimeManager>();
 	BindFactory<BindManager>();
-	BindFactory<SceneManager>();
 	BindFactory<LuaManager>();
+	BindFactory<SceneManager>();
 	BindFactory<ResourceManager>();
 	BindFactory<PhysManager>();
 	BindFactory<JsonManager>();
@@ -86,11 +86,15 @@ bool PixelEngine::RunningCheck()
 
 void PixelEngine::ReleaseShared()
 {
-	for (auto& k : factoryMap)
+	for (auto it = factoryMap.rbegin(); it != factoryMap.rend(); ++it)
 	{
-		k.second->Release();
-		delete k.second;
-		k.second = nullptr;
+		// it은 reverse_iterator이므로 ->를 통해 요소에 접근합니다.
+		if (it->second != nullptr)
+		{
+			it->second->Release();
+			delete it->second;
+			it->second = nullptr;
+		}
 	}
 	factoryMap.clear();
 	PixelGraphicsRelease();

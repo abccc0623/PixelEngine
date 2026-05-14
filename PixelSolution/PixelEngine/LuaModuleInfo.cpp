@@ -18,57 +18,17 @@ void LuaModuleInfo::Reload()
 
 void LuaModuleInfo::Awake()
 {
-	//sol::state_view lua(tabel.lua_state());
-	//sol::table prototypeSelf = tabel["self"];
-	//
-	//instance = lua.create_table();
-	//sol::table mt = lua.create_table();
-	//mt["__index"] = prototypeSelf;
-	//instance[sol::metatable_key] = mt;
-	//
-	//instance["gameObject"] = targetObject;
-	//instance["transform"] = transform;
-	//
-	//luaAwake = prototypeSelf["Awake"];
-	//luaStart = prototypeSelf["Start"];
-	//luaUpdate = prototypeSelf["Update"];
-	//
-	//if (luaAwake.valid())
-	//{
-	//	auto result = luaAwake(instance);
-	//	if (!result.valid())
-	//	{
-	//		sol::error err = result;
-	//		std::string what = err.what();
-	//		PixelLog::Error("--- LUA AWAKE ERROR ---");
-	//		PixelLog::Error(what);
-	//		PixelLog::Error("-----------------------");
-	//	}
-	//}
+
 }
 
 void LuaModuleInfo::Start()
 {
-	//if (luaStart.valid())
-	//{
-	//	auto result = luaStart(instance);
-	//	if (!result.valid())
-	//	{
-	//		sol::error err = result;
-	//		std::string what = err.what();
-	//		PixelLog::Error("--- LUA SRART ERROR ---");
-	//		PixelLog::Error(what);
-	//		PixelLog::Error("-----------------------");
-	//	}
-	//}
+
 }
 
 void LuaModuleInfo::Update()
 {
-	//if (luaUpdate.valid())
-	//{
-	//    auto result = luaUpdate(instance, GetDeltaTime());
-	//}
+
 }
 
 sol::table LuaModuleInfo::Create()

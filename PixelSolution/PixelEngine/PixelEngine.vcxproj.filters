@@ -46,9 +46,6 @@
     <Filter Include="EngineAPI\Module\Module">
       <UniqueIdentifier>{313a14e0-ecd1-4ed4-a4bf-bb4c5358dd87}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Module\Renderer">
-      <UniqueIdentifier>{a63a91de-52cd-4300-bd7c-6a629bf674d0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Manager\LuaManager">
       <UniqueIdentifier>{ba574e3a-2e7c-4a25-a783-1c8b39736d2b}</UniqueIdentifier>
     </Filter>
@@ -149,9 +146,6 @@
     </ClInclude>
     <ClInclude Include="TimeManager.h">
       <Filter>EngineAPI\Manager\TimeManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>EngineAPI\Module\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="LuaManager.h">
       <Filter>EngineAPI\Manager\LuaManager</Filter>
@@ -376,9 +370,6 @@
     </ClCompile>
     <ClCompile Include="TimeManager.cpp">
       <Filter>EngineAPI\Manager\TimeManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>EngineAPI\Module\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="LuaManager.cpp">
       <Filter>EngineAPI\Manager\LuaManager</Filter>

@@ -22,7 +22,6 @@ namespace ECS
 		~EntityLuaData();
 		EntityLuaData(EntityLuaData&& other) noexcept = default;
 		void SpawnCall();
-		void UpdateCall();
 
 		template <typename... Args>
 		void FunctionCall(const char* functionName, Args&&... args);
@@ -31,11 +30,10 @@ namespace ECS
 		std::string scriptName;
 		sol::table instance;
 		sol::function spawn;
-		sol::function update;
+		unsigned int entityID;
 		std::unordered_map<uint32_t, sol::function> functionList;
 	private:
 		static constexpr uint32_t spawnID = Pixel::Utils::HashString("Spawn");
-		static constexpr uint32_t updateID = Pixel::Utils::HashString("Update");
 		static LuaManager* lua;
 	};
 
@@ -48,7 +46,6 @@ namespace ECS
 		switch (hash)
 		{
 		case spawnID: targetFunction = spawn; break;
-		case updateID: targetFunction = update; break;
 		default:
 			auto find = functionList.find(hash);
 			if (find != functionList.end())

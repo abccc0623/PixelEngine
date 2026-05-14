@@ -263,7 +263,9 @@ unsigned int CreateEntity(const char* script)
 {
 	std::string scriptName(script);
 	auto sceneManager = Engine->GetFactory<SceneManager>();
-	return sceneManager->CreateEntity(scriptName);
+	auto luaManager = Engine->GetFactory<LuaManager>();
+	auto id = sceneManager->CreateEntity(scriptName);
+	return id;
 }
 
 void DestroyEntity(unsigned int id)

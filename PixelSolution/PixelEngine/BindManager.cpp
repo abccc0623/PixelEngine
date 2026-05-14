@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "BindManager.h"
 
-#include "Module/Renderer2D.h"
 #include "Module/Movement.h"
 #include "Module/Physics2D.h"
 

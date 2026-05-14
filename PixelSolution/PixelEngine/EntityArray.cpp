@@ -39,15 +39,6 @@ uint32_t ECS::EntityArray::Create(const std::string& scriptName)
 	return entityIDArray[index].value;
 }
 
-void ECS::EntityArray::Update()
-{
-	float DTime = GetDeltaTime();
-	for (int i = 0; i < entityArray.size(); i++)
-	{
-		if (entityArray[i].Active == false) continue;
-		entityArray[i].UpdateCall(DTime);
-	}
-}
 
 void ECS::EntityArray::Destroy(ECS::EntityID id)
 {
