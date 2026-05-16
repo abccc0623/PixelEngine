@@ -17,40 +17,41 @@ ECS::Animation2DSystem::~Animation2DSystem()
 void ECS::Animation2DSystem::Update(Registry* registry)
 {
 	float dTime = GetDeltaTime();
-	auto& animation2DArray = registry->GetArray<ECS::Animation2D::Animation2DData>();
-	int size = animation2DArray.size();
-	for (int i = 0; i < size; i++)
-	{
-		if (animation2DArray[i].play == false) continue;
-		int playindex = animation2DArray[i].selectIndex;
-		if (animation2DArray[i].animationArray.size() < playindex) continue;
-		auto& data = animation2DArray[i].selectAnimation;
 
-		data.nowFrameTime += dTime * data.animationSpeed;
-		if (data.nowFrameTime >= data.oneFrameTime)
+	auto& Chunked = registry->GetChunkedArray<ECS::Animation2D::Animation2DData>();
+	Chunked.ForEach([registry, dTime](ECS::Animation2D::Animation2DData* data, size_t index)
 		{
-			int totalFrames = data.maxFramesX * data.maxFramesY;
-			if (data.framesIndex >= totalFrames - 1)
+			if (data->play == false) return;
+			int playindex = data->selectIndex;
+			if (data->animationArray.size() < playindex) return;
+			auto& select = data->selectAnimation;
+
+			select.nowFrameTime += dTime * select.animationSpeed;
+			if (select.nowFrameTime >= select.oneFrameTime)
 			{
-				data.framesIndex = 0;
+				int totalFrames = select.maxFramesX * select.maxFramesY;
+				if (select.framesIndex >= totalFrames - 1)
+				{
+					select.framesIndex = 0;
+				}
+				else
+				{
+					select.framesIndex++;
+				}
+				select.nowFrameTime -= select.oneFrameTime;
 			}
-			else
+			int ID = registry->GetEntityID<ECS::Animation2D::Animation2DData>(index);
+			auto render = registry->Get<ECS::Renderer2D::Renderer2DData>(ID);
+			if (render != nullptr)
 			{
-				data.framesIndex++;
+				render->renderingData.texture_key = select.textureID;
+				render->renderingData.sprite.TilingX = 1.0f / select.maxFramesX;
+				render->renderingData.sprite.TilingY = 1.0f / select.maxFramesY;
+				render->renderingData.sprite.OffsetX = (select.framesIndex % select.maxFramesX) * render->renderingData.sprite.TilingX;
+				render->renderingData.sprite.OffsetY = (select.framesIndex / select.maxFramesX) * render->renderingData.sprite.TilingY;
 			}
-			data.nowFrameTime -= data.oneFrameTime;
-		}
-		int ID = registry->GetEntityID<ECS::Animation2D::Animation2DData>(i);
-		auto render = registry->Get<ECS::Renderer2D::Renderer2DData>(ID);
-		if (render != nullptr)
-		{
-			render->renderingData.texture_key = data.textureID;
-			render->renderingData.sprite.TilingX = 1.0f / data.maxFramesX;
-			render->renderingData.sprite.TilingY = 1.0f / data.maxFramesY;
-			render->renderingData.sprite.OffsetX = (data.framesIndex % data.maxFramesX) * render->renderingData.sprite.TilingX;
-			render->renderingData.sprite.OffsetY = (data.framesIndex / data.maxFramesX) * render->renderingData.sprite.TilingY;
-		}
-	}
+		});
+
 }
 
 void ECS::Animation2DSystem::Release()

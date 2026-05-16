@@ -4,11 +4,13 @@
 #include "PixelMeta.h"
 #include "LuaBind.h"
 #include "LSPBind.h"
+#include "LuaCreate.h"
 using json = nlohmann::json;
 void GenerateManager::Initialize()
 {
 	luaBind = new LuaBind();
 	lspBind = new LSPBind();
+	luaCreate = new LuaCreate();
 }
 
 void GenerateManager::Update()
@@ -74,7 +76,8 @@ void GenerateManager::LSPGenerate(const char* outPath)
 
 void GenerateManager::JsonGenerate(const char* outPath)
 {
-
+	CreateBindCode();
+	luaCreate->Generate(outPath, types);
 }
 
 void GenerateManager::TypeMember(PixelClassMeta& PixelClass, PType* type)

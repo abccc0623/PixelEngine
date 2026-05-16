@@ -16,22 +16,21 @@ ECS::CameraSystem::~CameraSystem()
 
 void ECS::CameraSystem::Update(Registry* registry)
 {
-	auto& cameraArray = registry->GetArray<ECS::Camera::CameraData>();
-	int size = cameraArray.size();
-	for (int i = 0; i < size; i++)
-	{
-		auto id = registry->GetEntityID<ECS::Camera::CameraData>(i);
-		auto data = registry->Get<ECS::Transform::WorldData>(id);
-		if (data != nullptr)
+	auto& Chunked = registry->GetChunkedArray<ECS::Camera::CameraData>();
+	Chunked.ForEach([registry](ECS::Camera::CameraData* data, size_t index)
 		{
-			glm::mat4 viewMatrix = glm::inverse(data->world);
-			Pixel::Matrix4x4 camMatrix = viewMatrix;
+			auto id = registry->GetEntityID<ECS::Camera::CameraData>(index);
+			auto world = registry->Get<ECS::Transform::WorldData>(id);
+			if (world != nullptr)
+			{
+				glm::mat4 viewMatrix = glm::inverse(world->world);
+				Pixel::Matrix4x4 camMatrix = viewMatrix;
 
-			const float* sourcePtr = glm::value_ptr(camMatrix);
-			std::copy(sourcePtr, sourcePtr + 16, cameraArray[i].renderingData.World);
-			SetRenderingData(cameraArray[i].renderingData);
-		}
-	}
+				const float* sourcePtr = glm::value_ptr(camMatrix);
+				std::copy(sourcePtr, sourcePtr + 16, data->renderingData.World);
+				SetRenderingData(data->renderingData);
+			}
+		});
 }
 
 void ECS::CameraSystem::Release()

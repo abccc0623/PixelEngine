@@ -45,6 +45,11 @@ PValue::PValue(void* ptr)
 	Data.v_ptr = ptr;
 	Type = nullptr;
 }
+PValue::PValue(std::string ptr)
+{
+	value = ptr;
+	Type = nullptr;
+}
 
 PValue::~PValue()
 {

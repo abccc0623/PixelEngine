@@ -3,6 +3,7 @@
 #include "PixelMeta.h"
 class LSPBind;
 class LuaBind;
+class LuaCreate;
 class PType;
 class GenerateManager :public EngineManager
 {
@@ -25,6 +26,7 @@ private:
 
 	LuaBind* luaBind;
 	LSPBind* lspBind;
+	LuaCreate* luaCreate;
 	std::vector<PixelClassMeta> types;
 };
 

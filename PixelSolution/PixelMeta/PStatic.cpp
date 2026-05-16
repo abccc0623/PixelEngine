@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "PStatic.h"
 #include "PMethod.h"
-PStatic::PStatic(uint64_t hash, std::string name, size_t size):
+PStatic::PStatic(uint64_t hash, std::string name, size_t size) :
 	PType(hash, name, size)
 {
 	metaType = META_TYPE::STATIC;
@@ -49,7 +49,7 @@ const std::string& PStatic::GetMethodPropertyType(int index, int propertyIndex)
 
 PValue PStatic::CallMethod(int index, void* target, std::vector<void*> property)
 {
-	return PValue();
+	return methodList[index]->Call(nullptr, property);
 }
 
 void PStatic::AddMethod(PMethod* method)

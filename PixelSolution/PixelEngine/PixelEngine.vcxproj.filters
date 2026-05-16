@@ -285,12 +285,6 @@
     <ClInclude Include="Entity.h">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="EntityLuaData.h">
-      <Filter>EngineAPI\ECS\Entity</Filter>
-    </ClInclude>
-    <ClInclude Include="EntityArray.h">
-      <Filter>EngineAPI\ECS\Entity</Filter>
-    </ClInclude>
     <ClInclude Include="EntityID.h">
       <Filter>EngineAPI\ECS\ID</Filter>
     </ClInclude>
@@ -347,6 +341,12 @@
     </ClInclude>
     <ClInclude Include="Rigidbody2DSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkedArray.h">
+      <Filter>EngineAPI\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaCreate.h">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -461,12 +461,6 @@
     <ClCompile Include="Entity.cpp">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="EntityLuaData.cpp">
-      <Filter>EngineAPI\ECS\Entity</Filter>
-    </ClCompile>
-    <ClCompile Include="EntityArray.cpp">
-      <Filter>EngineAPI\ECS\Entity</Filter>
-    </ClCompile>
     <ClCompile Include="Registry.cpp">
       <Filter>EngineAPI\ECS\Registry</Filter>
     </ClCompile>
@@ -511,6 +505,9 @@
     </ClCompile>
     <ClCompile Include="Rigidbody2DSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaCreate.cpp">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

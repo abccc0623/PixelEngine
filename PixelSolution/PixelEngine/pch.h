@@ -40,6 +40,7 @@
 #include <unordered_map>
 #include <concepts>
 #include <vector>
+#include <array>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>

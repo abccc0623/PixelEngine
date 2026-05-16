@@ -18,19 +18,18 @@ ECS::Renderer2DSystem::~Renderer2DSystem()
 
 void ECS::Renderer2DSystem::Update(Registry* registry)
 {
-	auto& renderer2DArray = registry->GetArray<ECS::Renderer2D::Renderer2DData>();
-	int size = renderer2DArray.size();
-	for (int i = 0; i < size; i++)
-	{
-		auto id = registry->GetEntityID<ECS::Renderer2D::Renderer2DData>(i);
-		auto data = registry->Get<ECS::Transform::WorldData>(id);
-		if (data != nullptr)
+	auto& Chunked = registry->GetChunkedArray<ECS::Renderer2D::Renderer2DData>();
+	Chunked.ForEach([registry](ECS::Renderer2D::Renderer2DData* data, size_t index)
 		{
-			const float* sourcePtr = glm::value_ptr(data->world);
-			std::copy(sourcePtr, sourcePtr + 16, renderer2DArray[i].renderingData.World);
-			SetRenderingData(renderer2DArray[i].renderingData);
-		}
-	}
+			auto id = registry->GetEntityID<ECS::Renderer2D::Renderer2DData>(index);
+			auto world = registry->Get<ECS::Transform::WorldData>(id);
+			if (world != nullptr)
+			{
+				const float* sourcePtr = glm::value_ptr(world->world);
+				std::copy(sourcePtr, sourcePtr + 16, data->renderingData.World);
+				SetRenderingData(data->renderingData);
+			}
+		});
 }
 
 void ECS::Renderer2DSystem::Release()

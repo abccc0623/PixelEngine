@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "IComponentArray.h"
+#include "ChunkedArray.h"
 #include <vector>
 namespace ECS
 {
@@ -16,22 +17,10 @@ namespace ECS
 			{
 				return;
 			}
-
-			size_t indexOfRemoved = entityToIndexMap[entityID];
-			size_t indexOfLast = componentArray.size() - 1;
-
-			if (indexOfRemoved != indexOfLast)
-			{
-				componentArray[indexOfRemoved] = componentArray[indexOfLast];
-
-				unsigned int lastEntityID = indexToEntityMap[indexOfLast];
-				entityToIndexMap[lastEntityID] = indexOfRemoved;
-				indexToEntityMap[indexOfRemoved] = lastEntityID;
-			}
-			componentArray.pop_back();
+			auto indexOfRemoved = entityToIndexMap[entityID];
+			chunkedArray.Remove(ECS::ChunkedID(indexOfRemoved));
 			entityToIndexMap.erase(entityID);
-			indexToEntityMap.erase(indexOfLast);
-
+			indexToEntityMap.erase(indexOfRemoved);
 		}
 		void Create(unsigned int entityID) override
 		{
@@ -40,19 +29,18 @@ namespace ECS
 				return;
 			}
 
-			size_t newIndex = componentArray.size();
-			entityToIndexMap[entityID] = newIndex;
-			indexToEntityMap[newIndex] = entityID;
-
-			componentArray.push_back(T());
+			ChunkedID id = chunkedArray.Add();
+			entityToIndexMap[entityID] = id.value;
+			indexToEntityMap[id.value] = entityID;
 		}
 
 		void* Get(unsigned int entityID)
 		{
 			if (entityToIndexMap.find(entityID) != entityToIndexMap.end())
 			{
-				size_t realIndex = entityToIndexMap[entityID];
-				return static_cast<void*>(&componentArray[realIndex]);
+				auto id = ECS::ChunkedID(entityToIndexMap[entityID]);
+				auto Data = chunkedArray.Get(id);
+				return static_cast<void*>(Data);
 			}
 			else
 			{
@@ -69,15 +57,19 @@ namespace ECS
 			return componentArray;
 		}
 
+		ChunkedArray<T, 128>& GetChunk()
+		{
+			return chunkedArray;
+		}
 		void Update()
 		{
 
 		}
 	private:
 		std::vector<T> componentArray;
-
-		std::unordered_map<unsigned int, size_t> entityToIndexMap;
-		std::unordered_map<size_t, unsigned int> indexToEntityMap;
+		ChunkedArray<T, 128> chunkedArray;
+		std::unordered_map<unsigned int, unsigned int> entityToIndexMap;
+		std::unordered_map<unsigned int, unsigned int> indexToEntityMap;
 	};
 }
 

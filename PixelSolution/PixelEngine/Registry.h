@@ -5,6 +5,7 @@
 #include <typeindex>
 #include "IComponentArray.h"
 #include "ComponentArray.h"
+#include "ChunkedArray.h"
 namespace ECS
 {
 	class Registry
@@ -25,6 +26,7 @@ namespace ECS
 				componentArrays.insert({ key,new ComponentArray<T>() });
 			}
 			componentArrays[key]->Create(entityID);
+
 		};
 		template<typename T>
 		T* Get(unsigned int entityID)
@@ -38,6 +40,18 @@ namespace ECS
 			}
 			return nullptr;
 		}
+		template<typename T>
+		bool Has(unsigned int entityID)
+		{
+			std::type_index key = typeid(T);
+			auto find = componentArrays.find(key);
+			if (find == componentArrays.end())
+			{
+				return false;
+			}
+			return true;
+		}
+
 
 		template<typename T>
 		unsigned int GetEntityID(int index)
@@ -64,8 +78,26 @@ namespace ECS
 			auto* realChild = static_cast<ComponentArray<T>*>(componentArrays[key]);
 			return realChild->GetArray();
 		}
+
+
+		template<typename T>
+		ChunkedArray<T, 128>& GetChunkedArray()
+		{
+			std::type_index key = std::type_index(typeid(T));
+			auto find = componentArrays.find(key);
+
+			if (find == componentArrays.end())
+			{
+				componentArrays[key] = new ComponentArray<T>();
+			}
+
+			auto* realChild = static_cast<ComponentArray<T>*>(componentArrays[key]);
+			return realChild->GetChunk();
+		}
 	private:
 		std::unordered_map<std::type_index, IComponentArray*> componentArrays;
+		const int maxsize = 128;
 	};
+
 }
 

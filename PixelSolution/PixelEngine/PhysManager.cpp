@@ -448,13 +448,14 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
 	transformData->position.x = pos.GetX();
 	transformData->position.y = pos.GetY();
 	transformData->position.z = pos.GetZ();
-	transformData->rotation.x = rot.GetX(); // 마이너스
-	transformData->rotation.y = rot.GetY(); // 마이너스
-	transformData->rotation.z = rot.GetZ(); // 마이너스
-	transformData->rotation.w = rot.GetW();
-	glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), glm::vec3(transformData->position.x, transformData->position.y, transformData->position.z));
-	glm::mat4 rotationMat = glm::mat4_cast(glm::quat(transformData->rotation.w, transformData->rotation.x, transformData->rotation.y, transformData->rotation.z));
-	worldData->world = translationMat * rotationMat;
+
+	//transformData->rotation.x = rot.GetX(); // 마이너스
+	//transformData->rotation.y = rot.GetY(); // 마이너스
+	//transformData->rotation.z = rot.GetZ(); // 마이너스
+	//transformData->rotation.w = rot.GetW();
+	//glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), glm::vec3(transformData->position.x, transformData->position.y, transformData->position.z));
+	//glm::mat4 rotationMat = glm::mat4_cast(glm::quat(transformData->rotation.w, transformData->rotation.x, transformData->rotation.y, transformData->rotation.z));
+	//worldData->world = translationMat * rotationMat;
 	DebugDraw(id);
 }
 

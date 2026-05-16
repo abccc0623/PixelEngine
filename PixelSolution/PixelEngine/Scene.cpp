@@ -9,7 +9,6 @@
 #include "Export/PixelEngineAPI.h"
 #include "LuaSceneInfo.h"
 
-#include "EntityArray.h"
 #include "Registry.h"
 #include "SystemManager.h"
 
@@ -29,7 +28,6 @@ void Scene::Initialize(const std::string& luaPath, const std::string& name)
 	auto lua = Engine->GetFactory<LuaManager>();
 	info = lua->GetSceneLua(name);
 
-	entityArray = new ECS::EntityArray();
 	registry = new ECS::Registry();
 	system = new ECS::SystemManager();
 }
@@ -50,7 +48,6 @@ void Scene::Update()
 	{
 		info->Update();
 	}
-	//entityArray->Update();
 	system->Update(registry);
 }
 
@@ -62,25 +59,24 @@ void Scene::Release()
 	}
 	system->Release();
 
-	delete entityArray;
 	delete registry;
 	delete system;
-
 	delete this;
 }
 
 uint32_t Scene::CreateEntity(const std::string& scriptName)
 {
 	PixelLog::Info("[" + sceneName + "] CreateEntity :" + scriptName);
-	return entityArray->Create(scriptName);
+	ECS::ChunkedID id = Chunked.Add();
+	ECS::Entity* entity = Chunked.Get(id);
+	entity->Create(scriptName, id.value);
+	return id.value;
 }
 
 void Scene::DestroyEntity(uint32_t id)
 {
 	PixelLog::Info("[" + sceneName + "] DeleteEntity");
-	ECS::EntityID entityID(id);
 	registry->Remove(id);
-	entityArray->Destroy(entityID);
 }
 
 ECS::Registry* Scene::GetRegistry()

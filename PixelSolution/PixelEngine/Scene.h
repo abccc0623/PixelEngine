@@ -2,10 +2,9 @@
 #include "sol.hpp"
 #include <unordered_map>
 #include <vector>
+#include "ChunkedArray.h"
+#include "Entity.h"
 
-
-template <typename T> class SPointer;
-template <typename T> class WPointer;
 struct RenderingData;
 class GameObject;
 class LuaManager;
@@ -15,7 +14,6 @@ class LuaSceneInfo;
 
 namespace ECS
 {
-	class EntityArray;
 	class Registry;
 	class SystemManager;
 }
@@ -39,7 +37,7 @@ private:
 	std::string path;
 	LuaSceneInfo* info;
 private:
-	ECS::EntityArray* entityArray;
+	ECS::ChunkedArray<ECS::Entity, 1> Chunked;
 	ECS::Registry* registry;
 	ECS::SystemManager* system;
 };

@@ -45,13 +45,9 @@ inline void Generate_Debug(sol::state& lua)
 inline void Generate_Transform(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Transform");
-	ut["Add"] = &ECS::Transform::Add;
-	ut["SetPosition"] = &ECS::Transform::SetPosition;
-	ut["SetRotation"] = &ECS::Transform::SetRotation;
-	ut["SetScale"] = &ECS::Transform::SetScale;
-	ut["AddPosition"] = &ECS::Transform::AddPosition;
-	ut["AddRotation"] = &ECS::Transform::AddRotation;
-	ut["AddScale"] = &ECS::Transform::AddScale;
+	ut["AddComponent"] = &ECS::Transform::AddComponent;
+	ut["GetComponent"] = &ECS::Transform::GetComponent;
+	ut["HasComponent"] = &ECS::Transform::HasComponent;
 }
 inline void Generate_Renderer2D(sol::state& lua)
 {

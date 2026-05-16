@@ -18,7 +18,7 @@
 #include "GenerateLuaBind.h"
 #include "PixelEngineAPI.h"
 #include "resource.h"
-
+#include <filesystem>
 
 #define SOL_ALL_SAFETIES_ON 1 // 안전장치 활성화 (권장)
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
@@ -174,6 +174,15 @@ void LuaManager::CreateLuaManager()
 			RemoveFunction = luaManager["Remove"];
 
 		}
+	}
+
+	auto target = std::filesystem::current_path();
+	std::filesystem::path scriptPath = target / "Asset" / "Engine" / "Transform.lua";
+	result = lua.safe_script_file(scriptPath.string());
+	if (!result.valid())
+	{
+		sol::error err = result;
+		PixelLog::Error(err.what());
 	}
 }
 

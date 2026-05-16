@@ -58,13 +58,11 @@ void BindManager::Initialize()
 	AddGlobalMethod(globaDebug, "LogWarning", GeGlobalMethodInfo(&LogWarning), MetaFlag::LUABIND);
 
 	PStatic* globalTransform = CreateNewStatic("Transform");
-	AddGlobalMethod(globalTransform, "Add", GeGlobalMethodInfo(&ECS::Transform::Add), MetaFlag::LUABIND);
-	AddGlobalMethod(globalTransform, "SetPosition", GeGlobalMethodInfo(&ECS::Transform::SetPosition), MetaFlag::LUABIND);
-	AddGlobalMethod(globalTransform, "SetRotation", GeGlobalMethodInfo(&ECS::Transform::SetRotation), MetaFlag::LUABIND);
-	AddGlobalMethod(globalTransform, "SetScale", GeGlobalMethodInfo(&ECS::Transform::SetScale), MetaFlag::LUABIND);
-	AddGlobalMethod(globalTransform, "AddPosition", GeGlobalMethodInfo(&ECS::Transform::AddPosition), MetaFlag::LUABIND);
-	AddGlobalMethod(globalTransform, "AddRotation", GeGlobalMethodInfo(&ECS::Transform::AddRotation), MetaFlag::LUABIND);
-	AddGlobalMethod(globalTransform, "AddScale", GeGlobalMethodInfo(&ECS::Transform::AddScale), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "AddComponent", GeGlobalMethodInfo(&ECS::Transform::AddComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "GetComponent", GeGlobalMethodInfo(&ECS::Transform::GetComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "HasComponent", GeGlobalMethodInfo(&ECS::Transform::HasComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "BindJit", GeGlobalMethodInfo(&ECS::Transform::BindJit), MetaFlag::LUABIND);
+
 
 	PStatic* globalRenderer2D = CreateNewStatic("Renderer2D");
 	AddGlobalMethod(globalRenderer2D, "Add", GeGlobalMethodInfo(&ECS::Renderer2D::Add), MetaFlag::LUABIND);

@@ -17,32 +17,32 @@ ECS::TransformSystem::~TransformSystem()
 
 void ECS::TransformSystem::Update(ECS::Registry* registry)
 {
-	auto& transformarray = registry->GetArray<ECS::Transform::TransformData>();
-
-	int size = transformarray.size();
-	for (int i = 0; i < size; i++)
-	{
-		if (transformarray[i].bitmask & 0x01)
+	auto& T = registry->GetChunkedArray<ECS::Transform::TransformData>();
+	T.ForEach([registry](ECS::Transform::TransformData* data, size_t index)
 		{
-			auto id = registry->GetEntityID<ECS::Transform::TransformData>(i);
-			auto worldData = registry->Get<ECS::Transform::WorldData>(id);
-			if (worldData == nullptr) continue;
+			//if (data->bitmask & 0x01)
+			{
+				glm::vec3 eulerAngles(data->rotation.x, data->rotation.y, data->rotation.z);
 
-			glm::vec3 pos(transformarray[i].position.x, transformarray[i].position.y, transformarray[i].position.z);
-			glm::quat rot(transformarray[i].rotation.w, transformarray[i].rotation.x, transformarray[i].rotation.y, transformarray[i].rotation.z);
-			glm::vec3 scl(transformarray[i].scale.x, transformarray[i].scale.y, transformarray[i].scale.z);
+				glm::vec3 pos(data->position.x, data->position.y, data->position.z);
+				glm::quat rot(eulerAngles);
+				glm::vec3 scl(data->scale.x, data->scale.y, data->scale.z);
 
-			// 3. T(이동), R(회전), S(크기) 개별 행렬 생성
-			glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), pos);
-			glm::mat4 rotationMatrix = glm::mat4_cast(rot);
-			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scl);
+				glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), pos);
+				glm::mat4 rotationMatrix = glm::mat4_cast(rot);
+				glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scl);
 
-			glm::mat4 worldMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+				glm::mat4 worldMatrix = translationMatrix * rotationMatrix * scaleMatrix;
 
-			worldData->world = worldMatrix;
-			transformarray[i].bitmask &= ~0x01;
-		}
-	}
+				auto id = registry->GetEntityID<ECS::Transform::TransformData>(index);
+				auto world = registry->Get<ECS::Transform::WorldData>(id);
+				if (world != nullptr)
+				{
+					world->world = worldMatrix;
+					data->bitmask &= ~0x01;
+				}
+			}
+		});
 }
 
 void ECS::TransformSystem::Release()

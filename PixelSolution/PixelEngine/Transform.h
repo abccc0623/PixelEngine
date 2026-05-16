@@ -9,7 +9,8 @@ namespace ECS::Transform
 		Pixel::Vector3 position{ 0.0f, 0.0f, 0.0f };
 		unsigned int bitmask = 1;
 
-		Pixel::Vector4 rotation{ 0.0f, 0.0f, 0.0f, 1.0f };
+		Pixel::Vector3 rotation{ 0.0f, 0.0f, 0.0f };
+		unsigned int unused1;
 
 		Pixel::Vector3 scale{ 1.0f, 1.0f, 1.0f };
 		unsigned int  unused2;
@@ -19,11 +20,8 @@ namespace ECS::Transform
 		Pixel::Matrix4x4 world;
 	};
 
-	void Add(unsigned int id);
-	void SetPosition(unsigned int id, float x, float y, float z);
-	void SetRotation(unsigned int id, float x, float y, float z);
-	void SetScale(unsigned int id, float x, float y, float z);
-	void AddPosition(unsigned int id, float x, float y, float z);
-	void AddRotation(unsigned int id, float x, float y, float z);
-	void AddScale(unsigned int id, float x, float y, float z);
+	void* AddComponent(unsigned int id);
+	void* GetComponent(unsigned int id);
+	bool HasComponent(unsigned int id);
+	std::string BindJit();
 }
