@@ -172,6 +172,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="Animation2D.h" />
     <ClInclude Include="Animation2DSystem.h" />
     <ClInclude Include="BitMask8.h" />
+    <ClInclude Include="BoxCollider2D.h" />
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="ChunkedArray.h" />
     <ClInclude Include="Collider2D.h" />
@@ -249,6 +250,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="Animation2DSystem.cpp" />
     <ClCompile Include="BindManager.cpp" />
     <ClCompile Include="BitMask8.cpp" />
+    <ClCompile Include="BoxCollider2D.cpp" />
     <ClCompile Include="CameraSystem.cpp" />
     <ClCompile Include="Collider2D.cpp" />
     <ClCompile Include="Collider2DSystem.cpp" />

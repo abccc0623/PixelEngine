@@ -5,13 +5,19 @@ namespace ECS::Renderer2D
 {
 	struct Renderer2DData
 	{
-		RenderingData renderingData;
+		RenderingData* renderingData;
+		Renderer2DData() { renderingData = new RenderingData(); };
+		~Renderer2DData() { delete renderingData; };
+		float TilingX = 1.0f;
+		float TilingY = 1.0f;
+		float OffsetX = 1.0f;
+		float OffsetY = 1.0f;
 	};
-	void Add(unsigned int id);
+
+	void* AddComponent(unsigned int id);
+	void* GetComponent(unsigned int id);
+	bool HasComponent(unsigned int id);
 	void SetTexture(unsigned int id, const char* name);
-	void SetTextureOffset(unsigned int id, float OffsetX, float OffsetY);
-	void AddTextureOffset(unsigned int id, float OffsetX, float OffsetY);
-	void SetTextureTiling(unsigned int id, float TilingX, float TilingY);
-	void AddTextureTiling(unsigned int id, float TilingX, float TilingY);
+	std::string BindJit();
 }
 

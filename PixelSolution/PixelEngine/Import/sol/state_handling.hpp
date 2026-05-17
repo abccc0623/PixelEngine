@@ -94,8 +94,8 @@ namespace sol {
 	}
 
 	inline void set_default_state(lua_State* L, lua_CFunction panic_function = &default_at_panic,
-	     lua_CFunction traceback_function = c_call<decltype(&default_traceback_error_handler), &default_traceback_error_handler>,
-	     exception_handler_function exf = detail::default_exception_handler) {
+		lua_CFunction traceback_function = c_call<decltype(&default_traceback_error_handler), &default_traceback_error_handler>,
+		exception_handler_function exf = detail::default_exception_handler) {
 		lua_atpanic(L, panic_function);
 		protected_function::set_default_handler(object(L, in_place, traceback_function));
 		set_default_exception_handler(L, exf);

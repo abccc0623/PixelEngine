@@ -7,8 +7,11 @@ public:
 	virtual ~LuaCreate();
 	void Generate(const char* outPath, std::vector<PixelClassMeta>& types) override;
 	std::string CreateComponent(PixelClassMeta& meta);
-	std::string ComponentFunctionSTR(std::string name);
-private:
 
+	void ComponentLinkFile();
+	void Vector3File();
+	void Vector2File();
+private:
+	std::string GenerateComponentFileName;
 };
 

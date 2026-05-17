@@ -4,6 +4,7 @@
 #include "Registry.h"
 #include "Rigidbody2D.h"
 #include "Collider2D.h"
+#include "BoxCollider2D.h"
 #include "PixelEngine.h"
 #include "PhysManager.h"
 extern PixelEngine* Engine;
@@ -18,37 +19,30 @@ ECS::Rigidbody2DSystem::~Rigidbody2DSystem()
 
 void ECS::Rigidbody2DSystem::Update(ECS::Registry* registry)
 {
-	//auto& collider2DArray = registry->GetArray<ECS::Rigidbody2D::Rigidbody2DData>();
-	//int size = collider2DArray.size();
-	//for (int i = 0; i < size; i++)
-	//{
-	//	auto id = registry->GetEntityID<ECS::Rigidbody2D::Rigidbody2DData>(i);
-	//	auto data = registry->Get<Collider2D::Collider2DData>(id);
-	//	if (data != nullptr)
-	//	{
-	//		//생성한다
-	//		if (data->IsCreate == false && collider2DArray[i].IsCreate == false)
-	//		{
-	//			auto shape = phys->CreateCollider(data);
-	//			auto bodyID = phys->CreateRigidbody(&collider2DArray[i], shape, id);
-	//			collider2DArray[i].bodyID = bodyID.GetIndexAndSequenceNumber();
-	//			data->IsChange = false;
-	//			data->IsCreate = true;
-	//			collider2DArray[i].IsCreate = true;
-	//		}
-	//
-	//		//생성되었고 변경도 된 애들
-	//		if (collider2DArray[i].IsCreate == true && collider2DArray[i].IsChange == true)
-	//		{
-	//			collider2DArray[i].IsChange = false;
-	//		}
-	//
-	//		if (collider2DArray[i].IsCreate == true)
-	//		{
-	//			phys->SyncPhysics(JPH::BodyID(collider2DArray[i].bodyID));
-	//		}
-	//	}
-	//}
+	auto phys = Engine->GetFactory<PhysManager>();
+	auto& Chunked = registry->GetChunkedArray<ECS::Rigidbody2D::Rigidbody2DData>();
+	Chunked.ForEach([registry, phys](ECS::Rigidbody2D::Rigidbody2DData* data, size_t index)
+		{
+			if (data->IsCreate == false)
+			{
+				ECS::Collider2D::Collider2DData collider;
+				auto id = registry->GetEntityID<ECS::Rigidbody2D::Rigidbody2DData>(index);
+				if (registry->Has<ECS::BoxCollider2D::BoxCollider2DData>(id))
+				{
+					auto box = registry->Get<ECS::BoxCollider2D::BoxCollider2DData>(id);
+					collider.type = ECS::Collider2D::Collider2DType::BOX;
+					collider.BoxOffset = box->Offset;
+					collider.Center = box->Center;
+				}
+
+				auto shape = phys->CreateCollider(&collider);
+				auto bodyID = phys->CreateRigidbody(data, shape, id);
+				data->bodyID = bodyID.GetIndexAndSequenceNumber();
+				data->IsCreate = true;
+			}
+			phys->SetVelocity(JPH::BodyID(data->bodyID), data->velocity.x, data->velocity.y, data->velocity.z);
+			phys->SyncPhysics(JPH::BodyID(data->bodyID));
+		});
 }
 
 void ECS::Rigidbody2DSystem::Release()

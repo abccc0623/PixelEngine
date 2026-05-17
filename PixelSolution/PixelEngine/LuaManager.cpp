@@ -57,6 +57,15 @@ void LuaManager::Initialize()
 	bind = Engine->GetFactory<BindManager>();
 	input = Engine->GetFactory<KeyInputManager>();
 
+	auto target = std::filesystem::current_path();
+	std::filesystem::path scriptRoot = target / "Asset" / "Engine";
+
+	std::string scriptRootStr = scriptRoot.string();
+	std::replace(scriptRootStr.begin(), scriptRootStr.end(), '\\', '/');
+
+	std::string packagePathSetup = "package.path = package.path .. ';" + scriptRootStr + "/?.lua'";
+	lua.script(packagePathSetup);
+
 	BindAll_GeneratedLuaModules(lua);
 	CreateLuaManager();
 }
@@ -177,12 +186,19 @@ void LuaManager::CreateLuaManager()
 	}
 
 	auto target = std::filesystem::current_path();
-	std::filesystem::path scriptPath = target / "Asset" / "Engine" / "Transform.lua";
-	result = lua.safe_script_file(scriptPath.string());
-	if (!result.valid())
+	std::filesystem::path scriptPath = target / "Asset" / "Engine" / "EngineGenerate.lua";
+	if (std::filesystem::exists(scriptPath))
 	{
-		sol::error err = result;
-		PixelLog::Error(err.what());
+		result = lua.safe_script_file(scriptPath.string());
+		if (!result.valid())
+		{
+			sol::error err = result;
+			PixelLog::Error(err.what());
+		}
+	}
+	else
+	{
+		PixelLog::Error("Cannot find the Lua file in the engine folder.");
 	}
 }
 

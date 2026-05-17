@@ -25,9 +25,14 @@ void ECS::Renderer2DSystem::Update(Registry* registry)
 			auto world = registry->Get<ECS::Transform::WorldData>(id);
 			if (world != nullptr)
 			{
+				data->renderingData->sprite.OffsetX = data->OffsetX;
+				data->renderingData->sprite.OffsetY = data->OffsetY;
+				data->renderingData->sprite.TilingX = data->TilingX;
+				data->renderingData->sprite.TilingY = data->TilingY;
+
 				const float* sourcePtr = glm::value_ptr(world->world);
-				std::copy(sourcePtr, sourcePtr + 16, data->renderingData.World);
-				SetRenderingData(data->renderingData);
+				std::copy(sourcePtr, sourcePtr + 16, data->renderingData->World);
+				SetRenderingData(*data->renderingData);
 			}
 		});
 }

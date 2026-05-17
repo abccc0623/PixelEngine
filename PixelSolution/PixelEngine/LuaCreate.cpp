@@ -13,6 +13,8 @@ LuaCreate::~LuaCreate()
 
 void LuaCreate::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
 {
+	Vector2File();
+	Vector3File();
 	for (auto& K : types)
 	{
 		switch (K.metaType)
@@ -22,6 +24,7 @@ void LuaCreate::Generate(const char* outPath, std::vector<PixelClassMeta>& types
 			break;
 		}
 	}
+	ComponentLinkFile();
 }
 
 std::string GetEngineRootPath()
@@ -45,23 +48,52 @@ std::string LuaCreate::CreateComponent(PixelClassMeta& meta)
 		meta.thisName != "Input" &&
 		meta.thisName != "Debug")
 	{
-		luaFile += "local ffi = require(\"ffi\")\n\n\n";
-
-		luaFile += "ffi.cdef[[\n";
-		if (meta.thisName == "Transform")
+		int size = meta.methods.size();
+		std::string function = "";
+		for (int i = 0; i < size; i++)
 		{
-			PType* type = GetType(meta.thisName);
-			std::vector<void*> property;
-			PValue value = CallMethod(type, 3, nullptr, property);
-			luaFile += value.v_string;
+			if (meta.methods[i].name == "BindJit")
+			{
+				luaFile += "local ffi = require(\"ffi\")\n\n";
+				PType* type = GetType(meta.thisName);
+				std::vector<void*> property;
+				PValue value = CallMethod(type, i, nullptr, property);
+				luaFile += value.v_string;
+				luaFile += "\n\n";
+			}
+			else if (meta.methods[i].name == "AddComponent")
+			{
+				std::string fun = "";
+				fun += "function {{CLASS_NAME}}.Add(entityID)\n";
+				fun += "\tlocal rawPtr = {{CLASS_NAME}}.AddComponent(entityID)\n";
+				fun += "\tif rawPtr == nil then return nil end\n";
+				fun += "\treturn ffi.cast(\"{{CLASS_NAME}}Data*\", rawPtr)\n";
+				fun += "end\n\n";
+				function += ReplaceAll(fun, "CLASS_NAME", meta.thisName);
+			}
+			else if (meta.methods[i].name == "GetComponent")
+			{
+				std::string fun = "";
+				fun += "function {{CLASS_NAME}}.Get(entityID)\n";
+				fun += "\tlocal rawPtr = {{CLASS_NAME}}.GetComponent(entityID)\n";
+				fun += "\tif rawPtr == nil then return nil end\n";
+				fun += "\treturn ffi.cast(\"{{CLASS_NAME}}Data*\", rawPtr)\n";
+				fun += "end\n\n";
+				function += ReplaceAll(fun, "CLASS_NAME", meta.thisName);
+			}
+			else if (meta.methods[i].name == "HasComponent")
+			{
+				std::string fun = "";
+				fun += "function {{CLASS_NAME}}.Has(entityID)\n";
+				fun += "\treturn {{CLASS_NAME}}.HasComponent(entityID)\n";
+				fun += "end\n\n";
+				function += ReplaceAll(fun, "CLASS_NAME", meta.thisName);
+			}
 		}
-		luaFile += "]]\n\n";
 
 		luaFile += meta.thisName + " = " + meta.thisName + " or {}\n";
-		luaFile += ComponentFunctionSTR(meta.thisName);
-
-
-
+		luaFile += function;
+		GenerateComponentFileName += "require(\"" + meta.thisName + "\")\n";
 		std::string root = GetEngineRootPath() + "\\Asset\\Engine\\" + meta.thisName + ".lua";
 		std::ofstream file(root);
 		file << luaFile;
@@ -71,24 +103,170 @@ std::string LuaCreate::CreateComponent(PixelClassMeta& meta)
 	return luaFile;
 }
 
-std::string LuaCreate::ComponentFunctionSTR(std::string name)
+void LuaCreate::ComponentLinkFile()
 {
-	std::string fun = "";
-	fun += "function {{CLASS_NAME}}.Add(entityID)\n";
-	fun += "\tlocal rawPtr = {{CLASS_NAME}}.AddComponent(entityID)\n";
-	fun += "\tif rawPtr == nil then return nil end\n";
-	fun += "\treturn ffi.cast(\"{{CLASS_NAME}}Data*\", rawPtr)\n";
-	fun += "end\n\n";
+	std::string root = GetEngineRootPath() + "\\Asset\\Engine\\EngineGenerate.lua";
+	std::string jit = "";
+	jit += GenerateComponentFileName;
 
-	fun += "function {{CLASS_NAME}}.Get(entityID)\n";
-	fun += "\tlocal rawPtr = {{CLASS_NAME}}.GetComponent(entityID)\n";
-	fun += "\tif rawPtr == nil then return nil end\n";
-	fun += "\treturn ffi.cast(\"{{CLASS_NAME}}Data*\", rawPtr)\n";
-	fun += "end\n\n";
+	std::ofstream file(root);
+	file << jit;
+	file.close();
+}
 
-	fun += "function {{CLASS_NAME}}.Has(entityID)\n";
-	fun += "\treturn {{CLASS_NAME}}.HasComponent(entityID)\n";
-	fun += "end\n\n";
+void LuaCreate::Vector3File()
+{
+	std::filesystem::path root = std::filesystem::path(GetEngineRootPath()) / "Asset" / "Engine" / "Vector3.lua";
 
-	return ReplaceAll(fun, "CLASS_NAME", name);
+	std::string jit = R"(
+local ffi = require("ffi")
+
+ffi.cdef[[
+    typedef struct { float x, y, z; } Vector3;
+]]
+
+local Vector3_mt = {
+    __add = function(a, b) return ffi.new("Vector3", a.x + b.x, a.y + b.y, a.z + b.z) end,
+    __sub = function(a, b) return ffi.new("Vector3", a.x - b.x, a.y - b.y, a.z - b.z) end,
+    __mul = function(a, b)
+        if type(a) == "number" then
+            return ffi.new("Vector3", a * b.x, a * b.y, a * b.z)
+        elseif type(b) == "number" then
+            return ffi.new("Vector3", a.x * b, a.y * b, a.z * b)
+        end
+    end,
+	__eq = function(a, b)
+        local epsilon = 0.00001
+        return math.abs(a.x - b.x) < epsilon and 
+               math.abs(a.y - b.y) < epsilon and 
+               math.abs(a.z - b.z) < epsilon
+	end,
+    
+    __index = {
+        Length = function(self)
+            return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+        end,
+        Normalize = function(self)
+            local len = self:Length()
+            if len > 0.00001 then
+                return ffi.new("Vector3", self.x / len, self.y / len, self.z / len)
+            end
+            return ffi.new("Vector3", 0, 0, 0)
+        end,
+        Dot = function(self, other)
+            return (self.x * other.x) + (self.y * other.y) + (self.z * other.z)
+        end,
+        Cross = function(self, other)
+            return ffi.new("Vector3",
+                (self.y * other.z) - (self.z * other.y),
+                (self.z * other.x) - (self.x * other.z),
+                (self.x * other.y) - (self.y * other.x)
+            )
+        end,
+
+		IsZero = function(self)
+            local epsilon = 0.00001
+            return math.abs(self.x) < epsilon and 
+                   math.abs(self.y) < epsilon and 
+                   math.abs(self.z) < epsilon
+		end,
+    }
+}
+
+ffi.metatype("Vector3", Vector3_mt)
+
+Vector3 = function(x, y, z)
+    return ffi.new("Vector3", x or 0, y or 0, z or 0)
+end
+)";
+
+	// 파일 출력
+	std::ofstream file(root);
+	if (file.is_open())
+	{
+		file << jit;
+		file.close();
+		GenerateComponentFileName += "require(\"Vector3\")\n";
+	}
+	else
+	{
+		// 파일 쓰기 실패 방어 로직
+		PixelLog::Error("Failed to create Vector3.lua at: " + root.string());
+	}
+}
+
+void LuaCreate::Vector2File()
+{
+	std::filesystem::path root = std::filesystem::path(GetEngineRootPath()) / "Asset" / "Engine" / "Vector2.lua";
+
+	std::string jit = R"(
+local ffi = require("ffi")
+
+ffi.cdef[[
+    typedef struct { float x, y; } Vector2;
+]]
+
+local Vector2_mt = {
+    __add = function(a, b) return ffi.new("Vector2", a.x + b.x, a.y + b.y) end,
+    __sub = function(a, b) return ffi.new("Vector2", a.x - b.x, a.y - b.y) end,
+    __mul = function(a, b)
+        if type(a) == "number" then
+            return ffi.new("Vector2", a * b.x, a * b.y)
+        elseif type(b) == "number" then
+            return ffi.new("Vector2", a.x * b, a.y * b)
+        end
+    end,
+    __eq = function(a, b)
+        local epsilon = 0.00001
+        return math.abs(a.x - b.x) < epsilon and 
+               math.abs(a.y - b.y) < epsilon
+    end,
+    
+    __index = {
+        Length = function(self)
+            return math.sqrt(self.x * self.x + self.y * self.y)
+        end,
+        Normalize = function(self)
+            local len = self:Length()
+            if len > 0.00001 then
+                return ffi.new("Vector2", self.x / len, self.y / len)
+            end
+            return ffi.new("Vector2", 0, 0)
+        end,
+        Dot = function(self, other)
+            return (self.x * other.x) + (self.y * other.y)
+        end,
+        
+        Cross = function(self, other)
+            return (self.x * other.y) - (self.y * other.x)
+        end,
+
+        IsZero = function(self)
+            local epsilon = 0.00001
+            return math.abs(self.x) < epsilon and 
+                   math.abs(self.y) < epsilon
+        end,
+    }
+}
+
+ffi.metatype("Vector2", Vector2_mt)
+
+Vector2 = function(x, y)
+    return ffi.new("Vector2", x or 0, y or 0)
+end
+)";
+
+	// 파일 출력
+	std::ofstream file(root);
+	if (file.is_open())
+	{
+		file << jit;
+		file.close();
+		GenerateComponentFileName += "require(\"Vector2\")\n";
+	}
+	else
+	{
+		// 파일 쓰기 실패 방어 로직
+		PixelLog::Error("Failed to create Vector2.lua at: " + root.string());
+	}
 }

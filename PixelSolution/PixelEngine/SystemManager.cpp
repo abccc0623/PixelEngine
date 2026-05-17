@@ -18,7 +18,7 @@ void ECS::SystemManager::Initialize()
 	SystemList.push_back(new TransformSystem());
 	SystemList.push_back(new CameraSystem());
 	SystemList.push_back(new Animation2DSystem);
-	SystemList.push_back(new Collider2DSystem);
+	//SystemList.push_back(new Collider2DSystem);
 	SystemList.push_back(new Rigidbody2DSystem);
 	SystemList.push_back(new Renderer2DSystem);
 }

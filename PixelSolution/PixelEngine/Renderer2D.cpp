@@ -5,17 +5,52 @@
 #include "PixelEngine.h"
 #include "ResourceManager.h"
 extern PixelEngine* Engine;
-void ECS::Renderer2D::Add(unsigned int id)
+void* ECS::Renderer2D::AddComponent(unsigned int id)
 {
 	auto registry = GetRegistry();
 	registry->AddComponent<Renderer2DData>(id);
 	auto data = registry->Get<Renderer2DData>(id);
-	data->renderingData.Type = RENDER_TYPE::QUAD;
-	data->renderingData.sprite.TilingX = 1.0f;
-	data->renderingData.sprite.TilingY = 1.0f;
-	data->renderingData.sprite.OffsetX = 1.0f;
-	data->renderingData.sprite.OffsetY = 1.0f;
-	//data->renderingData.sprite.isShared = true;
+	data->renderingData->Type = QUAD;
+	return data;
+}
+void* ECS::Renderer2D::GetComponent(unsigned int id)
+{
+	auto registry = GetRegistry();
+	Renderer2DData* data = registry->Get<Renderer2DData>(id);
+	if (data == nullptr)
+	{
+		PixelLog::Error("[Transform][GetComponent] Not Find Component");
+	}
+	return data;
+}
+bool ECS::Renderer2D::HasComponent(unsigned int id)
+{
+	auto registry = GetRegistry();
+	Renderer2DData* data = registry->Get<Renderer2DData>(id);
+	if (data == nullptr)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+std::string ECS::Renderer2D::BindJit()
+{
+	std::string jit = R"(
+ffi.cdef[[
+    typedef struct 
+    { 
+        const void* const renderingData;
+        float TilingX; 
+        float TilingY; 
+        float OffsetX; 
+        float OffsetY; 
+    } Renderer2DData;
+]]
+    )";
+	return jit;
 }
 
 void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
@@ -26,7 +61,7 @@ void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
 	{
 		std::string textureName(name);
 		auto textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
-		data->renderingData.texture_key = textureID;
+		data->renderingData->texture_key = textureID;
 	}
 	else
 	{
@@ -34,22 +69,3 @@ void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
 	}
 }
 
-void ECS::Renderer2D::SetTextureOffset(unsigned int id, float OffsetX, float OffsetY)
-{
-
-}
-
-void ECS::Renderer2D::AddTextureOffset(unsigned int id, float OffsetX, float OffsetY)
-{
-
-}
-
-void ECS::Renderer2D::SetTextureTiling(unsigned int id, float TilingX, float TilingY)
-{
-
-}
-
-void ECS::Renderer2D::AddTextureTiling(unsigned int id, float TilingX, float TilingY)
-{
-
-}

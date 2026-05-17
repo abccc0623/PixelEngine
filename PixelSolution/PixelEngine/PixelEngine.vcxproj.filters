@@ -348,6 +348,9 @@
     <ClInclude Include="LuaCreate.h">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClInclude>
+    <ClInclude Include="BoxCollider2D.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -508,6 +511,9 @@
     </ClCompile>
     <ClCompile Include="LuaCreate.cpp">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxCollider2D.cpp">
+      <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -30,22 +30,29 @@ namespace ECS::Rigidbody2D
 		bool IsChange = false;
 		bool IsCreate = false;
 
-		Pixel::Vector3 position = { 0,0,0 };
-		Pixel::Vector3 rotation = { 0,0,0 };
+		Pixel::Vector3 velocity = { 0,0,0 };
+		Pixel::Vector3 pos = { 0,0,0 };
+		Pixel::Vector3 rot = { 0,0,0 };
 		unsigned int bodyID;
 	};
-	void Add(unsigned int id);
-	void SetMotionType(unsigned int id, MotionType type);
-	void SetPosition(unsigned int id, float x, float y, float z);
-	void SetRotation(unsigned int id, float x, float y, float z);
-	void SetKinematic(unsigned int id, bool Kinematic);
-	void SetAutoSleep(unsigned int id, bool AutoSleep);
-	void SetSensor(unsigned int id, bool Sensor);
-	void SetGravity(unsigned int id, float Gravity);
-	void SetRestitution(unsigned int id, float Restitution);
-	void SetFriction(unsigned int id, float Friction);
-	void SetLinearDamping(unsigned int id, float LinearDamping);
-	void SetPositionLock(unsigned int id, bool x, bool y, bool z);
-	void SetRotationLock(unsigned int id, bool x, bool y, bool z);
+	void* AddComponent(unsigned int id);
+	void* GetComponent(unsigned int id);
+	bool HasComponent(unsigned int id);
+	std::string BindJit();
+
+
+	//void Add(unsigned int id);
+	//void SetMotionType(unsigned int id, MotionType type);
+	//void SetPosition(unsigned int id, float x, float y, float z);
+	//void SetRotation(unsigned int id, float x, float y, float z);
+	//void SetKinematic(unsigned int id, bool Kinematic);
+	//void SetAutoSleep(unsigned int id, bool AutoSleep);
+	//void SetSensor(unsigned int id, bool Sensor);
+	//void SetGravity(unsigned int id, float Gravity);
+	//void SetRestitution(unsigned int id, float Restitution);
+	//void SetFriction(unsigned int id, float Friction);
+	//void SetLinearDamping(unsigned int id, float LinearDamping);
+	//void SetPositionLock(unsigned int id, bool x, bool y, bool z);
+	//void SetRotationLock(unsigned int id, bool x, bool y, bool z);
 }
 

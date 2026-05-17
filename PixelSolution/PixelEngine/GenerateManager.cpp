@@ -22,6 +22,7 @@ void GenerateManager::Release()
 {
 	delete luaBind;
 	delete lspBind;
+	delete luaCreate;
 }
 
 void GenerateManager::Clear()

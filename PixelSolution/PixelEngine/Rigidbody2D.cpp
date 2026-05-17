@@ -6,6 +6,82 @@
 #include "PhysManager.h"
 
 extern PixelEngine* Engine;
+void* ECS::Rigidbody2D::AddComponent(unsigned int id)
+{
+	auto registry = GetRegistry();
+	registry->AddComponent<Rigidbody2DData>(id);
+	auto data = registry->Get<Rigidbody2DData>(id);
+	return data;
+}
+void* ECS::Rigidbody2D::GetComponent(unsigned int id)
+{
+	auto registry = GetRegistry();
+	Rigidbody2DData* data = registry->Get<Rigidbody2DData>(id);
+	if (data == nullptr)
+	{
+		PixelLog::Error("[Rigidbody2D][GetComponent] Not Find Component");
+	}
+	return data;
+}
+bool ECS::Rigidbody2D::HasComponent(unsigned int id)
+{
+	auto registry = GetRegistry();
+	Rigidbody2DData* data = registry->Get<Rigidbody2DData>(id);
+	if (data == nullptr)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+std::string ECS::Rigidbody2D::BindJit()
+{
+	std::string jit = R"(
+ffi.cdef[[
+	typedef enum {
+        Static = 0,
+		Kinematic = 1,
+        Dynamic = 2,
+    } MotionType;
+
+	typedef struct 
+	{ 
+		MotionType type;
+		bool active;
+		bool kinematic;
+		bool autoSleep;
+		bool sensor;
+		
+		float gravity;
+		float restitution;
+		float friction;
+		float linearDamping;
+
+		bool lockPositionX;
+		bool lockPositionY;
+		bool lockPositionZ;
+		bool lockRotationX;
+		bool lockRotationY;
+		bool lockRotationZ;
+
+		bool IsChange;
+		bool IsCreate;
+
+		Vector3 velocity;
+	    Vector3 pos;
+		Vector3 rot;
+		uint32_t bodyID;
+
+	} Rigidbody2DData;
+]]
+    )";
+	return jit;
+}
+
+
+/*
 void ECS::Rigidbody2D::Add(unsigned int id)
 {
 	auto registry = GetRegistry();
@@ -199,3 +275,4 @@ void ECS::Rigidbody2D::SetRotationLock(unsigned int id, bool x, bool y, bool z)
 		PixelLog::Error("[Rigidbody2D][SetRotationLock] Not Find Component");
 	}
 }
+*/

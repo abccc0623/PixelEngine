@@ -17,6 +17,7 @@
 #include "Animation2D.h"
 #include "Renderer2D.h"
 #include "Collider2D.h"
+#include "BoxCollider2D.h"
 #include "Rigidbody2D.h"
 
 BindManager::BindManager()
@@ -65,15 +66,18 @@ void BindManager::Initialize()
 
 
 	PStatic* globalRenderer2D = CreateNewStatic("Renderer2D");
-	AddGlobalMethod(globalRenderer2D, "Add", GeGlobalMethodInfo(&ECS::Renderer2D::Add), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRenderer2D, "AddComponent", GeGlobalMethodInfo(&ECS::Renderer2D::AddComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRenderer2D, "GetComponent", GeGlobalMethodInfo(&ECS::Renderer2D::GetComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRenderer2D, "HasComponent", GeGlobalMethodInfo(&ECS::Renderer2D::HasComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRenderer2D, "BindJit", GeGlobalMethodInfo(&ECS::Renderer2D::BindJit), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRenderer2D, "SetTexture", GeGlobalMethodInfo(&ECS::Renderer2D::SetTexture), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRenderer2D, "SetTextureOffset", GeGlobalMethodInfo(&ECS::Renderer2D::SetTextureOffset), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRenderer2D, "AddTextureOffset", GeGlobalMethodInfo(&ECS::Renderer2D::AddTextureOffset), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRenderer2D, "SetTextureTiling", GeGlobalMethodInfo(&ECS::Renderer2D::SetTextureTiling), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRenderer2D, "AddTextureTiling", GeGlobalMethodInfo(&ECS::Renderer2D::AddTextureTiling), MetaFlag::LUABIND);
+
 
 	PStatic* globalCamera = CreateNewStatic("Camera");
-	AddGlobalMethod(globalCamera, "Add", GeGlobalMethodInfo(&ECS::Camera::Add), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCamera, "AddComponent", GeGlobalMethodInfo(&ECS::Camera::AddComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCamera, "GetComponent", GeGlobalMethodInfo(&ECS::Camera::GetComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCamera, "HasComponent", GeGlobalMethodInfo(&ECS::Camera::HasComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCamera, "BindJit", GeGlobalMethodInfo(&ECS::Camera::BindJit), MetaFlag::LUABIND);
 
 	PStatic* globalAnimation2D = CreateNewStatic("Animation2D");
 	AddGlobalMethod(globalAnimation2D, "Add", GeGlobalMethodInfo(&ECS::Animation2D::Add), MetaFlag::LUABIND);
@@ -82,26 +86,30 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalAnimation2D, "Stop", GeGlobalMethodInfo(&ECS::Animation2D::Stop), MetaFlag::LUABIND);
 	AddGlobalMethod(globalAnimation2D, "Reset", GeGlobalMethodInfo(&ECS::Animation2D::Reset), MetaFlag::LUABIND);
 
-	PStatic* globalCollider2D = CreateNewStatic("Collider2D");
-	AddGlobalMethod(globalCollider2D, "Add", GeGlobalMethodInfo(&ECS::Collider2D::Add), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCollider2D, "SetBoxOffset", GeGlobalMethodInfo(&ECS::Collider2D::SetBoxOffset), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCollider2D, "SetCircleOffset", GeGlobalMethodInfo(&ECS::Collider2D::SetCircleOffset), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCollider2D, "SetCenter", GeGlobalMethodInfo(&ECS::Collider2D::SetCenter), MetaFlag::LUABIND);
+	PStatic* globalBoxCollider2D = CreateNewStatic("BoxCollider2D");
+	AddGlobalMethod(globalBoxCollider2D, "AddComponent", GeGlobalMethodInfo(&ECS::BoxCollider2D::AddComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalBoxCollider2D, "GetComponent", GeGlobalMethodInfo(&ECS::BoxCollider2D::GetComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalBoxCollider2D, "HasComponent", GeGlobalMethodInfo(&ECS::BoxCollider2D::HasComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalBoxCollider2D, "BindJit", GeGlobalMethodInfo(&ECS::BoxCollider2D::BindJit), MetaFlag::LUABIND);
 
 	PStatic* globalRigidbody2D = CreateNewStatic("Rigidbody2D");
-	AddGlobalMethod(globalRigidbody2D, "Add", GeGlobalMethodInfo(&ECS::Rigidbody2D::Add), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetMotionType", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetMotionType), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPosition), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotation), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetKinematic", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetKinematic), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetAutoSleep", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetAutoSleep), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetSensor", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetSensor), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetGravity", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetGravity), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetRestitution", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRestitution), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetFriction", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetFriction), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetLinearDamping", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetLinearDamping), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetPositionLock", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPositionLock), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "SetRotationLock", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotationLock), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "AddComponent", GeGlobalMethodInfo(&ECS::Rigidbody2D::AddComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "GetComponent", GeGlobalMethodInfo(&ECS::Rigidbody2D::GetComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "HasComponent", GeGlobalMethodInfo(&ECS::Rigidbody2D::HasComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "BindJit", GeGlobalMethodInfo(&ECS::Rigidbody2D::BindJit), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "Add", GeGlobalMethodInfo(&ECS::Rigidbody2D::Add), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetMotionType", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetMotionType), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPosition), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotation), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetKinematic", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetKinematic), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetAutoSleep", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetAutoSleep), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetSensor", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetSensor), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetGravity", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetGravity), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetRestitution", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRestitution), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetFriction", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetFriction), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetLinearDamping", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetLinearDamping), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetPositionLock", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPositionLock), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalRigidbody2D, "SetRotationLock", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotationLock), MetaFlag::LUABIND);
 
 	BindEntity();
 	BindEnum();
@@ -164,10 +172,10 @@ void BindManager::BindEnum()
 	//AddEnum(globalEnum, "CollisionIn");
 	//AddEnum(globalEnum, "CollisionOut");
 
-	globalEnum = CreateNewEnum("MotionType");
-	AddEnum(globalEnum, "Static");
-	AddEnum(globalEnum, "Kinematic");
-	AddEnum(globalEnum, "Dynamic");
+	//globalEnum = CreateNewEnum("MotionType");
+	//AddEnum(globalEnum, "Static");
+	//AddEnum(globalEnum, "Kinematic");
+	//AddEnum(globalEnum, "Dynamic");
 
 	//globalEnum = CreateNewEnum("ColliderType");
 	//AddEnum(globalEnum, "Box2D");
