@@ -20,39 +20,22 @@ namespace ECS::Rigidbody2D
 		float Friction = 1.0f;		//마찰 계수(0.0 ~ 1.0)
 		float LinearDamping = 0.0f;	//공기 저항. 물체가 이동할 때 매 순간 속도를 일정 비율로 깎습니다.
 
-		bool LockPositionX = false;
-		bool LockPositionY = false;
-		bool LockPositionZ = true;
-		bool LockRotationX = true;
-		bool LockRotationY = true;
-		bool LockRotationZ = false;
-
-		bool IsChange = false;
-		bool IsCreate = false;
-
 		Pixel::Vector3 velocity = { 0,0,0 };
-		Pixel::Vector3 pos = { 0,0,0 };
-		Pixel::Vector3 rot = { 0,0,0 };
+		bool lockPosition[3];
+		bool lockRotation[3];
 		unsigned int bodyID;
+		bool IsCreate = false;
 	};
 	void* AddComponent(unsigned int id);
 	void* GetComponent(unsigned int id);
 	bool HasComponent(unsigned int id);
 	std::string BindJit();
 
-
-	//void Add(unsigned int id);
-	//void SetMotionType(unsigned int id, MotionType type);
-	//void SetPosition(unsigned int id, float x, float y, float z);
-	//void SetRotation(unsigned int id, float x, float y, float z);
-	//void SetKinematic(unsigned int id, bool Kinematic);
-	//void SetAutoSleep(unsigned int id, bool AutoSleep);
-	//void SetSensor(unsigned int id, bool Sensor);
-	//void SetGravity(unsigned int id, float Gravity);
-	//void SetRestitution(unsigned int id, float Restitution);
-	//void SetFriction(unsigned int id, float Friction);
-	//void SetLinearDamping(unsigned int id, float LinearDamping);
-	//void SetPositionLock(unsigned int id, bool x, bool y, bool z);
-	//void SetRotationLock(unsigned int id, bool x, bool y, bool z);
+	void SetPosition(unsigned int id, float x, float y, float z);
+	void SetRotation(unsigned int id, float x, float y, float z);
+	void AddImpulse(unsigned int id, float x, float y, float z);
+	void AddForce(unsigned int id, float x, float y, float z);
+	void LockPosition(unsigned int id, bool x, bool y, bool z);
+	void LockRotation(unsigned int id, bool x, bool y, bool z);
 }
 

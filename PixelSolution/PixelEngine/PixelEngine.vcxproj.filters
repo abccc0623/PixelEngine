@@ -94,9 +94,6 @@
     <Filter Include="EngineAPI\Manager\PhysManager">
       <UniqueIdentifier>{9840a7a7-5341-4ad2-b197-d24b25780d09}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Module\Physics2D">
-      <UniqueIdentifier>{a8cbb97f-5bb8-46a6-9e44-fba35d72d292}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Types\Math">
       <UniqueIdentifier>{b159098f-8947-4137-a1bb-2574b22c6a5d}</UniqueIdentifier>
     </Filter>
@@ -260,9 +257,6 @@
     </ClInclude>
     <ClInclude Include="CoroutineManager.h">
       <Filter>EngineAPI\Manager\CoroutineManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Export\Module\Physics2D.h">
-      <Filter>EngineAPI\Module\Physics2D</Filter>
     </ClInclude>
     <ClInclude Include="ColliderFactory.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
@@ -448,9 +442,6 @@
     </ClCompile>
     <ClCompile Include="CoroutineManager.cpp">
       <Filter>EngineAPI\Manager\CoroutineManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Export\Module\Physics2D.cpp">
-      <Filter>EngineAPI\Module\Physics2D</Filter>
     </ClCompile>
     <ClCompile Include="ColliderFactory.cpp">
       <Filter>EngineAPI\Manager\PhysManager</Filter>

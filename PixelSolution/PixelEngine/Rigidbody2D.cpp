@@ -59,20 +59,12 @@ ffi.cdef[[
 		float friction;
 		float linearDamping;
 
-		bool lockPositionX;
-		bool lockPositionY;
-		bool lockPositionZ;
-		bool lockRotationX;
-		bool lockRotationY;
-		bool lockRotationZ;
-
-		bool IsChange;
-		bool IsCreate;
-
 		Vector3 velocity;
-	    Vector3 pos;
-		Vector3 rot;
-		uint32_t bodyID;
+
+		const bool lockPosition[3];
+		const bool lockRotation[3];
+		const uint32_t bodyID;
+		const bool IsCreate;
 
 	} Rigidbody2DData;
 ]]
@@ -80,43 +72,15 @@ ffi.cdef[[
 	return jit;
 }
 
-
-/*
-void ECS::Rigidbody2D::Add(unsigned int id)
-{
-	auto registry = GetRegistry();
-	registry->AddComponent<Rigidbody2DData>(id);
-}
-
-void ECS::Rigidbody2D::SetMotionType(unsigned int id, MotionType type)
-{
-	auto registry = GetRegistry();
-	auto data = registry->Get<Rigidbody2DData>(id);
-	if (data != nullptr)
-	{
-		data->type = type;
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][SetPosition] Not Find Component");
-	}
-}
-
 void ECS::Rigidbody2D::SetPosition(unsigned int id, float x, float y, float z)
 {
 	auto registry = GetRegistry();
+	registry->AddComponent<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{
-		if (data->IsCreate == true)
-		{
-			auto phys = Engine->GetFactory<PhysManager>();
-			phys->SetPosition(JPH::BodyID(data->bodyID), x, y, z, true);
-		}
-		else
-		{
-			data->position = { x,y,z };
-		}
+		auto phys = Engine->GetFactory<PhysManager>();
+		phys->SetPosition(JPH::BodyID(data->bodyID), x, y, z, true);
 	}
 	else
 	{
@@ -127,18 +91,12 @@ void ECS::Rigidbody2D::SetPosition(unsigned int id, float x, float y, float z)
 void ECS::Rigidbody2D::SetRotation(unsigned int id, float x, float y, float z)
 {
 	auto registry = GetRegistry();
+	registry->AddComponent<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{
-		if (data->IsCreate == true)
-		{
-			auto phys = Engine->GetFactory<PhysManager>();
-			phys->SetRotation(JPH::BodyID(data->bodyID), x, y, z, true);
-		}
-		else
-		{
-			data->rotation = { x,y,z };
-		}
+		auto phys = Engine->GetFactory<PhysManager>();
+		phys->SetRotation(JPH::BodyID(data->bodyID), x, y, z, true);
 	}
 	else
 	{
@@ -146,133 +104,78 @@ void ECS::Rigidbody2D::SetRotation(unsigned int id, float x, float y, float z)
 	}
 }
 
-void ECS::Rigidbody2D::SetKinematic(unsigned int id, bool Kinematic)
+void ECS::Rigidbody2D::AddImpulse(unsigned int id, float x, float y, float z)
 {
 	auto registry = GetRegistry();
+	registry->AddComponent<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{
-		data->Kinematic = Kinematic;
+		auto phys = Engine->GetFactory<PhysManager>();
+		phys->AddImpulse(JPH::BodyID(data->bodyID), x, y, z);
 	}
 	else
 	{
-		PixelLog::Error("[Rigidbody2D][SetKinematic] Not Find Component");
+		PixelLog::Error("[Rigidbody2D][AddImpulse] Not Find Component");
 	}
 }
 
-void ECS::Rigidbody2D::SetAutoSleep(unsigned int id, bool AutoSleep)
+void ECS::Rigidbody2D::AddForce(unsigned int id, float x, float y, float z)
 {
 	auto registry = GetRegistry();
+	registry->AddComponent<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{
-		data->AutoSleep = AutoSleep;
+		auto phys = Engine->GetFactory<PhysManager>();
+		phys->AddForce(JPH::BodyID(data->bodyID), x, y, z);
 	}
 	else
 	{
-		PixelLog::Error("[Rigidbody2D][SetAutoSleep] Not Find Component");
+		PixelLog::Error("[Rigidbody2D][AddForce] Not Find Component");
 	}
 }
 
-void ECS::Rigidbody2D::SetSensor(unsigned int id, bool Sensor)
+void ECS::Rigidbody2D::LockPosition(unsigned int id, bool x, bool y, bool z)
 {
 	auto registry = GetRegistry();
+	registry->AddComponent<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{
-		data->Sensor = Sensor;
+		if (data->IsCreate)
+		{
+
+		}
+		else
+		{
+
+		}
 	}
 	else
 	{
-		PixelLog::Error("[Rigidbody2D][SetSensor] Not Find Component");
+		PixelLog::Error("[Rigidbody2D][LockPosition] Not Find Component");
 	}
 }
 
-void ECS::Rigidbody2D::SetGravity(unsigned int id, float Gravity)
+void ECS::Rigidbody2D::LockRotation(unsigned int id, bool x, bool y, bool z)
 {
 	auto registry = GetRegistry();
+	registry->AddComponent<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{
-		data->Gravity = Gravity;
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][SetGravity] Not Find Component");
-	}
-}
+		if (data->IsCreate)
+		{
 
-void ECS::Rigidbody2D::SetRestitution(unsigned int id, float Restitution)
-{
-	auto registry = GetRegistry();
-	auto data = registry->Get<Rigidbody2DData>(id);
-	if (data != nullptr)
-	{
-		data->Restitution = Restitution;
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][SetRestitution] Not Find Component");
-	}
-}
+		}
+		else
+		{
 
-void ECS::Rigidbody2D::SetFriction(unsigned int id, float Friction)
-{
-	auto registry = GetRegistry();
-	auto data = registry->Get<Rigidbody2DData>(id);
-	if (data != nullptr)
-	{
-		data->Friction = Friction;
+		}
 	}
 	else
 	{
-		PixelLog::Error("[Rigidbody2D][SetFriction] Not Find Component");
+		PixelLog::Error("[Rigidbody2D][LockRotation] Not Find Component");
 	}
 }
-
-void ECS::Rigidbody2D::SetLinearDamping(unsigned int id, float LinearDamping)
-{
-	auto registry = GetRegistry();
-	auto data = registry->Get<Rigidbody2DData>(id);
-	if (data != nullptr)
-	{
-		data->LinearDamping = LinearDamping;
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][SetLinearDamping] Not Find Component");
-	}
-}
-
-void ECS::Rigidbody2D::SetPositionLock(unsigned int id, bool x, bool y, bool z)
-{
-	auto registry = GetRegistry();
-	auto data = registry->Get<Rigidbody2DData>(id);
-	if (data != nullptr)
-	{
-		data->LockPositionX = x;
-		data->LockPositionY = y;
-		data->LockPositionZ = z;
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][SetPositionLock] Not Find Component");
-	}
-}
-
-void ECS::Rigidbody2D::SetRotationLock(unsigned int id, bool x, bool y, bool z)
-{
-	auto registry = GetRegistry();
-	auto data = registry->Get<Rigidbody2DData>(id);
-	if (data != nullptr)
-	{
-		data->LockRotationX = x;
-		data->LockRotationY = y;
-		data->LockRotationZ = z;
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][SetRotationLock] Not Find Component");
-	}
-}
-*/

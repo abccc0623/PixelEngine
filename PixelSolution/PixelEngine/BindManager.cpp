@@ -2,7 +2,6 @@
 #include "BindManager.h"
 
 #include "Module/Movement.h"
-#include "Module/Physics2D.h"
 
 #include "Type/GlobalEnum.h"
 #include "Type/PVector3.h"
@@ -97,19 +96,13 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalRigidbody2D, "GetComponent", GeGlobalMethodInfo(&ECS::Rigidbody2D::GetComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "HasComponent", GeGlobalMethodInfo(&ECS::Rigidbody2D::HasComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "BindJit", GeGlobalMethodInfo(&ECS::Rigidbody2D::BindJit), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "Add", GeGlobalMethodInfo(&ECS::Rigidbody2D::Add), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetMotionType", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetMotionType), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPosition), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotation), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetKinematic", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetKinematic), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetAutoSleep", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetAutoSleep), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetSensor", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetSensor), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetGravity", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetGravity), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetRestitution", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRestitution), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetFriction", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetFriction), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetLinearDamping", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetLinearDamping), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetPositionLock", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPositionLock), MetaFlag::LUABIND);
-	//AddGlobalMethod(globalRigidbody2D, "SetRotationLock", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotationLock), MetaFlag::LUABIND);
+
+	AddGlobalMethod(globalRigidbody2D, "SetPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPosition), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "SetRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotation), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "AddImpulse", GeGlobalMethodInfo(&ECS::Rigidbody2D::AddImpulse), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "AddForce", GeGlobalMethodInfo(&ECS::Rigidbody2D::AddForce), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "LockPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockPosition), MetaFlag::LUABIND);
+	AddGlobalMethod(globalRigidbody2D, "LockRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockRotation), MetaFlag::LUABIND);
 
 	BindEntity();
 	BindEnum();
@@ -129,39 +122,6 @@ void BindManager::Release()
 
 }
 
-void BindManager::BindMovement()
-{
-	auto table = CreateNewClass("Movement", "Module");
-	CreateClassFunction(table, []() ->void*
-		{
-			return new Movement();
-		});
-	DeleteClassFunction(table, []() ->void
-		{
-			PixelLog::Info("Delete Movement");
-		});
-	AddMember(table, "stopDistance", GetMemberInfo(&Movement::stopDistance));
-	AddMember(table, "speed", GetMemberInfo(&Movement::speed));
-	//AddMethod(table, "MoveToTarget", GetMethodInfo(&Movement::MoveToTarget), MetaFlag::LUABIND);
-	AddMethod(table, "MoveToPosition", GetMethodInfo(&Movement::MoveToPosition), MetaFlag::LUABIND);
-	AddMethod(table, "StopMove", GetMethodInfo(&Movement::StopMove), MetaFlag::LUABIND);
-	AddMethod(table, "AddCompleteCallBack", GetMethodInfo(&Movement::AddCompleteCallBack), MetaFlag::LUABIND);
-	AddMethod(table, "AddStartedCallBack", GetMethodInfo(&Movement::AddStartedCallBack), MetaFlag::LUABIND);
-	AddMethod(table, "AddDirectionCallBack", GetMethodInfo(&Movement::AddDirectionCallBack), MetaFlag::LUABIND);
-	AddMethod(table, "Update", GetMethodInfo(&Movement::Update));
-	AddMethod(table, "Start", GetMethodInfo(&Movement::Start));
-}
-
-
-void BindManager::BindPVector3()
-{
-	auto table = CreateNewClass("PVector3");
-	AddMember(table, "X", GetMemberInfo(&PVector3::X));
-	AddMember(table, "Y", GetMemberInfo(&PVector3::Y));
-	AddMember(table, "Z", GetMemberInfo(&PVector3::Z));
-	AddMethod(table, "Create", GetMethodInfo(&PVector3::Create), MetaFlag::LUABIND);
-	AddMethod(table, "Normalize", GetMethodInfo(&PVector3::Normalize), MetaFlag::LUABIND);
-}
 
 void BindManager::BindEnum()
 {
@@ -181,35 +141,6 @@ void BindManager::BindEnum()
 	//AddEnum(globalEnum, "Box2D");
 	//AddEnum(globalEnum, "Circle2D");
 
-}
-
-void BindManager::BindPhysics2D()
-{
-	auto table = CreateNewClass("Physics2D", "Module");
-	CreateClassFunction(table, []() ->void*
-		{
-			return new Physics2D();
-		});
-	DeleteClassFunction(table, []() ->void
-		{
-			PixelLog::Info("Delete Physics2D");
-		});
-	AddMethod(table, "Awake", GetMethodInfo(&Physics2D::Awake));
-	AddMethod(table, "LastUpdate", GetMethodInfo(&Physics2D::LastUpdate));
-	AddMethod(table, "PhysicsUpdate", GetMethodInfo(&Physics2D::PhysicsUpdate));
-
-	AddMethod(table, "SetCollider", GetMethodInfo(&Physics2D::SetCollider), MetaFlag::LUABIND);
-	AddMethod(table, "SetRigidbody", GetMethodInfo(&Physics2D::SetRigidbody), MetaFlag::LUABIND);
-
-	AddMethod(table, "SetVelocity", GetMethodInfo(&Physics2D::SetVelocity), MetaFlag::LUABIND);
-	AddMethod(table, "SetVelocityX", GetMethodInfo(&Physics2D::SetVelocityX), MetaFlag::LUABIND);
-	AddMethod(table, "SetVelocityY", GetMethodInfo(&Physics2D::SetVelocityY), MetaFlag::LUABIND);
-	AddMethod(table, "SetPosition", GetMethodInfo(&Physics2D::SetPosition), MetaFlag::LUABIND);
-	AddMethod(table, "SetRotation", GetMethodInfo(&Physics2D::SetRotation), MetaFlag::LUABIND);
-	AddMethod(table, "SetActive", GetMethodInfo(&Physics2D::SetActive), MetaFlag::LUABIND);
-
-	AddMethod(table, "AddImpulse", GetMethodInfo(&Physics2D::AddImpulse), MetaFlag::LUABIND);
-	AddMethod(table, "AddForce", GetMethodInfo(&Physics2D::AddForce), MetaFlag::LUABIND);
 }
 
 void BindManager::BindEntity()

@@ -18,11 +18,7 @@ public:
 	void Clear() override;
 
 private:
-	void BindLuaScript();
-	void BindMovement();
-	void BindPVector3();
 	void BindEnum();
-	void BindPhysics2D();
 	void BindEntity();
 private:
 

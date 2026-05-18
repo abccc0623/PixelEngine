@@ -42,9 +42,6 @@ public:
 	void Clear() override;
 
 	void SetVelocity(JPH::BodyID id, float x, float y, float z);
-	void SetVelocityX(JPH::BodyID id, float x);
-	void SetVelocityY(JPH::BodyID id, float y);
-	void SetVelocityZ(JPH::BodyID id, float z);
 	void SetPosition(JPH::BodyID id, float x, float y, float z, bool active);
 	void SetRotation(JPH::BodyID id, float x, float y, float z, bool active);
 	void SetActive(JPH::BodyID id, bool active);

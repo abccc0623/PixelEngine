@@ -223,27 +223,6 @@ void PhysManager::SetVelocity(JPH::BodyID id, float x, float y, float z)
 	physicsSystem->GetBodyInterface().SetLinearVelocity(id, targetVelocity);
 }
 
-void PhysManager::SetVelocityX(JPH::BodyID id, float x)
-{
-	JPH::Vec3 targetVelocity = physicsSystem->GetBodyInterface().GetLinearVelocity(id);
-	targetVelocity.SetX(x);
-	physicsSystem->GetBodyInterface().SetLinearVelocity(id, targetVelocity);
-}
-
-void PhysManager::SetVelocityY(JPH::BodyID id, float y)
-{
-	JPH::Vec3 targetVelocity = physicsSystem->GetBodyInterface().GetLinearVelocity(id);
-	targetVelocity.SetY(y);
-	physicsSystem->GetBodyInterface().SetLinearVelocity(id, targetVelocity);
-}
-
-void PhysManager::SetVelocityZ(JPH::BodyID id, float z)
-{
-	JPH::Vec3 targetVelocity = physicsSystem->GetBodyInterface().GetLinearVelocity(id);
-	targetVelocity.SetZ(z);
-	physicsSystem->GetBodyInterface().SetLinearVelocity(id, targetVelocity);
-}
-
 void PhysManager::SetPosition(JPH::BodyID id, float x, float y, float z, bool active)
 {
 	JPH::Vec3 targetPosition(x, y, z);
@@ -338,12 +317,12 @@ JPH::BodyID PhysManager::CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigi
 		break;
 	}
 	constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
-	JPH::Vec3 eulerRadians(rigidbody->rot.x * DEG_TO_RAD, rigidbody->rot.y * DEG_TO_RAD, rigidbody->rot.z * DEG_TO_RAD);
+	JPH::Vec3 eulerRadians(0 * DEG_TO_RAD, 0 * DEG_TO_RAD, 0 * DEG_TO_RAD);
 
 	JPH::BodyCreationSettings bodySettings
 	(
 		shapeRef,
-		JPH::Vec3(rigidbody->pos.x, rigidbody->pos.y, rigidbody->pos.z),
+		JPH::Vec3(0, 0, 0),
 		JPH::Quat::sEulerAngles(eulerRadians), // 초기 회전값
 		eMotionType,
 		objectLayer
@@ -356,15 +335,12 @@ JPH::BodyID PhysManager::CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigi
 	bodySettings.mLinearDamping = rigidbody->LinearDamping;
 
 	bodySettings.mAllowedDOFs = JPH::EAllowedDOFs::All;
-	if (rigidbody->LockPositionX == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationX;
-	if (rigidbody->LockPositionY == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationY;
-	if (rigidbody->LockPositionZ == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationZ;
-
-	if (rigidbody->LockRotationX == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationX;
-	if (rigidbody->LockRotationY == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationY;
-	if (rigidbody->LockRotationZ == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationZ;
-
-
+	if (rigidbody->lockPosition[0] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationX;
+	if (rigidbody->lockPosition[1] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationY;
+	if (rigidbody->lockPosition[2] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationZ;
+	if (rigidbody->lockRotation[0] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationX;
+	if (rigidbody->lockRotation[1] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationY;
+	if (rigidbody->lockRotation[2] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationZ;
 	auto id = mBodyInterface->CreateAndAddBody(bodySettings, active);
 	mBodyInterface->SetUserData(id, static_cast<uint64_t>(pOwner));
 	return id;
@@ -435,10 +411,8 @@ void PhysManager::DebugDraw(JPH::BodyID id)
 void PhysManager::SyncPhysics(JPH::BodyID id)
 {
 	unsigned int userData = mBodyInterface->GetUserData(id);
-
 	if (mBodyInterface->IsAdded(id) == false) return;
 	auto EntityID = static_cast<unsigned int>(userData);
-
 	JPH::RVec3 pos = mBodyInterface->GetPosition(id);
 	JPH::Quat rot = mBodyInterface->GetRotation(id);
 	auto r = GetRegistry();
@@ -447,7 +421,6 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
 	transformData->position.x = pos.GetX();
 	transformData->position.y = pos.GetY();
 	transformData->position.z = pos.GetZ();
-
 	DebugDraw(id);
 }
 

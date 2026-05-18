@@ -91,6 +91,12 @@ inline void Generate_Rigidbody2D(sol::state& lua)
 	ut["GetComponent"] = &ECS::Rigidbody2D::GetComponent;
 	ut["HasComponent"] = &ECS::Rigidbody2D::HasComponent;
 	ut["BindJit"] = &ECS::Rigidbody2D::BindJit;
+	ut["SetPosition"] = &ECS::Rigidbody2D::SetPosition;
+	ut["SetRotation"] = &ECS::Rigidbody2D::SetRotation;
+	ut["AddImpulse"] = &ECS::Rigidbody2D::AddImpulse;
+	ut["AddForce"] = &ECS::Rigidbody2D::AddForce;
+	ut["LockPosition"] = &ECS::Rigidbody2D::LockPosition;
+	ut["LockRotation"] = &ECS::Rigidbody2D::LockRotation;
 }
 inline void Generate_Entity(sol::state& lua) 
 {
