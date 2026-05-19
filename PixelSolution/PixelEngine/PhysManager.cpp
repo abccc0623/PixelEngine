@@ -217,6 +217,13 @@ void PhysManager::Release()
 
 }
 
+
+Pixel::Vector3 PhysManager::GetVelocity(JPH::BodyID id)
+{
+	auto vec3 = physicsSystem->GetBodyInterface().GetLinearVelocity(id);
+	return Pixel::Vector3(vec3.GetX(), vec3.GetY(), vec3.GetZ());
+}
+
 void PhysManager::SetVelocity(JPH::BodyID id, float x, float y, float z)
 {
 	JPH::Vec3 targetVelocity(x, y, z);

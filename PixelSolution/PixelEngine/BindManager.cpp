@@ -17,6 +17,7 @@
 #include "Renderer2D.h"
 #include "Collider2D.h"
 #include "BoxCollider2D.h"
+#include "CircleCollider2D.h"
 #include "Rigidbody2D.h"
 
 BindManager::BindManager()
@@ -91,6 +92,12 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalBoxCollider2D, "HasComponent", GeGlobalMethodInfo(&ECS::BoxCollider2D::HasComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalBoxCollider2D, "BindJit", GeGlobalMethodInfo(&ECS::BoxCollider2D::BindJit), MetaFlag::LUABIND);
 
+	PStatic* globalCircleCollider2D = CreateNewStatic("CircleCollider2D");
+	AddGlobalMethod(globalCircleCollider2D, "AddComponent", GeGlobalMethodInfo(&ECS::CircleCollider2D::AddComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCircleCollider2D, "GetComponent", GeGlobalMethodInfo(&ECS::CircleCollider2D::GetComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCircleCollider2D, "HasComponent", GeGlobalMethodInfo(&ECS::CircleCollider2D::HasComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCircleCollider2D, "BindJit", GeGlobalMethodInfo(&ECS::CircleCollider2D::BindJit), MetaFlag::LUABIND);
+
 	PStatic* globalRigidbody2D = CreateNewStatic("Rigidbody2D");
 	AddGlobalMethod(globalRigidbody2D, "AddComponent", GeGlobalMethodInfo(&ECS::Rigidbody2D::AddComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "GetComponent", GeGlobalMethodInfo(&ECS::Rigidbody2D::GetComponent), MetaFlag::LUABIND);
@@ -99,8 +106,6 @@ void BindManager::Initialize()
 
 	AddGlobalMethod(globalRigidbody2D, "SetPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPosition), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "SetRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotation), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "AddImpulse", GeGlobalMethodInfo(&ECS::Rigidbody2D::AddImpulse), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "AddForce", GeGlobalMethodInfo(&ECS::Rigidbody2D::AddForce), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "LockPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockPosition), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "LockRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockRotation), MetaFlag::LUABIND);
 

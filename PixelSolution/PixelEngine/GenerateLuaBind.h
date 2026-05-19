@@ -6,6 +6,7 @@
 #include "Camera.h" 
 #include "Animation2D.h" 
 #include "BoxCollider2D.h" 
+#include "CircleCollider2D.h" 
 #include "Rigidbody2D.h" 
 #include "Entity.h" 
 using namespace ECS;
@@ -84,6 +85,14 @@ inline void Generate_BoxCollider2D(sol::state& lua)
 	ut["HasComponent"] = &ECS::BoxCollider2D::HasComponent;
 	ut["BindJit"] = &ECS::BoxCollider2D::BindJit;
 }
+inline void Generate_CircleCollider2D(sol::state& lua) 
+{
+	sol::table ut = lua.create_named_table("CircleCollider2D");
+	ut["AddComponent"] = &ECS::CircleCollider2D::AddComponent;
+	ut["GetComponent"] = &ECS::CircleCollider2D::GetComponent;
+	ut["HasComponent"] = &ECS::CircleCollider2D::HasComponent;
+	ut["BindJit"] = &ECS::CircleCollider2D::BindJit;
+}
 inline void Generate_Rigidbody2D(sol::state& lua) 
 {
 	sol::table ut = lua.create_named_table("Rigidbody2D");
@@ -93,8 +102,6 @@ inline void Generate_Rigidbody2D(sol::state& lua)
 	ut["BindJit"] = &ECS::Rigidbody2D::BindJit;
 	ut["SetPosition"] = &ECS::Rigidbody2D::SetPosition;
 	ut["SetRotation"] = &ECS::Rigidbody2D::SetRotation;
-	ut["AddImpulse"] = &ECS::Rigidbody2D::AddImpulse;
-	ut["AddForce"] = &ECS::Rigidbody2D::AddForce;
 	ut["LockPosition"] = &ECS::Rigidbody2D::LockPosition;
 	ut["LockRotation"] = &ECS::Rigidbody2D::LockRotation;
 }
@@ -119,6 +126,7 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_Camera(lua); 
 	Generate_Animation2D(lua); 
 	Generate_BoxCollider2D(lua); 
+	Generate_CircleCollider2D(lua); 
 	Generate_Rigidbody2D(lua); 
 	Generate_Entity(lua); 
 }

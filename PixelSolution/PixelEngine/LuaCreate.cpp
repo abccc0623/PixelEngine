@@ -64,6 +64,8 @@ std::string LuaCreate::CreateComponent(PixelClassMeta& meta)
 			else if (meta.methods[i].name == "AddComponent")
 			{
 				std::string fun = "";
+				fun += "---@param entityID number\n";
+				fun += "---@return {{CLASS_NAME}}Data|nil\n";
 				fun += "function {{CLASS_NAME}}.Add(entityID)\n";
 				fun += "\tlocal rawPtr = {{CLASS_NAME}}.AddComponent(entityID)\n";
 				fun += "\tif rawPtr == nil then return nil end\n";
@@ -74,6 +76,8 @@ std::string LuaCreate::CreateComponent(PixelClassMeta& meta)
 			else if (meta.methods[i].name == "GetComponent")
 			{
 				std::string fun = "";
+				fun += "---@param entityID number\n";
+				fun += "---@return {{CLASS_NAME}}Data|nil\n";
 				fun += "function {{CLASS_NAME}}.Get(entityID)\n";
 				fun += "\tlocal rawPtr = {{CLASS_NAME}}.GetComponent(entityID)\n";
 				fun += "\tif rawPtr == nil then return nil end\n";
@@ -84,6 +88,8 @@ std::string LuaCreate::CreateComponent(PixelClassMeta& meta)
 			else if (meta.methods[i].name == "HasComponent")
 			{
 				std::string fun = "";
+				fun += "---@param entityID number\n";
+				fun += "---@return boolean\n";
 				fun += "function {{CLASS_NAME}}.Has(entityID)\n";
 				fun += "\treturn {{CLASS_NAME}}.HasComponent(entityID)\n";
 				fun += "end\n\n";
@@ -121,6 +127,10 @@ void LuaCreate::Vector3File()
 	std::string jit = R"(
 local ffi = require("ffi")
 
+---@class Vector3
+---@field x number
+---@field y number
+---@field z number
 ffi.cdef[[
     typedef struct { float x, y, z; } Vector3;
 ]]
@@ -143,9 +153,14 @@ local Vector3_mt = {
 	end,
     
     __index = {
+		---@param self Vector3
+        ---@return number
         Length = function(self)
             return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
         end,
+
+		---@param self Vector3
+        ---@return Vector3
         Normalize = function(self)
             local len = self:Length()
             if len > 0.00001 then
@@ -153,9 +168,17 @@ local Vector3_mt = {
             end
             return ffi.new("Vector3", 0, 0, 0)
         end,
+
+		---@param self Vector3
+        ---@param other Vector3
+        ---@return number
         Dot = function(self, other)
             return (self.x * other.x) + (self.y * other.y) + (self.z * other.z)
         end,
+
+		---@param self Vector3
+        ---@param other Vector3
+        ---@return Vector3
         Cross = function(self, other)
             return ffi.new("Vector3",
                 (self.y * other.z) - (self.z * other.y),
@@ -163,7 +186,9 @@ local Vector3_mt = {
                 (self.x * other.y) - (self.y * other.x)
             )
         end,
-
+		
+		---@param self Vector3
+        ---@return boolean
 		IsZero = function(self)
             local epsilon = 0.00001
             return math.abs(self.x) < epsilon and 
@@ -175,6 +200,10 @@ local Vector3_mt = {
 
 ffi.metatype("Vector3", Vector3_mt)
 
+---@param x? number
+---@param y? number
+---@param z? number
+---@return Vector3
 Vector3 = function(x, y, z)
     return ffi.new("Vector3", x or 0, y or 0, z or 0)
 end
@@ -202,6 +231,9 @@ void LuaCreate::Vector2File()
 	std::string jit = R"(
 local ffi = require("ffi")
 
+---@class Vector2
+---@field x number
+---@field y number
 ffi.cdef[[
     typedef struct { float x, y; } Vector2;
 ]]
@@ -223,9 +255,14 @@ local Vector2_mt = {
     end,
     
     __index = {
+		---@param self Vector2
+        ---@return number
         Length = function(self)
             return math.sqrt(self.x * self.x + self.y * self.y)
         end,
+
+		---@param self Vector2
+        ---@return Vector2
         Normalize = function(self)
             local len = self:Length()
             if len > 0.00001 then
@@ -233,14 +270,23 @@ local Vector2_mt = {
             end
             return ffi.new("Vector2", 0, 0)
         end,
+
+		---@param self Vector2
+        ---@param other Vector2
+        ---@return number
         Dot = function(self, other)
             return (self.x * other.x) + (self.y * other.y)
         end,
         
+		---@param self Vector2
+        ---@param other Vector2
+        ---@return number
         Cross = function(self, other)
             return (self.x * other.y) - (self.y * other.x)
         end,
 
+		---@param self Vector2
+        ---@return boolean
         IsZero = function(self)
             local epsilon = 0.00001
             return math.abs(self.x) < epsilon and 
@@ -251,6 +297,9 @@ local Vector2_mt = {
 
 ffi.metatype("Vector2", Vector2_mt)
 
+---@param x? number
+---@param y? number
+---@return Vector2
 Vector2 = function(x, y)
     return ffi.new("Vector2", x or 0, y or 0)
 end

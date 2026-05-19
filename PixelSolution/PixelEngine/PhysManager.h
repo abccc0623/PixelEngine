@@ -41,6 +41,7 @@ public:
 	void Release() override;
 	void Clear() override;
 
+	Pixel::Vector3 GetVelocity(JPH::BodyID id);
 	void SetVelocity(JPH::BodyID id, float x, float y, float z);
 	void SetPosition(JPH::BodyID id, float x, float y, float z, bool active);
 	void SetRotation(JPH::BodyID id, float x, float y, float z, bool active);

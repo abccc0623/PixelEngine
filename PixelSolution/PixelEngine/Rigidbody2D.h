@@ -21,8 +21,12 @@ namespace ECS::Rigidbody2D
 		float LinearDamping = 0.0f;	//공기 저항. 물체가 이동할 때 매 순간 속도를 일정 비율로 깎습니다.
 
 		Pixel::Vector3 velocity = { 0,0,0 };
-		bool lockPosition[3];
-		bool lockRotation[3];
+		Pixel::Vector3 impulse = { 0,0,0 };
+		Pixel::Vector3 force = { 0,0,0 };
+
+		Pixel::Vector3 velocityCopy = { 0,0,0 };
+		bool lockPosition[3] = { false,false,true };
+		bool lockRotation[3] = { true,true,false };
 		unsigned int bodyID;
 		bool IsCreate = false;
 	};
@@ -33,8 +37,6 @@ namespace ECS::Rigidbody2D
 
 	void SetPosition(unsigned int id, float x, float y, float z);
 	void SetRotation(unsigned int id, float x, float y, float z);
-	void AddImpulse(unsigned int id, float x, float y, float z);
-	void AddForce(unsigned int id, float x, float y, float z);
 	void LockPosition(unsigned int id, bool x, bool y, bool z);
 	void LockRotation(unsigned int id, bool x, bool y, bool z);
 }

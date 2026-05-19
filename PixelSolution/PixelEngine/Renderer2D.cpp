@@ -39,6 +39,11 @@ bool ECS::Renderer2D::HasComponent(unsigned int id)
 std::string ECS::Renderer2D::BindJit()
 {
 	std::string jit = R"(
+	---@class Renderer2DData
+	---@field TilingX number
+	---@field TilingY number
+	---@field OffsetX number
+	---@field OffsetY number
 ffi.cdef[[
     typedef struct 
     { 

@@ -36,6 +36,10 @@ bool ECS::Transform::HasComponent(unsigned int id)
 std::string ECS::Transform::BindJit()
 {
 	std::string jit = R"(
+	---@class TransformData
+	---@field pos Vector3
+	---@field rot Vector3
+	---@field scale Vector3
 ffi.cdef[[
 	typedef struct __attribute__((aligned(16))) 
 	{ 

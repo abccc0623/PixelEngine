@@ -40,6 +40,7 @@ bool ECS::Camera::HasComponent(unsigned int id)
 std::string ECS::Camera::BindJit()
 {
 	std::string jit = R"(
+	---@class CameraData
 ffi.cdef[[
 	typedef struct 
 	{ 

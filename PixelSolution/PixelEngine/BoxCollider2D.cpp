@@ -37,6 +37,9 @@ bool ECS::BoxCollider2D::HasComponent(unsigned int id)
 std::string ECS::BoxCollider2D::BindJit()
 {
 	std::string jit = R"(
+	---@class BoxCollider2DData
+	---@field center Vector2
+	---@field offset Vector2
 ffi.cdef[[
     typedef struct 
     { 
