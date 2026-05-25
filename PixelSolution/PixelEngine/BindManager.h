@@ -19,7 +19,6 @@ public:
 
 private:
 	void BindEnum();
-	void BindEntity();
 private:
 
 };

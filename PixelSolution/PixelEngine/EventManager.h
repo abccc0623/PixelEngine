@@ -13,6 +13,12 @@ struct CustomDelayEvent
 	sol::table eventTable;
 };
 
+struct UserEvent
+{
+	unsigned int entityID;
+	std::string functionName;
+};
+
 
 
 enum class EventType : int;
@@ -35,9 +41,14 @@ public:
 
 	void TriggerCustomEvent(std::string eventType, sol::table event, float time);
 	void TriggerEvent(EventType type, Event event);
+
+	void BindLuaEvent(unsigned int id, std::string key, std::string func);
+	void CallLuaEvent(std::string eventName, sol::table event);
 private:
 	//std::unordered_map<EventType, std::vector<GameObject*>> eventList;
 	//std::unordered_map<std::string, std::vector<GameObject*>> customEventList;
 	std::vector<CustomDelayEvent> customDelayEvents;
+	std::unordered_map<std::string, std::vector<UserEvent>> eventList;
 };
+
 

@@ -34,6 +34,52 @@ void ECS::Entity::Create(const std::string& scriptName, unsigned int ID)
 	instance["ID"] = ID;
 	lua->AddEntityID(ID, instance);
 
+	OnCollisionEnterFunc = instance["OnCollisionEnter"];
+	OnCollisionExitFunc = instance["OnCollisionExit"];
+}
+
+void ECS::Entity::OnCollisionEnter(unsigned int TargetID)
+{
+	if (OnCollisionEnterFunc.valid())
+	{
+		auto result = OnCollisionEnterFunc(instance, TargetID);
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::string errorMsg = err.what();
+			PixelLog::Error(errorMsg.c_str());
+		}
+	}
+}
+
+void ECS::Entity::OnCollisionExit(unsigned int TargetID)
+{
+	if (OnCollisionExitFunc.valid())
+	{
+		auto result = OnCollisionExitFunc(instance, TargetID);
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::string errorMsg = err.what();
+			PixelLog::Error(errorMsg.c_str());
+		}
+
+	}
+}
+
+void ECS::Entity::OnEvent(std::string eventName, sol::table event)
+{
+	auto luaEvent = instance[eventName];
+	if (luaEvent.valid())
+	{
+		auto result = luaEvent(instance);
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::string errorMsg = err.what();
+			PixelLog::Error(errorMsg.c_str());
+		}
+	}
 }
 
 unsigned int ECS::Entity::GetID()

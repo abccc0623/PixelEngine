@@ -83,22 +83,22 @@ void SceneManager::Clear()
 
 uint32_t SceneManager::CreateEntity(const std::string& scriptName)
 {
-	if (nowScene == nullptr)
-	{
-		CreateScene("DefaultScene");
-		ChangeScene("DefaultScene");
-	}
-	return nowScene->CreateEntity(scriptName);
+	return GetNowScene()->CreateEntity(scriptName);
+}
+
+ECS::Entity* SceneManager::FindEntity(uint32_t id)
+{
+	return GetNowScene()->FindEntity(id);
+}
+
+void SceneManager::ActiveEntity(uint32_t id, bool active)
+{
+	GetNowScene()->ActiveEntity(id, active);
 }
 
 void SceneManager::DestroyEntity(uint32_t id)
 {
-	if (nowScene == nullptr)
-	{
-		CreateScene("DefaultScene");
-		ChangeScene("DefaultScene");
-	}
-	return nowScene->DestroyEntity(id);
+	return GetNowScene()->DestroyEntity(id);
 }
 
 ECS::Registry* SceneManager::GetRegistry()

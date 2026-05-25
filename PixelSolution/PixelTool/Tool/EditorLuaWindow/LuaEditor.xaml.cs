@@ -55,7 +55,7 @@ namespace PixelTool
                 using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
                 {
                     if (stream == null) return; // 파일을 못 찾으면 그냥 리턴 (에러 방지)
-            
+
                     using (var reader = new System.Xml.XmlTextReader(stream))
                     {
                         LuaEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader, HighlightingManager.Instance);
@@ -75,9 +75,9 @@ namespace PixelTool
         {
             if (System.IO.File.Exists(path))
             {
-                if(EditorChange.Foreground == Brushes.Red)
+                if (EditorChange.Foreground == Brushes.Red)
                 {
-                    var result = MessageBox.Show("파일을 변경전 저장이 필요합니다.\n","저장",MessageBoxButton.YesNo,MessageBoxImage.Warning);
+                    var result = MessageBox.Show("파일을 변경전 저장이 필요합니다.\n", "저장", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (result == MessageBoxResult.Yes)
                     {
                         LuaEditor.Save(targetPath);
@@ -103,9 +103,9 @@ namespace PixelTool
             char c = e.Text[0];
             if (char.IsLetterOrDigit(c) || c == '.' || c == ':')
             {
-                if(completionWindow != null){completionWindow.Close();}
+                if (completionWindow != null) { completionWindow.Close(); }
                 int currentLine = LuaEditor.TextArea.Caret.Line - 1;
-                int currentColumn = LuaEditor.TextArea.Caret.Column -1;
+                int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
                 if (luaLspService != null)
                 {
                     await luaLspService.NotifyDidChangeAsync(LuaEditor.Text, currentLine, currentColumn, e.Text);
@@ -116,13 +116,13 @@ namespace PixelTool
         private void luaEditor_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             // 에디터에 포커스가 없으면 모든 키 입력 이벤트를 처리된 것으로 간주(Handled)하여 무시
-            if (!LuaEditor.IsKeyboardFocusWithin){e.Handled = true;}
-            
+            if (!LuaEditor.IsKeyboardFocusWithin) { e.Handled = true; }
+
             bool isCtrlPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
-            
+
             if (isCtrlPressed)
             {
-                if(e.Key == Key.S)
+                if (e.Key == Key.S)
                 {
                     e.Handled = true;
                     //GeneratedLuaModuleType();
@@ -140,7 +140,7 @@ namespace PixelTool
                 {
                     int currentLine = LuaEditor.TextArea.Caret.Line - 1;
                     int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
-                    luaLspService.NotifyDidChangeAsync(LuaEditor.Text, currentLine, currentColumn,"");
+                    luaLspService.NotifyDidChangeAsync(LuaEditor.Text, currentLine, currentColumn, "");
                 }
             }
         }
@@ -148,11 +148,11 @@ namespace PixelTool
         private void LuaEditor_TextChanged(object sender, EventArgs e)
         {
             if (completionWindow != null) return;
-            
+
             _debounceTokenSource?.Cancel();
             _debounceTokenSource = new CancellationTokenSource();
             var token = _debounceTokenSource.Token;
-            
+
             string currentText = LuaEditor.Text;
             int currentLine = LuaEditor.TextArea.Caret.Line - 1;
             int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
@@ -162,7 +162,7 @@ namespace PixelTool
                 {
                     if (!token.IsCancellationRequested)
                     {
-                        await luaLspService.NotifyDidChangeAsync(currentText, currentLine, currentColumn,"");
+                        await luaLspService.NotifyDidChangeAsync(currentText, currentLine, currentColumn, "");
                     }
                 }
                 catch (TaskCanceledException) { /* 타이머 취소됨 (정상적인 동작) */ }
@@ -240,6 +240,17 @@ namespace PixelTool
         private void Create_RigidBody(object sender, RoutedEventArgs e)
         {
             string content = LuaFileManager.GetBlockByMarker("CreateCollider", "RigidBody");
+            LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
+        }
+
+        private void Create_CollisionEnter(object sender, RoutedEventArgs e)
+        {
+            string content = LuaFileManager.GetBlockByMarker("EventFunction", "OnCollisionEnter");
+            LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
+        }
+        private void Create_CollisionExit(object sender, RoutedEventArgs e)
+        {
+            string content = LuaFileManager.GetBlockByMarker("EventFunction", "OnCollisionExit");
             LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
         }
     }

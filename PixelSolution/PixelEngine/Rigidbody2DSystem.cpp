@@ -31,16 +31,22 @@ void ECS::Rigidbody2DSystem::Update(ECS::Registry* registry)
 				if (registry->Has<ECS::BoxCollider2D::BoxCollider2DData>(id))
 				{
 					auto box = registry->Get<ECS::BoxCollider2D::BoxCollider2DData>(id);
-					collider.type = ECS::Collider2D::Collider2DType::BOX;
-					collider.BoxOffset = box->Offset;
-					collider.Center = box->Center;
+					if (box)
+					{
+						collider.type = ECS::Collider2D::Collider2DType::BOX;
+						collider.BoxOffset = box->Offset;
+						collider.Center = box->Center;
+					}
 				}
 				else if (registry->Has<ECS::CircleCollider2D::CircleCollider2DData>(id))
 				{
 					auto circle = registry->Get<ECS::CircleCollider2D::CircleCollider2DData>(id);
-					collider.type = ECS::Collider2D::Collider2DType::Circle;
-					collider.CircleRadius = circle->Radius;
-					collider.Center = circle->Center;
+					if (circle)
+					{
+						collider.type = ECS::Collider2D::Collider2DType::Circle;
+						collider.CircleRadius = circle->Radius;
+						collider.Center = circle->Center;
+					}
 				}
 
 				auto shape = phys->CreateCollider(&collider);

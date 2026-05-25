@@ -10,6 +10,8 @@
 #include "Animation2DSystem.h"
 #include "Renderer2DSystem.h"
 
+#include "Registry.h"
+
 ECS::SystemManager::SystemManager() {}
 ECS::SystemManager::~SystemManager() {}
 

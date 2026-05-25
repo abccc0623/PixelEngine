@@ -12,6 +12,7 @@
 #include "PhysListener.h"
 #include "EventManager.h"
 #include "PixelEngine.h"
+#include "Entity.h"
 #include "Rigidbody2D.h"
 #include "Registry.h"
 #include "PixelEngineAPI.h"
@@ -159,16 +160,23 @@ void PhysManager::Update()
 	{
 		Event eventMessage;
 		eventMessage.Collision.targetIn = ev.isEnter;
-		//eventMessage.Collision.target1 = reinterpret_cast<GameObject*>(mBodyInterface->GetUserData(ev.body1));
-		//eventMessage.Collision.target2 = reinterpret_cast<GameObject*>(mBodyInterface->GetUserData(ev.body2));
-		//if (ev.isEnter)
-		//{
-		//	event->TriggerEvent(EventType::CollisionIn, eventMessage);
-		//}
-		//else
-		//{
-		//	event->TriggerEvent(EventType::CollisionOut, eventMessage);
-		//}
+
+		auto target1 = static_cast<uint64_t>(mBodyInterface->GetUserData(ev.body1));
+		auto target2 = static_cast<uint64_t>(mBodyInterface->GetUserData(ev.body2));
+
+		ECS::Entity* EntityTarget1 = FindEntity(target1);
+		ECS::Entity* EntityTarget2 = FindEntity(target2);
+
+		if (ev.isEnter == true)
+		{
+			EntityTarget1->OnCollisionEnter(target2);
+			EntityTarget2->OnCollisionEnter(target1);
+		}
+		else
+		{
+			EntityTarget1->OnCollisionExit(target2);
+			EntityTarget2->OnCollisionExit(target1);
+		}
 	}
 }
 
@@ -260,18 +268,18 @@ void PhysManager::SetActive(JPH::BodyID id, bool active)
 			return;
 		}
 
-		GameObject* target = reinterpret_cast<GameObject*>(mBodyInterface->GetUserData(id));
-		//auto Pos = target->GetTransform()->Position;
-		//auto Rot = target->GetTransform()->Rotation;
-		//
-		//JPH::RVec3 RPos(Pos.X, Pos.Y, Pos.Z);
-		//constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
-		//JPH::Vec3 eulerRadians(Rot.X * DEG_TO_RAD, Rot.Y * DEG_TO_RAD, Rot.Z * DEG_TO_RAD);
-		//JPH::Quat RRot = JPH::Quat::sEulerAngles(eulerRadians);
-		//
-		//mBodyInterface->SetLinearAndAngularVelocity(id, JPH::Vec3::sZero(), JPH::Vec3::sZero());
-		//mBodyInterface->SetPositionAndRotation(id, RPos, RRot, JPH::EActivation::DontActivate);
-		//mBodyInterface->AddBody(id, JPH::EActivation::Activate);
+		unsigned int userData = mBodyInterface->GetUserData(id);
+		auto data = reinterpret_cast<ECS::Transform::TransformData*>(ECS::Transform::GetComponent(userData));
+
+
+		JPH::RVec3 RPos(data->position.x, data->position.y, data->position.z);
+		constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
+		JPH::Vec3 eulerRadians(data->rotation.x * DEG_TO_RAD, data->rotation.y * DEG_TO_RAD, data->rotation.z * DEG_TO_RAD);
+		JPH::Quat RRot = JPH::Quat::sEulerAngles(eulerRadians);
+
+		mBodyInterface->SetLinearAndAngularVelocity(id, JPH::Vec3::sZero(), JPH::Vec3::sZero());
+		mBodyInterface->SetPositionAndRotation(id, RPos, RRot, JPH::EActivation::DontActivate);
+		mBodyInterface->AddBody(id, JPH::EActivation::Activate);
 	}
 	else
 	{

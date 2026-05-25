@@ -94,6 +94,16 @@ namespace ECS
 			auto* realChild = static_cast<ComponentArray<T>*>(componentArrays[key]);
 			return realChild->GetChunk();
 		}
+
+
+		void SetActive(unsigned int entityID, bool active)
+		{
+			for (auto& k : componentArrays)
+			{
+				k.second->SetActive(entityID, active);
+			}
+		}
+
 	private:
 		std::unordered_map<std::type_index, IComponentArray*> componentArrays;
 		const int maxsize = 128;

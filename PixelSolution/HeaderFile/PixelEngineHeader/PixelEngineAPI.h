@@ -10,6 +10,7 @@ typedef void* PixelWindowHandle;
 namespace ECS
 {
 	class Registry;
+	class Entity;
 }
 ECS::Registry* GetRegistry();
 
@@ -23,8 +24,13 @@ extern "C" PIXEL_ENGINEDLL void Reload();
 
 extern "C" PIXEL_ENGINEDLL void Import(const char* path);
 
+extern "C" PIXEL_ENGINEDLL ECS::Entity* FindEntity(unsigned int id);
+extern "C" PIXEL_ENGINEDLL void ActiveEntity(unsigned int id, bool active);
 extern "C" PIXEL_ENGINEDLL unsigned int CreateEntity(const char* script);
 extern "C" PIXEL_ENGINEDLL void DestroyEntity(unsigned int id);
+
+extern "C" PIXEL_ENGINEDLL void BindLuaEvent(unsigned int id, const char* eventKey, const char* functionName);
+//extern "C" PIXEL_ENGINEDLL void CallLuaEvent(const char* eventName, sol::table luaTable);
 
 
 extern "C" PIXEL_ENGINEDLL void BackgroundColor(int R, int G, int B);

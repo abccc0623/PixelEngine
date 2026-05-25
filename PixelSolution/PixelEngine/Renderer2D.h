@@ -5,13 +5,11 @@ namespace ECS::Renderer2D
 {
 	struct Renderer2DData
 	{
-		RenderingData* renderingData;
-		Renderer2DData() { renderingData = new RenderingData(); };
-		~Renderer2DData() { delete renderingData; };
 		float TilingX = 1.0f;
 		float TilingY = 1.0f;
 		float OffsetX = 1.0f;
 		float OffsetY = 1.0f;
+		RenderingData renderingData;
 	};
 
 	void* AddComponent(unsigned int id);

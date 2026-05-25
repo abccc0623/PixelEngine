@@ -46,7 +46,7 @@ void ECS::Animation2D::Play(unsigned int id, int index)
 		auto render = registry->Get<ECS::Renderer2D::Renderer2DData>(id);
 		if (render != nullptr)
 		{
-			render->renderingData->sprite.isShared = true;
+			render->renderingData.sprite.isShared = true;
 		}
 		else
 		{

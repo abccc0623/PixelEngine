@@ -28,6 +28,9 @@ public:
 	void Release();
 
 	uint32_t CreateEntity(const std::string& scriptName);
+	ECS::Entity* FindEntity(uint32_t id);
+	void ActiveEntity(uint32_t id, bool active);
+
 	void DestroyEntity(uint32_t id);
 	ECS::Registry* GetRegistry();
 
@@ -37,7 +40,7 @@ private:
 	std::string path;
 	LuaSceneInfo* info;
 private:
-	ECS::ChunkedArray<ECS::Entity, 1> Chunked;
+	ECS::ChunkedArray<ECS::Entity, 100> Chunked;
 	ECS::Registry* registry;
 	ECS::SystemManager* system;
 };

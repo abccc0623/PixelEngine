@@ -15,3 +15,16 @@ function Script:CustomEvent(MessageType,Message)
 	
 	--end
 end 
+
+--#BEGIN_TABLE OnCollisionEnter
+function Script:OnCollisionEnter(targetID)
+	--Debug.LogInfo(tostring(targetID))
+end
+--#END_TABLE OnCollisionEnter
+
+
+--#BEGIN_TABLE OnCollisionExit
+function Script:OnCollisionExit(targetID)
+	--Debug.LogInfo(tostring(targetID))
+end
+--#END_TABLE OnCollisionExit

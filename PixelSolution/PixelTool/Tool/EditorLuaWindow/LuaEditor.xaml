@@ -27,7 +27,7 @@
             <Button Width="20" Grid.Column="1" Foreground="Black" ToolTip="Save changes to file (Ctrl+S)" Click="SaveLuaFile">💾</Button>
             <Button Width="20" Grid.Column="2" Foreground="Black" ToolTip="Reload assets from source (Ctrl+R)" Click="ReimportLuaFile">🔄</Button>
         </Grid>
-        
+
         <avalonEdit:TextEditor 
             x:Name="LuaEditor"
             FontFamily="Consolas"
@@ -40,18 +40,8 @@
             <avalonedit:TextEditor.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Create Event" IsCheckable= "False">
-                        <MenuItem Header="CustomEvent" Tag="CustomEvent" Click="CustomEvent"/>
-                        <MenuItem Header="KeyDown" Tag="Event_KeyDown" Click="Event_KeyDown"/>
-                        <MenuItem Header="KeyUp" Tag="Event_KeyUp" Click="Event_KeyUp"/>
-                    </MenuItem>
-                    
-                    <MenuItem Header="Create Collider Table" IsCheckable= "False">
-                        <MenuItem Header="Box2D"    Tag="Box2D" Click="Create_Box2D"/>
-                        <MenuItem Header="Circle2D" Tag="Circle2D" Click="Create_Circle2D"/>
-                    </MenuItem>
-
-                    <MenuItem Header="Create Rigidbody Table" IsCheckable= "False">
-                        <MenuItem Header="RigidBody" Tag="CreateBox2D" Click="Create_RigidBody"/>
+                        <MenuItem Header="OnCollisionEnter" Tag="Event_KeyUp" Click="Create_CollisionEnter"/>
+                        <MenuItem Header="OnCollisionExit" Tag="Event_KeyUp" Click="Create_CollisionExit"/>
                     </MenuItem>
 
                     <Separator />

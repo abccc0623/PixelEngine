@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "EventManager.h"
 #include <algorithm>
-#include "PixelMetaAPI.h"
 #include "PixelEngineAPI.h"
+#include "Entity.h"
 
 EventManager::EventManager()
 {
@@ -166,4 +166,35 @@ void EventManager::TriggerEvent(EventType type, Event event)
 	///	//	lua->EventCall(type, event);
 	///	//}
 	///}
+}
+
+void EventManager::BindLuaEvent(unsigned int id, std::string key, std::string func)
+{
+	if (eventList.find(key) == eventList.end())
+	{
+		eventList.insert({ key,std::vector<UserEvent>() });
+	}
+	UserEvent event;
+	event.entityID = id;
+	event.functionName = func;
+	eventList[key].push_back(event);
+}
+
+void EventManager::CallLuaEvent(std::string eventName, sol::table event)
+{
+	if (eventList.find(eventName) != eventList.end())
+	{
+		for (auto& K : eventList[eventName])
+		{
+			auto entity = FindEntity(K.entityID);
+			if (entity != nullptr)
+			{
+				entity->OnEvent(eventName, event);
+			}
+		}
+	}
+	else
+	{
+
+	}
 }

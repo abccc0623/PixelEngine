@@ -94,7 +94,10 @@ namespace ECS
 			}
 			else
 			{
-				if (index < activeSlots.size()) activeSlots[index] = false;
+				if (index < activeSlots.size())
+				{
+					activeSlots[index] = false;
+				}
 			}
 		}
 
@@ -104,7 +107,10 @@ namespace ECS
 			for (size_t i = 0; i < currentSize; ++i)
 			{
 				// ºó ¹æ(±¸¸Û)ÀÌ¸é ºûÀÇ ¼Óµµ·Î ´ÙÀ½ ¹æÀ¸·Î °Ç³Ê¶Ü!
-				if (!activeSlots[i]) continue;
+				if (activeSlots[i] == false)
+				{
+					continue;
+				}
 
 				size_t chunkIndex = i / chunksMaxSize;
 				size_t localIndex = i % chunksMaxSize;

@@ -8,13 +8,14 @@
 #include "BoxCollider2D.h" 
 #include "CircleCollider2D.h" 
 #include "Rigidbody2D.h" 
-#include "Entity.h" 
 using namespace ECS;
 inline void Generate_Engine(sol::state& lua) 
 {
 	sol::table ut = lua.create_named_table("Engine");
 	ut["CreateEntity"] = &CreateEntity;
 	ut["DestroyEntity"] = &DestroyEntity;
+	ut["ActiveEntity"] = &ActiveEntity;
+	ut["BindLuaEvent"] = &BindLuaEvent;
 	ut["BackgroundColor"] = &BackgroundColor;
 }
 inline void Generate_Scene(sol::state& lua) 
@@ -105,11 +106,6 @@ inline void Generate_Rigidbody2D(sol::state& lua)
 	ut["LockPosition"] = &ECS::Rigidbody2D::LockPosition;
 	ut["LockRotation"] = &ECS::Rigidbody2D::LockRotation;
 }
-inline void Generate_Entity(sol::state& lua) 
-{
-	sol::usertype<Entity> ut = lua.new_usertype<Entity>("Entity");
-	ut["Active"] = &Entity::Active;
-}
 inline void BindAll_AddModules() 
 { 
 }
@@ -128,5 +124,4 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_BoxCollider2D(lua); 
 	Generate_CircleCollider2D(lua); 
 	Generate_Rigidbody2D(lua); 
-	Generate_Entity(lua); 
 }

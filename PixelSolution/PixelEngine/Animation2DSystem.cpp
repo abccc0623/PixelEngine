@@ -44,11 +44,11 @@ void ECS::Animation2DSystem::Update(Registry* registry)
 			auto render = registry->Get<ECS::Renderer2D::Renderer2DData>(ID);
 			if (render != nullptr)
 			{
-				render->renderingData->texture_key = select.textureID;
+				render->renderingData.texture_key = select.textureID;
 				render->TilingX = 1.0f / select.maxFramesX;
 				render->TilingY = 1.0f / select.maxFramesY;
-				render->OffsetX = (select.framesIndex % select.maxFramesX) * render->renderingData->sprite.TilingX;
-				render->OffsetY = (select.framesIndex / select.maxFramesX) * render->renderingData->sprite.TilingY;
+				render->OffsetX = (select.framesIndex % select.maxFramesX) * render->renderingData.sprite.TilingX;
+				render->OffsetY = (select.framesIndex / select.maxFramesX) * render->renderingData.sprite.TilingY;
 			}
 		});
 

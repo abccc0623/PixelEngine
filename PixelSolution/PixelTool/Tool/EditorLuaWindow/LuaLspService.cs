@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 using System;
+using System.Collections.Generic; // Queue 작동을 위해 필수 포함
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -29,7 +30,6 @@ namespace PixelTool
         private int currentColumn;
         private string content = string.Empty;
 
-
         private Queue<LSPMessage> ChangeMessageQueue = new Queue<LSPMessage>();
         private class LSPMessage
         {
@@ -43,8 +43,6 @@ namespace PixelTool
             public string TriggerChar = "";
         }
 
-
-
         public async Task Initialize()
         {
             await StartLanguageServerAsync();
@@ -57,7 +55,19 @@ namespace PixelTool
                 // 1. 절대 경로 확정 및 파일 체크
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 string serverPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(baseDir, "LSP/bin/lua-language-server.exe"));
-                string apiFilePath = System.IO.Path.GetFullPath(System.IO.Path.Combine(baseDir, "LSP/bin"));
+
+                // 루아 서버 전용 소문자 표준화 경로 가공
+                string assetDir = System.IO.Path.Combine(baseDir, "Asset").Replace("\\", "/");
+                string engineDir = System.IO.Path.Combine(baseDir, "Asset", "Engine").Replace("\\", "/");
+
+                if (assetDir.Length > 1 && assetDir[1] == ':')
+                {
+                    assetDir = char.ToLower(assetDir[0]) + assetDir.Substring(1);
+                    engineDir = char.ToLower(engineDir[0]) + engineDir.Substring(1);
+                }
+
+                string finalRootUri = "file:///" + assetDir;
+                string finalLibraryUri = "file:///" + engineDir;
 
                 ConsoleWindow.LogMessage($"[DEBUG] 실행 시도 경로: {serverPath}", 0);
 
@@ -74,21 +84,21 @@ namespace PixelTool
                     Arguments = $"--logpath=\"{System.IO.Path.Combine(baseDir, "LSPLogs")}\"",
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
-                    RedirectStandardError = true, // 🔥 서버의 비명을 가로채기 위해 필수
+                    RedirectStandardError = true, // 🔥 서버 내부 로그 추적용
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
 
                 _luaServerProcess = new Process { StartInfo = info, EnableRaisingEvents = true };
 
-                // 🔥 서버가 뱉는 '진짜 에러'를 실시간으로 엔진 로그창에 뿌림
-                _luaServerProcess.ErrorDataReceived += (s, e) => {
+                _luaServerProcess.ErrorDataReceived += (s, e) =>
+                {
                     if (!string.IsNullOrEmpty(e.Data))
                         ConsoleWindow.LogMessage($"⚠️ [SERVER-ERROR]: {e.Data}", 1);
                 };
 
-                // 서버가 죽었을 때 원인을 파악
-                _luaServerProcess.Exited += (s, e) => {
+                _luaServerProcess.Exited += (s, e) =>
+                {
                     ConsoleWindow.LogMessage($"💀 [PROCESS-EXIT]: 서버가 종료됨. ExitCode: {_luaServerProcess.ExitCode}", 2);
                 };
 
@@ -98,57 +108,65 @@ namespace PixelTool
                     return;
                 }
 
-                _luaServerProcess.BeginErrorReadLine(); // 에러 읽기 시작
+                _luaServerProcess.BeginErrorReadLine();
 
-                // 2. RPC 설정 및 골든 시퀀스
+                // 2. RPC 설정 및 메시지 리스닝 활성화
                 _rpc = new JsonRpc(_luaServerProcess.StandardInput.BaseStream, _luaServerProcess.StandardOutput.BaseStream);
-
-                // 핸들러 등록
                 _rpc.AddLocalRpcMethod(Methods.TextDocumentPublishDiagnosticsName, new Action<Newtonsoft.Json.Linq.JToken>(OnPublishDiagnostics));
                 _rpc.AddLocalRpcMethod("window/workDoneProgress/create", new Func<Newtonsoft.Json.Linq.JToken, object>(t => new { }));
-
-                // 리스닝 시작
                 _rpc.StartListening();
 
-                // 3. 초기화 요청 (Dictionary 방식으로 안전하게)
+                // ⭐️ 3. 초기화 요청 파라미터 구성 (중첩 누락 방지를 위해 미니멀 구성으로 전달)
                 var initParams = new Dictionary<string, object>
                 {
                     ["processId"] = Environment.ProcessId,
-                    ["rootUri"] = new Uri(System.IO.Path.Combine(baseDir, "Asset")).AbsoluteUri,
+                    ["rootUri"] = finalRootUri,
                     ["capabilities"] = new
                     {
                         window = new { workDoneProgress = false },
-                        textDocument = new 
+                        textDocument = new
                         {
-                            completion = new 
-                            {
-                                completionItem = new
-                                {
-                                    snippetSupport = true
-                                }
-                            }
-                        }
-                    },
-                    ["initializationOptions"] = new
-                    {
-                        settings = new
-                        {
-                            Lua = new
-                            {
-                                workspace = new { library = new[] { new Uri(apiFilePath).AbsoluteUri } },
-                                runtime = new { version = "Lua 5.1" }
-                            }
+                            completion = new { completionItem = new { snippetSupport = true } }
                         }
                     }
                 };
 
+                string exeDir = AppDomain.CurrentDomain.BaseDirectory;
+                string luaScriptsDir = System.IO.Path.Combine(exeDir, "Asset", "Engine", "EngineGenerate.lua");
+
                 var result = await _rpc.InvokeAsync<Newtonsoft.Json.Linq.JObject>(Methods.InitializeName, initParams);
                 if (result != null)
                 {
+                    // 서버에게 초기화 접수 수립 통보 완료 처리
                     await _rpc.NotifyAsync(Methods.InitializedName);
 
-                    var content = File.ReadAllText("./LSP/bin/GenerateLuaAPI.lua");
-                    await NotifyFileOpenAsync("./LSP/bin/GenerateLuaAPI.lua", content);
+                    // ⭐️ [핵심 마스터 펀치]: 직렬화 교착 현상을 완벽히 파괴하기 위해, 
+                    // JObject 구조를 사용하여 "Lua 5.1" 세팅과 "Asset/Engine" 폴더 스캔 명령을 강제로 주입합니다!
+                    // 이 주입 알림이 꽂히는 순간 서버는 5.4 캐시를 완전히 버리고 파트너님의 컴포넌트 데이터들을 다시 로드합니다.
+                    JObject configParams = new JObject();
+                    JObject settings = new JObject();
+                    JObject lua = new JObject();
+
+                    lua["runtime"] = JObject.FromObject(new { version = "Lua 5.1" });
+                    lua["workspace"] = JObject.FromObject(new { library = new string[] { finalLibraryUri } });
+                    lua["diagnostics"] = JObject.FromObject(new { globals = new string[] { "Vector2", "Vector3", "Transform", "Rigidbody2D" } });
+
+                    settings["Lua"] = lua;
+                    configParams["settings"] = settings;
+
+                    await _rpc.NotifyWithParameterObjectAsync(Methods.WorkspaceDidChangeConfigurationName, configParams);
+                    ConsoleWindow.LogMessage("🎯 [LSP] 서버 강제 재인덱싱(Lua 5.1) 통보 완료!", 1);
+
+                    // 4. 마스터 설계도 파일 오픈 처리
+                    if (File.Exists(luaScriptsDir))
+                    {
+                        var content = File.ReadAllText(luaScriptsDir);
+                        await NotifyFileOpenAsync("Asset/Engine/EngineGenerate.lua", content);
+                    }
+                    else
+                    {
+                        ConsoleWindow.LogMessage($"❌ [LSP] 초기화 마스터 파일을 찾을 수 없음: {luaScriptsDir}", 2);
+                    }
                 }
             }
             catch (Exception ex)
@@ -186,12 +204,11 @@ namespace PixelTool
             }
         }
 
-
         ///Text 업데이트 요청
-        public async Task NotifyDidChangeAsync(string content,int currentLine,int currentColumn,string newText)
+        public async Task NotifyDidChangeAsync(string content, int currentLine, int currentColumn, string newText)
         {
             ++_documentVersion;
-            ChangeMessageQueue.Enqueue(new LSPMessage 
+            ChangeMessageQueue.Enqueue(new LSPMessage
             {
                 Type = LSPMessage.MessageType.CHANGE,
                 version = _documentVersion,
@@ -227,14 +244,12 @@ namespace PixelTool
             }
         }
 
-
-
         public class MyCompletionList
         {
             public CompletionItem[] Items { get; set; }
         }
 
-        public async Task RequestCompletionAsync(string triggerChar,int currentLine,int currentColumn)
+        public async Task RequestCompletionAsync(string triggerChar, int currentLine, int currentColumn)
         {
             string uri = targetFilePath.Replace("\\", "/");
 
@@ -262,9 +277,21 @@ namespace PixelTool
 
             try
             {
+                // 응답 스키마가 배열 노드 구조 형태로 얽혀 뒤섞이는 파싱 크래시 현상 원천 방지 가교 래핑
+                var rawResult = await _rpc.InvokeWithParameterObjectAsync<JToken>(Methods.TextDocumentCompletionName, completionParams);
+                CompletionItem[] completionItems = null;
 
-                var result = await _rpc.InvokeWithParameterObjectAsync<MyCompletionList>(Methods.TextDocumentCompletionName, completionParams);
-                var completionItems = result?.Items;
+                if (rawResult != null)
+                {
+                    if (rawResult is JArray array)
+                    {
+                        completionItems = array.ToObject<CompletionItem[]>();
+                    }
+                    else if (rawResult["items"] is JArray itemsArray)
+                    {
+                        completionItems = itemsArray.ToObject<CompletionItem[]>();
+                    }
+                }
 
                 if (completionItems != null && completionItems.Length > 0)
                 {
@@ -306,7 +333,7 @@ namespace PixelTool
                         {
                             if (item.Label.StartsWith("_"))
                                 continue;
-                           
+
                             LuaEditor.completionWindow.CompletionList.CompletionData.Add(new LuaCompletionData(item));
                         }
 
@@ -334,7 +361,7 @@ namespace PixelTool
             {
                 var m = ChangeMessageQueue.Peek();
                 // 상황 A: 서버가 보낸 버전이 큐의 버전보다 크거나 같다 (처리 대상)
-                if(m == null ) return;
+                if (m == null) return;
                 if (version >= m.version)
                 {
                     // 이제 필요 없으니 꺼냄
@@ -359,24 +386,8 @@ namespace PixelTool
             }
         }
 
-
         private void ShowCompletionWindow(CompletionItem[] items)
         {
-            //_completionWindow = new CompletionWindow(textEditor.TextArea);
-            //var data = _completionWindow.CompletionList.CompletionData;
-            //
-            //foreach (var item in items)
-            //{
-            //    // 저번에 우리가 만든 MyCompletionData 클래스 기억나지? 거기에 서버가 준 데이터를 담아!
-            //    data.Add(new MyCompletionData
-            //    {
-            //        Text = item.Label,
-            //        Description = item.Detail ?? "설명 없음"
-            //    });
-            //}
-            //
-            //_completionWindow.Show();
-            //_completionWindow.Closed += delegate { _completionWindow = null; };
         }
     }
 }

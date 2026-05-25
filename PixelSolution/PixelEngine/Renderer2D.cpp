@@ -10,7 +10,7 @@ void* ECS::Renderer2D::AddComponent(unsigned int id)
 	auto registry = GetRegistry();
 	registry->AddComponent<Renderer2DData>(id);
 	auto data = registry->Get<Renderer2DData>(id);
-	data->renderingData->Type = QUAD;
+	data->renderingData.Type = QUAD;
 	return data;
 }
 void* ECS::Renderer2D::GetComponent(unsigned int id)
@@ -47,7 +47,6 @@ std::string ECS::Renderer2D::BindJit()
 ffi.cdef[[
     typedef struct 
     { 
-        const void* const renderingData;
         float TilingX; 
         float TilingY; 
         float OffsetX; 
@@ -66,7 +65,7 @@ void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
 	{
 		std::string textureName(name);
 		auto textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
-		data->renderingData->texture_key = textureID;
+		data->renderingData.texture_key = textureID;
 	}
 	else
 	{

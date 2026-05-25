@@ -259,6 +259,18 @@ void Import(const char* path)
 }
 
 
+ECS::Entity* FindEntity(unsigned int id)
+{
+	auto sceneManager = Engine->GetFactory<SceneManager>();
+	return sceneManager->FindEntity(id);
+}
+
+void ActiveEntity(unsigned int id, bool active)
+{
+	auto sceneManager = Engine->GetFactory<SceneManager>();
+	sceneManager->ActiveEntity(id, active);
+}
+
 unsigned int CreateEntity(const char* script)
 {
 	std::string scriptName(script);
@@ -275,6 +287,21 @@ void DestroyEntity(unsigned int id)
 	sceneManager->DestroyEntity(u);
 }
 
+void BindLuaEvent(unsigned int id, const char* eventKey, const char* functionName)
+{
+	auto eventManager = Engine->GetFactory<EventManager>();
+	if (eventManager != nullptr)
+	{
+		std::string key(eventKey);
+		std::string func(functionName);
+		eventManager->BindLuaEvent(id, key, func);
+	}
+}
+
+//void CallLuaEvent(const char* eventName, sol::table luaTable)
+//{
+//	auto eventManager = Engine->GetFactory<EventManager>();
+//}
 
 
 void RegisterMessage(GameObject* target, EventType type)

@@ -37,6 +37,9 @@ void BindManager::Initialize()
 	PStatic* globalCreate = CreateNewStatic("Engine");
 	AddGlobalMethod(globalCreate, "CreateEntity", GeGlobalMethodInfo(&CreateEntity), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCreate, "DestroyEntity", GeGlobalMethodInfo(&DestroyEntity), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCreate, "ActiveEntity", GeGlobalMethodInfo(&ActiveEntity), MetaFlag::LUABIND);
+	AddGlobalMethod(globalCreate, "BindLuaEvent", GeGlobalMethodInfo(&BindLuaEvent), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalCreate, "CallLuaEvent", GeGlobalMethodInfo(&CallLuaEvent), MetaFlag::LUABIND);
 
 	AddGlobalMethod(globalCreate, "BackgroundColor", GeGlobalMethodInfo(&BackgroundColor), MetaFlag::LUABIND);
 
@@ -109,7 +112,6 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalRigidbody2D, "LockPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockPosition), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "LockRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockRotation), MetaFlag::LUABIND);
 
-	BindEntity();
 	BindEnum();
 }
 
@@ -147,13 +149,3 @@ void BindManager::BindEnum()
 	//AddEnum(globalEnum, "Circle2D");
 
 }
-
-void BindManager::BindEntity()
-{
-	auto table = CreateNewClass("Entity");
-	AddMember(table, "Active", GetMemberInfo(&ECS::Entity::Active), MetaFlag::LUABIND);
-}
-
-
-
-

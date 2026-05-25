@@ -65,6 +65,14 @@ namespace ECS
 		{
 
 		}
+		void SetActive(unsigned int entityID, bool active) override
+		{
+			if (entityToIndexMap.find(entityID) != entityToIndexMap.end())
+			{
+				auto id = ECS::ChunkedID(entityToIndexMap[entityID]);
+				chunkedArray.SetLife(id.value, active);
+			}
+		}
 	private:
 		std::vector<T> componentArray;
 		ChunkedArray<T, 128> chunkedArray;

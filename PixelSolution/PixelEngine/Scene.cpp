@@ -73,6 +73,29 @@ uint32_t Scene::CreateEntity(const std::string& scriptName)
 	return id.value;
 }
 
+ECS::Entity* Scene::FindEntity(uint32_t id)
+{
+	ECS::Entity* entity = Chunked.Get(id);
+	if (entity != nullptr)
+	{
+		return entity;
+	}
+	PixelLog::Error("Not Find Entity" + std::to_string(id));
+	return nullptr;
+}
+
+void Scene::ActiveEntity(uint32_t id, bool active)
+{
+	ECS::Entity* entity = Chunked.Get(id);
+	if (entity == nullptr)
+	{
+		PixelLog::Error("Not Find Entity" + std::to_string(id));
+		return;
+	}
+	registry->SetActive(id, active);
+	entity->Active = active;
+}
+
 void Scene::DestroyEntity(uint32_t id)
 {
 	PixelLog::Info("[" + sceneName + "] DeleteEntity");
