@@ -19,6 +19,7 @@
 #include "BoxCollider2D.h"
 #include "CircleCollider2D.h"
 #include "Rigidbody2D.h"
+#include "LuaEvent.h"
 
 BindManager::BindManager()
 {
@@ -111,6 +112,15 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalRigidbody2D, "SetRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotation), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "LockPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockPosition), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "LockRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockRotation), MetaFlag::LUABIND);
+
+	PStatic* globalLuaEvent = CreateNewStatic("LuaEvent");
+	AddGlobalMethod(globalLuaEvent, "AddComponent", GeGlobalMethodInfo(&ECS::LuaEvent::AddComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalLuaEvent, "GetComponent", GeGlobalMethodInfo(&ECS::LuaEvent::GetComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalLuaEvent, "HasComponent", GeGlobalMethodInfo(&ECS::LuaEvent::HasComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalLuaEvent, "BindJit", GeGlobalMethodInfo(&ECS::LuaEvent::BindJit), MetaFlag::LUABIND);
+	AddGlobalMethod(globalLuaEvent, "BindEvent", GeGlobalMethodInfo(&ECS::LuaEvent::BindEvent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalLuaEvent, "CallEvent", GeGlobalMethodInfo(&ECS::LuaEvent::CallEvent), MetaFlag::LUABIND);
+
 
 	BindEnum();
 }

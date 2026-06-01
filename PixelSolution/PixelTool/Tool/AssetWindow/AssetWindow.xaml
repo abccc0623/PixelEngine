@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="PixelTool.AssetWindow"
+<UserControl x:Class="PixelTool.AssetWindow"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -14,7 +14,13 @@
             <ColumnDefinition Width="0.5*"/>
         </Grid.ColumnDefinitions>
 
-        <TreeView x:Name="FolderView" Grid.Column="0" Background="{StaticResource PixelBackgroundBrush}" ItemsSource="{Binding FolderItems}" SelectedItemChanged ="FolderView_SelectedItemChanged">
+        <!-- 폴더 트리 -->
+        <TreeView x:Name="FolderView" Grid.Column="0"
+                  Background="{StaticResource PixelBackgroundBrush}"
+                  ItemsSource="{Binding FolderItems}"
+                  SelectedItemChanged="FolderView_SelectedItemChanged"
+                  AllowDrop="True"
+                  Drop="FolderView_Drop">
             <TreeView.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#484A77" />
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#484A77" />
@@ -24,16 +30,24 @@
 
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
-                    <EventSetter Event="PreviewMouseRightButtonDown" Handler= "TreeViewItem_PreviewMouseRightButtonDown" />
-                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                    <Setter Property="ToolTip" Value="{Binding fullPath}" />
+                    <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_PreviewMouseRightButtonDown"/>
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                    <Setter Property="ToolTip" Value="{Binding fullPath}"/>
                 </Style>
             </TreeView.ItemContainerStyle>
 
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding FolderItems}">
                     <StackPanel Orientation="Horizontal" Margin="2">
+                        <StackPanel.ContextMenu>
+                            <ContextMenu Background="#25263D" Foreground="White" BorderBrush="#1B1C2E">
+                                <MenuItem Header="📁 새 폴더" Click="FolderItem_Create"/>
+                                <Separator Background="#444"/>
+                                <MenuItem Header="✏️ 이름 바꾸기" Click="FolderItem_Rename"/>
+                                <MenuItem Header="🗑️ 삭제" Click="FolderItem_Delete" Foreground="#FF6B6B"/>
+                            </ContextMenu>
+                        </StackPanel.ContextMenu>
                         <TextBlock Text="📁" Margin="0,0,5,0" Foreground="White"/>
                         <TextBlock Text="{Binding folderName}" Foreground="White"/>
                     </StackPanel>
@@ -41,49 +55,74 @@
             </TreeView.ItemTemplate>
         </TreeView>
 
+        <GridSplitter Grid.Column="1" Background="{StaticResource PixelBackgroundBrush}"/>
 
-        <GridSplitter Grid.Column="1" Background="{StaticResource PixelBackgroundBrush}"></GridSplitter>
+        <!-- 파일 리스트 -->
+        <ListView x:Name="FileView" Grid.Column="2"
+                  HorizontalContentAlignment="Stretch"
+                  Background="{StaticResource PixelBackgroundBrush}"
+                  ItemsSource="{Binding FileItems}"
+                  MouseDoubleClick="FileView_MouseDoubleClick"
+                  PreviewMouseLeftButtonDown="FileView_PreviewMouseLeftButtonDown"
+                  PreviewMouseMove="FileView_PreviewMouseMove"
+                  Drop="FileView_Drop"
+                  AllowDrop="True"
+                  BorderThickness="0">
 
+            <ListView.ContextMenu>
+                <ContextMenu Background="#25263D" Foreground="White" BorderBrush="#1B1C2E">
+                    <MenuItem Header="📜 새 Lua 파일" Click="CreateNewLua"/>
+                    <MenuItem Header="🧩 새 PXM 파일" Click="CreateNewPxm"/>
+                    <MenuItem Header="🎬 새 Scene 파일" Click="CreateNewScene"/>
+                    <Separator Background="#444"/>
+                    <MenuItem Header="🔄 새로고침" Click="RefreshFolder"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
 
-
-        <ListView x:Name="FileView" Grid.Column="2" 
-          HorizontalContentAlignment="Stretch"
-          Background="{StaticResource PixelBackgroundBrush}" 
-          ItemsSource="{Binding FileItems}"
-          MouseDoubleClick="FileView_MouseDoubleClick"
-          BorderThickness="0">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#484A77"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#2E2F4A"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.ItemContainerStyle>
 
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="0,5">
-
+                    <Grid Margin="0,3">
                         <Grid.ContextMenu>
                             <ContextMenu Background="#25263D" Foreground="White" BorderBrush="#1B1C2E">
-                                <MenuItem Header="경로 복사" Click="FileItem_CopyPath"/>
-                                <Separator Background="#444" />
-                                <MenuItem Header="이름 바꾸기" Click="FileItem_NameChange"/>
-                                <MenuItem Header="삭제" Click="FileItem_Delete" Foreground="#FF6B6B" />
+                                <MenuItem Header="📋 경로 복사" Click="FileItem_CopyPath"/>
+                                <Separator Background="#444"/>
+                                <MenuItem Header="✏️ 이름 바꾸기" Click="FileItem_NameChange"/>
+                                <MenuItem Header="🗑️ 삭제" Click="FileItem_Delete" Foreground="#FF6B6B"/>
                             </ContextMenu>
                         </Grid.ContextMenu>
-
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="24"/>
                             <ColumnDefinition Width="0.6*"/>
-                            <ColumnDefinition Width="0.1*"/>
-                            <ColumnDefinition Width="0.1*"/>
+                            <ColumnDefinition Width="0.15*"/>
+                            <ColumnDefinition Width="0.15*"/>
                         </Grid.ColumnDefinitions>
-
-                        <TextBlock Text="{Binding FileIcon}"  Grid.Column="0" Foreground="White"/>
-                        <TextBlock Text="{Binding FileName}"  Grid.Column="1" Foreground="White"/>
-                        <TextBlock Text="{Binding Extension}" Grid.Column="2" Foreground="White"/>
-                        <TextBlock Text="{Binding FileSize}"  Grid.Column="3" Foreground="White"/>
+                        <TextBlock Text="{Binding FileIcon}" Grid.Column="0" Foreground="White" FontSize="13"/>
+                        <TextBlock Text="{Binding FileName}" Grid.Column="1" Foreground="White" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding Extension}" Grid.Column="2" Foreground="#888" FontSize="11"/>
+                        <TextBlock Text="{Binding FileSize}" Grid.Column="3" Foreground="#888" FontSize="11"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
+        <!-- 미리보기 -->
         <Border Grid.Column="3" Background="#1B1C2E">
-            <Image x:Name="TexturePreview" Stretch="Uniform" Margin="10" />
+            <Image x:Name="TexturePreview" Stretch="Uniform" Margin="10"/>
         </Border>
     </Grid>
 </UserControl>

@@ -180,7 +180,7 @@ void EventManager::BindLuaEvent(unsigned int id, std::string key, std::string fu
 	eventList[key].push_back(event);
 }
 
-void EventManager::CallLuaEvent(std::string eventName, sol::table event)
+void EventManager::CallLuaEvent(std::string eventName, sol::object event)
 {
 	if (eventList.find(eventName) != eventList.end())
 	{

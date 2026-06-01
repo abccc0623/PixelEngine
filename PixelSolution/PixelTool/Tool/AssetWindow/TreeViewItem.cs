@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -12,9 +12,9 @@ namespace PixelTool
 {
     public class FolderViewItem
     {
-       public bool IsSelected { get; set; }
-       public bool IsExpanded { get; set; }
-       public string fullPath { get; set; }
+        public bool IsSelected { get; set; }
+        public bool IsExpanded { get; set; }
+        public string fullPath { get; set; }
     }
 
     public class FolderItem : INotifyPropertyChanged
@@ -39,34 +39,55 @@ namespace PixelTool
             set { _isSelected = value; OnPropertyChanged(nameof(IsSelected)); }
         }
 
-        public string fullPath { get; set; }
-        public string folderName { get; set; }
+        private string _folderName;
+        public string folderName
+        {
+            get => _folderName;
+            set { _folderName = value; OnPropertyChanged(nameof(folderName)); }
+        }
+
+        private string _fullPath;
+        public string fullPath
+        {
+            get => _fullPath;
+            set { _fullPath = value; OnPropertyChanged(nameof(fullPath)); }
+        }
+
         public ObservableCollection<FolderItem> FolderItems { get; set; } = new ObservableCollection<FolderItem>();
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-
-    public class FileItem
+    public class FileItem : INotifyPropertyChanged
     {
-        public string FileName { get; set; }     // 예: Player.lua
-        public string FileIcon { get; set; }     // 예: Player.lua
-        public string Extension { get; set; }    // 예: .lua
-        public string FileSize { get; set; }     // 예: 15 KB
-        public string FullPath { get; set; }     // 전체 경로
+        private string _fileName;
+        public string FileName
+        {
+            get => _fileName;
+            set { _fileName = value; OnPropertyChanged(nameof(FileName)); }
+        }
+
+        private string _fullPath;
+        public string FullPath
+        {
+            get => _fullPath;
+            set { _fullPath = value; OnPropertyChanged(nameof(FullPath)); }
+        }
+
+        public string FileIcon { get; set; }
+        public string Extension { get; set; }
+        public string FileSize { get; set; }
 
         public FileItem(string path)
         {
-            var info = new System.IO.FileInfo(path);
-            FullPath = path;
-            FullPath = FullPath.Replace('\\', '/');
-            FileName = System.IO.Path.GetFileNameWithoutExtension(path); ;
+            var info = new FileInfo(path);
+            FullPath = path.Replace('\\', '/');
+            FileName = Path.GetFileNameWithoutExtension(path);
             Extension = info.Extension;
-            // 바이트 단위를 KB로 변환해서 저장
             FileSize = $"{(info.Length / 1024.0):F1} KB";
 
-            switch (Extension)
+            switch (Extension.ToLower())
             {
                 case ".lua":
                     FileIcon = (FileName == "main") ? "🏠" : "📜";
@@ -76,12 +97,21 @@ namespace PixelTool
                     break;
                 case ".png":
                 case ".jpg":
+                case ".jpeg":
+                case ".bmp":
+                case ".tga":
                     FileIcon = "🖼️";
                     break;
                 case ".pxm":
                     FileIcon = "🧩";
                     break;
+                default:
+                    FileIcon = "📄";
+                    break;
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

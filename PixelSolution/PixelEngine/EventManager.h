@@ -43,7 +43,7 @@ public:
 	void TriggerEvent(EventType type, Event event);
 
 	void BindLuaEvent(unsigned int id, std::string key, std::string func);
-	void CallLuaEvent(std::string eventName, sol::table event);
+	void CallLuaEvent(std::string eventName, sol::object event);
 private:
 	//std::unordered_map<EventType, std::vector<GameObject*>> eventList;
 	//std::unordered_map<std::string, std::vector<GameObject*>> customEventList;

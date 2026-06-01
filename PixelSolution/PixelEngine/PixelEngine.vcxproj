@@ -185,6 +185,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="IComponentArray.h" />
     <ClInclude Include="ISystem.h" />
     <ClInclude Include="LuaCreate.h" />
+    <ClInclude Include="LuaEvent.h" />
     <ClInclude Include="ModuleEntry.h" />
     <ClInclude Include="EntityID.h" />
     <ClInclude Include="Camera.h" />
@@ -260,6 +261,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="ISystem.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="LuaCreate.cpp" />
+    <ClCompile Include="LuaEvent.cpp" />
     <ClCompile Include="PhysLayer.cpp" />
     <ClCompile Include="PhysListener.cpp" />
     <ClCompile Include="PhysManager.cpp" />

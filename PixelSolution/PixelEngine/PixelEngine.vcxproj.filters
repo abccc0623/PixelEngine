@@ -348,6 +348,9 @@
     <ClInclude Include="CircleCollider2D.h">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClInclude>
+    <ClInclude Include="LuaEvent.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -510,6 +513,9 @@
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
     <ClCompile Include="CircleCollider2D.cpp">
+      <Filter>EngineAPI\ECS\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaEvent.cpp">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
   </ItemGroup>
