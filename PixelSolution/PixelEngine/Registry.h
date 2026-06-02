@@ -49,7 +49,7 @@ namespace ECS
 			{
 				return false;
 			}
-			return true;
+			return find->second->Has(entityID);
 		}
 
 

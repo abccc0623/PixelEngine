@@ -124,7 +124,7 @@ namespace ECS
 		std::vector<uint8_t> versions;
 		std::queue<unsigned int> freeSlots;
 		std::vector<bool> activeSlots;
-		int currentSize;
+		int currentSize = 0;
 	};
 }
 

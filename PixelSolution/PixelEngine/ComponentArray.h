@@ -47,6 +47,10 @@ namespace ECS
 				return nullptr;
 			}
 		}
+		bool Has(unsigned int entityID) override
+		{
+			return entityToIndexMap.find(entityID) != entityToIndexMap.end();
+		}
 		unsigned int GetEntityID(int index) override
 		{
 			return indexToEntityMap[index];
