@@ -89,6 +89,7 @@ void GenerateManager::TypeMember(PixelClassMeta& PixelClass, PType* type)
 		PixelMemberMeta PixelMember;
 		PixelMember.name = GetMemberName(type, memberIndex);
 		PixelMember.type = GetMemberType(type, memberIndex);
+		PixelMember.luaBind = HasMemberFlag(type, memberIndex, MetaFlag::LUABIND);
 		PixelClass.members.push_back(PixelMember);
 	}
 }

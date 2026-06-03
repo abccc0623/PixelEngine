@@ -1,6 +1,13 @@
 #include "pch.h"
 #include "LuaBind.h"
 #include "PixelMeta.h"
+static bool IsMetaOnlyType(const std::string& name)
+{
+	return name == "Vector2" ||
+		name == "Vector3" ||
+		name == "MotionType" ||
+		(name.size() > 4 && name.substr(name.size() - 4) == "Data");
+}
 LuaBind::LuaBind()
 {
 
@@ -17,6 +24,7 @@ void LuaBind::SetIncludeString(PixelClassMeta& meta)
 {
 	if (meta.metaType == META_TYPE::PRIMITIVE) return;
 	if (meta.metaType == META_TYPE::ENUM) return;
+	if (IsMetaOnlyType(meta.thisName)) return;
 	if (meta.thisName == "Module") return;
 
 
@@ -33,6 +41,7 @@ void LuaBind::SetIncludeString(PixelClassMeta& meta)
 void LuaBind::SetFunctionString(PixelClassMeta& meta)
 {
 	if (meta.metaType == META_TYPE::PRIMITIVE) return;
+	if (IsMetaOnlyType(meta.thisName)) return;
 
 	FunctionCallString += ReplaceAll(FunctionCallName, "TYPE_NAME", meta.thisName);
 	FunctionString += ReplaceAll(FunctionName, "TYPE_NAME", meta.thisName);

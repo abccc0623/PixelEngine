@@ -53,6 +53,7 @@ This file is for Codex-specific project notes and working rules.
 - `Client` is the engine runtime entry point.
 - `Generate` extracts Lua-related functions and generates Lua files.
 - `PixelTool` is a C# WPF editor project.
+- `PixelTool` uses AvalonDock for editor docking windows.
 - `PixelTool` is intended to make Lua writing and asset creation easier, but it is not urgent right now.
 - `Editor_d` is intended as an editor debug configuration, but it is not actively used yet.
 
@@ -87,3 +88,27 @@ This file is for Codex-specific project notes and working rules.
 - 코드 예시는 필요한 최소 길이로 작성한다.
 - 테스트나 빌드 결과는 핵심 성공/실패만 요약한다.
 - 사용자가 명시적으로 요청하지 않으면 빌드하지 않는다.
+
+## 컴포넌트 Lua 생성 방향
+
+- `BindJit` 수동 문자열 방식은 장기적으로 제거한다.
+- 컴포넌트 LuaJIT FFI 정의는 `PixelMeta`의 Data struct 멤버 정보로 자동 생성한다.
+- `BindManager`는 컴포넌트 namespace/static 함수 등록을 유지한다.
+  - 예: `AddComponent`, `GetComponent`, `HasComponent`
+- 추가로 `TransformData`, `Renderer2DData`, `Rigidbody2DData` 같은 Data struct를 `PixelMeta`에 등록한다.
+- Data struct 등록 시 Lua에 노출할 멤버만 `AddMember`로 등록한다.
+- 멤버 등록에는 `MetaFlag::LUABIND` 같은 flag를 사용해 Lua 노출 여부를 구분한다.
+- `LuaCreate`는 `컴포넌트명`에서 `컴포넌트명Data` 메타 정보를 찾아 `ffi.cdef`를 자동 생성한다.
+- `RenderingData`, `bodyID`, `IsCreate`, `velocityCopy` 같은 엔진 내부 필드는 Lua에 노출하지 않는다.
+- `TransformData`는 16바이트 정렬과 padding 필드 순서가 중요하므로 자동 FFI 생성 예외로 둔다.
+  - 순서: `position`, `bitmask`, `rotation`, `unused1`, `scale`, `unused2`
+  - Lua에서는 주로 `position`, `rotation`, `scale`만 사용한다.
+- 타입 변환 규칙을 둔다.
+  - `float` -> `float`
+  - `int` / `int32_t` -> `int`
+  - `bool` -> `bool`
+  - `unsigned int` -> `uint32_t`
+  - `Pixel::Vector2` -> `Vector2`
+  - `Pixel::Vector3` -> `Vector3`
+  - `Pixel::Matrix4x4` -> 제외하거나 별도 정의 후 사용
+- 새 컴포넌트는 `Data + AddComponent/GetComponent/HasComponent + Data 메타 등록` 구조를 따른다.

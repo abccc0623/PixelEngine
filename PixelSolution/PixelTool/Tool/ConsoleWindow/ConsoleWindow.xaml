@@ -20,6 +20,24 @@
         </Grid>
         
         <ListBox x:Name="EngineLogView" Grid.Row="1" Background="{StaticResource PixelBackgroundBrush}" Foreground="{StaticResource PixelTextBrush}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel LastChildFill="True">
+                        <TextBlock DockPanel.Dock="Right"
+                                   Margin="8,0,0,0"
+                                   Foreground="{Binding DisplayColor, Mode=OneWay}"
+                                   Text="{Binding CountText, Mode=OneWay}" />
+                        <TextBlock Foreground="{Binding DisplayColor, Mode=OneWay}">
+                            <Run Text="[" />
+                            <Run Text="{Binding Timestamp, Mode=OneWay}" />
+                            <Run Text="]" />
+                            <Run Text="{Binding Tag, Mode=OneWay}" />
+                            <Run Text=" " />
+                            <Run Text="{Binding Message, Mode=OneWay}" />
+                        </TextBlock>
+                    </DockPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
             <ListBox.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="복사 (Copy)" Click="CopyMenuItem_Click" />

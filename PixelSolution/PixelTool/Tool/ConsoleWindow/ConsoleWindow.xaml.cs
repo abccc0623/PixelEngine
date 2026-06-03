@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,11 +12,26 @@ using System.Windows.Threading;
 namespace PixelTool
 {
     // 로그 데이터를 담는 가벼운 POCO 객체
-    public class LogEntry
+    public class LogEntry : INotifyPropertyChanged
     {
         public string Timestamp { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
         public int Level { get; set; }
+        private int _count = 1;
+
+        public int Count
+        {
+            get => _count;
+            set
+            {
+                if (_count == value) return;
+                _count = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CountText)));
+            }
+        }
+
+        public string CountText => Count > 1 ? $"x{Count}" : string.Empty;
         public Brush DisplayColor => Level switch
         {
             0 => Brushes.White,   // INFO
@@ -23,7 +40,8 @@ namespace PixelTool
             _ => Brushes.Gray
         };
         public string Tag => Level == 0 ? "[INFO]" : (Level == 1 ? "[WARN]" : "[ERR ]");
-        public override string ToString() => $"[{Timestamp}]{Tag} {Message}";
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public override string ToString() => $"[{Timestamp}]{Tag} {Message}" + (Count > 1 ? $" {CountText}" : "");
     }
 
     public partial class ConsoleWindow : UserControl
@@ -39,6 +57,7 @@ namespace PixelTool
         // 고성능 처리를 위한 스레드 안전 큐 및 바인딩 컬렉션
         private static readonly ConcurrentQueue<LogEntry> _pendingLogs = new ConcurrentQueue<LogEntry>();
         private readonly ObservableCollection<LogEntry> _logItems = new ObservableCollection<LogEntry>();
+        private readonly Dictionary<string, LogEntry> _logIndex = new Dictionary<string, LogEntry>();
         private readonly DispatcherTimer _uiUpdateTimer;
 
         private const int MAX_LOG_COUNT = 2000; // 최대 로그 보관 개수 (메모리 방어)
@@ -91,11 +110,22 @@ namespace PixelTool
             int processCount = 0;
             while (_pendingLogs.TryDequeue(out var log) && processCount < 500)
             {
+                var key = GetLogKey(log);
+                if (_logIndex.TryGetValue(key, out var existingLog))
+                {
+                    existingLog.Count++;
+                    processCount++;
+                    continue;
+                }
+
                 if (_logItems.Count >= MAX_LOG_COUNT)
                 {
+                    var oldLog = _logItems[0];
+                    _logIndex.Remove(GetLogKey(oldLog));
                     _logItems.RemoveAt(0); // 가장 오래된 로그 삭제
                 }
                 _logItems.Add(log);
+                _logIndex[key] = log;
                 processCount++;
             }
 
@@ -109,9 +139,14 @@ namespace PixelTool
         private void Clear(object sender, RoutedEventArgs e)
         {
             _logItems.Clear();
+            _logIndex.Clear();
             while (_pendingLogs.TryDequeue(out _)) { } // 잔여 큐 완전히 비우기
         }
 
+        private static string GetLogKey(LogEntry log)
+        {
+            return $"{log.Level}:{log.Message}";
+        }
         void Copy()
         {
             if (EngineLogView.SelectedItem is LogEntry log)

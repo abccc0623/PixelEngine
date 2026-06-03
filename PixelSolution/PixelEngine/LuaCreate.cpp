@@ -20,7 +20,7 @@ void LuaCreate::Generate(const char* outPath, std::vector<PixelClassMeta>& types
 		switch (K.metaType)
 		{
 		case META_TYPE::STATIC:
-			CreateComponent(K);
+			CreateComponent(K, types);
 			break;
 		}
 	}
@@ -39,7 +39,7 @@ std::string GetEngineRootPath()
 	return exePath.parent_path().string();
 }
 
-std::string LuaCreate::CreateComponent(PixelClassMeta& meta)
+std::string LuaCreate::CreateComponent(PixelClassMeta& meta, std::vector<PixelClassMeta>& types)
 {
 	std::string luaFile;
 	if (meta.thisName != "Engine" &&
@@ -54,12 +54,7 @@ std::string LuaCreate::CreateComponent(PixelClassMeta& meta)
 		{
 			if (meta.methods[i].name == "BindJit")
 			{
-				luaFile += "local ffi = require(\"ffi\")\n\n";
-				PType* type = GetType(meta.thisName);
-				std::vector<void*> property;
-				PValue value = CallMethod(type, i, nullptr, property);
-				luaFile += value.v_string;
-				luaFile += "\n\n";
+				continue;
 			}
 			else if (meta.methods[i].name == "AddComponent")
 			{
@@ -97,6 +92,7 @@ std::string LuaCreate::CreateComponent(PixelClassMeta& meta)
 			}
 		}
 
+		luaFile += CreateCDef(meta, types);
 		luaFile += meta.thisName + " = " + meta.thisName + " or {}\n";
 		luaFile += function;
 		GenerateComponentFileName += "require(\"" + meta.thisName + "\")\n";
@@ -109,6 +105,101 @@ std::string LuaCreate::CreateComponent(PixelClassMeta& meta)
 	return luaFile;
 }
 
+PixelClassMeta* LuaCreate::FindType(std::vector<PixelClassMeta>& types, const std::string& name)
+{
+	for (auto& type : types)
+	{
+		if (type.thisName == name)
+		{
+			return &type;
+		}
+	}
+	return nullptr;
+}
+
+std::string LuaCreate::TypeChangeByCType(const std::string& type)
+{
+	if (type == "float") return "float";
+	if (type == "double") return "double";
+	if (type == "bool") return "bool";
+	if (type == "int" || type == "int32_t") return "int";
+	if (type == "unsigned int" || type == "uint32_t") return "uint32_t";
+	if (type == "Vector2" || type == "Pixel::Vector2") return "Vector2";
+	if (type == "Vector3" || type == "Pixel::Vector3") return "Vector3";
+	if (type == "MotionType") return "MotionType";
+	return "";
+}
+
+std::string LuaCreate::CreateCDef(PixelClassMeta& meta, std::vector<PixelClassMeta>& types)
+{
+	std::string dataName = meta.thisName + "Data";
+	PixelClassMeta* dataMeta = FindType(types, dataName);
+	if (dataMeta == nullptr)
+	{
+		return "";
+	}
+
+	if (meta.thisName == "Transform")
+	{
+		std::string jit = "local ffi = require(\"ffi\")\n\n";
+		jit += "---@class TransformData\n";
+		jit += "---@field position Vector3\n";
+		jit += "---@field rotation Vector3\n";
+		jit += "---@field scale Vector3\n";
+		jit += "ffi.cdef[[\n";
+		jit += "\ttypedef struct __attribute__((aligned(16))) \n";
+		jit += "\t{ \n";
+		jit += "\t\tVector3 position;\n";
+		jit += "\t\tuint32_t bitmask;\n";
+		jit += "\t\tVector3 rotation;\n";
+		jit += "\t\tuint32_t unused1;\n";
+		jit += "\t\tVector3 scale;\n";
+		jit += "\t\tuint32_t unused2;\n";
+		jit += "\t} TransformData;\n";
+		jit += "]]\n\n";
+		return jit;
+	}
+
+	std::string jit = "local ffi = require(\"ffi\")\n\n";
+	jit += "---@class " + dataName + "\n";
+	for (auto& member : dataMeta->members)
+	{
+		if (member.luaBind == false) continue;
+		std::string cType = TypeChangeByCType(member.type);
+		if (cType.empty()) continue;
+		jit += "---@field " + member.name + " " + member.type + "\n";
+	}
+
+	jit += "ffi.cdef[[\n";
+	if (meta.thisName == "Rigidbody2D")
+	{
+		jit += "\ttypedef enum {\n";
+		jit += "\t\tStatic = 0,\n";
+		jit += "\t\tKinematic = 1,\n";
+		jit += "\t\tDynamic = 2,\n";
+		jit += "\t} MotionType;\n\n";
+	}
+	jit += "\ttypedef struct \n";
+	jit += "\t{ \n";
+
+	bool hasMember = false;
+	for (auto& member : dataMeta->members)
+	{
+		if (member.luaBind == false) continue;
+		std::string cType = TypeChangeByCType(member.type);
+		if (cType.empty()) continue;
+		jit += "\t\t" + cType + " " + member.name + ";\n";
+		hasMember = true;
+	}
+	if (hasMember == false)
+	{
+		jit += "\t\tchar __unused;\n";
+	}
+
+	jit += "\t} " + dataName + ";\n";
+	jit += "]]\n\n";
+	return jit;
+}
 void LuaCreate::ComponentLinkFile()
 {
 	std::string root = GetEngineRootPath() + "\\Asset\\Engine\\EngineGenerate.lua";

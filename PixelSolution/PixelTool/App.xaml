@@ -11,6 +11,7 @@
         <SolidColorBrush x:Key="PixelBorderBrush" Color="#3F3F5C"/>
         <SolidColorBrush x:Key="PixelTextBrush" Color="#D1D1E0"/>
         <SolidColorBrush x:Key="PixelWhiteBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="PixelDockBorderBrush" Color="#3A3C5E"/>
 
         <SolidColorBrush x:Key="PixelButtonBrush" Color="#2D2E45"/>
         <SolidColorBrush x:Key="PixelButtonHoverBrush" Color="#444BB5"/>

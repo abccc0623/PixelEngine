@@ -21,6 +21,69 @@
 #include "Rigidbody2D.h"
 #include "LuaEvent.h"
 
+
+static MemberInfo LuaMember(const std::string& type, size_t offset)
+{
+	MemberInfo info;
+	info.memberType = type;
+	info.offset = offset;
+	return info;
+}
+
+static PClass* CreateLuaMetaClass(const std::string& name)
+{
+	PType* type = GetType(name);
+	if (type != nullptr)
+	{
+		return reinterpret_cast<PClass*>(type);
+	}
+	return CreateNewClass(name);
+}
+
+static void RegisterComponentData()
+{
+	CreateLuaMetaClass("Vector2");
+	CreateLuaMetaClass("Vector3");
+	CreateLuaMetaClass("MotionType");
+
+	PClass* transformData = CreateLuaMetaClass("TransformData");
+	AddMember(transformData, "position", LuaMember("Vector3", offsetof(ECS::Transform::TransformData, position)), MetaFlag::LUABIND);
+	AddMember(transformData, "rotation", LuaMember("Vector3", offsetof(ECS::Transform::TransformData, rotation)), MetaFlag::LUABIND);
+	AddMember(transformData, "scale", LuaMember("Vector3", offsetof(ECS::Transform::TransformData, scale)), MetaFlag::LUABIND);
+
+	PClass* renderer2DData = CreateLuaMetaClass("Renderer2DData");
+	AddMember(renderer2DData, "TilingX", LuaMember("float", offsetof(ECS::Renderer2D::Renderer2DData, TilingX)), MetaFlag::LUABIND);
+	AddMember(renderer2DData, "TilingY", LuaMember("float", offsetof(ECS::Renderer2D::Renderer2DData, TilingY)), MetaFlag::LUABIND);
+	AddMember(renderer2DData, "OffsetX", LuaMember("float", offsetof(ECS::Renderer2D::Renderer2DData, OffsetX)), MetaFlag::LUABIND);
+	AddMember(renderer2DData, "OffsetY", LuaMember("float", offsetof(ECS::Renderer2D::Renderer2DData, OffsetY)), MetaFlag::LUABIND);
+
+	CreateLuaMetaClass("CameraData");
+
+	PClass* boxCollider2DData = CreateLuaMetaClass("BoxCollider2DData");
+	AddMember(boxCollider2DData, "Center", LuaMember("Vector2", offsetof(ECS::BoxCollider2D::BoxCollider2DData, Center)), MetaFlag::LUABIND);
+	AddMember(boxCollider2DData, "Offset", LuaMember("Vector2", offsetof(ECS::BoxCollider2D::BoxCollider2DData, Offset)), MetaFlag::LUABIND);
+
+	PClass* circleCollider2DData = CreateLuaMetaClass("CircleCollider2DData");
+	AddMember(circleCollider2DData, "Center", LuaMember("Vector2", offsetof(ECS::CircleCollider2D::CircleCollider2DData, Center)), MetaFlag::LUABIND);
+	AddMember(circleCollider2DData, "Radius", LuaMember("float", offsetof(ECS::CircleCollider2D::CircleCollider2DData, Radius)), MetaFlag::LUABIND);
+
+	PClass* rigidbody2DData = CreateLuaMetaClass("Rigidbody2DData");
+	AddMember(rigidbody2DData, "type", LuaMember("MotionType", offsetof(ECS::Rigidbody2D::Rigidbody2DData, type)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "Active", LuaMember("bool", offsetof(ECS::Rigidbody2D::Rigidbody2DData, Active)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "Kinematic", LuaMember("bool", offsetof(ECS::Rigidbody2D::Rigidbody2DData, Kinematic)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "AutoSleep", LuaMember("bool", offsetof(ECS::Rigidbody2D::Rigidbody2DData, AutoSleep)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "Sensor", LuaMember("bool", offsetof(ECS::Rigidbody2D::Rigidbody2DData, Sensor)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "Gravity", LuaMember("float", offsetof(ECS::Rigidbody2D::Rigidbody2DData, Gravity)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "Restitution", LuaMember("float", offsetof(ECS::Rigidbody2D::Rigidbody2DData, Restitution)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "Friction", LuaMember("float", offsetof(ECS::Rigidbody2D::Rigidbody2DData, Friction)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "LinearDamping", LuaMember("float", offsetof(ECS::Rigidbody2D::Rigidbody2DData, LinearDamping)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "velocity", LuaMember("Vector3", offsetof(ECS::Rigidbody2D::Rigidbody2DData, velocity)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "impulse", LuaMember("Vector3", offsetof(ECS::Rigidbody2D::Rigidbody2DData, impulse)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "force", LuaMember("Vector3", offsetof(ECS::Rigidbody2D::Rigidbody2DData, force)), MetaFlag::LUABIND);
+
+	PClass* luaEventData = CreateLuaMetaClass("LuaEventData");
+	AddMember(luaEventData, "test", LuaMember("float", offsetof(ECS::LuaEvent::LuaEventData, test)), MetaFlag::LUABIND);
+}
 BindManager::BindManager()
 {
 
@@ -66,14 +129,12 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalTransform, "AddComponent", GeGlobalMethodInfo(&ECS::Transform::AddComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalTransform, "GetComponent", GeGlobalMethodInfo(&ECS::Transform::GetComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalTransform, "HasComponent", GeGlobalMethodInfo(&ECS::Transform::HasComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalTransform, "BindJit", GeGlobalMethodInfo(&ECS::Transform::BindJit), MetaFlag::LUABIND);
 
 
 	PStatic* globalRenderer2D = CreateNewStatic("Renderer2D");
 	AddGlobalMethod(globalRenderer2D, "AddComponent", GeGlobalMethodInfo(&ECS::Renderer2D::AddComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRenderer2D, "GetComponent", GeGlobalMethodInfo(&ECS::Renderer2D::GetComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRenderer2D, "HasComponent", GeGlobalMethodInfo(&ECS::Renderer2D::HasComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRenderer2D, "BindJit", GeGlobalMethodInfo(&ECS::Renderer2D::BindJit), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRenderer2D, "SetTexture", GeGlobalMethodInfo(&ECS::Renderer2D::SetTexture), MetaFlag::LUABIND);
 
 
@@ -81,7 +142,6 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalCamera, "AddComponent", GeGlobalMethodInfo(&ECS::Camera::AddComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCamera, "GetComponent", GeGlobalMethodInfo(&ECS::Camera::GetComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCamera, "HasComponent", GeGlobalMethodInfo(&ECS::Camera::HasComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCamera, "BindJit", GeGlobalMethodInfo(&ECS::Camera::BindJit), MetaFlag::LUABIND);
 
 	PStatic* globalAnimation2D = CreateNewStatic("Animation2D");
 	AddGlobalMethod(globalAnimation2D, "Add", GeGlobalMethodInfo(&ECS::Animation2D::Add), MetaFlag::LUABIND);
@@ -94,19 +154,16 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalBoxCollider2D, "AddComponent", GeGlobalMethodInfo(&ECS::BoxCollider2D::AddComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalBoxCollider2D, "GetComponent", GeGlobalMethodInfo(&ECS::BoxCollider2D::GetComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalBoxCollider2D, "HasComponent", GeGlobalMethodInfo(&ECS::BoxCollider2D::HasComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalBoxCollider2D, "BindJit", GeGlobalMethodInfo(&ECS::BoxCollider2D::BindJit), MetaFlag::LUABIND);
 
 	PStatic* globalCircleCollider2D = CreateNewStatic("CircleCollider2D");
 	AddGlobalMethod(globalCircleCollider2D, "AddComponent", GeGlobalMethodInfo(&ECS::CircleCollider2D::AddComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCircleCollider2D, "GetComponent", GeGlobalMethodInfo(&ECS::CircleCollider2D::GetComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCircleCollider2D, "HasComponent", GeGlobalMethodInfo(&ECS::CircleCollider2D::HasComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCircleCollider2D, "BindJit", GeGlobalMethodInfo(&ECS::CircleCollider2D::BindJit), MetaFlag::LUABIND);
 
 	PStatic* globalRigidbody2D = CreateNewStatic("Rigidbody2D");
 	AddGlobalMethod(globalRigidbody2D, "AddComponent", GeGlobalMethodInfo(&ECS::Rigidbody2D::AddComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "GetComponent", GeGlobalMethodInfo(&ECS::Rigidbody2D::GetComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "HasComponent", GeGlobalMethodInfo(&ECS::Rigidbody2D::HasComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalRigidbody2D, "BindJit", GeGlobalMethodInfo(&ECS::Rigidbody2D::BindJit), MetaFlag::LUABIND);
 
 	AddGlobalMethod(globalRigidbody2D, "SetPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetPosition), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "SetRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::SetRotation), MetaFlag::LUABIND);
@@ -117,11 +174,11 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalLuaEvent, "AddComponent", GeGlobalMethodInfo(&ECS::LuaEvent::AddComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalLuaEvent, "GetComponent", GeGlobalMethodInfo(&ECS::LuaEvent::GetComponent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalLuaEvent, "HasComponent", GeGlobalMethodInfo(&ECS::LuaEvent::HasComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalLuaEvent, "BindJit", GeGlobalMethodInfo(&ECS::LuaEvent::BindJit), MetaFlag::LUABIND);
 	AddGlobalMethod(globalLuaEvent, "BindEvent", GeGlobalMethodInfo(&ECS::LuaEvent::BindEvent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalLuaEvent, "CallEvent", GeGlobalMethodInfo(&ECS::LuaEvent::CallEvent), MetaFlag::LUABIND);
 
 
+	RegisterComponentData();
 	BindEnum();
 }
 

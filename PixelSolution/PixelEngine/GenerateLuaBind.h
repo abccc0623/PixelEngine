@@ -51,7 +51,6 @@ inline void Generate_Transform(sol::state& lua)
 	ut["AddComponent"] = &ECS::Transform::AddComponent;
 	ut["GetComponent"] = &ECS::Transform::GetComponent;
 	ut["HasComponent"] = &ECS::Transform::HasComponent;
-	ut["BindJit"] = &ECS::Transform::BindJit;
 }
 inline void Generate_Renderer2D(sol::state& lua) 
 {
@@ -59,7 +58,6 @@ inline void Generate_Renderer2D(sol::state& lua)
 	ut["AddComponent"] = &ECS::Renderer2D::AddComponent;
 	ut["GetComponent"] = &ECS::Renderer2D::GetComponent;
 	ut["HasComponent"] = &ECS::Renderer2D::HasComponent;
-	ut["BindJit"] = &ECS::Renderer2D::BindJit;
 	ut["SetTexture"] = &ECS::Renderer2D::SetTexture;
 }
 inline void Generate_Camera(sol::state& lua) 
@@ -68,7 +66,6 @@ inline void Generate_Camera(sol::state& lua)
 	ut["AddComponent"] = &ECS::Camera::AddComponent;
 	ut["GetComponent"] = &ECS::Camera::GetComponent;
 	ut["HasComponent"] = &ECS::Camera::HasComponent;
-	ut["BindJit"] = &ECS::Camera::BindJit;
 }
 inline void Generate_Animation2D(sol::state& lua) 
 {
@@ -85,7 +82,6 @@ inline void Generate_BoxCollider2D(sol::state& lua)
 	ut["AddComponent"] = &ECS::BoxCollider2D::AddComponent;
 	ut["GetComponent"] = &ECS::BoxCollider2D::GetComponent;
 	ut["HasComponent"] = &ECS::BoxCollider2D::HasComponent;
-	ut["BindJit"] = &ECS::BoxCollider2D::BindJit;
 }
 inline void Generate_CircleCollider2D(sol::state& lua) 
 {
@@ -93,7 +89,6 @@ inline void Generate_CircleCollider2D(sol::state& lua)
 	ut["AddComponent"] = &ECS::CircleCollider2D::AddComponent;
 	ut["GetComponent"] = &ECS::CircleCollider2D::GetComponent;
 	ut["HasComponent"] = &ECS::CircleCollider2D::HasComponent;
-	ut["BindJit"] = &ECS::CircleCollider2D::BindJit;
 }
 inline void Generate_Rigidbody2D(sol::state& lua) 
 {
@@ -101,7 +96,6 @@ inline void Generate_Rigidbody2D(sol::state& lua)
 	ut["AddComponent"] = &ECS::Rigidbody2D::AddComponent;
 	ut["GetComponent"] = &ECS::Rigidbody2D::GetComponent;
 	ut["HasComponent"] = &ECS::Rigidbody2D::HasComponent;
-	ut["BindJit"] = &ECS::Rigidbody2D::BindJit;
 	ut["SetPosition"] = &ECS::Rigidbody2D::SetPosition;
 	ut["SetRotation"] = &ECS::Rigidbody2D::SetRotation;
 	ut["LockPosition"] = &ECS::Rigidbody2D::LockPosition;
@@ -113,7 +107,6 @@ inline void Generate_LuaEvent(sol::state& lua)
 	ut["AddComponent"] = &ECS::LuaEvent::AddComponent;
 	ut["GetComponent"] = &ECS::LuaEvent::GetComponent;
 	ut["HasComponent"] = &ECS::LuaEvent::HasComponent;
-	ut["BindJit"] = &ECS::LuaEvent::BindJit;
 	ut["BindEvent"] = &ECS::LuaEvent::BindEvent;
 	ut["CallEvent"] = &ECS::LuaEvent::CallEvent;
 }

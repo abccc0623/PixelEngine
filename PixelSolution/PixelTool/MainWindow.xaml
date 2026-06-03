@@ -19,7 +19,65 @@
         </Grid.ColumnDefinitions>
 
 
-        <dock:DockingManager x:Name="dockManager" Grid.Row="0" Background="#191B1C2E" OpacityMask="Black" Foreground="#00000000" BorderBrush="#00000000" Margin="0" >
+        <Border Grid.Column="0"
+                BorderBrush="{DynamicResource PixelDockBorderBrush}"
+                BorderThickness="1"
+                Background="{DynamicResource PixelBackgroundBrush}">
+        <dock:DockingManager x:Name="dockManager" Grid.Row="0" Background="#191B1C2E" OpacityMask="Black" Foreground="#00000000" BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Margin="0" >
+
+            <dock:DockingManager.Resources>
+                <Style TargetType="{x:Type dock:LayoutDocumentPaneControl}">
+                    <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
+                </Style>
+                <Style TargetType="{x:Type dock:LayoutDocumentControl}">
+                    <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
+                </Style>
+                <Style TargetType="{x:Type dock:LayoutDocumentTabItem}">
+                    <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
+                </Style>
+                <Style TargetType="{x:Type dock:LayoutAnchorablePaneControl}">
+                    <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
+                </Style>
+                <Style TargetType="{x:Type dock:LayoutAnchorableTabItem}">
+                    <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
+                </Style>
+                <Style TargetType="{x:Type dock:LayoutPanelControl}">
+                    <Setter Property="Background" Value="{DynamicResource PixelDockBorderBrush}"/>
+                </Style>
+                <Style TargetType="{x:Type dock:LayoutDocumentFloatingWindowControl}">
+                    <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
+                </Style>
+                <Style TargetType="{x:Type dock:LayoutAnchorableFloatingWindowControl}">
+                    <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
+                </Style>
+                <Style TargetType="{x:Type TabControl}">
+                    <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
+                </Style>
+                <Style TargetType="{x:Type TabItem}">
+                    <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
+                </Style>
+            </dock:DockingManager.Resources>
 
             <dock:LayoutRoot>
                 <dock:LayoutPanel Orientation="Vertical">
@@ -27,13 +85,17 @@
                     <dock:LayoutPanel Orientation="Horizontal" DockWidth="0.5*" DockHeight="0.75*">
                         <dock:LayoutDocumentPane>
                             <dock:LayoutDocument Title="Scene View">
-                                <local:GraphicsWindow x:Name="GraphicsWindow" />
+                                <Border BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Background="{DynamicResource PixelBackgroundBrush}">
+                                    <local:GraphicsWindow x:Name="GraphicsWindow" />
+                                </Border>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
 
                         <dock:LayoutDocumentPane>
                             <dock:LayoutDocument Title="LuaEditor">
-                                <local:LuaEditorWindow></local:LuaEditorWindow>
+                                <Border BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Background="{DynamicResource PixelBackgroundBrush}">
+                                    <local:LuaEditorWindow/>
+                                </Border>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
                     </dock:LayoutPanel>
@@ -41,13 +103,17 @@
                     <dock:LayoutPanel Orientation="Horizontal" DockWidth="0.5*" DockHeight="0.25*">
                         <dock:LayoutDocumentPane DockWidth="0.75*" DockHeight="1.0*">
                             <dock:LayoutDocument Title="Asset">
-                                <local:AssetWindow/>
+                                <Border BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Background="{DynamicResource PixelBackgroundBrush}">
+                                    <local:AssetWindow/>
+                                </Border>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
 
                         <dock:LayoutDocumentPane DockWidth="0.25*" DockHeight="1.0*">
                             <dock:LayoutDocument Title="Log">
-                                <local:ConsoleWindow/>
+                                <Border BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Background="{DynamicResource PixelBackgroundBrush}">
+                                    <local:ConsoleWindow/>
+                                </Border>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
                     </dock:LayoutPanel>
@@ -55,6 +121,7 @@
                 </dock:LayoutPanel>
             </dock:LayoutRoot>
         </dock:DockingManager>
+        </Border>
 
         <Grid Grid.Column="1">
             <local:ToolbarWindow />

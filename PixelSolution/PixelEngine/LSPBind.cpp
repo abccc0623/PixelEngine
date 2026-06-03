@@ -1,11 +1,19 @@
 #include "pch.h"
 #include "LSPBind.h"
+static bool IsMetaOnlyType(const std::string& name)
+{
+	return name == "Vector2" ||
+		name == "Vector3" ||
+		name == "MotionType" ||
+		(name.size() > 4 && name.substr(name.size() - 4) == "Data");
+}
 
 void LSPBind::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
 {
 	main = "---@mate\n";
 	for (auto& K : types)
 	{
+		if (IsMetaOnlyType(K.thisName)) continue;
 		if (K.metaType == META_TYPE::PRIMITIVE)
 		{
 			continue;
