@@ -42,11 +42,6 @@ std::string GetEngineRootPath()
 std::string LuaCreate::CreateComponent(PixelClassMeta& meta, std::vector<PixelClassMeta>& types)
 {
 	std::string luaFile;
-	if (meta.thisName != "Engine" &&
-		meta.thisName != "Scene" &&
-		meta.thisName != "Asset" &&
-		meta.thisName != "Input" &&
-		meta.thisName != "Debug")
 	{
 		int size = meta.methods.size();
 		std::string function = "";
@@ -89,6 +84,10 @@ std::string LuaCreate::CreateComponent(PixelClassMeta& meta, std::vector<PixelCl
 				fun += "\treturn {{CLASS_NAME}}.HasComponent(entityID)\n";
 				fun += "end\n\n";
 				function += ReplaceAll(fun, "CLASS_NAME", meta.thisName);
+			}
+			else
+			{
+				function += CreateMethodWrapper(meta, meta.methods[i]);
 			}
 		}
 
@@ -199,6 +198,93 @@ std::string LuaCreate::CreateCDef(PixelClassMeta& meta, std::vector<PixelClassMe
 	jit += "\t} " + dataName + ";\n";
 	jit += "]]\n\n";
 	return jit;
+}
+std::string LuaCreate::TypeChangeByLua(const std::string& type)
+{
+	std::string luaType = type;
+	if (luaType == "int" || luaType == "int32_t" || luaType == "float" || luaType == "double" || luaType == "char" || luaType == "unsigned int" || luaType == "uint32_t")
+	{
+		return "number";
+	}
+	if (luaType == "std::string" || luaType == "string" || luaType == "const char*")
+	{
+		return "string";
+	}
+	if (luaType == "bool")
+	{
+		return "boolean";
+	}
+	if (luaType == "void")
+	{
+		return "nil";
+	}
+	if (luaType.find("sol::table") != std::string::npos || luaType.find("basic_table_core") != std::string::npos)
+	{
+		return "table";
+	}
+	if (luaType.find("sol::object") != std::string::npos || luaType.find("basic_object") != std::string::npos)
+	{
+		return "any";
+	}
+	std::erase(luaType, '*');
+	return luaType;
+}
+
+std::string LuaCreate::CreatePropertyList(const std::vector<std::string>& propertys)
+{
+	std::string content;
+	for (int i = 0; i < propertys.size(); i++)
+	{
+		content += CreatePropertyName(propertys[i], i);
+		if (i != propertys.size() - 1)
+		{
+			content += ", ";
+		}
+	}
+	return content;
+}
+
+
+std::string LuaCreate::CreatePropertyName(const std::string& type, int index)
+{
+	std::string luaType = TypeChangeByLua(type);
+	std::erase(luaType, '*');
+	std::erase(luaType, '&');
+	std::erase(luaType, ' ');
+	std::erase(luaType, ':');
+	if (luaType.empty() || luaType == "nil")
+	{
+		luaType = "value";
+	}
+	return luaType + std::to_string(index);
+}
+
+std::string LuaCreate::CreateMethodWrapper(PixelClassMeta& meta, PixelMethodMeta& method)
+{
+	std::string fun;
+	std::string args = CreatePropertyList(method.propertys);
+	std::string nativeName = "__" + meta.thisName + "_" + method.name;
+
+	fun += "local " + nativeName + " = " + meta.thisName + "." + method.name + "\n";
+	for (int i = 0; i < method.propertys.size(); i++)
+	{
+		fun += "---@param " + CreatePropertyName(method.propertys[i], i) + " " + TypeChangeByLua(method.propertys[i]) + "\n";
+	}
+	if (method.returnType != "void")
+	{
+		fun += "---@return " + TypeChangeByLua(method.returnType) + "\n";
+	}
+	fun += "function " + meta.thisName + "." + method.name + "(" + args + ")\n";
+	if (method.returnType == "void")
+	{
+		fun += "\t" + nativeName + "(" + args + ")\n";
+	}
+	else
+	{
+		fun += "\treturn " + nativeName + "(" + args + ")\n";
+	}
+	fun += "end\n\n";
+	return fun;
 }
 void LuaCreate::ComponentLinkFile()
 {

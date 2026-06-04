@@ -19,7 +19,7 @@ void CoroutineManager::Initialize()
 
 void CoroutineManager::Update()
 {
-	float dt = GetDeltaTime(); // 엔진에서 제공하는 DeltaTime 함수
+	float dt = GetDeltaTime();
 
 	for (auto it = CoroutineList.begin(); it != CoroutineList.end(); )
 	{
@@ -31,11 +31,9 @@ void CoroutineManager::Update()
 			if (info->waitTimer <= 0)
 			{
 				info->isWaiting = false;
-
-				// 루아 스택이 살아있고 중단된 상태인지 확인 후 재개
 				if (info->co.status() == sol::call_status::yielded)
 				{
-					// 재개 시에는 인자를 넣지 않습니다.
+					// Resume without arguments after a timed wait.
 					auto result = info->co();
 					if (!result.valid())
 					{
@@ -47,8 +45,6 @@ void CoroutineManager::Update()
 				}
 			}
 		}
-
-		// 코루틴이 끝났으면 리스트에서 삭제
 		if (info->co.status() != sol::call_status::yielded)
 		{
 			it = CoroutineList.erase(it);
@@ -62,7 +58,7 @@ void CoroutineManager::Update()
 
 void CoroutineManager::Release()
 {
-
+	CoroutineList.clear();
 }
 
 void CoroutineManager::Clear()
@@ -73,11 +69,8 @@ void CoroutineManager::Clear()
 void CoroutineManager::MarkAsWaiting(sol::this_state s, float seconds)
 {
 	lua_State* currentL = s.lua_state();
-
-	// 관리 리스트(std::list<std::shared_ptr<LuaCoroutine>>)에서 해당 코루틴 찾기
 	for (auto& info : CoroutineList)
 	{
-		// info는 shared_ptr이므로 -> 연산자로 접근합니다.
 		if (info->co.lua_state() == currentL)
 		{
 			info->waitTimer = seconds;
@@ -91,9 +84,41 @@ void CoroutineManager::Add(const char* functionName, sol::thread thread, sol::co
 {
 	auto CoroutineObj = std::make_shared<LuaCoroutine>();
 	CoroutineObj->name = functionName;
-	CoroutineObj->luaThread = std::move(thread); // 스레드 소유권 이전
+	CoroutineObj->luaThread = std::move(thread);
 	CoroutineObj->co = co;
 	CoroutineObj->isWaiting = false;
 
 	CoroutineList.push_back(CoroutineObj);
+}
+
+void CoroutineManager::Start(const std::string& functionName, sol::protected_function function, sol::table self, sol::object argument)
+{
+	if (!function.valid())
+	{
+		return;
+	}
+
+	sol::thread thread = sol::thread::create(function.lua_state());
+	sol::coroutine co(thread.thread_state(), function);
+
+	auto coroutineObj = std::make_shared<LuaCoroutine>();
+	coroutineObj->name = functionName;
+	coroutineObj->luaThread = std::move(thread);
+	coroutineObj->co = co;
+	coroutineObj->isWaiting = false;
+	CoroutineList.push_back(coroutineObj);
+
+	auto result = (argument.valid() && argument != sol::nil) ? coroutineObj->co(self, argument) : coroutineObj->co(self);
+	if (!result.valid())
+	{
+		sol::error err = result;
+		PixelLog::Error("Coroutine Runtime Error: " + std::string(err.what()));
+		CoroutineList.remove(coroutineObj);
+		return;
+	}
+
+	if (coroutineObj->co.status() != sol::call_status::yielded)
+	{
+		CoroutineList.remove(coroutineObj);
+	}
 }

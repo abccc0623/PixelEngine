@@ -28,7 +28,9 @@ function LuaManager:Update(DTime)
 	--루아의 기본 함수 업데이트 호출
 	for id, entityData in pairs(self.entities) do
 		if entityData.Update then
-		    entityData.EntityTable:Update(DTime)
+			if entityData.EntityTable.Active == true then
+				entityData.EntityTable:Update(DTime)
+			end
 		end
 	end
 end

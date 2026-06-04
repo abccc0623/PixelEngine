@@ -4,6 +4,7 @@
 #include "PixelEngine.h"
 #include "LuaManager.h"
 #include "LuaModuleInfo.h"
+#include "CoroutineManager.h"
 
 extern PixelEngine* Engine;
 LuaManager* ECS::Entity::lua = nullptr;
@@ -28,10 +29,9 @@ void ECS::Entity::Create(const std::string& scriptName, unsigned int ID)
 		PixelLog::Error("Not Find Lua File :" + scriptName);
 		return;
 	}
-	//엔진에서 루아를 생성할 떄 루아매니저도 생성
-	//루아매니저에서 생성된 모든 Entity를 등록 및 삭제(기본 함수도 호출)
 	instance = luaInfo->Create();
 	instance["ID"] = ID;
+	instance["Active"] = Active;
 	lua->AddEntityID(ID, instance);
 
 	OnCollisionEnterFunc = instance["OnCollisionEnter"];
@@ -40,45 +40,33 @@ void ECS::Entity::Create(const std::string& scriptName, unsigned int ID)
 
 void ECS::Entity::OnCollisionEnter(unsigned int TargetID)
 {
-	if (OnCollisionEnterFunc.valid())
+	sol::protected_function collisionFunc = OnCollisionEnterFunc;
+	if (collisionFunc.valid())
 	{
-		auto result = OnCollisionEnterFunc(instance, TargetID);
-		if (!result.valid())
-		{
-			sol::error err = result;
-			std::string errorMsg = err.what();
-			PixelLog::Error(errorMsg.c_str());
-		}
+		auto coroutine = Engine->GetFactory<CoroutineManager>();
+		sol::object targetID = sol::make_object(instance.lua_state(), TargetID);
+		coroutine->Start("OnCollisionEnter", collisionFunc, instance, targetID);
 	}
 }
 
 void ECS::Entity::OnCollisionExit(unsigned int TargetID)
 {
-	if (OnCollisionExitFunc.valid())
+	sol::protected_function collisionFunc = OnCollisionExitFunc;
+	if (collisionFunc.valid())
 	{
-		auto result = OnCollisionExitFunc(instance, TargetID);
-		if (!result.valid())
-		{
-			sol::error err = result;
-			std::string errorMsg = err.what();
-			PixelLog::Error(errorMsg.c_str());
-		}
-
+		auto coroutine = Engine->GetFactory<CoroutineManager>();
+		sol::object targetID = sol::make_object(instance.lua_state(), TargetID);
+		coroutine->Start("OnCollisionExit", collisionFunc, instance, targetID);
 	}
 }
 
-void ECS::Entity::OnEvent(std::string eventName, sol::table event)
+void ECS::Entity::OnEvent(std::string functionName, sol::object event)
 {
-	auto luaEvent = instance[eventName];
+	sol::protected_function luaEvent = instance[functionName];
 	if (luaEvent.valid())
 	{
-		auto result = luaEvent(instance);
-		if (!result.valid())
-		{
-			sol::error err = result;
-			std::string errorMsg = err.what();
-			PixelLog::Error(errorMsg.c_str());
-		}
+		auto coroutine = Engine->GetFactory<CoroutineManager>();
+		coroutine->Start(functionName, luaEvent, instance, event);
 	}
 }
 
@@ -86,6 +74,18 @@ unsigned int ECS::Entity::GetID()
 {
 	return ID;
 }
+
+bool ECS::Entity::GetActive()
+{
+	return Active;
+}
+
+void ECS::Entity::SetActive(bool isActive)
+{
+	Active = isActive;
+	instance["Active"] = Active;
+}
+
 
 
 

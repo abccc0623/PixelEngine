@@ -52,26 +52,12 @@ void EventManager::Update()
 
 void EventManager::Release()
 {
-	//for (auto K : eventList)
-	//{
-	//	K.second.clear();
-	//}
-	//eventList.clear();
+	eventList.clear();
 }
 
 void EventManager::Clear()
 {
-	//for (auto K : eventList)
-	//{
-	//	K.second.clear();
-	//}
-	//for (auto K : customEventList)
-	//{
-	//	K.second.clear();
-	//}
-	//customDelayEvents.clear();
-	//eventList.clear();
-	//customEventList.clear();
+	eventList.clear();
 }
 
 //void EventManager::RegisterMessageCustom(GameObject* target, std::string EventName)
@@ -189,7 +175,7 @@ void EventManager::CallLuaEvent(std::string eventName, sol::object event)
 			auto entity = FindEntity(K.entityID);
 			if (entity != nullptr)
 			{
-				entity->OnEvent(eventName, event);
+				entity->OnEvent(K.functionName, event);
 			}
 		}
 	}

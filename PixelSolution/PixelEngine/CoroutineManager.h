@@ -37,6 +37,7 @@ public:
 	void Clear() override;
 	void MarkAsWaiting(sol::this_state s, float seconds);
 	void Add(const char* functionName, sol::thread thread, sol::coroutine co);
+	void Start(const std::string& functionName, sol::protected_function function, sol::table self, sol::object argument);
 private:
 	std::list<std::shared_ptr<LuaCoroutine>> CoroutineList;
 

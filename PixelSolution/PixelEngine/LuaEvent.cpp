@@ -52,9 +52,15 @@ void ECS::LuaEvent::CallEvent(const char* eventKey, sol::object luaTableObj)
 {
 	std::string key(eventKey);
 
+	if (!luaTableObj.valid() || luaTableObj == sol::nil)
+	{
+		luaTableObj = sol::make_object(luaTableObj.lua_state(), sol::table::create(luaTableObj.lua_state()));
+	}
+
 	auto eventManager = Engine->GetFactory<EventManager>();
 	eventManager->CallLuaEvent(key, luaTableObj);
 }
+
 
 std::string ECS::LuaEvent::BindJit()
 {

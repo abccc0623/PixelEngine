@@ -14,11 +14,12 @@ namespace ECS
 		void Create(const std::string& scriptName, unsigned int ID);
 		void OnCollisionEnter(unsigned int TargetID);
 		void OnCollisionExit(unsigned int TargetID);
-		void OnEvent(std::string eventName, sol::table event);
+		void OnEvent(std::string functionName, sol::object event);
 		unsigned int GetID();
-	public:
-		bool Active;
+		bool GetActive();
+		void SetActive(bool isActive);
 	private:
+		bool Active;
 		std::string scriptName;
 		sol::table instance;
 

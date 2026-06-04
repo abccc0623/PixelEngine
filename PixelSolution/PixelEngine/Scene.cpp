@@ -93,7 +93,7 @@ void Scene::ActiveEntity(uint32_t id, bool active)
 		return;
 	}
 	registry->SetActive(id, active);
-	entity->Active = active;
+	entity->SetActive(active);
 }
 
 void Scene::DestroyEntity(uint32_t id)

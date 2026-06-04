@@ -15,6 +15,10 @@ private:
 	PixelClassMeta* FindType(std::vector<PixelClassMeta>& types, const std::string& name);
 	std::string CreateCDef(PixelClassMeta& meta, std::vector<PixelClassMeta>& types);
 	std::string TypeChangeByCType(const std::string& type);
+	std::string TypeChangeByLua(const std::string& type);
+	std::string CreateMethodWrapper(PixelClassMeta& meta, PixelMethodMeta& method);
+	std::string CreatePropertyList(const std::vector<std::string>& propertys);
+	std::string CreatePropertyName(const std::string& type, int index);
 private:
 	std::string GenerateComponentFileName;
 };
