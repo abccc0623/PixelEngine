@@ -19,7 +19,7 @@
 #include "BoxCollider2D.h"
 #include "CircleCollider2D.h"
 #include "Rigidbody2D.h"
-#include "LuaEvent.h"
+#include "EventBus.h"
 
 
 static MemberInfo LuaMember(const std::string& type, size_t offset)
@@ -80,9 +80,6 @@ static void RegisterComponentData()
 	AddMember(rigidbody2DData, "velocity", LuaMember("Vector3", offsetof(ECS::Rigidbody2D::Rigidbody2DData, velocity)), MetaFlag::LUABIND);
 	AddMember(rigidbody2DData, "impulse", LuaMember("Vector3", offsetof(ECS::Rigidbody2D::Rigidbody2DData, impulse)), MetaFlag::LUABIND);
 	AddMember(rigidbody2DData, "force", LuaMember("Vector3", offsetof(ECS::Rigidbody2D::Rigidbody2DData, force)), MetaFlag::LUABIND);
-
-	PClass* luaEventData = CreateLuaMetaClass("LuaEventData");
-	AddMember(luaEventData, "test", LuaMember("float", offsetof(ECS::LuaEvent::LuaEventData, test)), MetaFlag::LUABIND);
 }
 BindManager::BindManager()
 {
@@ -170,13 +167,9 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalRigidbody2D, "LockPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockPosition), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "LockRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockRotation), MetaFlag::LUABIND);
 
-	PStatic* globalLuaEvent = CreateNewStatic("LuaEvent");
-	AddGlobalMethod(globalLuaEvent, "AddComponent", GeGlobalMethodInfo(&ECS::LuaEvent::AddComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalLuaEvent, "GetComponent", GeGlobalMethodInfo(&ECS::LuaEvent::GetComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalLuaEvent, "HasComponent", GeGlobalMethodInfo(&ECS::LuaEvent::HasComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalLuaEvent, "BindEvent", GeGlobalMethodInfo(&ECS::LuaEvent::BindEvent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalLuaEvent, "CallEvent", GeGlobalMethodInfo(&ECS::LuaEvent::CallEvent), MetaFlag::LUABIND);
-
+	PStatic* globalLuaEvent = CreateNewStatic("EventBus");
+	AddGlobalMethod(globalLuaEvent, "BindEvent", GeGlobalMethodInfo(&ECS::EventBus::BindEvent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalLuaEvent, "CallEvent", GeGlobalMethodInfo(&ECS::EventBus::CallEvent), MetaFlag::LUABIND);
 
 	RegisterComponentData();
 	BindEnum();

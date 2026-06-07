@@ -117,7 +117,6 @@ namespace PixelTool
                 }
 
                 await _rpc.NotifyAsync(Methods.InitializedName);
-                ConsoleWindow.LogMessage("✅ [LSP] 초기화 완료!", 0);
 
                 string engineGeneratePath = Path.Combine(baseDir, "Asset", "Engine", "EngineGenerate.lua");
                 if (File.Exists(engineGeneratePath))
@@ -235,8 +234,6 @@ namespace PixelTool
                     ConsoleWindow.LogMessage("⚠️ [LSP] 자동완성 결과 없음", 1);
                     return;
                 }
-
-                ConsoleWindow.LogMessage($"✅ [LSP] 자동완성 {completionItems.Length}개 수신", 0);
 
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {

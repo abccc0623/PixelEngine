@@ -22,6 +22,19 @@ This file is for Codex-specific project notes and working rules.
 - Use the existing Visual Studio solution and project layout as the source of truth.
 - When unsure about build or run steps, inspect the solution/project files first.
 
+## LLM Coding Guidelines
+
+- Think before coding. State assumptions explicitly, ask when the request is unclear, and surface meaningful tradeoffs before choosing an approach.
+- Prefer the simplest implementation that solves the requested problem. Do not add speculative features, one-off abstractions, or unnecessary configurability.
+- Make surgical changes. Touch only files and lines that directly support the user's request, and avoid unrelated cleanup or refactoring.
+- Match the existing project style even when another style seems preferable.
+- If unrelated dead code or cleanup opportunities are found, mention them instead of changing them.
+- Define success criteria before non-trivial work. For multi-step tasks, use a short plan with a verification step for each item.
+- For non-trivial tasks, maintain a checklist and context notes when useful so future sessions can continue without rediscovering decisions.
+- When writing Korean output, end Korean sentences with `.`, `?`, or `!` instead of a trailing colon.
+- Prefer one meaningful commit per logical change when committing is appropriate. Do not mix unrelated edits into a single commit.
+- When something fails, read the actual error message, log output, or stack trace before applying a fix.
+
 ## Build Notes
 
 - Open `PixelSolution\PixelSolution.slnx` in Visual Studio.
@@ -68,6 +81,7 @@ This file is for Codex-specific project notes and working rules.
 - Do not rename existing functions or variables when modifying code.
 - Prefer analyzing engine code instead of changing it.
 - Avoid engine code changes unless the user explicitly asks for them.
+- Before changing any engine file, ask the user for permission and wait for approval.
 - When the user asks for Client Lua logic, analyze the engine and generate Lua code based on that analysis.
 - Focus mainly on analysis for writing Lua code.
 

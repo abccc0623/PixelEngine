@@ -1,11 +1,14 @@
 <?xml version="1.0"?>
 <SyntaxDefinition name="Lua" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
-  <Color name="Keywords" foreground="#569CD6" fontWeight="bold" />
-  <Color name="Strings" foreground="#D69D85" />
-  <Color name="Comments" foreground="#57A64A" />
-  <Color name="Methods" foreground="#50FA7B" />
+  <Color name="Keywords" foreground="#C586C0" fontWeight="bold" />
+  <Color name="Strings" foreground="#CE9178" />
+  <Color name="Comments" foreground="#6A9955" fontStyle="italic" />
+  <Color name="Methods" foreground="#DCDCAA" />
   <Color name="Numbers" foreground="#B5CEA8" />
-  <Color name="LogMessages" foreground="#A6E22E" fontWeight="bold" />
+  <Color name="Objects" foreground="#4EC9B0" />
+  <Color name="EngineAPI" foreground="#9CDCFE" fontWeight="bold" />
+  <Color name="FunctionNames" foreground="#4FC1FF" fontWeight="bold" />
+  <Color name="LogMessages" foreground="#FFCC66" fontWeight="bold" />
 
   <RuleSet>
     <Keywords color="Keywords">
@@ -18,9 +21,35 @@
       <Word>local</Word>
       <Word>return</Word>
       <Word>for</Word>
+      <Word>in</Word>
       <Word>while</Word>
+      <Word>repeat</Word>
+      <Word>until</Word>
       <Word>do</Word>
+      <Word>break</Word>
+      <Word>nil</Word>
+      <Word>true</Word>
+      <Word>false</Word>
+      <Word>and</Word>
+      <Word>or</Word>
+      <Word>not</Word>
     </Keywords>
+
+    <Keywords color="EngineAPI">
+      <Word>Engine</Word>
+      <Word>Transform</Word>
+      <Word>Rigidbody2D</Word>
+      <Word>Vector2</Word>
+      <Word>Vector3</Word>
+      <Word>Debug</Word>
+      <Word>Input</Word>
+      <Word>Time</Word>
+    </Keywords>
+
+    <Span color="Comments" multiline="true">
+      <Begin>--\[\[</Begin>
+      <End>\]\]</End>
+    </Span>
 
     <Span color="Comments">
       <Begin>--</Begin>
@@ -34,7 +63,13 @@
     <Rule color="Methods">
       \b[\w\d_]+(?=\s*\()
     </Rule>
-    <Rule foreground="#80CBC4">
+    <Rule color="FunctionNames">
+      (?&lt;=function\s)[\w\d_:]+
+    </Rule>
+    <Rule color="Numbers">
+      \b\d+(\.\d+)?\b
+    </Rule>
+    <Rule color="Objects">
       \b[\w\d_]+(?=\.)
     </Rule>
     <Rule color="LogMessages">

@@ -1,9 +1,11 @@
 ﻿using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.CodeCompletion;
+using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCode.AvalonEdit.Search;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
 using PixelTool;
 using System;
@@ -29,6 +31,7 @@ namespace PixelTool
         private CancellationTokenSource _debounceTokenSource;
         private Dictionary<string, string> variableTypes = new Dictionary<string, string>();
         private LuaLspService luaLspService;
+        private bool isWaitingForFormatChord = false;
 
         public LuaEditorWindow()
         {
@@ -36,9 +39,21 @@ namespace PixelTool
             luaLspService = new LuaLspService();
             luaLspService.Initialize();
 
+            ConfigureEditorOptions();
             LuaEditor.TextChanged += LuaEditor_TextChanged;
             LuaEditor.TextArea.TextEntered += TextArea_TextEntered;
+            LuaEditor.PreviewMouseWheel += LuaEditor_PreviewMouseWheel;
             ApplyLuaSyntaxHighlighting();
+        }
+
+        private void ConfigureEditorOptions()
+        {
+            LuaEditor.Options.ConvertTabsToSpaces = true;
+            LuaEditor.Options.IndentationSize = 4;
+            LuaEditor.Options.EnableRectangularSelection = true;
+            LuaEditor.TextArea.TextView.CurrentLineBackground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(42, 42, 42));
+            LuaEditor.TextArea.TextView.CurrentLineBorder = new Pen(new SolidColorBrush(System.Windows.Media.Color.FromRgb(64, 64, 64)), 1);
+            SearchPanel.Install(LuaEditor);
         }
 
         private void ApplyLuaSyntaxHighlighting()
@@ -125,9 +140,27 @@ namespace PixelTool
 
             bool isCtrlPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
 
+            if (isWaitingForFormatChord)
+            {
+                if (e.Key == Key.D)
+                {
+                    e.Handled = true;
+                    isWaitingForFormatChord = false;
+                    FormatLuaDocument();
+                    return;
+                }
+
+                isWaitingForFormatChord = false;
+            }
+
             if (isCtrlPressed)
             {
-                if (e.Key == Key.S)
+                if (e.Key == Key.K)
+                {
+                    e.Handled = true;
+                    isWaitingForFormatChord = true;
+                }
+                else if (e.Key == Key.S)
                 {
                     e.Handled = true;
                     LuaEditor.Save(targetPath);
@@ -148,6 +181,77 @@ namespace PixelTool
             }
         }
 
+        private void LuaEditor_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            bool isCtrlPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
+            if (!isCtrlPressed) return;
+
+            double nextSize = LuaEditor.FontSize + (e.Delta > 0 ? 1.0 : -1.0);
+            LuaEditor.FontSize = Math.Max(8.0, Math.Min(32.0, nextSize));
+            e.Handled = true;
+        }
+
+        private void FormatLuaDocument()
+        {
+            if (LuaEditor.Document == null) return;
+
+            LuaDocumentFormatter.Format(LuaEditor.Document);
+        }
+
+        private static class LuaDocumentFormatter
+        {
+            private static readonly Regex BlockStartRegex = new Regex(@"\b(function|then|do|repeat)\b", RegexOptions.Compiled);
+            private static readonly Regex BlockEndRegex = new Regex(@"^\s*(end|until)\b", RegexOptions.Compiled);
+            private static readonly Regex MiddleBlockRegex = new Regex(@"^\s*(else|elseif)\b", RegexOptions.Compiled);
+
+            public static void Format(TextDocument document)
+            {
+                int indentLevel = 0;
+
+                for (int lineNumber = 1; lineNumber <= document.LineCount; lineNumber++)
+                {
+                    DocumentLine line = document.GetLineByNumber(lineNumber);
+                    string lineText = document.GetText(line);
+                    string trimmedText = lineText.Trim();
+
+                    if (trimmedText.Length == 0)
+                    {
+                        ReplaceIndent(document, line, string.Empty);
+                        continue;
+                    }
+
+                    if (BlockEndRegex.IsMatch(trimmedText) || MiddleBlockRegex.IsMatch(trimmedText))
+                    {
+                        indentLevel = Math.Max(0, indentLevel - 1);
+                    }
+
+                    ReplaceIndent(document, line, new string(' ', indentLevel * 4));
+
+                    if (BlockStartRegex.IsMatch(trimmedText) || MiddleBlockRegex.IsMatch(trimmedText))
+                    {
+                        indentLevel++;
+                    }
+                }
+            }
+
+            private static string GetIndent(string text)
+            {
+                int index = 0;
+                while (index < text.Length && char.IsWhiteSpace(text[index]) && text[index] != '\r' && text[index] != '\n')
+                {
+                    index++;
+                }
+                return text.Substring(0, index);
+            }
+
+            private static void ReplaceIndent(TextDocument document, DocumentLine line, string indent)
+            {
+                string currentText = document.GetText(line);
+                string currentIndent = GetIndent(currentText);
+                document.Replace(line.Offset, currentIndent.Length, indent);
+            }
+        }
+
         private void SaveLuaFile(object sender, RoutedEventArgs e)
         {
             LuaEditor.Save(targetPath);
@@ -161,22 +265,6 @@ namespace PixelTool
         public TextArea GetLuaEditorTextArea()
         {
             return LuaEditor.TextArea;
-        }
-
-        void GeneratedLuaModuleType()
-        {
-            string ext = Path.GetExtension(targetPath);
-            if (ext != ".pxm") return;
-
-            string originalCode = LuaEditor.Text;
-            string pattern = @"(---@type\s+\w+\s+)?(self\.([a-zA-Z0-9_]+)\s*=\s*.*:AddModule\(""([a-zA-Z0-9_]+)""\))";
-
-            LuaEditor.Text = Regex.Replace(originalCode, pattern, m =>
-            {
-                string currentCodeLine = m.Groups[2].Value;
-                string typeName = m.Groups[4].Value;
-                return $"---@type {typeName}\n    {currentCodeLine}";
-            }, RegexOptions.Multiline);
         }
 
         private void Event_KeyUp(object sender, RoutedEventArgs e)
