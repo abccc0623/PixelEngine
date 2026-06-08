@@ -8,6 +8,7 @@
 #include "CircleCollider2D.h"
 #include "PixelEngine.h"
 #include "PhysManager.h"
+#include "PixelEngineAPI.h"
 extern PixelEngine* Engine;
 ECS::Rigidbody2DSystem::Rigidbody2DSystem()
 {
@@ -54,6 +55,8 @@ void ECS::Rigidbody2DSystem::Update(ECS::Registry* registry)
 				data->bodyID = bodyID.GetIndexAndSequenceNumber();
 				data->IsCreate = true;
 			}
+
+
 
 			if (data->impulse != Pixel::Vector3(0, 0, 0))
 			{

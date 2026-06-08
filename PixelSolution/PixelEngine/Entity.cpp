@@ -5,6 +5,10 @@
 #include "LuaManager.h"
 #include "LuaModuleInfo.h"
 #include "CoroutineManager.h"
+#include "PhysManager.h"
+#include "Rigidbody2D.h"
+#include "PixelEngineAPI.h"
+#include "Registry.h"
 
 extern PixelEngine* Engine;
 LuaManager* ECS::Entity::lua = nullptr;
@@ -30,6 +34,7 @@ void ECS::Entity::Create(const std::string& scriptName, unsigned int ID)
 		return;
 	}
 	instance = luaInfo->Create();
+	this->ID = ID;
 	instance["ID"] = ID;
 	instance["Active"] = Active;
 	lua->AddEntityID(ID, instance);
@@ -84,6 +89,16 @@ void ECS::Entity::SetActive(bool isActive)
 {
 	Active = isActive;
 	instance["Active"] = Active;
+
+	if (ECS::Rigidbody2D::HasComponent(ID))
+	{
+		PhysManager* phys = Engine->GetFactory<PhysManager>();
+		auto registry = GetRegistry();
+		ECS::Rigidbody2D::Rigidbody2DData* data = registry->Get<ECS::Rigidbody2D::Rigidbody2DData>(ID);
+		phys->SetActive(JPH::BodyID(data->bodyID), isActive);
+		data->velocity = { 0,0,0 };
+		data->velocityCopy = { 0,0,0 };
+	}
 }
 
 

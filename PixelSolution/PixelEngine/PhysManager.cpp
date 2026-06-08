@@ -1,9 +1,4 @@
 #include "pch.h"
-#include <Jolt/Math/Math.h>
-#include <Jolt/Physics/Body/BodyInterface.h>
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/PhysicsSystem.h> 
-#include <Jolt/Math/Real.h>
 #include "PhysManager.h"
 #include "PixelEngineAPI.h"
 #include "Type/GlobalEnum.h"
@@ -15,62 +10,15 @@
 #include "Entity.h"
 #include "Rigidbody2D.h"
 #include "Registry.h"
-#include "PixelEngineAPI.h"
 #include "Transform.h"
 #include "PixelMath.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "PixelObjectLayerPairFilter.h"
+#include "PixelBroadPhaseLayerFilter.h"
+
 using namespace JPH;
-
-namespace Hierachy
-{
-	// 타입 인식을 위해 안쪽에서도 네임스페이스 사용
-	using namespace JPH;
-
-	namespace Layers {
-		static constexpr ObjectLayer NON_MOVING = 0;
-		static constexpr ObjectLayer MOVING = 1;
-		static constexpr uint32 NUM_LAYERS = 2;
-	}
-
-	namespace BP_Layers {
-		static constexpr BroadPhaseLayer NON_MOVING(0);
-		static constexpr BroadPhaseLayer MOVING(1);
-		static constexpr uint32 NUM_LAYERS = 2;
-	}
-
-	class ObjectLayerPairFilterImpl : public ObjectLayerPairFilter {
-	public:
-		virtual bool ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override {
-			if (inObject1 == Layers::NON_MOVING) return inObject2 == Layers::MOVING;
-			return true;
-		}
-	};
-
-	class BPLayerInterfaceImpl final : public BroadPhaseLayerInterface {
-	public:
-		BPLayerInterfaceImpl() {
-			mObjectToBroadPhase[Layers::NON_MOVING] = BP_Layers::NON_MOVING;
-			mObjectToBroadPhase[Layers::MOVING] = BP_Layers::MOVING;
-		}
-		virtual uint GetNumBroadPhaseLayers() const override { return BP_Layers::NUM_LAYERS; }
-		virtual BroadPhaseLayer GetBroadPhaseLayer(ObjectLayer inLayer) const override { return mObjectToBroadPhase[inLayer]; }
-		//virtual const char* GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override { return "Layer"; }
-	private:
-		BroadPhaseLayer mObjectToBroadPhase[Layers::NUM_LAYERS];
-	};
-
-	class ObjectVsBroadPhaseLayerFilterImpl : public ObjectVsBroadPhaseLayerFilter {
-	public:
-		virtual bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override {
-			if (inLayer1 == Layers::NON_MOVING) return inLayer2 == BP_Layers::MOVING;
-			return true;
-		}
-	};
-}
-
-
 PhysManager::PhysManager()
 {
 
@@ -128,17 +76,17 @@ void PhysManager::Initialize()
 
 
 	// 3. 필터 인스턴스 생성 (나중에 해제 필요)
-	mBpInterface = new Hierachy::BPLayerInterfaceImpl();
-	mObjVsBpFilter = new Hierachy::ObjectVsBroadPhaseLayerFilterImpl();
-	mObjVsObjFilter = new Hierachy::ObjectLayerPairFilterImpl();
+	mBpInterface = new PixelBroadPhaseLayerInterface();
+	mObjVsBpFilter = new PixelBroadPhaseLayerFilter();
+	mObjVsObjFilter = new PixelObjectLayerPairFilter();
 
 	// 4. 물리 시스템 생성
 	physicsSystem = new PhysicsSystem();
 	physicsSystem->Init(
 		10240, 0, 1024, 1024,
-		*static_cast<Hierachy::BPLayerInterfaceImpl*>(mBpInterface),
-		*static_cast<Hierachy::ObjectVsBroadPhaseLayerFilterImpl*>(mObjVsBpFilter),
-		*static_cast<Hierachy::ObjectLayerPairFilterImpl*>(mObjVsObjFilter)
+		*static_cast<PixelBroadPhaseLayerInterface*>(mBpInterface),
+		*static_cast<PixelBroadPhaseLayerFilter*>(mObjVsBpFilter),
+		*static_cast<PixelObjectLayerPairFilter*>(mObjVsObjFilter)
 	);
 
 	colliderFactory = new ColliderFactory();
@@ -313,21 +261,21 @@ JPH::ShapeRefC PhysManager::CreateCollider(ECS::Collider2D::Collider2DData* coll
 JPH::BodyID PhysManager::CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigidbody, JPH::ShapeRefC shapeRef, unsigned int pOwner)
 {
 	//data->
-	JPH::ObjectLayer objectLayer = Hierachy::Layers::MOVING;
+	JPH::ObjectLayer objectLayer = Layers::Default;
 	JPH::EMotionType eMotionType = JPH::EMotionType::Dynamic;
 	JPH::EActivation active = (rigidbody->Active) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate;
 
 	switch (rigidbody->type)
 	{
 	case MotionType::Static:
-		objectLayer = Hierachy::Layers::NON_MOVING;
+		objectLayer = Layers::Default;
 		eMotionType = EMotionType::Static;
 		break;
 	case MotionType::Kinematic:
 		eMotionType = EMotionType::Kinematic;
 		break;
 	case MotionType::Dynamic:
-		objectLayer = Hierachy::Layers::MOVING;
+		objectLayer = Layers::Default;
 		eMotionType = EMotionType::Dynamic;
 		break;
 	}

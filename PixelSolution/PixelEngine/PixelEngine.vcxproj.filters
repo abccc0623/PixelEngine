@@ -267,9 +267,6 @@
     <ClInclude Include="PhysStruct.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClInclude>
-    <ClInclude Include="PhysLayer.h">
-      <Filter>EngineAPI\Manager\PhysManager</Filter>
-    </ClInclude>
     <ClInclude Include="ModuleEntry.h">
       <Filter>EngineAPI\Module\Module</Filter>
     </ClInclude>
@@ -350,6 +347,12 @@
     </ClInclude>
     <ClInclude Include="EventBus.h">
       <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelObjectLayerPairFilter.h">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelBroadPhaseLayerFilter.h">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -455,9 +458,6 @@
     <ClCompile Include="PhysListener.cpp">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClCompile>
-    <ClCompile Include="PhysLayer.cpp">
-      <Filter>EngineAPI\Manager\PhysManager</Filter>
-    </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClCompile>
@@ -517,6 +517,12 @@
     </ClCompile>
     <ClCompile Include="EventBus.cpp">
       <Filter>EngineAPI\ECS\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelObjectLayerPairFilter.cpp">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelBroadPhaseLayerFilter.cpp">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

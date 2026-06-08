@@ -189,7 +189,6 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="ModuleEntry.h" />
     <ClInclude Include="EntityID.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="PhysLayer.h" />
     <ClInclude Include="PhysListener.h" />
     <ClInclude Include="CoroutineManager.h" />
     <ClInclude Include="Event.h" />
@@ -223,9 +222,11 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="LuaManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PhysStruct.h" />
+    <ClInclude Include="PixelBroadPhaseLayerFilter.h" />
     <ClInclude Include="PixelEngine.h" />
     <ClInclude Include="PixelMath.h" />
     <ClInclude Include="PixelMeta.h" />
+    <ClInclude Include="PixelObjectLayerPairFilter.h" />
     <ClInclude Include="Renderer2D.h" />
     <ClInclude Include="Rigidbody2D.h" />
     <ClInclude Include="Rigidbody2DSystem.h" />
@@ -262,7 +263,6 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="LuaCreate.cpp" />
     <ClCompile Include="EventBus.cpp" />
-    <ClCompile Include="PhysLayer.cpp" />
     <ClCompile Include="PhysListener.cpp" />
     <ClCompile Include="PhysManager.cpp" />
     <ClCompile Include="CoroutineManager.cpp" />
@@ -285,6 +285,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="KeyInputManager.cpp" />
     <ClCompile Include="LuaManager.cpp" />
+    <ClCompile Include="PixelBroadPhaseLayerFilter.cpp" />
     <ClCompile Include="PixelEngine.cpp" />
     <ClCompile Include="PixelEngineAPI.cpp" />
     <ClCompile Include="pch.cpp">
@@ -292,6 +293,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PixelObjectLayerPairFilter.cpp" />
     <ClCompile Include="Renderer2D.cpp" />
     <ClCompile Include="Rigidbody2D.cpp" />
     <ClCompile Include="Rigidbody2DSystem.cpp" />
