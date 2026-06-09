@@ -77,6 +77,15 @@
                         </StackPanel>
                     </local:ToolbarButton.PopupContent>
                 </local:ToolbarButton>
+
+                <local:ToolbarButton Width="50" ButtonIcon="⚙">
+                    <local:ToolbarButton.PopupContent>
+                        <StackPanel>
+                            <TextBlock Text="Project Settings" Foreground="#8A8DA9" FontSize="11" Margin="8,5,0,5" FontWeight="Bold"/>
+                            <Button Content="🧱 Physics Layers" Style="{StaticResource EditorMenuItemButton}" Click="OpenLayerSettings"/>
+                        </StackPanel>
+                    </local:ToolbarButton.PopupContent>
+                </local:ToolbarButton>
             </StackPanel>
         </Grid>
     </Border>

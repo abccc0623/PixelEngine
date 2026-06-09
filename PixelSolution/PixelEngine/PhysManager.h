@@ -3,6 +3,7 @@
 #include <Jolt/Core/Reference.h>
 #include <Jolt/Physics/Body/BodyID.h>       
 #include <Jolt/Physics/Body/MotionType.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
 #include <unordered_map>
 #include <vector>
 #include "PhysStruct.h"
@@ -16,13 +17,16 @@ namespace JPH
 	class Shape;
 	class BodyCreationSettings;
 }
-namespace ECS::Collider2D
+namespace ECS
 {
-	struct Collider2DData;
-}
-namespace ECS::Rigidbody2D
-{
-	struct Rigidbody2DData;
+	namespace Collider2D
+	{
+		struct Collider2DData;
+	}
+	namespace Rigidbody2D
+	{
+		struct Rigidbody2DData;
+	}
 }
 
 struct CollisionEvent;
@@ -48,6 +52,7 @@ public:
 	void SetActive(JPH::BodyID id, bool active);
 	bool GetActive(JPH::BodyID id);
 
+
 	void AddImpulse(JPH::BodyID id, float x, float y, float z);
 	void AddForce(JPH::BodyID id, float x, float y, float z);
 
@@ -57,6 +62,8 @@ public:
 	void DebugDraw(JPH::BodyID id);
 	void SyncPhysics(JPH::BodyID id);
 private:
+	JPH::ObjectLayer FindLayer(std::string key);
+
 	ColliderFactory* colliderFactory = nullptr;
 	PhysListener* eventListener = nullptr;
 	EventManager* event;
@@ -72,5 +79,6 @@ private:
 
 	std::unordered_map<std::string, JPH::ShapeRefC> colliderMap;
 	std::vector<CollisionEvent> mFrameCollisionEvents;
+	std::unordered_map<std::string, int> layerList;
 };
 

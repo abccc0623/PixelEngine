@@ -1,0 +1,113 @@
+<UserControl x:Class="PixelTool.LayerSettingsWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="700"
+             d:DesignWidth="900">
+    <UserControl.Resources>
+        <Style x:Key="PanelBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource PixelPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PixelBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="12" />
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource PixelButtonBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PixelButtonTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PixelBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource PixelButtonHoverBrush}" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource PixelButtonPressedBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="LayerTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PixelBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,6" />
+        </Style>
+
+        <Style x:Key="LayerHeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource PixelBackgroundBrush}" Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource PanelBorderStyle}">
+            <StackPanel>
+                <TextBlock Text="Physics Layer Matrix"
+                           Foreground="{DynamicResource PixelTextBrush}"
+                           FontSize="20"
+                           FontWeight="Bold" />
+                <TextBlock Margin="0,8,0,0"
+                           Text="Add layers and toggle which pairs can collide. The matrix is mirrored automatically."
+                           Foreground="{DynamicResource PixelTextBrush}"
+                           Opacity="0.82"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Margin="0,12,0,12" Style="{StaticResource PanelBorderStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBox x:Name="LayerNameTextBox"
+                         Grid.Column="0"
+                         Style="{StaticResource LayerTextBoxStyle}"
+                         VerticalContentAlignment="Center"
+                         KeyDown="LayerNameTextBox_OnKeyDown" />
+
+                <Button Grid.Column="1"
+                        Margin="10,0,0,0"
+                        MinWidth="96"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Content="Add Layer"
+                        Click="AddLayerButton_Click" />
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource PanelBorderStyle}">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto">
+                <Grid x:Name="MatrixGrid" Margin="4" />
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

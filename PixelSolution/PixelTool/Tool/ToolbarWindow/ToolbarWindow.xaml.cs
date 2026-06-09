@@ -185,5 +185,25 @@ namespace PixelTool
                 newToolWindow.Close();
             };
         }
+
+        private void OpenLayerSettings(object sender, RoutedEventArgs e)
+        {
+            var layerSettingsWindow = new LayerSettingsWindow();
+            var newToolWindow = new LayoutAnchorable()
+            {
+                Title = "Physics Layers",
+                Content = layerSettingsWindow,
+                FloatingWidth = 900,
+                FloatingHeight = 700,
+            };
+            MainWindow main = Application.Current.MainWindow as MainWindow;
+            newToolWindow.AddToLayout(main.dockManager, AnchorableShowStrategy.Right);
+            newToolWindow.IsActive = true;
+            newToolWindow.Float();
+            layerSettingsWindow.Close = () =>
+            {
+                newToolWindow.Close();
+            };
+        }
     }
 }

@@ -21,7 +21,9 @@
 using namespace JPH;
 PhysManager::PhysManager()
 {
-
+	layerList.insert({ "Default", 0 });
+	layerList.insert({ "Player",  1 });
+	layerList.insert({ "Ground",  2 });
 }
 
 PhysManager::~PhysManager()
@@ -261,21 +263,19 @@ JPH::ShapeRefC PhysManager::CreateCollider(ECS::Collider2D::Collider2DData* coll
 JPH::BodyID PhysManager::CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigidbody, JPH::ShapeRefC shapeRef, unsigned int pOwner)
 {
 	//data->
-	JPH::ObjectLayer objectLayer = Layers::Default;
+	JPH::ObjectLayer objectLayer = FindLayer(rigidbody->layer);
 	JPH::EMotionType eMotionType = JPH::EMotionType::Dynamic;
 	JPH::EActivation active = (rigidbody->Active) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate;
 
 	switch (rigidbody->type)
 	{
 	case MotionType::Static:
-		objectLayer = Layers::Default;
 		eMotionType = EMotionType::Static;
 		break;
 	case MotionType::Kinematic:
 		eMotionType = EMotionType::Kinematic;
 		break;
 	case MotionType::Dynamic:
-		objectLayer = Layers::Default;
 		eMotionType = EMotionType::Dynamic;
 		break;
 	}
@@ -385,6 +385,16 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
 	transformData->position.y = pos.GetY();
 	transformData->position.z = pos.GetZ();
 	DebugDraw(id);
+}
+
+JPH::ObjectLayer PhysManager::FindLayer(std::string key)
+{
+	auto find = layerList.find(key);
+	if (find != layerList.end())
+	{
+		return JPH::ObjectLayer(find->second);
+	}
+	return JPH::ObjectLayer(0);
 }
 
 
