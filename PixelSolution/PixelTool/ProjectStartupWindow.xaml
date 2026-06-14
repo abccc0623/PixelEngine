@@ -1,0 +1,56 @@
+<Window x:Class="PixelTool.ProjectStartupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Open PixelTool Project"
+        Width="620" Height="400"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource PixelBackgroundBrush}"
+        Foreground="{DynamicResource PixelTextBrush}">
+    <Border Margin="18" Padding="28"
+            Background="{DynamicResource PixelPanelBrush}"
+            BorderBrush="{DynamicResource PixelBorderBrush}"
+            BorderThickness="1" CornerRadius="14">
+        <Grid MinHeight="300">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel>
+                <TextBlock Text="PIXELTOOL PROJECT" Foreground="{DynamicResource PixelAccentBrush}"
+                           FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="Choose a project to start the editor."
+                           Margin="0,10,0,0" FontSize="22" FontWeight="SemiBold"/>
+                <TextBlock Text="The editor cannot open until a project path is selected."
+                           Margin="0,7,0,0" Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="12"/>
+            </StackPanel>
+
+            <Border Grid.Row="1" Margin="0,22,0,18" Padding="12,9"
+                    Background="{DynamicResource PixelBackgroundBrush}" CornerRadius="6">
+                <TextBlock x:Name="PreviousPathText" TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="12"/>
+            </Border>
+
+            <Grid Grid.Row="2" Height="64" VerticalAlignment="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="PreviousPathButton" Grid.Column="0" MinHeight="58"
+                        Style="{DynamicResource PixelToolButton}"
+                        Content="Start With Previous Path" Click="StartWithPreviousPath"/>
+                <Button Grid.Column="2" MinHeight="58"
+                        Style="{DynamicResource PixelToolButton}"
+                        Content="Open Existing Project" Click="OpenExistingProject"/>
+                <Button Grid.Column="4" MinHeight="58"
+                        Style="{DynamicResource PixelToolButton}"
+                        Content="Create New Project" Click="CreateNewAssetFolder"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

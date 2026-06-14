@@ -21,10 +21,11 @@
 #include "EventManager.h"
 #include "SystemManager.h"
 #include "CoroutineManager.h"
+#include "EditorManager.h"
 
 #include "Entity.h"
 
-void PixelEngine::Initialize(HWND hWnd, int width, int height)
+void PixelEngine::Initialize(HWND hWnd, int width, int height, std::string assetPath)
 {
 	BindFactory<KeyInputManager>();
 	BindFactory<TimeManager>();
@@ -37,7 +38,9 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height)
 	BindFactory<GenerateManager>();
 	BindFactory<EventManager>();
 	BindFactory<CoroutineManager>();
+	BindFactory<EditorManager>();
 
+	EngineRootFolderPath = assetPath;
 	if (hWnd != nullptr)
 	{
 		PixelGraphicsInitialize(hWnd, width, height);
@@ -82,6 +85,18 @@ void PixelEngine::EngineUpdate()
 bool PixelEngine::RunningCheck()
 {
 	return true;
+}
+
+std::string PixelEngine::GetEngineRootFolderPath()
+{
+	if (EngineRootFolderPath.empty())
+	{
+		return "";
+	}
+	else
+	{
+		return EngineRootFolderPath.c_str();
+	}
 }
 
 void PixelEngine::ReleaseShared()

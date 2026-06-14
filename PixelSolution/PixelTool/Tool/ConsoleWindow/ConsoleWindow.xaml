@@ -8,26 +8,39 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="25"></RowDefinition>
+            <RowDefinition Height="36"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <Grid Background="{StaticResource PixelBackgroundBrush}">
+        <Grid Background="{StaticResource PixelPanelBrush}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="25"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Content="🧹" Grid.Column="0" Click="Clear"></Button>
+            <Button x:Name="AllLogButton" Content="All" Grid.Column="0" Margin="5,4,3,4" Style="{StaticResource PixelFilterButton}" Click="FilterLogs" Tag="-1"/>
+            <Button x:Name="InfoLogButton" Content="Info" Grid.Column="1" Margin="0,4,3,4" Style="{StaticResource PixelFilterButton}" Click="FilterLogs" Tag="0"/>
+            <Button x:Name="WarnLogButton" Content="Warn" Grid.Column="2" Margin="0,4,3,4" Style="{StaticResource PixelFilterButton}" Click="FilterLogs" Tag="1"/>
+            <Button x:Name="ErrorLogButton" Content="Error" Grid.Column="3" Margin="0,4,6,4" Style="{StaticResource PixelFilterButton}" Click="FilterLogs" Tag="2"/>
+            <TextBox x:Name="LogSearchBox" Grid.Column="4" Margin="0,4,6,4" Style="{StaticResource PixelTextBox}"
+                     ToolTip="Search logs" TextChanged="LogSearchBox_TextChanged"/>
+            <Button Content="" Grid.Column="5" Margin="0,4,6,4" Style="{StaticResource PixelIconButton}" ToolTip="Clear logs" Click="Clear"/>
         </Grid>
         
-        <ListBox x:Name="EngineLogView" Grid.Row="1" Background="{StaticResource PixelBackgroundBrush}" Foreground="{StaticResource PixelTextBrush}">
+        <ListBox x:Name="EngineLogView" Grid.Row="1" Background="{StaticResource PixelBackgroundBrush}"
+                 Foreground="{StaticResource PixelTextBrush}" BorderThickness="0" Padding="4"
+                 ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <DockPanel LastChildFill="True">
+                    <DockPanel LastChildFill="True" Margin="3,2">
                         <TextBlock DockPanel.Dock="Right"
                                    Margin="8,0,0,0"
                                    Foreground="{Binding DisplayColor, Mode=OneWay}"
                                    Text="{Binding CountText, Mode=OneWay}" />
-                        <TextBlock Foreground="{Binding DisplayColor, Mode=OneWay}">
+                        <TextBlock Foreground="{Binding DisplayColor, Mode=OneWay}" TextTrimming="CharacterEllipsis">
                             <Run Text="[" />
                             <Run Text="{Binding Timestamp, Mode=OneWay}" />
                             <Run Text="]" />

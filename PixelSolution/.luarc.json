@@ -1,0 +1,5 @@
+{
+    "runtime": { "version": "Lua 5.1" },
+    "workspace": { "library": ["Engine"] },
+    "diagnostics": { "globals": ["Vector2", "Vector3", "Transform", "Renderer2D", "Camera", "Animation2D", "BoxCollider2D", "CircleCollider2D", "Rigidbody2D", "LuaEvent"] }
+}

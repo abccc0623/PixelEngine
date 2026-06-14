@@ -51,7 +51,7 @@ int main()
 		CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, NULL, NULL, hInst, NULL);
 
 	ShowWindow(hWnd, SW_SHOW);
-	EngineInitialize(hWnd, 800, 600);
+	EngineInitialize(hWnd, 800, 600, "");
 
 	Import("./Asset/main.lua");
 

@@ -5,15 +5,20 @@ using StreamJsonRpc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace PixelTool
 {
     public class LuaLspService : IDisposable
     {
+        public event Action<PublishDiagnosticParams> DiagnosticsPublished;
+
         private int _documentVersion = 1;
         private Process _luaServerProcess;
         private JsonRpc _rpc;
@@ -35,15 +40,11 @@ namespace PixelTool
             {
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 string serverPath = Path.GetFullPath(Path.Combine(baseDir, "LSP/bin/lua-language-server.exe"));
-                string assetDir = Path.Combine(baseDir, "Asset").Replace("\\", "/");
-                if (assetDir.Length > 1 && assetDir[1] == ':')
-                    assetDir = char.ToLower(assetDir[0]) + assetDir.Substring(1);
-                string finalRootUri = "file:///" + assetDir;
+                string finalRootUri = new Uri(ProjectPathService.ProjectRootPath).AbsoluteUri;
 
                 // .luarc.json 자동 생성
-                string assetPath = Path.Combine(baseDir, "Asset");
-                string enginePath = Path.Combine(assetPath, "Engine").Replace("\\", "/");
-                string luarcPath = Path.Combine(assetPath, ".luarc.json");
+                string enginePath = ProjectPathService.EnginePath.Replace("\\", "/");
+                string luarcPath = ProjectPathService.GetEditorFilePath(".luarc.json");
                 string luarcContent = $@"{{
     ""runtime"": {{ ""version"": ""Lua 5.1"" }},
     ""workspace"": {{ ""library"": [""{enginePath}""] }},
@@ -91,7 +92,7 @@ namespace PixelTool
                 _luaServerProcess.BeginErrorReadLine();
 
                 _rpc = new JsonRpc(_luaServerProcess.StandardInput.BaseStream, _luaServerProcess.StandardOutput.BaseStream);
-                _rpc.AddLocalRpcMethod(Methods.TextDocumentPublishDiagnosticsName, new Action<JToken>(_ => { }));
+                _rpc.AddLocalRpcMethod(Methods.TextDocumentPublishDiagnosticsName, new Action<JToken>(HandleDiagnostics));
                 _rpc.AddLocalRpcMethod("window/workDoneProgress/create", new Func<JToken, object>(_ => new { }));
                 _rpc.StartListening();
 
@@ -118,11 +119,11 @@ namespace PixelTool
 
                 await _rpc.NotifyAsync(Methods.InitializedName);
 
-                string engineGeneratePath = Path.Combine(baseDir, "Asset", "Engine", "EngineGenerate.lua");
+                string engineGeneratePath = ProjectPathService.GetEngineFilePath("EngineGenerate.lua");
                 if (File.Exists(engineGeneratePath))
                 {
                     var content = File.ReadAllText(engineGeneratePath);
-                    await NotifyFileOpenAsync("Asset/Engine/EngineGenerate.lua", content);
+                    await NotifyFileOpenAsync(engineGeneratePath, content);
                 }
                 else
                 {
@@ -132,6 +133,22 @@ namespace PixelTool
             catch (Exception ex)
             {
                 ConsoleWindow.LogMessage($"❌ [FATAL]: {ex.Message}\n{ex.StackTrace}", 2);
+            }
+        }
+
+        private void HandleDiagnostics(JToken parameters)
+        {
+            try
+            {
+                var diagnostics = parameters.ToObject<PublishDiagnosticParams>();
+                if (diagnostics != null)
+                {
+                    DiagnosticsPublished?.Invoke(diagnostics);
+                }
+            }
+            catch (Exception ex)
+            {
+                ConsoleWindow.LogMessage($"❌ LSP 진단 처리 실패: {ex.Message}", 2);
             }
         }
 
@@ -206,7 +223,7 @@ namespace PixelTool
             try
             {
                 var context = new CompletionContext();
-                if (string.IsNullOrEmpty(triggerChar))
+                if (triggerChar != "." && triggerChar != ":")
                     context.TriggerKind = CompletionTriggerKind.Invoked;
                 else
                 {
@@ -260,15 +277,36 @@ namespace PixelTool
                     completionWindow.CloseAutomatically = true;
                     completionWindow.AllowsTransparency = true;
                     completionWindow.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(27, 28, 46));
-                    completionWindow.MinWidth = 300;
+
+                    double longestItemWidth = 0;
+                    var typeface = new Typeface(area.FontFamily, area.FontStyle, area.FontWeight, area.FontStretch);
 
                     foreach (var item in completionItems)
                     {
                         if (item.Label.StartsWith("_")) continue;
+
+                        var formattedText = new FormattedText(
+                            item.Label,
+                            CultureInfo.CurrentUICulture,
+                            FlowDirection.LeftToRight,
+                            typeface,
+                            area.FontSize,
+                            Brushes.White,
+                            VisualTreeHelper.GetDpi(area).PixelsPerDip);
+                        longestItemWidth = Math.Max(longestItemWidth, formattedText.WidthIncludingTrailingWhitespace);
+
                         completionWindow.CompletionList.CompletionData.Add(new LuaCompletionData(item));
                     }
 
                     if (completionWindow.CompletionList.CompletionData.Count == 0) return;
+
+                    double availableWidth = Math.Max(300, area.ActualWidth - 32);
+                    completionWindow.Width = Math.Min(availableWidth, Math.Max(300, longestItemWidth + 72));
+                    completionWindow.MaxHeight = 320;
+
+                    var completionListBox = completionWindow.CompletionList.ListBox;
+                    ScrollViewer.SetVerticalScrollBarVisibility(completionListBox, ScrollBarVisibility.Visible);
+                    ScrollViewer.SetHorizontalScrollBarVisibility(completionListBox, ScrollBarVisibility.Disabled);
 
                     luaEditor.completionWindow = completionWindow;
                     completionWindow.Show();

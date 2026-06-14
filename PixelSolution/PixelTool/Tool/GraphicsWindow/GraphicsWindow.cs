@@ -51,7 +51,10 @@ namespace PixelTool
                 hwndParent.Handle, (IntPtr)HOST_ID, IntPtr.Zero, 0);
 
             // 2. 엔진 초기화 (이 시점은 단일 스레드이므로 Lock 불필요)
-            PixelEngineNative.EngineInitialize(_childHwnd, w, h);
+            string root = ProjectPathService.ProjectRootPath.Replace('\\', '/');
+            GlobalFunction.CreateMainLuaFile(ProjectPathService.AssetPath);
+            PixelEngineNative.EngineInitialize(_childHwnd, w, h, root);
+            ProjectPathService.StartNewProject();
             PixelEngineNative.Import("./Asset/main.lua");
 
             // 메시지 훅 등록

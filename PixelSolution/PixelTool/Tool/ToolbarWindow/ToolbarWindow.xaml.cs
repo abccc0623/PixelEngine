@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Media.Animation;
 
 namespace PixelTool
 {
@@ -25,17 +26,51 @@ namespace PixelTool
     public partial class ToolbarWindow : UserControl
     {
         int createSceneindex = 0;
+        private ToolbarButton _hoveredButton;
         public ToolbarWindow()
         {
             InitializeComponent();
+            Loaded += (_, _) => SelectionIndicator.Visibility = Visibility.Hidden;
+        }
+
+        private void ToolbarButton_Hovered(object sender, RoutedEventArgs e)
+        {
+            if (sender is ToolbarButton button)
+            {
+                _hoveredButton = button;
+                MoveHoverIndicator(button);
+            }
+        }
+
+        private void ToolbarButton_HoverEnded(object sender, RoutedEventArgs e)
+        {
+            if (sender == _hoveredButton)
+            {
+                _hoveredButton = null;
+                SelectionIndicator.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void MoveHoverIndicator(ToolbarButton hoveredButton)
+        {
+            SelectionIndicator.Visibility = Visibility.Visible;
+            double targetY = hoveredButton.TranslatePoint(new Point(0, 0), ToolbarItems).Y + 3;
+
+            var animation = new DoubleAnimation
+            {
+                To = targetY,
+                Duration = TimeSpan.FromMilliseconds(220),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            SelectionTransform.BeginAnimation(TranslateTransform.YProperty, animation);
         }
 
         public void CreateMainLua()
         {
-            string luafilePath = "./Asset/main.lua";
+            string luafilePath = ProjectPathService.GetAssetFilePath("main.lua");
             if (File.Exists(luafilePath))
             {
-                var result = MessageBox.Show(
+                var result = PixelMessageBox.Show(
                  "main.lua 파일은 Asset폴더 하위로 한개만 존재할 수 있습니다. 기존 main파일을 삭제 하겠습니까?",
                  "이미 존재 하는 파일",
                   MessageBoxButton.YesNo,
@@ -46,12 +81,12 @@ namespace PixelTool
                     return;
                 }
             }
-            string content = LuaFileManager.GetFileContent("main");
+            string content = LuaFileManager.GetFileContent("main.lua");
             var utf8WithBom = new System.Text.UTF8Encoding(true);
             File.WriteAllText(luafilePath, content, utf8WithBom);
 
             var luaWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
-            if(luaWindow != null)
+            if (luaWindow != null)
             {
                 luaWindow.OpenFile(luafilePath);
             }
@@ -63,17 +98,17 @@ namespace PixelTool
         }
         public void CreateSceneLua()
         {
-            string luafilePath = "./Asset/NewScene.scene";
+            string luafilePath = ProjectPathService.GetAssetFilePath("NewScene.scene");
             while (File.Exists(luafilePath))
             {
-                luafilePath = $"./Asset/NewScene{createSceneindex}.scene";
+                luafilePath = ProjectPathService.GetAssetFilePath($"NewScene{createSceneindex}.scene");
                 createSceneindex++;
             }
             string content = LuaFileManager.GetFileContent("Scene");
             File.WriteAllText(luafilePath, content, Encoding.UTF8);
 
             var luaWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
-            if(luaWindow != null)
+            if (luaWindow != null)
             {
                 luaWindow.OpenFile(luafilePath);
             }
@@ -87,18 +122,18 @@ namespace PixelTool
 
         public void CreateModule()
         {
-            string newNameOnly = Microsoft.VisualBasic.Interaction.InputBox(
+            string newNameOnly = PixelPromptDialog.Show(
               "새 모듈 파일의 이름을 입력해주세요",
               "새로운 모듈 파일 만들기",
               "");
 
             if (string.IsNullOrWhiteSpace(newNameOnly)) return;
-            string directoryPath = "./Asset/";
+            string directoryPath = ProjectPathService.AssetPath;
             string fullPath = System.IO.Path.Combine(directoryPath, newNameOnly);
 
             if (System.IO.File.Exists(fullPath))
             {
-                MessageBox.Show("이미 같은 이름의 파일이 존재합니다!", "알림", MessageBoxButton.OK, MessageBoxImage.Error);
+                PixelMessageBox.Show("이미 같은 이름의 파일이 존재합니다!", "알림", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -204,6 +239,14 @@ namespace PixelTool
             {
                 newToolWindow.Close();
             };
+        }
+
+        private void ResetEditorLayout(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.ResetDockLayout();
+            }
         }
     }
 }

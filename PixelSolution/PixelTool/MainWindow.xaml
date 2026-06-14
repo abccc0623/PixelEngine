@@ -9,21 +9,24 @@
         AllowsTransparency="False"
         Background="Transparent"
         Opacity="1.0"
-        Title="PixelTool" Width="1920" Height="1080">
+        Title="PixelTool" Width="1920" Height="1080" FontFamily="Segoe UI" Foreground="{DynamicResource PixelTextBrush}">
 
 
     <Grid Background="{DynamicResource PixelBackgroundBrush}">
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="54" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="65" />
         </Grid.ColumnDefinitions>
 
+        <Grid Grid.Column="0" Background="Transparent" VerticalAlignment="Top">
+            <local:ToolbarWindow />
+        </Grid>
 
-        <Border Grid.Column="0"
+        <Border Grid.Column="1"
                 BorderBrush="{DynamicResource PixelDockBorderBrush}"
                 BorderThickness="1"
                 Background="{DynamicResource PixelBackgroundBrush}">
-        <dock:DockingManager x:Name="dockManager" Grid.Row="0" Background="#191B1C2E" OpacityMask="Black" Foreground="#00000000" BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Margin="0" >
+        <dock:DockingManager x:Name="dockManager" Grid.Row="0" Background="{DynamicResource PixelBackgroundBrush}" OpacityMask="Black" Foreground="#00000000" BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Margin="0" >
 
             <dock:DockingManager.Resources>
                 <Style TargetType="{x:Type dock:LayoutDocumentPaneControl}">
@@ -38,9 +41,21 @@
                 </Style>
                 <Style TargetType="{x:Type dock:LayoutDocumentTabItem}">
                     <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
-                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderThickness" Value="0,0,0,2"/>
                     <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
-                    <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource PixelMutedTextBrush}"/>
+                    <Setter Property="Padding" Value="14,4"/>
+                    <Setter Property="Margin" Value="2,1,0,0"/>
+                    <Setter Property="MinWidth" Value="96"/>
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="FontWeight" Value="Medium"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Self}}" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource PixelPanelBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource PixelAccentBrush}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource PixelAccentBrush}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
                 </Style>
                 <Style TargetType="{x:Type dock:LayoutAnchorablePaneControl}">
                     <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
@@ -49,9 +64,21 @@
                 </Style>
                 <Style TargetType="{x:Type dock:LayoutAnchorableTabItem}">
                     <Setter Property="BorderBrush" Value="{DynamicResource PixelDockBorderBrush}"/>
-                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderThickness" Value="0,0,0,2"/>
                     <Setter Property="Background" Value="{DynamicResource PixelBackgroundBrush}"/>
-                    <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource PixelMutedTextBrush}"/>
+                    <Setter Property="Padding" Value="14,4"/>
+                    <Setter Property="Margin" Value="2,1,0,0"/>
+                    <Setter Property="MinWidth" Value="96"/>
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="FontWeight" Value="Medium"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Self}}" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource PixelPanelBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource PixelAccentBrush}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource PixelAccentBrush}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
                 </Style>
                 <Style TargetType="{x:Type dock:LayoutPanelControl}">
                     <Setter Property="Background" Value="{DynamicResource PixelDockBorderBrush}"/>
@@ -84,16 +111,16 @@
 
                     <dock:LayoutPanel Orientation="Horizontal" DockWidth="0.5*" DockHeight="0.75*">
                         <dock:LayoutDocumentPane>
-                            <dock:LayoutDocument Title="Scene View">
-                                <Border BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Background="{DynamicResource PixelBackgroundBrush}">
+                            <dock:LayoutDocument Title="Scene View" ContentId="SceneView">
+                                <Border x:Name="SceneViewContent" Background="{DynamicResource PixelBackgroundBrush}">
                                     <local:GraphicsWindow x:Name="GraphicsWindow" />
                                 </Border>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
 
                         <dock:LayoutDocumentPane>
-                            <dock:LayoutDocument Title="LuaEditor">
-                                <Border BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Background="{DynamicResource PixelBackgroundBrush}">
+                            <dock:LayoutDocument Title="Lua Editor" ContentId="LuaEditor">
+                                <Border x:Name="LuaEditorContent" Background="{DynamicResource PixelBackgroundBrush}">
                                     <local:LuaEditorWindow/>
                                 </Border>
                             </dock:LayoutDocument>
@@ -101,17 +128,17 @@
                     </dock:LayoutPanel>
 
                     <dock:LayoutPanel Orientation="Horizontal" DockWidth="0.5*" DockHeight="0.25*">
-                        <dock:LayoutDocumentPane DockWidth="0.75*" DockHeight="1.0*">
-                            <dock:LayoutDocument Title="Asset">
-                                <Border BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Background="{DynamicResource PixelBackgroundBrush}">
+                        <dock:LayoutDocumentPane DockWidth="0.70*" DockHeight="1.0*">
+                            <dock:LayoutDocument Title="Asset" ContentId="Asset">
+                                <Border x:Name="AssetContent" Background="{DynamicResource PixelBackgroundBrush}">
                                     <local:AssetWindow/>
                                 </Border>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>
 
-                        <dock:LayoutDocumentPane DockWidth="0.25*" DockHeight="1.0*">
-                            <dock:LayoutDocument Title="Log">
-                                <Border BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1" Background="{DynamicResource PixelBackgroundBrush}">
+                        <dock:LayoutDocumentPane DockWidth="0.30*" DockHeight="1.0*">
+                            <dock:LayoutDocument Title="Log" ContentId="Log">
+                                <Border x:Name="LogContent" Background="{DynamicResource PixelBackgroundBrush}">
                                     <local:ConsoleWindow/>
                                 </Border>
                             </dock:LayoutDocument>
@@ -123,9 +150,6 @@
         </dock:DockingManager>
         </Border>
 
-        <Grid Grid.Column="1">
-            <local:ToolbarWindow />
-        </Grid>
     </Grid>
     
 </Window>

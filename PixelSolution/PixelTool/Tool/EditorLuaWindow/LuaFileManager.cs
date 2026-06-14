@@ -32,7 +32,7 @@ namespace PixelTool
 
         public static string GetFileContent(string FileName)
         {
-            string resourceName = $"PixelTool.LuaCode.{FileName}.lua";
+            string resourceName = $"PixelTool.LuaCode.{FileName}";
 
             using (var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
             {
@@ -69,7 +69,7 @@ namespace PixelTool
             }
         }
 
-        static public void  CreateLuaByJIT(string resourcePath, string exportPath)
+        static public void CreateLuaByJIT(string resourcePath, string exportPath)
         {
             try
             {

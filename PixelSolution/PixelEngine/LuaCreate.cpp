@@ -13,6 +13,7 @@ LuaCreate::~LuaCreate()
 
 void LuaCreate::Generate(const char* outPath, std::vector<PixelClassMeta>& types)
 {
+	createFilePath = std::string(outPath);
 	Vector2File();
 	Vector3File();
 	for (auto& K : types)
@@ -25,18 +26,6 @@ void LuaCreate::Generate(const char* outPath, std::vector<PixelClassMeta>& types
 		}
 	}
 	ComponentLinkFile();
-}
-
-std::string GetEngineRootPath()
-{
-	char buffer[MAX_PATH];
-
-	// 현재 실행 중인 exe 파일의 전체 절대 경로를 버퍼에 담습니다.
-	GetModuleFileNameA(NULL, buffer, MAX_PATH);
-
-	// 파일명(Engine.exe)을 떼어내고, 폴더 경로만 반환합니다.
-	std::filesystem::path exePath(buffer);
-	return exePath.parent_path().string();
 }
 
 std::string LuaCreate::CreateComponent(PixelClassMeta& meta, std::vector<PixelClassMeta>& types)
@@ -95,7 +84,7 @@ std::string LuaCreate::CreateComponent(PixelClassMeta& meta, std::vector<PixelCl
 		luaFile += meta.thisName + " = " + meta.thisName + " or {}\n";
 		luaFile += function;
 		GenerateComponentFileName += "require(\"" + meta.thisName + "\")\n";
-		std::string root = GetEngineRootPath() + "\\Asset\\Engine\\" + meta.thisName + ".lua";
+		std::string root = createFilePath + "/" + meta.thisName + ".lua";
 		std::ofstream file(root);
 		file << luaFile;
 		file.close();
@@ -288,7 +277,7 @@ std::string LuaCreate::CreateMethodWrapper(PixelClassMeta& meta, PixelMethodMeta
 }
 void LuaCreate::ComponentLinkFile()
 {
-	std::string root = GetEngineRootPath() + "\\Asset\\Engine\\EngineGenerate.lua";
+	std::string root = createFilePath + "/EngineGenerate.lua";
 	std::string jit = "";
 	jit += GenerateComponentFileName;
 
@@ -299,7 +288,7 @@ void LuaCreate::ComponentLinkFile()
 
 void LuaCreate::Vector3File()
 {
-	std::filesystem::path root = std::filesystem::path(GetEngineRootPath()) / "Asset" / "Engine" / "Vector3.lua";
+	std::filesystem::path root = createFilePath + "/Vector3.lua";
 
 	std::string jit = R"(
 local ffi = require("ffi")
@@ -403,7 +392,7 @@ end
 
 void LuaCreate::Vector2File()
 {
-	std::filesystem::path root = std::filesystem::path(GetEngineRootPath()) / "Asset" / "Engine" / "Vector2.lua";
+	std::filesystem::path root = createFilePath + "/Vector2.lua";
 
 	std::string jit = R"(
 local ffi = require("ffi")

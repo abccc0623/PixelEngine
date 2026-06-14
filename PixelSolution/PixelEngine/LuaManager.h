@@ -24,6 +24,7 @@ public:
 
 	void ImportLua(const std::string& filePath, const std::string filename, const std::string& ext);
 	void CreateLuaManager();
+	void ReadEngineGenerateFile();
 	void AddEntityID(unsigned int id, sol::table target);
 	void RemoveEntityID(unsigned int id);
 

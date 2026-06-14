@@ -121,6 +121,9 @@
     <Filter Include="EngineAPI\ECS\System\Manager">
       <UniqueIdentifier>{7926a4ad-02db-4d4d-a255-d24be58c3eaa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Manager\EditorManager">
+      <UniqueIdentifier>{2c6f5dd8-16f7-4013-87a2-1ce4f003d9ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -354,6 +357,9 @@
     <ClInclude Include="PixelBroadPhaseLayerFilter.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClInclude>
+    <ClInclude Include="EditorManager.h">
+      <Filter>EngineAPI\Manager\EditorManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -523,6 +529,9 @@
     </ClCompile>
     <ClCompile Include="PixelBroadPhaseLayerFilter.cpp">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
+    </ClCompile>
+    <ClCompile Include="EditorManager.cpp">
+      <Filter>EngineAPI\Manager\EditorManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

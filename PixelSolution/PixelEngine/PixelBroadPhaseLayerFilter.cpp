@@ -2,7 +2,7 @@
 #include "PixelBroadPhaseLayerFilter.h"
 
 
-bool PixelBroadPhaseLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2)
+bool PixelBroadPhaseLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const
 {
 	return true;
 }
@@ -11,7 +11,7 @@ bool PixelBroadPhaseLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer1, JPH::B
 //섞이지 않도록----------나중에 클래스 내용이 많아지면 분리 
 PixelBroadPhaseLayerInterface::PixelBroadPhaseLayerInterface()
 {
-	for (JPH::uint32 i = 0; i < BroadPhaseLayers::NUM_LAYERS; ++i)
+	for (JPH::uint32 i = 0; i < Layers::NUM_LAYERS; ++i)
 	{
 		mObjectToBroadPhase[i] = BroadPhaseLayers::Default;
 	}

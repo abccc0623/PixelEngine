@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -59,6 +60,8 @@ namespace PixelTool
         private readonly ObservableCollection<LogEntry> _logItems = new ObservableCollection<LogEntry>();
         private readonly Dictionary<string, LogEntry> _logIndex = new Dictionary<string, LogEntry>();
         private readonly DispatcherTimer _uiUpdateTimer;
+        private readonly ICollectionView _logView;
+        private int _selectedLogLevel = -1;
 
         private const int MAX_LOG_COUNT = 2000; // 최대 로그 보관 개수 (메모리 방어)
 
@@ -68,6 +71,9 @@ namespace PixelTool
 
             // 데이터 바인딩 설정 (XAML에서 ItemsSource={Binding _logItems} 형태로 연결되어 있어야 함)
             EngineLogView.ItemsSource = _logItems;
+            _logView = CollectionViewSource.GetDefaultView(_logItems);
+            _logView.Filter = FilterLogEntry;
+            UpdateFilterButtons();
 
             // 콜백 등록
             _logCallback = OnNativeLogReceived;
@@ -141,6 +147,51 @@ namespace PixelTool
             _logItems.Clear();
             _logIndex.Clear();
             while (_pendingLogs.TryDequeue(out _)) { } // 잔여 큐 완전히 비우기
+        }
+
+        private void FilterLogs(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && int.TryParse(button.Tag?.ToString(), out int level))
+            {
+                _selectedLogLevel = level;
+                _logView.Refresh();
+                UpdateFilterButtons();
+            }
+        }
+
+        private void UpdateFilterButtons()
+        {
+            Button[] buttons = { AllLogButton, InfoLogButton, WarnLogButton, ErrorLogButton };
+            foreach (Button button in buttons)
+            {
+                bool isActive = int.TryParse(button.Tag?.ToString(), out int level) && level == _selectedLogLevel;
+                if (isActive)
+                {
+                    button.Background = (Brush)FindResource("PixelAccentBrush");
+                    button.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(32, 38, 48));
+                    button.BorderBrush = (Brush)FindResource("PixelAccentBrush");
+                }
+                else
+                {
+                    button.ClearValue(BackgroundProperty);
+                    button.ClearValue(ForegroundProperty);
+                    button.ClearValue(BorderBrushProperty);
+                }
+            }
+        }
+
+        private void LogSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _logView?.Refresh();
+        }
+
+        private bool FilterLogEntry(object item)
+        {
+            if (item is not LogEntry log) return false;
+            if (_selectedLogLevel >= 0 && log.Level != _selectedLogLevel) return false;
+
+            string searchText = LogSearchBox?.Text?.Trim() ?? string.Empty;
+            return searchText.Length == 0 || log.Message.Contains(searchText, StringComparison.OrdinalIgnoreCase);
         }
 
         private static string GetLogKey(LogEntry log)

@@ -1,0 +1,11 @@
+﻿--기본 카메라 입니다.
+local Script = {}
+
+function Script:Spawn()
+
+	self.transform = Transform.Add(self.ID)
+    self.camera = Camera.Add(self.ID)
+    self.transform.position.z = -20
+end
+
+return Script

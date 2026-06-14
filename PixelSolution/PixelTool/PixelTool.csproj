@@ -21,7 +21,6 @@
 </PropertyGroup>
 
  <ItemGroup>
-   <None Remove="LuaCode\JIT\PVector3.lua" />
    <None Remove="LuaCode\main.lua" />
    <None Remove="LuaCode\Module.lua" />
    <None Remove="LuaCode\Scene.lua" />
@@ -36,7 +35,9 @@
    <EmbeddedResource Include="LuaCode\EventFunction.lua">
      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
    </EmbeddedResource>
-   <EmbeddedResource Include="LuaCode\JIT\PVector3.lua" />
+   <EmbeddedResource Include="LuaCode\BaseCamera.pxm">
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </EmbeddedResource>
    <EmbeddedResource Include="LuaCode\main.lua">
      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
    </EmbeddedResource>

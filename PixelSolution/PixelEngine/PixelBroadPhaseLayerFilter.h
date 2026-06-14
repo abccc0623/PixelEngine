@@ -1,5 +1,6 @@
 #pragma once
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include "PixelObjectLayerPairFilter.h"
 namespace BroadPhaseLayers
 {
 	static constexpr JPH::BroadPhaseLayer Default(0);
@@ -13,7 +14,7 @@ namespace BroadPhaseLayers
 class PixelBroadPhaseLayerFilter : public JPH::ObjectVsBroadPhaseLayerFilter
 {
 public:
-	virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2);
+	bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const override;
 };
 
 
@@ -24,6 +25,6 @@ public:
 	JPH::uint GetNumBroadPhaseLayers() const override;
 	JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const override;
 private:
-	JPH::BroadPhaseLayer mObjectToBroadPhase[BroadPhaseLayers::NUM_LAYERS];
+	JPH::BroadPhaseLayer mObjectToBroadPhase[Layers::NUM_LAYERS];
 };
 

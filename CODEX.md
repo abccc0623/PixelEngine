@@ -86,6 +86,54 @@ This file is for Codex-specific project notes and working rules.
 - When the user asks for Client Lua logic, analyze the engine and generate Lua code based on that analysis.
 - Focus mainly on analysis for writing Lua code.
 
+## PixelTool Design Reference
+
+- When the user requests a PixelTool UI or tool design change, use the user-provided dark WPF dashboard reference image as the primary visual direction.
+- Preserve the editor's docking layout and game-engine workflow instead of copying the dashboard layout literally.
+- Use layered charcoal and blue-gray surfaces, with clear visual separation between the application background, panels, and raised controls.
+- Use vivid yellow as the primary accent color for active, selected, hovered, and important states.
+- Prefer rounded panels and buttons, simple monochrome icons, clean typography, and generous internal spacing.
+- Keep normal controls restrained; reserve yellow for emphasis so the interface does not become visually noisy.
+- Maintain consistent toolbar heights, margins, border colors, corner radii, and interaction states across Lua Editor, Asset, Log, and future tool windows.
+
+## PixelTool WPF and LSP Type Names
+
+- PixelTool files may use both `System.Windows.Media` and `Microsoft.VisualStudio.LanguageServer.Protocol`.
+- In files importing both namespaces, do not use the unqualified `Color` type because both namespaces define it.
+- Use `System.Windows.Media.Color` explicitly for WPF colors, including calls such as `System.Windows.Media.Color.FromRgb(...)`.
+
+## PixelTool AvalonDock Styling
+
+- `LayoutDocumentTabItem` and `LayoutAnchorableTabItem` are AvalonDock controls, not standard WPF `TabItem` controls.
+- Do not use an `IsSelected` property trigger in their styles because these controls do not expose that property.
+- Style their active state with a `DataTrigger` bound to `Model.IsActive`, using `RelativeSource Self`.
+
+## PixelTool Product Decisions
+
+- Persist the AvalonDock editor layout automatically when PixelTool closes and restore it on the next launch.
+- Always provide a user-facing action that restores the default editor layout.
+- Scene editing will eventually require move, rotate, and scale tools, but implementation depends on engine support.
+- The editor play control will live in the main toolbar.
+- An Inspector window is planned. PixelTool and PixelEngine should communicate through an explicit request/response boundary rather than directly depending on each other's internal types.
+- Keep toolbar menus hover-driven; a click-to-pin mode is not currently needed.
+- Apply the established charcoal, blue-gray, and yellow PixelTool theme to future tool and settings windows.
+- Apply the same PixelTool theme to every user-facing notification, confirmation, warning, error, and text-input dialog.
+- Do not introduce the native WPF `MessageBox` or `Microsoft.VisualBasic.Interaction.InputBox` in new PixelTool code.
+- Use `PixelMessageBox` for notifications and confirmations, and `PixelPromptDialog` for text input such as Lua script, asset, and folder names.
+- New dialogs should reuse the shared PixelTool brushes and control styles, with charcoal and blue-gray surfaces, yellow accents, rounded corners, balanced spacing, and consistent button interaction states.
+- PixelTool must show a blocking project-path window before the main editor opens.
+- The startup window offers the last valid project root or creation of a new project under a selected parent directory.
+- Closing the startup project-selection window with the title-bar `X` exits PixelTool.
+- Asset browsing, Lua file creation, and LSP workspace paths must use `ProjectPathService.AssetPath` instead of a hardcoded `./Asset` path.
+- `ProjectPathService.ProjectRootPath` is the named project directory selected or created by the user.
+- `AssetPath`, `EnginePath`, and `EditorPath` must always be computed as `ProjectRootPath/Asset`, `ProjectRootPath/Engine`, and `ProjectRootPath/Editor`.
+- A newly created PixelTool project must contain three folders directly under its project root: `Asset`, `Engine`, and `Editor`.
+- `Asset` stores game-specific asset files and project content.
+- `Engine` stores files provided and managed by the engine.
+- `Editor` stores editor-only files, including editor state and save data that should not be used by the game runtime.
+- When implementing or updating new-project creation, create all three folders together under the selected project directory.
+- New-project creation flow: select a parent directory, enter a project name, create the named project directory, then create `Asset`, `Engine`, and `Editor` inside it.
+
 ## 토큰 절약 규칙
 
 - 기본 답변은 짧게 한다.

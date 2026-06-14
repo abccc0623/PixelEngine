@@ -12,29 +12,35 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20" />
+            <RowDefinition Height="34" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Background="{StaticResource PixelBackgroundBrush}">
+        <Grid Grid.Row="0" Background="{StaticResource PixelPanelBrush}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="20" />
-                <ColumnDefinition Width="20" />
-                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="EditorChange" Width="20" Grid.Column="0" Foreground="Green">🔴</TextBlock>
-            <Button Width="20" Grid.Column="1" Foreground="Black" ToolTip="Save changes to file (Ctrl+S)" Click="SaveLuaFile">💾</Button>
-            <Button Width="20" Grid.Column="2" Foreground="Black" ToolTip="Reload assets from source (Ctrl+R)" Click="ReimportLuaFile">🔄</Button>
+            <TextBlock x:Name="EditorChange" Grid.Column="0" Margin="10,0,8,0" VerticalAlignment="Center"
+                       Foreground="#63C174" FontSize="11" Text="● Saved"/>
+            <TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{StaticResource PixelMutedTextBrush}"
+                       FontSize="11" Text="Lua 5.1  •  Ctrl+K, D to format"/>
+            <Button Grid.Column="2" Margin="0,3,4,3" Style="{StaticResource PixelIconButton}"
+                    Content="" ToolTip="Save changes (Ctrl+S)" Click="SaveLuaFile"/>
+            <Button Grid.Column="3" Margin="0,3,6,3" Style="{StaticResource PixelIconButton}"
+                    Content="" ToolTip="Save and reload assets (Ctrl+R)" Click="ReimportLuaFile"/>
         </Grid>
 
         <avalonEdit:TextEditor 
             x:Name="LuaEditor"
             FontFamily="Consolas"
-            FontSize="12pt"
+            FontSize="13pt"
             ShowLineNumbers="True"
-            Background="#1E1E1E" 
-            Foreground="#DCDCDC"
+            Background="#202630"
+            Foreground="#D8DCE8"
             PreviewKeyDown="luaEditor_PreviewKeyDown"
             Grid.Row="1">
             <avalonedit:TextEditor.ContextMenu>

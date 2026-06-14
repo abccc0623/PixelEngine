@@ -21,5 +21,6 @@ private:
 	std::string CreatePropertyName(const std::string& type, int index);
 private:
 	std::string GenerateComponentFileName;
+	std::string createFilePath;
 };
 

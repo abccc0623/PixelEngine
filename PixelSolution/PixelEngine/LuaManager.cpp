@@ -57,16 +57,18 @@ void LuaManager::Initialize()
 	bind = Engine->GetFactory<BindManager>();
 	input = Engine->GetFactory<KeyInputManager>();
 
-	auto target = std::filesystem::current_path();
-	std::filesystem::path scriptRoot = target / "Asset" / "Engine";
+	const std::string projectRootPath = Engine->GetEngineRootFolderPath();
+	const std::u8string projectRootPathUtf8(projectRootPath.begin(), projectRootPath.end());
+	const std::filesystem::path scriptRoot =
+		(std::filesystem::path(projectRootPathUtf8) / "Engine").lexically_normal();
 
-	std::string scriptRootStr = scriptRoot.string();
-	std::replace(scriptRootStr.begin(), scriptRootStr.end(), '\\', '/');
+	const std::string scriptRootStr = scriptRoot.generic_string();
 
 	std::string packagePathSetup = "package.path = package.path .. ';" + scriptRootStr + "/?.lua'";
 	lua.script(packagePathSetup);
 
 	BindAll_GeneratedLuaModules(lua);
+	ReadEngineGenerateFile();
 	CreateLuaManager();
 }
 
@@ -184,21 +186,35 @@ void LuaManager::CreateLuaManager()
 
 		}
 	}
+	//ReadEngineGenerateFile();
+}
 
-	auto target = std::filesystem::current_path();
-	std::filesystem::path scriptPath = target / "Asset" / "Engine" / "EngineGenerate.lua";
-	if (std::filesystem::exists(scriptPath))
+void LuaManager::ReadEngineGenerateFile()
+{
+	const std::string projectRootPath = Engine->GetEngineRootFolderPath();
+	const std::u8string projectRootPathUtf8(projectRootPath.begin(), projectRootPath.end());
+	const std::filesystem::path scriptPath =
+		(std::filesystem::path(projectRootPathUtf8) / "Engine" / "EngineGenerate.lua").lexically_normal();
+	if (!std::filesystem::exists(scriptPath))
 	{
-		result = lua.safe_script_file(scriptPath.string());
-		if (!result.valid())
-		{
-			sol::error err = result;
-			PixelLog::Error(err.what());
-		}
+		return;
 	}
-	else
+
+	const std::string scriptPathString = scriptPath.generic_string();
+	auto loadResult = lua.load_file(scriptPathString);
+	if (!loadResult.valid())
 	{
-		PixelLog::Error("Cannot find the Lua file in the engine folder.");
+		sol::error err = loadResult;
+		PixelLog::Error(err.what());
+		return;
+	}
+
+	sol::protected_function script = loadResult;
+	auto result = script();
+	if (!result.valid())
+	{
+		sol::error err = result;
+		PixelLog::Error(err.what());
 	}
 }
 

@@ -20,6 +20,9 @@ namespace PixelTool
     /// </summary>
     public partial class ToolbarButton : UserControl
     {
+        public event RoutedEventHandler ToolHovered;
+        public event RoutedEventHandler ToolHoverEnded;
+
         public static readonly DependencyProperty ButtonIconProperty =
             DependencyProperty.Register("ButtonIcon", typeof(string), typeof(ToolbarButton), new PropertyMetadata("⚙️"));
 
@@ -44,9 +47,15 @@ namespace PixelTool
             InitializeComponent();
         }
 
+        private void MainHoverButton_Click(object sender, RoutedEventArgs e)
+        {
+            SubMenuPopup.IsOpen = true;
+        }
+
         // 1. 메인 버튼에 마우스가 들어오면 팝업을 엽니다.
         private void MainHoverButton_MouseEnter(object sender, MouseEventArgs e)
         {
+            ToolHovered?.Invoke(this, new RoutedEventArgs());
             SubMenuPopup.IsOpen = true;
         }
 
@@ -60,6 +69,7 @@ namespace PixelTool
             if (!SubMenuPopup.IsMouseOver)
             {
                 SubMenuPopup.IsOpen = false;
+                ToolHoverEnded?.Invoke(this, new RoutedEventArgs());
             }
         }
 
@@ -73,12 +83,13 @@ namespace PixelTool
         private void SubMenuPopup_MouseLeave(object sender, MouseEventArgs e)
         {
             SubMenuPopup.IsOpen = false;
+            ToolHoverEnded?.Invoke(this, new RoutedEventArgs());
         }
 
         // 5. 팝업 창 안의 서브 버튼을 클릭했을 때의 기능
         private void ActionSubButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("서브 버튼이 클릭되었습니다! 엔진 명령을 실행합니다.", "Pixel Engine");
+            PixelMessageBox.Show("서브 버튼이 클릭되었습니다! 엔진 명령을 실행합니다.", "Pixel Engine");
 
             // 클릭 후 팝업을 깔끔하게 닫고 싶다면 아래 코드를 유지하세요.
             SubMenuPopup.IsOpen = false;

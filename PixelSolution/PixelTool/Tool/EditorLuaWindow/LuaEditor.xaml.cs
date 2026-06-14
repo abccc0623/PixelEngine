@@ -31,19 +31,62 @@ namespace PixelTool
         private CancellationTokenSource _debounceTokenSource;
         private Dictionary<string, string> variableTypes = new Dictionary<string, string>();
         private LuaLspService luaLspService;
+        private LuaDiagnosticRenderer diagnosticRenderer;
         private bool isWaitingForFormatChord = false;
 
         public LuaEditorWindow()
         {
             InitializeComponent();
             luaLspService = new LuaLspService();
+            luaLspService.DiagnosticsPublished += LuaLspService_DiagnosticsPublished;
             luaLspService.Initialize();
 
             ConfigureEditorOptions();
+            diagnosticRenderer = new LuaDiagnosticRenderer(LuaEditor.TextArea.TextView);
+            LuaEditor.TextArea.TextView.BackgroundRenderers.Add(diagnosticRenderer);
             LuaEditor.TextChanged += LuaEditor_TextChanged;
             LuaEditor.TextArea.TextEntered += TextArea_TextEntered;
             LuaEditor.PreviewMouseWheel += LuaEditor_PreviewMouseWheel;
             ApplyLuaSyntaxHighlighting();
+        }
+
+        private void LuaLspService_DiagnosticsPublished(PublishDiagnosticParams parameters)
+        {
+            Dispatcher.InvokeAsync(() =>
+            {
+                if (LuaEditor.Document == null || string.IsNullOrEmpty(targetPath)) return;
+
+                string currentUri = new Uri(Path.GetFullPath(targetPath)).AbsoluteUri;
+                if (!string.Equals(parameters.Uri.AbsoluteUri, currentUri, StringComparison.OrdinalIgnoreCase)) return;
+
+                var errorSegments = new List<ISegment>();
+                foreach (Diagnostic diagnostic in parameters.Diagnostics)
+                {
+                    if (diagnostic.Severity != DiagnosticSeverity.Error) continue;
+
+                    int startOffset = GetDocumentOffset(diagnostic.Range.Start);
+                    int endOffset = GetDocumentOffset(diagnostic.Range.End);
+                    if (endOffset <= startOffset)
+                    {
+                        endOffset = Math.Min(LuaEditor.Document.TextLength, startOffset + 1);
+                    }
+
+                    if (endOffset > startOffset)
+                    {
+                        errorSegments.Add(new LuaDiagnosticSegment(startOffset, endOffset - startOffset));
+                    }
+                }
+
+                diagnosticRenderer.SetErrors(errorSegments);
+            });
+        }
+
+        private int GetDocumentOffset(Position position)
+        {
+            int lineNumber = Math.Max(1, Math.Min(LuaEditor.Document.LineCount, position.Line + 1));
+            DocumentLine line = LuaEditor.Document.GetLineByNumber(lineNumber);
+            int column = Math.Max(0, Math.Min(line.Length, position.Character));
+            return line.Offset + column;
         }
 
         private void ConfigureEditorOptions()
@@ -80,9 +123,9 @@ namespace PixelTool
         {
             if (System.IO.File.Exists(path))
             {
-                if (EditorChange.Foreground == Brushes.Red)
+                if (IsDirty)
                 {
-                    var result = MessageBox.Show("파일을 변경전 저장이 필요합니다.\n", "저장", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    var result = PixelMessageBox.Show("파일을 변경전 저장이 필요합니다.\n", "저장", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (result == MessageBoxResult.Yes)
                     {
                         LuaEditor.Save(targetPath);
@@ -97,13 +140,21 @@ namespace PixelTool
                 }
                 LuaEditor.Document.UndoStack.MarkAsOriginalFile();
                 IsDirty = false;
-                EditorChange.Foreground = Brushes.Green;
+                EditorChange.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(99, 193, 116));
+                EditorChange.Text = "● Saved";
             }
         }
 
         // 텍스트 동기화만 담당
         private void LuaEditor_TextChanged(object sender, EventArgs e)
         {
+            if (!string.IsNullOrEmpty(targetPath))
+            {
+                IsDirty = true;
+                EditorChange.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(244, 190, 74));
+                EditorChange.Text = "● Modified";
+            }
+
             string currentText = LuaEditor.Text;
             int currentLine = LuaEditor.TextArea.Caret.Line - 1;
             int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
@@ -164,7 +215,9 @@ namespace PixelTool
                 {
                     e.Handled = true;
                     LuaEditor.Save(targetPath);
-                    EditorChange.Foreground = Brushes.Green;
+                    EditorChange.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(99, 193, 116));
+                    EditorChange.Text = "● Saved";
+                    IsDirty = false;
                 }
                 else if (e.Key == Key.R)
                 {
@@ -255,6 +308,9 @@ namespace PixelTool
         private void SaveLuaFile(object sender, RoutedEventArgs e)
         {
             LuaEditor.Save(targetPath);
+            EditorChange.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(99, 193, 116));
+            EditorChange.Text = "● Saved";
+            IsDirty = false;
         }
 
         private void ReimportLuaFile(object sender, RoutedEventArgs e)

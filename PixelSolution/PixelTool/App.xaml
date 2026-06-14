@@ -2,23 +2,95 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PixelTool"
-             xmlns:dock="https://github.com/Dirkster99/AvalonDock"
-             StartupUri="MainWindow.xaml">
+             xmlns:dock="https://github.com/Dirkster99/AvalonDock">
     <Application.Resources>
-        <SolidColorBrush x:Key="PixelBackgroundBrush" Color="#1B1C2E"/>
-        <SolidColorBrush x:Key="PixelPanelBrush" Color="#2B2D42"/>
-        <SolidColorBrush x:Key="PixelAccentBrush" Color="#5D67E8"/>
-        <SolidColorBrush x:Key="PixelBorderBrush" Color="#3F3F5C"/>
-        <SolidColorBrush x:Key="PixelTextBrush" Color="#D1D1E0"/>
+        <SolidColorBrush x:Key="PixelBackgroundBrush" Color="#202630"/>
+        <SolidColorBrush x:Key="PixelPanelBrush" Color="#29323E"/>
+        <SolidColorBrush x:Key="PixelSurfaceBrush" Color="#343F4D"/>
+        <SolidColorBrush x:Key="PixelAccentBrush" Color="#FFD600"/>
+        <SolidColorBrush x:Key="PixelAccentMutedBrush" Color="#544B16"/>
+        <SolidColorBrush x:Key="PixelBorderBrush" Color="#3C4755"/>
+        <SolidColorBrush x:Key="PixelTextBrush" Color="#E6EAF0"/>
+        <SolidColorBrush x:Key="PixelMutedTextBrush" Color="#A7AFBA"/>
         <SolidColorBrush x:Key="PixelWhiteBrush" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="PixelDockBorderBrush" Color="#3A3C5E"/>
+        <SolidColorBrush x:Key="PixelDockBorderBrush" Color="#323C49"/>
 
-        <SolidColorBrush x:Key="PixelButtonBrush" Color="#2D2E45"/>
-        <SolidColorBrush x:Key="PixelButtonHoverBrush" Color="#444BB5"/>
-        <SolidColorBrush x:Key="PixelButtonPressedBrush" Color="#373CA0"/>
+        <SolidColorBrush x:Key="PixelButtonBrush" Color="#242C36"/>
+        <SolidColorBrush x:Key="PixelButtonHoverBrush" Color="#35404C"/>
+        <SolidColorBrush x:Key="PixelButtonPressedBrush" Color="#FFD600"/>
         <SolidColorBrush x:Key="PixelButtonTextBrush" Color="#E1E1F0"/>
-        <Color x:Key="PixelBackgroundColor">#1B1C2E</Color>
-        <Color x:Key="PixelBorderColor">#3F3F5C</Color>
+        <Color x:Key="PixelBackgroundColor">#202630</Color>
+        <Color x:Key="PixelBorderColor">#3C4755</Color>
+
+        <Style x:Key="PixelToolButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource PixelButtonBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PixelButtonTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PixelBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="MinHeight" Value="26"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource PixelButtonHoverBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource PixelAccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource PixelButtonPressedBrush}"/>
+                                <Setter Property="Foreground" Value="#202630"/>
+                                <Setter Property="BorderBrush" Value="{StaticResource PixelAccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#1B222B"/>
+                                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#303844"/>
+                                <Setter Property="Foreground" Value="#68717D"/>
+                                <Setter Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PixelIconButton" TargetType="Button" BasedOn="{StaticResource PixelToolButton}">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style x:Key="PixelFilterButton" TargetType="Button" BasedOn="{StaticResource PixelToolButton}">
+            <Setter Property="MinWidth" Value="44"/>
+            <Setter Property="Padding" Value="9,4"/>
+        </Style>
+
+        <Style x:Key="PixelTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource PixelPanelBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PixelTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PixelBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="CaretBrush" Value="White"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background" Value="{StaticResource PixelSurfaceBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PixelTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PixelBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4"/>
+        </Style>
 
     </Application.Resources>
 </Application>

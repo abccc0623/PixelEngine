@@ -38,7 +38,7 @@ namespace PixelTool
         {
             var selectedPath = nowFolder?.fullPath;
             FolderItems.Clear();
-            rootFolder = new FolderItem("./Asset");
+            rootFolder = new FolderItem(ProjectPathService.AssetPath);
             rootFolder.IsExpanded = true;
             ScanDirectories(rootFolder);
             FolderItems.Add(rootFolder);
@@ -232,7 +232,7 @@ namespace PixelTool
         {
             if (targetFile == null) return;
 
-            var result = MessageBox.Show($"Delete '{targetFile.FileName}{targetFile.Extension}'?", "Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = PixelMessageBox.Show($"Delete '{targetFile.FileName}{targetFile.Extension}'?", "Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (result != MessageBoxResult.Yes) return;
 
             try
@@ -243,7 +243,7 @@ namespace PixelTool
                 FileItems.Remove(targetFile);
                 ClearPreview();
             }
-            catch (Exception ex) { MessageBox.Show($"Delete failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Delete failed: {ex.Message}"); }
         }
 
         private void FileItem_NameChange(object sender, RoutedEventArgs e)
@@ -260,7 +260,7 @@ namespace PixelTool
             string extension = Path.GetExtension(oldPath);
             string fileNameOnly = Path.GetFileNameWithoutExtension(oldPath);
 
-            string newNameOnly = Microsoft.VisualBasic.Interaction.InputBox("Input file name without extension:", "Rename", fileNameOnly);
+            string newNameOnly = PixelPromptDialog.Show("Input file name without extension:", "Rename", fileNameOnly);
             if (string.IsNullOrWhiteSpace(newNameOnly) || newNameOnly == fileNameOnly) return;
 
             try
@@ -268,14 +268,14 @@ namespace PixelTool
                 string newPath = Path.Combine(directory, newNameOnly + extension);
                 if (File.Exists(newPath))
                 {
-                    MessageBox.Show("A file with the same name already exists.");
+                    PixelMessageBox.Show("A file with the same name already exists.");
                     return;
                 }
 
                 File.Move(oldPath, newPath);
                 SelectFolder(nowFolder.fullPath);
             }
-            catch (Exception ex) { MessageBox.Show($"Rename failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Rename failed: {ex.Message}"); }
         }
 
         private void FileItem_CopyPath(object sender, RoutedEventArgs e)
@@ -310,14 +310,14 @@ namespace PixelTool
                 File.Copy(targetFile.FullPath, copyPath);
                 SelectFolder(nowFolder.fullPath);
             }
-            catch (Exception ex) { MessageBox.Show($"Duplicate failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Duplicate failed: {ex.Message}"); }
         }
 
         private void FolderItem_Create(object sender, RoutedEventArgs e)
         {
             if (nowFolder == null) return;
 
-            string newName = Microsoft.VisualBasic.Interaction.InputBox("Input folder name:", "New Folder", "NewFolder");
+            string newName = PixelPromptDialog.Show("Input folder name:", "New Folder", "NewFolder");
             if (string.IsNullOrWhiteSpace(newName)) return;
 
             try
@@ -325,7 +325,7 @@ namespace PixelTool
                 string newPath = Path.Combine(nowFolder.fullPath, newName);
                 if (Directory.Exists(newPath))
                 {
-                    MessageBox.Show("A folder with the same name already exists.");
+                    PixelMessageBox.Show("A folder with the same name already exists.");
                     return;
                 }
 
@@ -334,7 +334,7 @@ namespace PixelTool
                 nowFolder.FolderItems.Add(newItem);
                 nowFolder.IsExpanded = true;
             }
-            catch (Exception ex) { MessageBox.Show($"Create folder failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Create folder failed: {ex.Message}"); }
         }
 
         private void FolderItem_Rename(object sender, RoutedEventArgs e)
@@ -345,7 +345,7 @@ namespace PixelTool
             string parentPath = Path.GetDirectoryName(oldPath);
             string oldName = Path.GetFileName(oldPath);
 
-            string newName = Microsoft.VisualBasic.Interaction.InputBox("Input folder name:", "Rename", oldName);
+            string newName = PixelPromptDialog.Show("Input folder name:", "Rename", oldName);
             if (string.IsNullOrWhiteSpace(newName) || newName == oldName) return;
 
             try
@@ -353,7 +353,7 @@ namespace PixelTool
                 string newPath = Path.Combine(parentPath, newName);
                 if (Directory.Exists(newPath))
                 {
-                    MessageBox.Show("A folder with the same name already exists.");
+                    PixelMessageBox.Show("A folder with the same name already exists.");
                     return;
                 }
 
@@ -362,18 +362,18 @@ namespace PixelTool
                 nowFolder.folderName = newName;
                 Refresh();
             }
-            catch (Exception ex) { MessageBox.Show($"Rename folder failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Rename folder failed: {ex.Message}"); }
         }
 
         private void FolderItem_Delete(object sender, RoutedEventArgs e)
         {
             if (nowFolder == null || nowFolder == rootFolder)
             {
-                MessageBox.Show("The root folder cannot be deleted.");
+                PixelMessageBox.Show("The root folder cannot be deleted.");
                 return;
             }
 
-            var result = MessageBox.Show($"Delete '{nowFolder.folderName}' and all contents?", "Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = PixelMessageBox.Show($"Delete '{nowFolder.folderName}' and all contents?", "Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (result != MessageBoxResult.Yes) return;
 
             try
@@ -382,7 +382,7 @@ namespace PixelTool
                 nowFolder = rootFolder;
                 Refresh();
             }
-            catch (Exception ex) { MessageBox.Show($"Delete folder failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Delete folder failed: {ex.Message}"); }
         }
 
         private void FolderItem_CopyPath(object sender, RoutedEventArgs e)
@@ -405,7 +405,7 @@ namespace PixelTool
         {
             if (nowFolder == null) return;
 
-            string newName = Microsoft.VisualBasic.Interaction.InputBox("Input file name without extension:", "New File", defaultName);
+            string newName = PixelPromptDialog.Show("Input file name without extension:", "New File", defaultName);
             if (string.IsNullOrWhiteSpace(newName)) return;
 
             try
@@ -413,14 +413,14 @@ namespace PixelTool
                 string newPath = Path.Combine(nowFolder.fullPath, newName + extension);
                 if (File.Exists(newPath))
                 {
-                    MessageBox.Show("A file with the same name already exists.");
+                    PixelMessageBox.Show("A file with the same name already exists.");
                     return;
                 }
 
                 File.WriteAllText(newPath, "");
                 SelectFolder(nowFolder.fullPath);
             }
-            catch (Exception ex) { MessageBox.Show($"Create file failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Create file failed: {ex.Message}"); }
         }
 
         private void RefreshFolder(object sender, RoutedEventArgs e)
@@ -440,6 +440,12 @@ namespace PixelTool
             var parent = Directory.GetParent(nowFolder.fullPath);
             if (parent == null) return;
             SelectFolderItem(parent.FullName);
+        }
+
+        private void OpenProjectFolder(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(ProjectPathService.ProjectRootPath)) return;
+            OpenExplorer($"\"{Path.GetFullPath(ProjectPathService.ProjectRootPath)}\"");
         }
 
         private void ImportFiles(object sender, RoutedEventArgs e)
@@ -542,14 +548,14 @@ namespace PixelTool
                 string dest = Path.Combine(target.fullPath, Path.GetFileName(file.FullPath));
                 if (File.Exists(dest))
                 {
-                    MessageBox.Show("A file with the same name already exists in the target folder.");
+                    PixelMessageBox.Show("A file with the same name already exists in the target folder.");
                     return;
                 }
 
                 File.Move(file.FullPath, dest);
                 SelectFolder(nowFolder.fullPath);
             }
-            catch (Exception ex) { MessageBox.Show($"Move file failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Move file failed: {ex.Message}"); }
         }
 
         private void CopyExternalFile(string source)
@@ -565,7 +571,7 @@ namespace PixelTool
 
                 File.Copy(source, dest);
             }
-            catch (Exception ex) { MessageBox.Show($"Import failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Import failed: {ex.Message}"); }
         }
 
         private static string GetUniquePath(string directory, string baseName, string extension)
@@ -591,13 +597,13 @@ namespace PixelTool
                     UseShellExecute = true
                 });
             }
-            catch (Exception ex) { MessageBox.Show($"Open explorer failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Open explorer failed: {ex.Message}"); }
         }
 
         private static void CopyText(string text)
         {
             try { Clipboard.SetText(text); }
-            catch (Exception ex) { MessageBox.Show($"Copy failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Copy failed: {ex.Message}"); }
         }
 
         private void TreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)

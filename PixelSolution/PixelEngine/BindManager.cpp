@@ -77,6 +77,7 @@ static void RegisterComponentData()
 	AddMember(rigidbody2DData, "Restitution", LuaMember("float", offsetof(ECS::Rigidbody2D::Rigidbody2DData, Restitution)), MetaFlag::LUABIND);
 	AddMember(rigidbody2DData, "Friction", LuaMember("float", offsetof(ECS::Rigidbody2D::Rigidbody2DData, Friction)), MetaFlag::LUABIND);
 	AddMember(rigidbody2DData, "LinearDamping", LuaMember("float", offsetof(ECS::Rigidbody2D::Rigidbody2DData, LinearDamping)), MetaFlag::LUABIND);
+	AddMember(rigidbody2DData, "Layer", LuaMember("int", offsetof(ECS::Rigidbody2D::Rigidbody2DData, Layer)), MetaFlag::LUABIND);
 	AddMember(rigidbody2DData, "velocity", LuaMember("Vector3", offsetof(ECS::Rigidbody2D::Rigidbody2DData, velocity)), MetaFlag::LUABIND);
 	AddMember(rigidbody2DData, "impulse", LuaMember("Vector3", offsetof(ECS::Rigidbody2D::Rigidbody2DData, impulse)), MetaFlag::LUABIND);
 	AddMember(rigidbody2DData, "force", LuaMember("Vector3", offsetof(ECS::Rigidbody2D::Rigidbody2DData, force)), MetaFlag::LUABIND);
@@ -88,8 +89,6 @@ BindManager::BindManager()
 
 BindManager::~BindManager()
 {
-
-
 
 }
 

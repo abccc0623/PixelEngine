@@ -24,7 +24,7 @@ class PixelEngine
 public:
 	PixelEngine() = default;
 	~PixelEngine() = default;
-	void Initialize(HWND hWnd, int width, int height);
+	void Initialize(HWND hWnd, int width, int height, std::string assetPath);
 	void Update();
 	void ReleaseShared();
 	void Resize(int width, int height);
@@ -36,6 +36,8 @@ public:
 	void EngineUpdate();
 	bool RunningCheck();
 	bool IsClear = false;
+	std::string GetEngineRootFolderPath();
+
 
 	sol::state* GetModuleCall_Lua();
 	SPointer<GameObject> CreateGameObject(std::string name = "GameObject");
@@ -65,7 +67,7 @@ public:
 	}
 private:
 	std::map<std::type_index, EngineManager*> factoryMap;
-
+	std::string EngineRootFolderPath;
 
 };
 

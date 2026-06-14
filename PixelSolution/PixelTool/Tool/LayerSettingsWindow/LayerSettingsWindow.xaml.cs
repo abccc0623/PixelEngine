@@ -1,14 +1,18 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Newtonsoft.Json;
 
 namespace PixelTool
 {
     public partial class LayerSettingsWindow : UserControl
     {
         private const int MaxLayers = 32;
+        private const string LayerFileType = "LayerMatrix";
+        private readonly string _layerFilePath;
 
         public Action? Close;
         public ObservableCollection<string> Layers { get; } = new();
@@ -17,10 +21,87 @@ namespace PixelTool
         public LayerSettingsWindow()
         {
             InitializeComponent();
+            _layerFilePath = ProjectPathService.GetEngineFilePath("LayerMatrix.json");
+            LoadOrCreateLayerFile();
+        }
 
-            AddLayerInternal("Default");
-            AddLayerInternal("Player");
-            AddLayerInternal("Ground");
+        private void LoadOrCreateLayerFile()
+        {
+            if (!File.Exists(_layerFilePath))
+            {
+                CreateDefaultLayers();
+                SaveLayerFile();
+                return;
+            }
+
+            try
+            {
+                LayerMatrixFile? data = JsonConvert.DeserializeObject<LayerMatrixFile>(
+                    File.ReadAllText(_layerFilePath));
+
+                if (data == null || data.FileType != LayerFileType || data.Layers.Count == 0)
+                {
+                    throw new InvalidDataException("The file is not a Layer Matrix file.");
+                }
+
+                int size = Math.Min(data.Layers.Count, MaxLayers);
+                for (int index = 0; index < size; index++)
+                {
+                    Layers.Add(data.Layers[index]);
+                }
+
+                CollisionMatrix = new bool[size, size];
+                for (int row = 0; row < size; row++)
+                {
+                    for (int col = 0; col < size; col++)
+                    {
+                        bool value = row < data.CollisionMatrix.Count &&
+                                     col < data.CollisionMatrix[row].Count &&
+                                     data.CollisionMatrix[row][col];
+                        CollisionMatrix[row, col] = value;
+                    }
+                }
+
+                RenderMatrix();
+            }
+            catch (Exception ex)
+            {
+                PixelMessageBox.Show(
+                    $"LayerMatrix.json could not be loaded. A default Layer Matrix will be created.\n\n{ex.Message}",
+                    "Layer Settings",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                CreateDefaultLayers();
+                SaveLayerFile();
+            }
+        }
+
+        private void CreateDefaultLayers()
+        {
+            Layers.Clear();
+            CollisionMatrix = new bool[0, 0];
+            AddLayerInternal("Default", false);
+            AddLayerInternal("Player", false);
+            AddLayerInternal("Ground", false);
+        }
+
+        private void SaveLayerFile()
+        {
+            Directory.CreateDirectory(ProjectPathService.EnginePath);
+
+            var data = new LayerMatrixFile
+            {
+                Layers = Layers.ToList(),
+                CollisionMatrix = Enumerable.Range(0, Layers.Count)
+                    .Select(row => Enumerable.Range(0, Layers.Count)
+                        .Select(col => CollisionMatrix[row, col])
+                        .ToList())
+                    .ToList()
+            };
+
+            File.WriteAllText(
+                _layerFilePath,
+                JsonConvert.SerializeObject(data, Formatting.Indented));
         }
 
         private void AddLayerButton_Click(object sender, RoutedEventArgs e)
@@ -45,19 +126,19 @@ namespace PixelTool
 
             if (string.IsNullOrWhiteSpace(layerName))
             {
-                MessageBox.Show("Layer name is empty.", "Layer Settings", MessageBoxButton.OK, MessageBoxImage.Information);
+                PixelMessageBox.Show("Layer name is empty.", "Layer Settings", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
             if (Layers.Count >= MaxLayers)
             {
-                MessageBox.Show($"Only up to {MaxLayers} layers are supported.", "Layer Settings", MessageBoxButton.OK, MessageBoxImage.Warning);
+                PixelMessageBox.Show($"Only up to {MaxLayers} layers are supported.", "Layer Settings", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (Layers.Any(name => string.Equals(name, layerName, StringComparison.OrdinalIgnoreCase)))
             {
-                MessageBox.Show("A layer with the same name already exists.", "Layer Settings", MessageBoxButton.OK, MessageBoxImage.Information);
+                PixelMessageBox.Show("A layer with the same name already exists.", "Layer Settings", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -66,7 +147,7 @@ namespace PixelTool
             LayerNameTextBox.Focus();
         }
 
-        private void AddLayerInternal(string layerName)
+        private void AddLayerInternal(string layerName, bool save = true)
         {
             int oldSize = Layers.Count;
             int newSize = oldSize + 1;
@@ -90,6 +171,10 @@ namespace PixelTool
             CollisionMatrix = nextMatrix;
 
             RenderMatrix();
+            if (save)
+            {
+                SaveLayerFile();
+            }
         }
 
         private void RenderMatrix()
@@ -196,6 +281,19 @@ namespace PixelTool
             CollisionMatrix[col, row] = value;
 
             RenderMatrix();
+            SaveLayerFile();
+        }
+
+        private sealed class LayerMatrixFile
+        {
+            [JsonProperty("fileType", Order = 0)]
+            public string FileType { get; set; } = LayerFileType;
+
+            [JsonProperty("layers", Order = 1)]
+            public List<string> Layers { get; set; } = new();
+
+            [JsonProperty("collisionMatrix", Order = 2)]
+            public List<List<bool>> CollisionMatrix { get; set; } = new();
         }
     }
 }

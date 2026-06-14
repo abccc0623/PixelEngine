@@ -1,0 +1,57 @@
+<Window x:Class="PixelTool.ProjectNameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Create PixelTool Project"
+        Width="500" Height="410"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource PixelBackgroundBrush}"
+        Foreground="{DynamicResource PixelTextBrush}">
+    <Border Margin="16" Padding="28"
+            Background="{DynamicResource PixelPanelBrush}"
+            BorderBrush="{DynamicResource PixelBorderBrush}"
+            BorderThickness="1" CornerRadius="14">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="NEW PROJECT" Foreground="{DynamicResource PixelAccentBrush}"
+                       FontSize="14" FontWeight="Bold"/>
+            <TextBlock Grid.Row="1" Text="Choose a project name"
+                       Margin="0,9,0,0" FontSize="22" FontWeight="SemiBold"/>
+            <TextBlock Grid.Row="2" Text="Asset, Engine, and Editor folders will be created inside it."
+                       Margin="0,7,0,0" Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="12"/>
+
+            <StackPanel Grid.Row="3" Margin="0,24,0,24">
+                <TextBlock Text="PROJECT NAME" Foreground="{DynamicResource PixelMutedTextBrush}"
+                           FontSize="11" FontWeight="SemiBold" Margin="0,0,0,7"/>
+                <TextBox x:Name="ProjectNameTextBox" MinHeight="44"
+                         Style="{DynamicResource PixelTextBox}"
+                         FontSize="14" Text="NewProject"
+                         TextChanged="ProjectNameTextBox_TextChanged"
+                         KeyDown="ProjectNameTextBox_KeyDown"/>
+                <TextBlock x:Name="ValidationText" MinHeight="20" Margin="2,9,0,0"
+                           Foreground="#FF7373" FontSize="12" TextWrapping="Wrap"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" MinHeight="46" Style="{DynamicResource PixelToolButton}"
+                        Content="Back" Click="Cancel_Click"/>
+                <Button x:Name="CreateButton" Grid.Column="2" MinHeight="46"
+                        Style="{DynamicResource PixelToolButton}"
+                        Content="Create Project" Click="Create_Click"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

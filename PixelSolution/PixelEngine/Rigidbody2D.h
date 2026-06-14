@@ -19,7 +19,7 @@ namespace ECS::Rigidbody2D
 		float Restitution = 0.5f;	//탄성 계수(0.0 ~ 1.0)
 		float Friction = 1.0f;		//마찰 계수(0.0 ~ 1.0)
 		float LinearDamping = 0.0f;	//공기 저항. 물체가 이동할 때 매 순간 속도를 일정 비율로 깎습니다.
-		const char* layer = "Default";
+		int Layer = 0;
 
 		Pixel::Vector3 velocity = { 0,0,0 };
 		Pixel::Vector3 impulse = { 0,0,0 };

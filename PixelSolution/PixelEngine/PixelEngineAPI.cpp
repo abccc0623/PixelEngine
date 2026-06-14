@@ -14,6 +14,7 @@
 #include "JsonManager.h"
 #include "EventManager.h"
 #include "PixelMetaAPI.h"
+#include "EditorManager.h"
 #include "Log.h"
 
 
@@ -27,10 +28,10 @@ ECS::Registry* GetRegistry()
 	return sceneManager->GetRegistry();
 }
 
-bool EngineInitialize(PixelWindowHandle hWnd, int width, int height)
+bool EngineInitialize(PixelWindowHandle hWnd, int width, int height, const char* assetPath)
 {
 	Engine = new PixelEngine();
-	Engine->Initialize((HWND)hWnd, width, height);
+	Engine->Initialize((HWND)hWnd, width, height, std::string(assetPath));
 	return true;
 }
 
@@ -90,6 +91,15 @@ void Reload()
 	{
 		PixelLog::Info("[Global] Reload Script");
 		Engine->Clear();
+	}
+}
+
+void EditorNotify(std::int32_t eventType, const char* content)
+{
+	if (Engine != nullptr)
+	{
+		auto editor = Engine->GetFactory<EditorManager>();
+		editor->Notify(eventType, std::string(content));
 	}
 }
 
@@ -249,6 +259,12 @@ void Import(const char* path)
 					auto resource = Engine->GetFactory<ResourceManager>();
 					resource->Load(MATERIAL, strPath);
 				}
+			}
+			else if (ext == ".json")
+			{
+				std::string strPath(path);
+				auto jsonFile = Engine->GetFactory<JsonManager>();
+				jsonFile->Load(strPath);
 			}
 		}
 		else
@@ -423,7 +439,6 @@ void LoadScene(const char* sceneName)
 	{
 		SceneManager* scene = Engine->GetFactory<SceneManager>();
 		auto path = std::string(sceneName);
-		JsonManager::Load(path);
 	}
 }
 

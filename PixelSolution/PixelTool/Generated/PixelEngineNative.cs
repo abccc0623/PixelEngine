@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 using System;
 using System.Runtime.InteropServices;
 
+public enum EditorEventType : int
+{
+    GenerateEngineFile = 0,
+}
+
 public static class PixelEngineNative
 {
     // DLL 파일 이름에 맞게 수정하세요 (확장자 .dll은 생략 가능)
@@ -16,7 +21,11 @@ public static class PixelEngineNative
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)] // C++ bool(1바이트)을 C# bool로 정확히 매핑
-    public static extern bool EngineInitialize(IntPtr hWnd, int width, int height);
+    public static extern bool EngineInitialize(
+        IntPtr hWnd,
+        int width,
+        int height,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string assetPath);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern void UpdateEngine();
@@ -35,9 +44,13 @@ public static class PixelEngineNative
     [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool Import([MarshalAs(UnmanagedType.LPStr)] string path);
 
-    [DllImport("PixelEngine.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern void SetWindowFocus([MarshalAs(UnmanagedType.I1)] bool focus);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern void Reload();
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    public static extern void EditorNotify(EditorEventType eventType, [MarshalAs(UnmanagedType.LPUTF8Str)] string content);
 }

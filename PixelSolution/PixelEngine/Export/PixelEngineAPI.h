@@ -1,11 +1,17 @@
 #pragma once
 #include "PixelEngineDLL.h"
+#include <cstdint>
 
 enum class EventType : int;
 class PObject;
 class PClass;
 class Module;
 typedef void* PixelWindowHandle;
+
+enum class EditorEventType : std::int32_t
+{
+	GenerateEngineFile
+};
 
 namespace ECS
 {
@@ -14,13 +20,18 @@ namespace ECS
 }
 ECS::Registry* GetRegistry();
 
-extern "C" PIXEL_ENGINEDLL bool EngineInitialize(PixelWindowHandle hWnd, int width, int height);
+//Engine 시작 코드
+extern "C" PIXEL_ENGINEDLL bool EngineInitialize(PixelWindowHandle hWnd, int width, int height, const char* assetPath);
 extern "C" PIXEL_ENGINEDLL void UpdateEngine();
 extern "C" PIXEL_ENGINEDLL void ReleaseEngine();
 extern "C" PIXEL_ENGINEDLL void QuitWindow();
 extern "C" PIXEL_ENGINEDLL bool ResizeEngine(int width, int height);
 extern "C" PIXEL_ENGINEDLL void SetWindowFocus(bool focus);
 extern "C" PIXEL_ENGINEDLL void Reload();
+
+//에디터 코드
+extern "C" PIXEL_ENGINEDLL void EditorNotify(std::int32_t eventType, const char* content);
+
 
 extern "C" PIXEL_ENGINEDLL void Import(const char* path);
 

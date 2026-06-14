@@ -5,16 +5,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixelTool"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="80">
+             d:DesignHeight="450" d:DesignWidth="54">
 
 
     <UserControl.Resources>
         <Style TargetType="Button" x:Key="EditorMenuItemButton">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#D1D1E0"/>
+            <Setter Property="Foreground" Value="{StaticResource PixelTextBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="MinWidth" Value="190"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Cursor" Value="Hand"/>
 
@@ -32,57 +34,74 @@
 
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#2D2E45"/>
+                    <Setter Property="Background" Value="{StaticResource PixelButtonHoverBrush}"/>
                     <Setter Property="Foreground" Value="#FFFFFF"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#5D67E8"/>
-                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                    <Setter Property="Background" Value="{StaticResource PixelAccentBrush}"/>
+                    <Setter Property="Foreground" Value="#202630"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
     
-        <Border DockPanel.Dock="Top" 
-        Background="{StaticResource PixelBorderBrush}" 
-        BorderBrush="#3F3F46" 
-        Margin="5,5,5,5" 
-        BorderThickness="1" 
-        CornerRadius="10">
-        
-        <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
-            <StackPanel Orientation="Vertical" Margin="5,0">
+    <Border DockPanel.Dock="Top"
+        Background="{StaticResource PixelPanelBrush}"
+        BorderBrush="{StaticResource PixelDockBorderBrush}"
+        Margin="4,8,4,0"
+        BorderThickness="1"
+        CornerRadius="12">
 
-                <local:ToolbarButton Width="50" ButtonIcon="➕">
+        <Grid x:Name="ToolbarTrack" Width="44" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,5">
+            <Border x:Name="SelectionIndicator"
+                    Width="38" Height="38"
+                    HorizontalAlignment="Center" VerticalAlignment="Top"
+                    Background="{StaticResource PixelAccentBrush}"
+                    BorderThickness="0"
+                    CornerRadius="19"
+                    IsHitTestVisible="False"
+                    Panel.ZIndex="0">
+                <Border.RenderTransform>
+                    <TranslateTransform x:Name="SelectionTransform"/>
+                </Border.RenderTransform>
+            </Border>
+
+            <StackPanel x:Name="ToolbarItems" Orientation="Vertical" Panel.ZIndex="1">
+
+                <local:ToolbarButton x:Name="CreateToolbarButton" Width="44" Height="44" ButtonIcon=""
+                                     ToolHovered="ToolbarButton_Hovered" ToolHoverEnded="ToolbarButton_HoverEnded">
                     <local:ToolbarButton.PopupContent>
                         <StackPanel >
-                            <TextBlock Text="Create Script" Foreground="#8A8DA9" FontSize="11" Margin="8,5,0,5" FontWeight="Bold"/>
-                            <Button Content="📝 Main LuaFile" Style="{StaticResource EditorMenuItemButton}"  Click="CreateMainLuaFile" />
-                            <Button Content="📝 Scene LuaFile" Style="{StaticResource EditorMenuItemButton}"  Click="CreateSceneLuaFile" />
-                            <Button Content="📝 Module LuaFile" Style="{StaticResource EditorMenuItemButton}"  Click="CreateModuleLuaFile" />
-                            <TextBlock Text="Create Asset" Foreground="#8A8DA9" FontSize="11" Margin="8,5,0,5" FontWeight="Bold"/>
-                            <Button Content="🔮 Material" Style="{StaticResource EditorMenuItemButton}"  Click="CreateMaterial" />
-                            <Button Content="🔮 Collider" Style="{StaticResource EditorMenuItemButton}"  Click="CreateCollider" />
+                            <TextBlock Text="CREATE SCRIPT" Foreground="{StaticResource PixelAccentBrush}" FontSize="14" Margin="12,9,0,8" FontWeight="Bold"/>
+                            <Button Content="Main Lua File" Style="{StaticResource EditorMenuItemButton}" Click="CreateMainLuaFile" />
+                            <Button Content="Scene Lua File" Style="{StaticResource EditorMenuItemButton}" Click="CreateSceneLuaFile" />
+                            <Button Content="Module Lua File" Style="{StaticResource EditorMenuItemButton}" Click="CreateModuleLuaFile" />
+                            <TextBlock Text="CREATE ASSET" Foreground="{StaticResource PixelAccentBrush}" FontSize="14" Margin="12,15,0,8" FontWeight="Bold"/>
+                            <Button Content="Material" Style="{StaticResource EditorMenuItemButton}" Click="CreateMaterial" />
+                            <Button Content="Collider" Style="{StaticResource EditorMenuItemButton}" Click="CreateCollider" />
                         </StackPanel>
                     </local:ToolbarButton.PopupContent>
                 </local:ToolbarButton>
 
-                <local:ToolbarButton Width="50" ButtonIcon="💾">
+                <local:ToolbarButton x:Name="SceneToolbarButton" Width="44" Height="44" ButtonIcon=""
+                                     ToolHovered="ToolbarButton_Hovered" ToolHoverEnded="ToolbarButton_HoverEnded">
                     <local:ToolbarButton.PopupContent>
                         <StackPanel >
-                            <TextBlock Text="Save" Foreground="#8A8DA9" FontSize="11" Margin="8,5,0,5" FontWeight="Bold"/>
-                            <Button Content="📥 Save Scene" Style="{StaticResource EditorMenuItemButton}" Click="SceneSave"/>
-                            <TextBlock Text="Load" Foreground="#8A8DA9" FontSize="11" Margin="8,5,0,5" FontWeight="Bold"/>
-                            <Button Content="📤 Load Scene" Style="{StaticResource EditorMenuItemButton}" Click="LoadScene"/>
+                            <TextBlock Text="SAVE" Foreground="{StaticResource PixelAccentBrush}" FontSize="14" Margin="12,9,0,8" FontWeight="Bold"/>
+                            <Button Content="Save Scene" Style="{StaticResource EditorMenuItemButton}" Click="SceneSave"/>
+                            <TextBlock Text="LOAD" Foreground="{StaticResource PixelAccentBrush}" FontSize="14" Margin="12,15,0,8" FontWeight="Bold"/>
+                            <Button Content="Load Scene" Style="{StaticResource EditorMenuItemButton}" Click="LoadScene"/>
                         </StackPanel>
                     </local:ToolbarButton.PopupContent>
                 </local:ToolbarButton>
 
-                <local:ToolbarButton Width="50" ButtonIcon="⚙">
+                <local:ToolbarButton x:Name="SettingsToolbarButton" Width="44" Height="44" ButtonIcon=""
+                                     ToolHovered="ToolbarButton_Hovered" ToolHoverEnded="ToolbarButton_HoverEnded">
                     <local:ToolbarButton.PopupContent>
                         <StackPanel>
-                            <TextBlock Text="Project Settings" Foreground="#8A8DA9" FontSize="11" Margin="8,5,0,5" FontWeight="Bold"/>
-                            <Button Content="🧱 Physics Layers" Style="{StaticResource EditorMenuItemButton}" Click="OpenLayerSettings"/>
+                            <TextBlock Text="PROJECT SETTINGS" Foreground="{StaticResource PixelAccentBrush}" FontSize="14" Margin="12,9,0,8" FontWeight="Bold"/>
+                            <Button Content="Physics Layers" Style="{StaticResource EditorMenuItemButton}" Click="OpenLayerSettings"/>
+                            <Button Content="Reset Editor Layout" Style="{StaticResource EditorMenuItemButton}" Click="ResetEditorLayout"/>
                         </StackPanel>
                     </local:ToolbarButton.PopupContent>
                 </local:ToolbarButton>
