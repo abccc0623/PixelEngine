@@ -5,7 +5,7 @@
 void ECS::Collider2D::Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<Collider2DData>(id);
+	registry->Add<Collider2DData>(id);
 	auto data = registry->Get<Collider2DData>(id);
 }
 

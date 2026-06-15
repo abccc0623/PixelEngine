@@ -5,8 +5,8 @@
 void* ECS::Transform::AddComponent(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<TransformData>(id);
-	registry->AddComponent<WorldData>(id);
+	registry->Add<TransformData>(id);
+	registry->Add<WorldData>(id);
 	return registry->Get<TransformData>(id);
 }
 void* ECS::Transform::GetComponent(unsigned int id)

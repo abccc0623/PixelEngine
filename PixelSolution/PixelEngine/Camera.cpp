@@ -5,7 +5,7 @@
 void* ECS::Camera::AddComponent(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<CameraData>(id);
+	registry->Add<CameraData>(id);
 
 	auto data = registry->Get<CameraData>(id);
 	data->renderingData.Type = RENDER_TYPE::CAMERA;

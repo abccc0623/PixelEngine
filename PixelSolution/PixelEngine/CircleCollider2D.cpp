@@ -5,7 +5,7 @@
 void* ECS::CircleCollider2D::AddComponent(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<CircleCollider2DData>(id);
+	registry->Add<CircleCollider2DData>(id);
 	return registry->Get<CircleCollider2DData>(id);
 }
 

@@ -53,17 +53,17 @@ namespace PixelTool
             switch (buttons)
             {
                 case MessageBoxButton.OKCancel:
-                    AddButton("Cancel", MessageBoxResult.Cancel);
                     AddButton("OK", MessageBoxResult.OK, true);
+                    AddButton("Cancel", MessageBoxResult.Cancel);
                     break;
                 case MessageBoxButton.YesNo:
-                    AddButton("No", MessageBoxResult.No);
                     AddButton("Yes", MessageBoxResult.Yes, true);
+                    AddButton("No", MessageBoxResult.No);
                     break;
                 case MessageBoxButton.YesNoCancel:
                     AddButton("Cancel", MessageBoxResult.Cancel);
-                    AddButton("No", MessageBoxResult.No);
                     AddButton("Yes", MessageBoxResult.Yes, true);
+                    AddButton("No", MessageBoxResult.No);
                     break;
                 default:
                     AddButton("OK", MessageBoxResult.OK, true);

@@ -34,7 +34,7 @@
                   Background="{StaticResource PixelPanelBrush}" Foreground="{StaticResource PixelTextBrush}"
                   BorderThickness="0" Padding="5"
                   ItemsSource="{Binding FolderItems}" SelectedItemChanged="FolderView_SelectedItemChanged"
-                  AllowDrop="True" Drop="FolderView_Drop">
+                  AllowDrop="True" DragOver="FolderView_DragOver" Drop="FolderView_Drop">
             <TreeView.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#544B16"/>
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#544B16"/>
@@ -55,6 +55,8 @@
                         <StackPanel.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="New Folder" Click="FolderItem_Create"/>
+                                <Separator/>
+                                <MenuItem Header="Paste" Click="FolderItem_Paste" InputGestureText="Ctrl+V"/>
                                 <MenuItem Header="Copy Folder Path" Click="FolderItem_CopyPath"/>
                                 <MenuItem Header="Open In Explorer" Click="FolderItem_OpenExplorer"/>
                                 <Separator/>
@@ -73,11 +75,13 @@
 
         <ListView x:Name="FileView" Grid.Row="1" Grid.Column="2" HorizontalContentAlignment="Stretch"
                   Background="{StaticResource PixelBackgroundBrush}" ItemsSource="{Binding FileItems}"
+                  SelectionMode="Extended"
                   MouseDoubleClick="FileView_MouseDoubleClick"
                   PreviewMouseLeftButtonDown="FileView_PreviewMouseLeftButtonDown"
+                  PreviewMouseLeftButtonUp="FileView_PreviewMouseLeftButtonUp"
                   PreviewMouseMove="FileView_PreviewMouseMove"
                   SelectionChanged="FileView_SelectionChanged" KeyDown="FileView_KeyDown"
-                  Drop="FileView_Drop" AllowDrop="True" BorderThickness="0" Padding="4">
+                  DragOver="FileView_DragOver" Drop="FileView_Drop" AllowDrop="True" BorderThickness="0" Padding="4">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="New Lua File" Click="CreateNewLua"/>
@@ -85,6 +89,7 @@
                     <MenuItem Header="New Scene File" Click="CreateNewScene"/>
                     <Separator/>
                     <MenuItem Header="Import Files" Click="ImportFiles"/>
+                    <MenuItem Header="Paste" Click="FileView_Paste" InputGestureText="Ctrl+V"/>
                     <MenuItem Header="Open Folder In Explorer" Click="FolderItem_OpenExplorer"/>
                     <Separator/>
                     <MenuItem Header="Refresh Folder" Click="RefreshFolder"/>
@@ -93,16 +98,22 @@
             </ListView.ContextMenu>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
+                    <EventSetter Event="PreviewMouseRightButtonDown" Handler="FileViewItem_PreviewMouseRightButtonDown"/>
                     <Setter Property="Background" Value="Transparent"/>
                     <Setter Property="Foreground" Value="{StaticResource PixelTextBrush}"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="1"/>
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                     <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{StaticResource PixelSurfaceBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource PixelTextBrush}"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource PixelBorderBrush}"/>
+                        </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="{StaticResource PixelAccentMutedBrush}"/>
                             <Setter Property="Foreground" Value="{StaticResource PixelAccentBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{StaticResource PixelSurfaceBrush}"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource PixelAccentBrush}"/>
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -112,6 +123,10 @@
                     <Grid Margin="3,4">
                         <Grid.ContextMenu>
                             <ContextMenu>
+                                <MenuItem Header="Cut" Click="FileItem_Cut" InputGestureText="Ctrl+X"/>
+                                <MenuItem Header="Copy" Click="FileItem_Copy" InputGestureText="Ctrl+C"/>
+                                <MenuItem Header="Paste" Click="FileView_Paste" InputGestureText="Ctrl+V"/>
+                                <Separator/>
                                 <MenuItem Header="Copy Path" Click="FileItem_CopyPath"/>
                                 <MenuItem Header="Open In Explorer" Click="FileItem_OpenExplorer"/>
                                 <MenuItem Header="Duplicate" Click="FileItem_Duplicate"/>
@@ -126,10 +141,10 @@
                             <ColumnDefinition Width="0.15*"/>
                             <ColumnDefinition Width="0.15*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding FileIcon}" Grid.Column="0" Foreground="#C6CCE0" FontSize="13"/>
-                        <TextBlock Text="{Binding FileName}" Grid.Column="1" Foreground="{StaticResource PixelTextBrush}" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Text="{Binding Extension}" Grid.Column="2" Foreground="{StaticResource PixelMutedTextBrush}" FontSize="11"/>
-                        <TextBlock Text="{Binding FileSize}" Grid.Column="3" Foreground="{StaticResource PixelMutedTextBrush}" FontSize="11"/>
+                        <TextBlock Text="{Binding FileIcon}" Grid.Column="0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListViewItem}}" FontSize="13"/>
+                        <TextBlock Text="{Binding FileName}" Grid.Column="1" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListViewItem}}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding Extension}" Grid.Column="2" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Opacity="0.72" FontSize="11"/>
+                        <TextBlock Text="{Binding FileSize}" Grid.Column="3" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Opacity="0.72" FontSize="11"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

@@ -9,7 +9,7 @@ extern PixelEngine* Engine;
 void* ECS::Rigidbody2D::AddComponent(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<Rigidbody2DData>(id);
+	registry->Add<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	return data;
 }
@@ -87,10 +87,24 @@ ffi.cdef[[
 	return jit;
 }
 
+void ECS::Rigidbody2D::SetLayer(unsigned int id, const char* name)
+{
+	auto registry = GetRegistry();
+	if (registry->Has<Rigidbody2DData>(id))
+	{
+		auto data = registry->Get<Rigidbody2DData>(id);
+		data->layer = name;
+	}
+	else
+	{
+		PixelLog::Error("[Rigidbody2D][SetLayer] Not Find Component");
+	}
+}
+
 void ECS::Rigidbody2D::SetPosition(unsigned int id, float x, float y, float z)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<Rigidbody2DData>(id);
+	registry->Add<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{
@@ -106,7 +120,7 @@ void ECS::Rigidbody2D::SetPosition(unsigned int id, float x, float y, float z)
 void ECS::Rigidbody2D::SetRotation(unsigned int id, float x, float y, float z)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<Rigidbody2DData>(id);
+	registry->Add<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{
@@ -123,7 +137,7 @@ void ECS::Rigidbody2D::SetRotation(unsigned int id, float x, float y, float z)
 void ECS::Rigidbody2D::LockPosition(unsigned int id, bool x, bool y, bool z)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<Rigidbody2DData>(id);
+	registry->Add<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{
@@ -145,7 +159,7 @@ void ECS::Rigidbody2D::LockPosition(unsigned int id, bool x, bool y, bool z)
 void ECS::Rigidbody2D::LockRotation(unsigned int id, bool x, bool y, bool z)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<Rigidbody2DData>(id);
+	registry->Add<Rigidbody2DData>(id);
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{

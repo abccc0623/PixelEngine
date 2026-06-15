@@ -248,5 +248,34 @@ namespace PixelTool
                 mainWindow.ResetDockLayout();
             }
         }
+
+        private void UpdateEngineFiles(object sender, RoutedEventArgs e)
+        {
+            string EnginePath = ProjectPathService.EnginePath;
+            if (string.IsNullOrWhiteSpace(EnginePath))
+            {
+                PixelMessageBox.Show("Engine path is not configured.");
+                return;
+            }
+
+            string targetPath = EnginePath.Replace("\\", "/");
+            PixelEngineNative.EditorNotify(EditorEventType.GenerateEngineFile, targetPath);
+            PixelMessageBox.Show("Engine update completed. PixelTool will restart.", "Engine Update");
+
+            string? executablePath = Environment.ProcessPath;
+            if (string.IsNullOrWhiteSpace(executablePath))
+            {
+                PixelMessageBox.Show("PixelTool could not be restarted automatically.", "Engine Update");
+                return;
+            }
+
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = executablePath,
+                WorkingDirectory = Environment.CurrentDirectory,
+                UseShellExecute = true
+            });
+            Application.Current.Shutdown();
+        }
     }
 }

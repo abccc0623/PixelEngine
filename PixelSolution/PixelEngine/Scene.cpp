@@ -25,8 +25,11 @@ void Scene::Initialize(const std::string& luaPath, const std::string& name)
 {
 	sceneName = name;
 	path = luaPath;
-	auto lua = Engine->GetFactory<LuaManager>();
-	info = lua->GetSceneLua(name);
+	if (!luaPath.empty())
+	{
+		auto lua = Engine->GetFactory<LuaManager>();
+		info = lua->GetSceneLua(name);
+	}
 
 	registry = new ECS::Registry();
 	system = new ECS::SystemManager();
@@ -38,8 +41,8 @@ void Scene::Start()
 	if (info != nullptr)
 	{
 		info->Start();
-		system->Initialize();
 	}
+	system->Initialize();
 }
 
 void Scene::Update()

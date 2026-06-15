@@ -269,7 +269,7 @@ JPH::ShapeRefC PhysManager::CreateCollider(ECS::Collider2D::Collider2DData* coll
 JPH::BodyID PhysManager::CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigidbody, JPH::ShapeRefC shapeRef, unsigned int pOwner)
 {
 	//data->
-	JPH::ObjectLayer objectLayer = JPH::ObjectLayer(rigidbody->Layer);
+	JPH::ObjectLayer objectLayer = FindLayer(rigidbody->layer);
 	JPH::EMotionType eMotionType = JPH::EMotionType::Dynamic;
 	JPH::EActivation active = (rigidbody->Active) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate;
 
@@ -395,11 +395,16 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
 
 JPH::ObjectLayer PhysManager::FindLayer(std::string key)
 {
-	auto find = layerList.find(key);
-	if (find != layerList.end())
+	int size = Layers::layerNames.size();
+	for (int i = 0; i < size; i++)
 	{
-		return JPH::ObjectLayer(find->second);
+		if (Layers::layerNames[i] == key)
+		{
+			return JPH::ObjectLayer(i);
+		}
 	}
+
+	PixelLog::Error("Not Find Layer Name :" + key);
 	return JPH::ObjectLayer(0);
 }
 

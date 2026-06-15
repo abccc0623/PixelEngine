@@ -19,7 +19,6 @@ namespace ECS::Rigidbody2D
 		float Restitution = 0.5f;	//탄성 계수(0.0 ~ 1.0)
 		float Friction = 1.0f;		//마찰 계수(0.0 ~ 1.0)
 		float LinearDamping = 0.0f;	//공기 저항. 물체가 이동할 때 매 순간 속도를 일정 비율로 깎습니다.
-		int Layer = 0;
 
 		Pixel::Vector3 velocity = { 0,0,0 };
 		Pixel::Vector3 impulse = { 0,0,0 };
@@ -30,12 +29,14 @@ namespace ECS::Rigidbody2D
 		bool lockRotation[3] = { true,true,false };
 		unsigned int bodyID;
 		bool IsCreate = false;
+		const char* layer = "Default";
 	};
 	void* AddComponent(unsigned int id);
 	void* GetComponent(unsigned int id);
 	bool HasComponent(unsigned int id);
 	std::string BindJit();
 
+	void SetLayer(unsigned int id, const char* name);
 	void SetPosition(unsigned int id, float x, float y, float z);
 	void SetRotation(unsigned int id, float x, float y, float z);
 	void LockPosition(unsigned int id, bool x, bool y, bool z);

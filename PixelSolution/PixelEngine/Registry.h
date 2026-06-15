@@ -17,7 +17,7 @@ namespace ECS
 		void Remove(unsigned int entityID);
 
 		template<typename T>
-		void AddComponent(unsigned int entityID)
+		void Add(unsigned int entityID)
 		{
 			std::type_index key = typeid(T);
 			auto find = componentArrays.find(key);
@@ -26,7 +26,6 @@ namespace ECS
 				componentArrays.insert({ key,new ComponentArray<T>() });
 			}
 			componentArrays[key]->Create(entityID);
-
 		};
 		template<typename T>
 		T* Get(unsigned int entityID)

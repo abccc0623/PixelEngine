@@ -8,7 +8,7 @@ extern PixelEngine* Engine;
 void* ECS::Renderer2D::AddComponent(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<Renderer2DData>(id);
+	registry->Add<Renderer2DData>(id);
 	auto data = registry->Get<Renderer2DData>(id);
 	data->renderingData.Type = QUAD;
 	return data;

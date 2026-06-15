@@ -2,6 +2,7 @@
 #include "PixelEngineAPI.h" 
 #include "PixelGraphicsAPI.h"
 #include "PixelEngine.h" 
+#include <cctype>
 #include <filesystem>
 #include <windows.h>
 #include "KeyInputManager.h"
@@ -210,67 +211,90 @@ bool LoadTexture(const char* path)
 	return false;
 }
 
+static void ImportFile(const std::filesystem::path& path)
+{
+	std::string targetPath = path.generic_string();
+	std::string fileName = path.stem().string();
+	std::string ext = path.extension().string();
+	std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char character)
+		{
+			return static_cast<char>(std::tolower(character));
+		});
+
+	if (ext == ".lua" || ext == ".scene" || ext == ".pxm")
+	{
+		auto lua = Engine->GetFactory<LuaManager>();
+		lua->ImportLua(targetPath, fileName, ext);
+	}
+	else if (ext == ".png" || ext == ".jpg")
+	{
+		auto resource = Engine->GetFactory<ResourceManager>();
+		resource->Load(TEXTURE, targetPath);
+	}
+	else if (ext == ".mat")
+	{
+		auto resource = Engine->GetFactory<ResourceManager>();
+		resource->Load(MATERIAL, targetPath);
+	}
+	else if (ext == ".json")
+	{
+		auto jsonFile = Engine->GetFactory<JsonManager>();
+		jsonFile->Load(targetPath);
+	}
+}
+
 void Import(const char* path)
 {
-	if (Engine != nullptr)
+	if (Engine == nullptr || path == nullptr || path[0] == '\0')
 	{
-		std::string targetPath(path);
-		std::filesystem::path p(targetPath);
-		std::filesystem::file_status status = std::filesystem::status(p);
-		std::string fileName = p.stem().string();
+		return;
+	}
 
-		if (!std::filesystem::exists(status))
+	std::filesystem::path targetPath(path);
+	std::error_code error;
+	std::filesystem::file_status status = std::filesystem::status(targetPath, error);
+	if (error || !std::filesystem::exists(status))
+	{
+		PixelLog::Error("Path does not exist: " + targetPath.generic_string());
+		return;
+	}
+
+	if (std::filesystem::is_regular_file(status))
+	{
+		ImportFile(targetPath);
+		return;
+	}
+
+	if (!std::filesystem::is_directory(status))
+	{
+		return;
+	}
+
+	std::filesystem::recursive_directory_iterator iterator(
+		targetPath,
+		std::filesystem::directory_options::skip_permission_denied,
+		error);
+	std::filesystem::recursive_directory_iterator end;
+	while (iterator != end)
+	{
+		if (error)
 		{
-			PixelLog::Error("Path does not exist: " + targetPath);
-			return;
+			PixelLog::Warn("Failed to scan asset directory: " + error.message());
+			error.clear();
+			iterator.increment(error);
+			continue;
 		}
 
-		if (std::filesystem::is_directory(status))
+		if (iterator->is_regular_file(error) && !error)
 		{
-			for (const auto& entry : std::filesystem::directory_iterator(path))
-			{
-				std::string targetPath = entry.path().string();
-				std::replace(targetPath.begin(), targetPath.end(), '\\', '/');
-				Import(targetPath.c_str());
-			}
-		}
-		else if (std::filesystem::is_regular_file(status))
-		{
-			std::string ext = p.extension().string();
-			if (ext == ".lua" || ext == ".scene" || ext == ".pxm")
-			{
-				auto lua = Engine->GetFactory<LuaManager>();
-				lua->ImportLua(targetPath, fileName, ext);
-			}
-			else if (ext == ".png" || ext == ".jpg")
-			{
-				if (Engine != nullptr)
-				{
-					std::string strPath(path);
-					auto resource = Engine->GetFactory<ResourceManager>();
-					resource->Load(TEXTURE, strPath);
-				}
-			}
-			else if (ext == ".mat")
-			{
-				if (Engine != nullptr)
-				{
-					std::string strPath(path);
-					auto resource = Engine->GetFactory<ResourceManager>();
-					resource->Load(MATERIAL, strPath);
-				}
-			}
-			else if (ext == ".json")
-			{
-				std::string strPath(path);
-				auto jsonFile = Engine->GetFactory<JsonManager>();
-				jsonFile->Load(strPath);
-			}
+			ImportFile(iterator->path());
 		}
 		else
 		{
-			std::cout << "[Other] (Symlink, Device, etc.)" << std::endl;
+			error.clear();
 		}
+
+		iterator.increment(error);
 	}
 }
 

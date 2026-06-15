@@ -16,7 +16,7 @@ std::string GetExePath() {
 
 int main()
 {
-	EngineInitialize(nullptr, 100, 100);
+	EngineInitialize(nullptr, 100, 100, "");
 
 	while (true)
 	{

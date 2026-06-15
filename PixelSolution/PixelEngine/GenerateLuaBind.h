@@ -96,6 +96,7 @@ inline void Generate_Rigidbody2D(sol::state& lua)
 	ut["AddComponent"] = &ECS::Rigidbody2D::AddComponent;
 	ut["GetComponent"] = &ECS::Rigidbody2D::GetComponent;
 	ut["HasComponent"] = &ECS::Rigidbody2D::HasComponent;
+	ut["SetLayer"] = &ECS::Rigidbody2D::SetLayer;
 	ut["SetPosition"] = &ECS::Rigidbody2D::SetPosition;
 	ut["SetRotation"] = &ECS::Rigidbody2D::SetRotation;
 	ut["LockPosition"] = &ECS::Rigidbody2D::LockPosition;

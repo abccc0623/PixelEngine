@@ -10,7 +10,7 @@ extern PixelEngine* Engine;
 void ECS::Animation2D::Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->AddComponent<Animation2DData>(id);
+	registry->Add<Animation2DData>(id);
 }
 
 int ECS::Animation2D::Create(unsigned int id, std::string textureName, int MaxFramesX, int MaxFramesY, float speed)

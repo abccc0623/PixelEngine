@@ -45,12 +45,12 @@ void SceneManager::ChangeScene(std::string name)
 	auto it = SceneMap.find(name);
 	if (it != SceneMap.end())
 	{
-		//이전 씬이 있다면 정리
+		// Release the previous scene before switching.
 		if (nowScene != nullptr)
 		{
 			nowScene->Release();
 		}
-		//씬 변경
+		// Switch to the requested scene.
 		nowScene = SceneMap[name];
 
 		nowScene->Start();
@@ -65,8 +65,21 @@ Scene* SceneManager::GetNowScene()
 {
 	if (nowScene == nullptr)
 	{
-		CreateScene("DefaultScene");
-		ChangeScene("DefaultScene");
+		static const std::string defaultSceneName = "NewPixelDefaultScene";
+		auto find = SceneMap.find(defaultSceneName);
+		if (find == SceneMap.end())
+		{
+			Scene* defaultScene = new Scene();
+			defaultScene->Initialize("", defaultSceneName);
+			SceneMap.insert({ defaultSceneName, defaultScene });
+			nowScene = defaultScene;
+		}
+		else
+		{
+			nowScene = find->second;
+		}
+
+		nowScene->Start();
 	}
 	return nowScene;
 }

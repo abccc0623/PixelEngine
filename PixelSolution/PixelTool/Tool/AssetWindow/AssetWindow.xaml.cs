@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Microsoft.VisualBasic.FileIO;
 
 namespace PixelTool
 {
@@ -20,8 +21,9 @@ namespace PixelTool
 
         private readonly List<FileItem> _allFiles = new List<FileItem>();
         private Point _dragStartPoint;
-        private FileItem _draggedFile;
+        private FileItem? _draggedFile;
         private bool _isDragging;
+        private bool _preserveSelectionForDrag;
 
         private FolderItem nowFolder;
         private FileItem nowFile;
@@ -225,7 +227,41 @@ namespace PixelTool
 
         private void FileItem_Delete(object sender, RoutedEventArgs e)
         {
-            DeleteFile(GetFileItemFromSender(sender));
+            DeleteSelectedFiles(GetFilesFromSender(sender));
+        }
+
+        private IReadOnlyList<FileItem> GetSelectedFiles()
+        {
+            return FileView.SelectedItems.Cast<FileItem>().ToList();
+        }
+
+        private IReadOnlyList<FileItem> GetFilesFromSender(object sender)
+        {
+            var target = GetFileItemFromSender(sender);
+            var selected = GetSelectedFiles();
+            return target != null && selected.Contains(target) ? selected : target != null ? new[] { target } : selected;
+        }
+
+        private void DeleteSelectedFiles(IReadOnlyList<FileItem> files)
+        {
+            if (files.Count == 0) return;
+
+            string message = files.Count == 1
+                ? $"Move '{files[0].FileName}{files[0].Extension}' to the Recycle Bin?"
+                : $"Move {files.Count} selected files to the Recycle Bin?";
+            var result = PixelMessageBox.Show(message, "Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                foreach (var file in files)
+                {
+                    if (File.Exists(file.FullPath))
+                        FileSystem.DeleteFile(file.FullPath, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                }
+                SelectFolder(nowFolder.fullPath);
+            }
+            catch (Exception ex) { PixelMessageBox.Show($"Delete failed: {ex.Message}"); }
         }
 
         private void DeleteFile(FileItem targetFile)
@@ -294,10 +330,12 @@ namespace PixelTool
 
         private void FileItem_Duplicate(object sender, RoutedEventArgs e)
         {
-            DuplicateFile(GetFileItemFromSender(sender));
+            foreach (var file in GetFilesFromSender(sender))
+                DuplicateFile(file, false);
+            SelectFolder(nowFolder.fullPath);
         }
 
-        private void DuplicateFile(FileItem targetFile)
+        private void DuplicateFile(FileItem targetFile, bool refresh = true)
         {
             if (targetFile == null) return;
 
@@ -308,7 +346,7 @@ namespace PixelTool
                 string extension = Path.GetExtension(targetFile.FullPath);
                 string copyPath = GetUniquePath(directory, $"{name}_Copy", extension);
                 File.Copy(targetFile.FullPath, copyPath);
-                SelectFolder(nowFolder.fullPath);
+                if (refresh) SelectFolder(nowFolder.fullPath);
             }
             catch (Exception ex) { PixelMessageBox.Show($"Duplicate failed: {ex.Message}"); }
         }
@@ -390,6 +428,12 @@ namespace PixelTool
             if (nowFolder == null) return;
             CopyText(nowFolder.fullPath);
         }
+
+        private void FolderItem_Paste(object sender, RoutedEventArgs e) => PasteClipboard(nowFolder?.fullPath);
+        private void FileView_Paste(object sender, RoutedEventArgs e) => PasteClipboard(nowFolder?.fullPath);
+
+        private void FileItem_Copy(object sender, RoutedEventArgs e) => CopyFilesToClipboard(GetFilesFromSender(sender), false);
+        private void FileItem_Cut(object sender, RoutedEventArgs e) => CopyFilesToClipboard(GetFilesFromSender(sender), true);
 
         private void FolderItem_OpenExplorer(object sender, RoutedEventArgs e)
         {
@@ -474,10 +518,11 @@ namespace PixelTool
         private void FileView_KeyDown(object sender, KeyEventArgs e)
         {
             var selectedFile = FileView.SelectedItem as FileItem;
+            var selectedFiles = GetSelectedFiles();
 
             if (e.Key == Key.Delete)
             {
-                DeleteFile(selectedFile);
+                DeleteSelectedFiles(selectedFiles);
                 e.Handled = true;
             }
             else if (e.Key == Key.F2)
@@ -492,12 +537,29 @@ namespace PixelTool
             }
             else if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && e.Key == Key.C)
             {
-                if (selectedFile != null) CopyText(selectedFile.FullPath);
+                CopyFilesToClipboard(selectedFiles, false);
+                e.Handled = true;
+            }
+            else if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && e.Key == Key.X)
+            {
+                CopyFilesToClipboard(selectedFiles, true);
+                e.Handled = true;
+            }
+            else if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && e.Key == Key.V)
+            {
+                PasteClipboard(nowFolder?.fullPath);
+                e.Handled = true;
+            }
+            else if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && e.Key == Key.A)
+            {
+                FileView.SelectAll();
                 e.Handled = true;
             }
             else if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && e.Key == Key.D)
             {
-                DuplicateFile(selectedFile);
+                foreach (var file in selectedFiles)
+                    DuplicateFile(file, false);
+                SelectFolder(nowFolder.fullPath);
                 e.Handled = true;
             }
         }
@@ -506,6 +568,25 @@ namespace PixelTool
         {
             _dragStartPoint = e.GetPosition(null);
             _draggedFile = GetFileItemAtPoint(e.GetPosition(FileView));
+            _preserveSelectionForDrag = _draggedFile != null &&
+                FileView.SelectedItems.Contains(_draggedFile) &&
+                Keyboard.Modifiers == ModifierKeys.None &&
+                FileView.SelectedItems.Count > 1;
+
+            if (_preserveSelectionForDrag)
+            {
+                FileView.Focus();
+                e.Handled = true;
+            }
+        }
+
+        private void FileView_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_preserveSelectionForDrag && !_isDragging && _draggedFile != null)
+                FileView.SelectedItem = _draggedFile;
+
+            _preserveSelectionForDrag = false;
+            _draggedFile = null;
         }
 
         private void FileView_PreviewMouseMove(object sender, MouseEventArgs e)
@@ -517,45 +598,146 @@ namespace PixelTool
                 Math.Abs(pos.Y - _dragStartPoint.Y) < SystemParameters.MinimumVerticalDragDistance) return;
 
             _isDragging = true;
-            DragDrop.DoDragDrop(FileView, new DataObject("FileItem", _draggedFile), DragDropEffects.Move);
+            if (!FileView.SelectedItems.Contains(_draggedFile))
+                FileView.SelectedItem = _draggedFile;
+
+            var paths = GetSelectedFiles().Select(file => Path.GetFullPath(file.FullPath)).ToArray();
+            var data = new DataObject();
+            data.SetData(DataFormats.FileDrop, paths);
+            data.SetData("PixelTool.AssetPaths", paths);
+            DragDrop.DoDragDrop(FileView, data, DragDropEffects.Copy | DragDropEffects.Move);
             _isDragging = false;
+            _preserveSelectionForDrag = false;
             _draggedFile = null;
         }
 
         private void FileView_Drop(object sender, DragEventArgs e)
         {
-            if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
-            if (nowFolder == null) return;
-
-            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            foreach (string file in files)
-                CopyExternalFile(file);
-
-            SelectFolder(nowFolder.fullPath);
+            DropPaths(e, nowFolder?.fullPath);
         }
+
+        private void FileView_DragOver(object sender, DragEventArgs e) => SetDropEffect(e);
+        private void FolderView_DragOver(object sender, DragEventArgs e) => SetDropEffect(e);
 
         private void FolderView_Drop(object sender, DragEventArgs e)
         {
-            if (!e.Data.GetDataPresent("FileItem")) return;
-            var file = e.Data.GetData("FileItem") as FileItem;
-            if (file == null) return;
-
             var target = GetFolderItemAtPoint(e.GetPosition(FolderView));
-            if (target == null || target.fullPath == nowFolder?.fullPath) return;
+            DropPaths(e, target?.fullPath);
+        }
 
+        private static void SetDropEffect(DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.None;
+                e.Handled = true;
+                return;
+            }
+
+            bool internalDrag = e.Data.GetDataPresent("PixelTool.AssetPaths");
+            bool copy = (e.KeyStates & DragDropKeyStates.ControlKey) != 0;
+            e.Effects = internalDrag && !copy ? DragDropEffects.Move : DragDropEffects.Copy;
+            e.Handled = true;
+        }
+
+        private void DropPaths(DragEventArgs e, string? destinationDirectory)
+        {
+            if (string.IsNullOrWhiteSpace(destinationDirectory) || !e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+            var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (paths == null || paths.Length == 0) return;
+
+            bool internalDrag = e.Data.GetDataPresent("PixelTool.AssetPaths");
+            bool move = internalDrag && (e.KeyStates & DragDropKeyStates.ControlKey) == 0;
+            TransferPaths(paths, destinationDirectory, move);
+        }
+
+        private void CopyFilesToClipboard(IReadOnlyList<FileItem> files, bool cut)
+        {
+            if (files.Count == 0) return;
             try
             {
-                string dest = Path.Combine(target.fullPath, Path.GetFileName(file.FullPath));
-                if (File.Exists(dest))
-                {
-                    PixelMessageBox.Show("A file with the same name already exists in the target folder.");
-                    return;
-                }
-
-                File.Move(file.FullPath, dest);
-                SelectFolder(nowFolder.fullPath);
+                var paths = files.Select(file => Path.GetFullPath(file.FullPath)).ToArray();
+                var data = new DataObject();
+                data.SetData(DataFormats.FileDrop, paths);
+                data.SetData("Preferred DropEffect", new MemoryStream(new[] { cut ? (byte)2 : (byte)1, (byte)0, (byte)0, (byte)0 }));
+                Clipboard.SetDataObject(data, true);
             }
-            catch (Exception ex) { PixelMessageBox.Show($"Move file failed: {ex.Message}"); }
+            catch (Exception ex) { PixelMessageBox.Show($"Copy failed: {ex.Message}"); }
+        }
+
+        private void PasteClipboard(string? destinationDirectory)
+        {
+            if (string.IsNullOrWhiteSpace(destinationDirectory)) return;
+            try
+            {
+                var data = Clipboard.GetDataObject();
+                var paths = data?.GetData(DataFormats.FileDrop) as string[];
+                if (paths == null || paths.Length == 0) return;
+                TransferPaths(paths, destinationDirectory, IsClipboardCut(data));
+            }
+            catch (Exception ex) { PixelMessageBox.Show($"Paste failed: {ex.Message}"); }
+        }
+
+        private static bool IsClipboardCut(IDataObject? data)
+        {
+            if (data?.GetData("Preferred DropEffect") is not MemoryStream stream) return false;
+            long position = stream.Position;
+            stream.Position = 0;
+            int effect = stream.ReadByte();
+            stream.Position = position;
+            return effect == 2;
+        }
+
+        private void TransferPaths(IEnumerable<string> sources, string destinationDirectory, bool move)
+        {
+            try
+            {
+                foreach (string source in sources.Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    string fullSource = Path.GetFullPath(source);
+                    string destination = Path.Combine(destinationDirectory, Path.GetFileName(fullSource));
+                    if (Path.GetFullPath(destination).Equals(fullSource, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (move) continue;
+                        destination = GetUniquePath(destinationDirectory, Path.GetFileNameWithoutExtension(fullSource), Path.GetExtension(fullSource));
+                    }
+                    else if (File.Exists(destination) || Directory.Exists(destination))
+                    {
+                        destination = GetUniquePath(destinationDirectory, Path.GetFileNameWithoutExtension(fullSource), Path.GetExtension(fullSource));
+                    }
+
+                    if (File.Exists(fullSource))
+                    {
+                        if (move) File.Move(fullSource, destination);
+                        else File.Copy(fullSource, destination);
+                    }
+                    else if (Directory.Exists(fullSource))
+                    {
+                        if (IsSubPath(destination, fullSource)) continue;
+                        if (move) Directory.Move(fullSource, destination);
+                        else CopyDirectory(fullSource, destination);
+                    }
+                }
+                Refresh();
+                SelectFolderItem(destinationDirectory);
+            }
+            catch (Exception ex) { PixelMessageBox.Show($"File operation failed: {ex.Message}"); }
+        }
+
+        private static void CopyDirectory(string source, string destination)
+        {
+            Directory.CreateDirectory(destination);
+            foreach (string file in Directory.GetFiles(source))
+                File.Copy(file, Path.Combine(destination, Path.GetFileName(file)));
+            foreach (string directory in Directory.GetDirectories(source))
+                CopyDirectory(directory, Path.Combine(destination, Path.GetFileName(directory)));
+        }
+
+        private static bool IsSubPath(string candidate, string parent)
+        {
+            string parentPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(parent)) + Path.DirectorySeparatorChar;
+            string candidatePath = Path.GetFullPath(candidate);
+            return candidatePath.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase);
         }
 
         private void CopyExternalFile(string source)
@@ -614,6 +796,17 @@ namespace PixelTool
                 item.Focus();
                 e.Handled = true;
             }
+        }
+
+        private void FileViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not ListViewItem item) return;
+            if (!item.IsSelected)
+            {
+                FileView.SelectedItems.Clear();
+                item.IsSelected = true;
+            }
+            item.Focus();
         }
 
         private FileItem GetFileItemFromSender(object sender)
