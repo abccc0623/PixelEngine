@@ -190,6 +190,14 @@ namespace PixelTool
             if (!LuaEditor.IsKeyboardFocusWithin) { e.Handled = true; }
 
             bool isCtrlPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
+            bool isAltPressed = (Keyboard.Modifiers & ModifierKeys.Alt) != 0;
+
+            if (isAltPressed && (e.SystemKey == Key.Up || e.SystemKey == Key.Down))
+            {
+                e.Handled = true;
+                MoveSelectedLines(e.SystemKey == Key.Up ? -1 : 1);
+                return;
+            }
 
             if (isWaitingForFormatChord)
             {
@@ -232,6 +240,87 @@ namespace PixelTool
                     luaLspService.RequestCompletionAsync("", currentLine, currentColumn);
                 }
             }
+        }
+
+        private void MoveSelectedLines(int direction)
+        {
+            TextDocument document = LuaEditor.Document;
+            if (document == null || document.LineCount == 0) return;
+
+            int selectionStart = LuaEditor.SelectionStart;
+            int selectionLength = LuaEditor.SelectionLength;
+            int selectionEnd = selectionStart + selectionLength;
+
+            DocumentLine startLine = document.GetLineByOffset(selectionStart);
+            DocumentLine endLine = document.GetLineByOffset(selectionEnd);
+            if (selectionLength > 0 && selectionEnd == endLine.Offset && endLine.PreviousLine != null)
+                endLine = endLine.PreviousLine;
+
+            if (direction < 0)
+            {
+                DocumentLine previousLine = startLine.PreviousLine;
+                if (previousLine == null) return;
+
+                int previousDelimiterLength = previousLine.TotalLength - previousLine.Length;
+                string previousContent = document.GetText(previousLine.Offset, previousLine.Length);
+                string previousDelimiter = document.GetText(previousLine.EndOffset, previousDelimiterLength);
+                int endLineTotalEnd = endLine.Offset + endLine.TotalLength;
+                string selectedBlock = document.GetText(startLine.Offset, endLineTotalEnd - startLine.Offset);
+                int selectedTrailingDelimiterLength = endLine.TotalLength - endLine.Length;
+
+                string replacement = selectedTrailingDelimiterLength > 0
+                    ? selectedBlock + previousContent + previousDelimiter
+                    : selectedBlock + previousDelimiter + previousContent;
+
+                int replaceLength = endLineTotalEnd - previousLine.Offset;
+                int offsetDelta = -previousLine.TotalLength;
+                using (document.RunUpdate())
+                    document.Replace(previousLine.Offset, replaceLength, replacement);
+
+                RestoreMovedSelection(selectionStart + offsetDelta, selectionLength);
+            }
+            else
+            {
+                DocumentLine nextLine = endLine.NextLine;
+                if (nextLine == null) return;
+
+                int selectedTrailingDelimiterLength = endLine.TotalLength - endLine.Length;
+                string selectedDelimiter = document.GetText(endLine.EndOffset, selectedTrailingDelimiterLength);
+                int endLineTotalEnd = endLine.Offset + endLine.TotalLength;
+                int nextLineTotalEnd = nextLine.Offset + nextLine.TotalLength;
+                string selectedBlock = document.GetText(startLine.Offset, endLineTotalEnd - startLine.Offset);
+                string nextBlock = document.GetText(nextLine.Offset, nextLineTotalEnd - nextLine.Offset);
+                int nextTrailingDelimiterLength = nextLine.TotalLength - nextLine.Length;
+
+                string replacement = nextTrailingDelimiterLength > 0
+                    ? nextBlock + selectedBlock
+                    : document.GetText(nextLine.Offset, nextLine.Length) + selectedDelimiter +
+                      selectedBlock.Substring(0, selectedBlock.Length - selectedTrailingDelimiterLength);
+
+                int replaceLength = nextLineTotalEnd - startLine.Offset;
+                int offsetDelta = nextTrailingDelimiterLength > 0
+                    ? nextLine.TotalLength
+                    : nextLine.Length + selectedTrailingDelimiterLength;
+                using (document.RunUpdate())
+                    document.Replace(startLine.Offset, replaceLength, replacement);
+
+                RestoreMovedSelection(selectionStart + offsetDelta, selectionLength);
+            }
+        }
+
+        private void RestoreMovedSelection(int selectionStart, int selectionLength)
+        {
+            if (selectionLength > 0)
+            {
+                LuaEditor.Select(selectionStart, selectionLength);
+                LuaEditor.CaretOffset = selectionStart + selectionLength;
+            }
+            else
+            {
+                LuaEditor.CaretOffset = selectionStart;
+            }
+
+            LuaEditor.TextArea.Caret.BringCaretToView();
         }
 
         private void LuaEditor_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
