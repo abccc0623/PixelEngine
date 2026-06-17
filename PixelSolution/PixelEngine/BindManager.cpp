@@ -20,6 +20,7 @@
 #include "CircleCollider2D.h"
 #include "Rigidbody2D.h"
 #include "EventBus.h"
+#include "Group.h"
 
 
 static MemberInfo LuaMember(const std::string& type, size_t offset)
@@ -169,6 +170,13 @@ void BindManager::Initialize()
 	PStatic* globalLuaEvent = CreateNewStatic("EventBus");
 	AddGlobalMethod(globalLuaEvent, "BindEvent", GeGlobalMethodInfo(&ECS::EventBus::BindEvent), MetaFlag::LUABIND);
 	AddGlobalMethod(globalLuaEvent, "CallEvent", GeGlobalMethodInfo(&ECS::EventBus::CallEvent), MetaFlag::LUABIND);
+
+	PStatic* globalGroup = CreateNewStatic("Group");
+	AddGlobalMethod(globalGroup, "CreateEntity", GeGlobalMethodInfo(&ECS::Group::CreateEntity), MetaFlag::LUABIND);
+	AddGlobalMethod(globalGroup, "Set", GeGlobalMethodInfo(&ECS::Group::Set), MetaFlag::LUABIND);
+	AddGlobalMethod(globalGroup, "Remove", GeGlobalMethodInfo(&ECS::Group::Remove), MetaFlag::LUABIND);
+	AddGlobalMethod(globalGroup, "Clear", GeGlobalMethodInfo(&ECS::Group::Clear), MetaFlag::LUABIND);
+	AddGlobalMethod(globalGroup, "Get", GeGlobalMethodInfo(&ECS::Group::Get), MetaFlag::LUABIND);
 
 	RegisterComponentData();
 	BindEnum();

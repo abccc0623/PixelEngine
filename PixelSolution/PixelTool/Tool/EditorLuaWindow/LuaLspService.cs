@@ -280,10 +280,21 @@ namespace PixelTool
 
                     double longestItemWidth = 0;
                     var typeface = new Typeface(area.FontFamily, area.FontStyle, area.FontWeight, area.FontStretch);
+                    bool isForCompletion = area.Document.GetText(startOffset, caretOffset - startOffset)
+                        .Equals("for", StringComparison.OrdinalIgnoreCase);
+
+                    if (isForCompletion)
+                    {
+                        completionWindow.CompletionList.CompletionData.Add(new LuaCompletionData("for - ipairs", "for_ipairs"));
+                        completionWindow.CompletionList.CompletionData.Add(new LuaCompletionData("for - pairs", "for_pairs"));
+                        completionWindow.CompletionList.CompletionData.Add(new LuaCompletionData("for i =", "for_numeric"));
+                        longestItemWidth = Math.Max(longestItemWidth, 120);
+                    }
 
                     foreach (var item in completionItems)
                     {
                         if (item.Label.StartsWith("_")) continue;
+                        if (isForCompletion && IsLuaForSnippet(item.Label)) continue;
 
                         var formattedText = new FormattedText(
                             item.Label,
@@ -321,6 +332,14 @@ namespace PixelTool
             {
                 _completionLock.Release();
             }
+        }
+
+        private static bool IsLuaForSnippet(string label)
+        {
+            string normalized = label.Trim().ToLowerInvariant();
+            return normalized.Contains("ipairs") ||
+                   normalized.Contains("pairs") ||
+                   normalized.Contains("for i");
         }
 
         public void Dispose()

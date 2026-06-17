@@ -50,12 +50,12 @@ void ECS::Animation2D::Play(unsigned int id, int index)
 		}
 		else
 		{
-			PixelLog::Error("[Animation2D] Not Find Renderer2D");
+			PixelLog::Error("[Animation2D][Play] Not Find Renderer2D");
 		}
 	}
 	else
 	{
-		PixelLog::Error("[Animation2D] Not Find");
+		PixelLog::Error("[Animation2D][Play] Not Find");
 	}
 }
 
@@ -69,7 +69,7 @@ void ECS::Animation2D::Stop(unsigned int id)
 	}
 	else
 	{
-		PixelLog::Error("[Animation2D] Not Find");
+		PixelLog::Error("[Animation2D][Stop] Not Find");
 	}
 }
 
@@ -83,6 +83,6 @@ void ECS::Animation2D::Reset(unsigned int id)
 	}
 	else
 	{
-		PixelLog::Error("[Animation2D] Not Find");
+		PixelLog::Error("[Animation2D][Reset] Not Find");
 	}
 }

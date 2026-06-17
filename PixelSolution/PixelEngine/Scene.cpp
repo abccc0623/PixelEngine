@@ -11,6 +11,7 @@
 
 #include "Registry.h"
 #include "SystemManager.h"
+#include "GroupManager.h"
 
 extern PixelEngine* Engine;
 extern SceneChangeCallbackFunc g_SceneObjectChangeCallBack;
@@ -33,6 +34,7 @@ void Scene::Initialize(const std::string& luaPath, const std::string& name)
 
 	registry = new ECS::Registry();
 	system = new ECS::SystemManager();
+	group = new ECS::GroupManager();
 }
 
 
@@ -43,6 +45,7 @@ void Scene::Start()
 		info->Start();
 	}
 	system->Initialize();
+	group->Initialize();
 }
 
 void Scene::Update()
@@ -61,9 +64,11 @@ void Scene::Release()
 		info->Release();
 	}
 	system->Release();
+	group->Release();
 
 	delete registry;
 	delete system;
+	delete group;
 	delete this;
 }
 
@@ -74,6 +79,13 @@ uint32_t Scene::CreateEntity(const std::string& scriptName)
 	ECS::Entity* entity = Chunked.Get(id);
 	entity->Create(scriptName, id.value);
 	return id.value;
+}
+
+uint32_t Scene::CreateGroupEntity(const std::string& groupName, const std::string& scriptName)
+{
+	auto id = CreateEntity(scriptName);
+	group->Set(groupName, id);
+	return id;
 }
 
 ECS::Entity* Scene::FindEntity(uint32_t id)
@@ -102,6 +114,7 @@ void Scene::ActiveEntity(uint32_t id, bool active)
 void Scene::DestroyEntity(uint32_t id)
 {
 	PixelLog::Info("[" + sceneName + "] DeleteEntity");
+	group->RemoveFromAll(id);
 	registry->Remove(id);
 }
 
@@ -113,4 +126,9 @@ ECS::Registry* Scene::GetRegistry()
 const std::string& Scene::GetSceneName()
 {
 	return sceneName;
+}
+
+ECS::GroupManager* Scene::GetGroupManager()
+{
+	return group;
 }

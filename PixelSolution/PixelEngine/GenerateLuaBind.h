@@ -9,6 +9,7 @@
 #include "CircleCollider2D.h" 
 #include "Rigidbody2D.h" 
 #include "EventBus.h" 
+#include "Group.h" 
 using namespace ECS;
 inline void Generate_Engine(sol::state& lua) 
 {
@@ -108,6 +109,15 @@ inline void Generate_EventBus(sol::state& lua)
 	ut["BindEvent"] = &ECS::EventBus::BindEvent;
 	ut["CallEvent"] = &ECS::EventBus::CallEvent;
 }
+inline void Generate_Group(sol::state& lua) 
+{
+	sol::table ut = lua.create_named_table("Group");
+	ut["CreateEntity"] = &ECS::Group::CreateEntity;
+	ut["Set"] = &ECS::Group::Set;
+	ut["Remove"] = &ECS::Group::Remove;
+	ut["Clear"] = &ECS::Group::Clear;
+	ut["Get"] = &ECS::Group::Get;
+}
 inline void BindAll_AddModules() 
 { 
 }
@@ -127,4 +137,5 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_CircleCollider2D(lua); 
 	Generate_Rigidbody2D(lua); 
 	Generate_EventBus(lua); 
+	Generate_Group(lua); 
 }

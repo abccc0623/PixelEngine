@@ -124,6 +124,9 @@
     <Filter Include="EngineAPI\Manager\EditorManager">
       <UniqueIdentifier>{2c6f5dd8-16f7-4013-87a2-1ce4f003d9ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Manager\GroupManager">
+      <UniqueIdentifier>{1155fa78-b661-4a65-8dc8-c660757f2c3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -360,6 +363,12 @@
     <ClInclude Include="EditorManager.h">
       <Filter>EngineAPI\Manager\EditorManager</Filter>
     </ClInclude>
+    <ClInclude Include="GroupManager.h">
+      <Filter>EngineAPI\Manager\GroupManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Group.h">
+      <Filter>EngineAPI\Manager\GroupManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -532,6 +541,12 @@
     </ClCompile>
     <ClCompile Include="EditorManager.cpp">
       <Filter>EngineAPI\Manager\EditorManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GroupManager.cpp">
+      <Filter>EngineAPI\Manager\GroupManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Group.cpp">
+      <Filter>EngineAPI\Manager\GroupManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

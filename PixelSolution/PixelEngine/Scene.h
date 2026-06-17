@@ -16,6 +16,7 @@ namespace ECS
 {
 	class Registry;
 	class SystemManager;
+	class GroupManager;
 }
 class Scene
 {
@@ -28,6 +29,9 @@ public:
 	void Release();
 
 	uint32_t CreateEntity(const std::string& scriptName);
+	uint32_t CreateGroupEntity(const std::string& groupName, const std::string& scriptName);
+
+
 	ECS::Entity* FindEntity(uint32_t id);
 	void ActiveEntity(uint32_t id, bool active);
 
@@ -35,6 +39,7 @@ public:
 	ECS::Registry* GetRegistry();
 
 	const std::string& GetSceneName();
+	ECS::GroupManager* GetGroupManager();
 private:
 	std::string sceneName;
 	std::string path;
@@ -43,5 +48,6 @@ private:
 	ECS::ChunkedArray<ECS::Entity, 100> Chunked;
 	ECS::Registry* registry;
 	ECS::SystemManager* system;
+	ECS::GroupManager* group;
 };
 

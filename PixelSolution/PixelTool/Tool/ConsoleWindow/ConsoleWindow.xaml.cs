@@ -48,7 +48,7 @@ namespace PixelTool
     public partial class ConsoleWindow : UserControl
     {
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        public delegate void LogDelegate(string message, int level);
+        public delegate void LogDelegate([MarshalAs(UnmanagedType.LPUTF8Str)] string message, int level);
 
         private static LogDelegate? _logCallback;
 
