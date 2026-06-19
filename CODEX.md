@@ -161,6 +161,10 @@ This file is for Codex-specific project notes and working rules.
   - `Tools/FeedbackDashboard/`
 - Feedback Markdown itself is public and tracked:
   - `Docs/EngineFeedback/...`
+- Public feedback log should include unreviewed feedback too; `미검토` items are allowed to be published.
+- It is acceptable for public feedback to mention internal code paths, function names, and engine structure names because those names alone do not expose enough project detail.
+- The confirmed automation schedule is "once when the PC is first turned on/logged in for the day", not a fixed 10:00 cloud schedule.
+- README and GitHub Pages content should be Korean-first.
 - Public GitHub Pages feedback log files are at the repository root:
   - `index.html`
   - `app.js`
