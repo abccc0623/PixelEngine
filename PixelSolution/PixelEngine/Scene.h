@@ -17,6 +17,7 @@ namespace ECS
 	class Registry;
 	class SystemManager;
 	class GroupManager;
+	class PoolManager;
 }
 class Scene
 {
@@ -30,6 +31,7 @@ public:
 
 	uint32_t CreateEntity(const std::string& scriptName);
 	uint32_t CreateGroupEntity(const std::string& groupName, const std::string& scriptName);
+	uint32_t CreatePoolEntity(const std::string& poolName, const std::string& scriptName);
 
 
 	ECS::Entity* FindEntity(uint32_t id);
@@ -40,6 +42,7 @@ public:
 
 	const std::string& GetSceneName();
 	ECS::GroupManager* GetGroupManager();
+	ECS::PoolManager* GetPoolManager();
 private:
 	std::string sceneName;
 	std::string path;
@@ -49,5 +52,6 @@ private:
 	ECS::Registry* registry;
 	ECS::SystemManager* system;
 	ECS::GroupManager* group;
+	ECS::PoolManager* pool;
 };
 

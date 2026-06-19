@@ -127,6 +127,9 @@
     <Filter Include="EngineAPI\Manager\GroupManager">
       <UniqueIdentifier>{1155fa78-b661-4a65-8dc8-c660757f2c3a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Manager\PoolManager">
+      <UniqueIdentifier>{1af7f5e8-8029-4b1b-be66-d56ca625d8de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -369,6 +372,12 @@
     <ClInclude Include="Group.h">
       <Filter>EngineAPI\Manager\GroupManager</Filter>
     </ClInclude>
+    <ClInclude Include="Pool.h">
+      <Filter>EngineAPI\Manager\PoolManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PoolManager.h">
+      <Filter>EngineAPI\Manager\PoolManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -547,6 +556,12 @@
     </ClCompile>
     <ClCompile Include="Group.cpp">
       <Filter>EngineAPI\Manager\GroupManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Pool.cpp">
+      <Filter>EngineAPI\Manager\PoolManager</Filter>
+    </ClCompile>
+    <ClCompile Include="PoolManager.cpp">
+      <Filter>EngineAPI\Manager\PoolManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

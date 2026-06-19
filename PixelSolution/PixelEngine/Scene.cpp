@@ -12,6 +12,7 @@
 #include "Registry.h"
 #include "SystemManager.h"
 #include "GroupManager.h"
+#include "PoolManager.h"
 
 extern PixelEngine* Engine;
 extern SceneChangeCallbackFunc g_SceneObjectChangeCallBack;
@@ -35,6 +36,7 @@ void Scene::Initialize(const std::string& luaPath, const std::string& name)
 	registry = new ECS::Registry();
 	system = new ECS::SystemManager();
 	group = new ECS::GroupManager();
+	pool = new ECS::PoolManager();
 }
 
 
@@ -46,6 +48,7 @@ void Scene::Start()
 	}
 	system->Initialize();
 	group->Initialize();
+	pool->Initialize();
 }
 
 void Scene::Update()
@@ -65,10 +68,12 @@ void Scene::Release()
 	}
 	system->Release();
 	group->Release();
+	pool->Release();
 
 	delete registry;
 	delete system;
 	delete group;
+	delete pool;
 	delete this;
 }
 
@@ -86,6 +91,11 @@ uint32_t Scene::CreateGroupEntity(const std::string& groupName, const std::strin
 	auto id = CreateEntity(scriptName);
 	group->Set(groupName, id);
 	return id;
+}
+
+uint32_t Scene::CreatePoolEntity(const std::string& poolName, const std::string& scriptName)
+{
+	return 0;
 }
 
 ECS::Entity* Scene::FindEntity(uint32_t id)
@@ -128,6 +138,11 @@ const std::string& Scene::GetSceneName()
 	return sceneName;
 }
 
+
+ECS::PoolManager* Scene::GetPoolManager()
+{
+	return pool;
+}
 ECS::GroupManager* Scene::GetGroupManager()
 {
 	return group;

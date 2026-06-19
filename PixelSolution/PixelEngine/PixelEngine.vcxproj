@@ -230,6 +230,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="PixelMath.h" />
     <ClInclude Include="PixelMeta.h" />
     <ClInclude Include="PixelObjectLayerPairFilter.h" />
+    <ClInclude Include="Pool.h" />
+    <ClInclude Include="PoolManager.h" />
     <ClInclude Include="Renderer2D.h" />
     <ClInclude Include="Rigidbody2D.h" />
     <ClInclude Include="Rigidbody2DSystem.h" />
@@ -300,6 +302,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PixelObjectLayerPairFilter.cpp" />
+    <ClCompile Include="Pool.cpp" />
+    <ClCompile Include="PoolManager.cpp" />
     <ClCompile Include="Renderer2D.cpp" />
     <ClCompile Include="Rigidbody2D.cpp" />
     <ClCompile Include="Rigidbody2DSystem.cpp" />
