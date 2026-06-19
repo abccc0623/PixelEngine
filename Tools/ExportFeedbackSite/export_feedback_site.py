@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "Docs"
 ITEMS = DOCS / "EngineFeedback" / "Items"
 TASKS = DOCS / "EngineTasks" / "Todo"
-SITE = ROOT / "site"
+SITE = ROOT
 
 
 def read_text(path: Path) -> str:

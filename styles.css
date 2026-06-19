@@ -9,7 +9,6 @@
   --accent: #f2c84b;
   --green: #58d68d;
   --red: #ff7474;
-  --blue: #6db2ff;
 }
 
 * { box-sizing: border-box; }
@@ -27,9 +26,7 @@ body {
   padding: 38px 0;
 }
 
-.hero {
-  padding-bottom: 20px;
-}
+.hero { padding-bottom: 20px; }
 
 .eyebrow {
   margin: 0 0 8px;
@@ -141,9 +138,7 @@ select {
 }
 
 .card:hover,
-.card.active {
-  background: var(--panel-2);
-}
+.card.active { background: var(--panel-2); }
 
 .card-title {
   display: block;
@@ -171,9 +166,7 @@ select {
 .chip.done { color: var(--green); }
 .chip.drop { color: var(--red); }
 
-.detail {
-  padding: 24px;
-}
+.detail { padding: 24px; }
 
 .detail h2 {
   margin: 0 0 12px;
@@ -181,9 +174,7 @@ select {
   line-height: 1.25;
 }
 
-.section {
-  margin-top: 22px;
-}
+.section { margin-top: 22px; }
 
 .section h3 {
   margin: 0 0 8px;

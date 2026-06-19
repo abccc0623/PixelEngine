@@ -62,9 +62,7 @@ function renderStats() {
 
 function renderList() {
   const items = filtered();
-  if (!items.some((item) => item.path === selectedId)) {
-    selectedId = items[0]?.path || "";
-  }
+  if (!items.some((item) => item.path === selectedId)) selectedId = items[0]?.path || "";
   els.list.innerHTML = items.map((item) => `
     <button class="card ${item.path === selectedId ? "active" : ""}" data-id="${escapeHtml(item.path)}">
       <span class="card-title">${escapeHtml(item.title)}</span>
@@ -96,18 +94,9 @@ function renderDetail() {
       <span class="chip ${statusClass(item.status)}">${escapeHtml(item.status)}</span>
       <span class="chip">${escapeHtml(item.date)}</span>
     </div>
-    <div class="section">
-      <h3>상황</h3>
-      <p>${escapeHtml(item.situation)}</p>
-    </div>
-    <div class="section">
-      <h3>문제</h3>
-      <p>${escapeHtml(item.problem)}</p>
-    </div>
-    <div class="section">
-      <h3>제안</h3>
-      <p>${escapeHtml(item.suggestion)}</p>
-    </div>
+    <div class="section"><h3>상황</h3><p>${escapeHtml(item.situation)}</p></div>
+    <div class="section"><h3>문제</h3><p>${escapeHtml(item.problem)}</p></div>
+    <div class="section"><h3>제안</h3><p>${escapeHtml(item.suggestion)}</p></div>
     ${item.discardReason ? `<div class="section"><h3>폐기 사유</h3><p>${escapeHtml(item.discardReason)}</p></div>` : ""}
   `;
 }
