@@ -15,7 +15,6 @@ Release/
 __pycache__/
 *.pyc
 *.log
-Docs/
 Tools/FeedbackDashboard/
 
 **/swigwin-*/Doc/         # 수백 개의 HTML 문서 파일 (매우 많음)
