@@ -12,6 +12,9 @@ Release/
 *.sdf
 *.opensdf
 *.VC.db
+__pycache__/
+*.pyc
+*.log
 
 **/swigwin-*/Doc/         # 수백 개의 HTML 문서 파일 (매우 많음)
 **/swigwin-*/Examples/    # 언어별 예제 코드 (불필요)
