@@ -134,6 +134,58 @@ This file is for Codex-specific project notes and working rules.
 - When implementing or updating new-project creation, create all three folders together under the selected project directory.
 - New-project creation flow: select a parent directory, enter a project name, create the named project directory, then create `Asset`, `Engine`, and `Editor` inside it.
 
+## Engine Feedback Automation
+
+- The engine feedback workflow is now local-first.
+- Local feedback files are generated under `D:\PixelEngine\Docs\EngineFeedback`.
+- Local feedback generation runs through:
+  - `D:\PixelEngine\Tools\FeedbackDashboard\generate_feedback_once.cmd`
+  - `D:\PixelEngine\Tools\FeedbackDashboard\generate_startup_feedback.py`
+- A Windows Startup launcher was registered at:
+  - `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\PixelEngineDailyFeedback.cmd`
+- On Windows login, the startup launcher runs the generator once.
+- The generator skips generation if `Docs\EngineFeedback\Daily\YYYY-MM-DD.md` already exists for the current day.
+- The generator is rule-based and does not use OpenAI API billing.
+- Current generator quality expectation:
+  - Good for recurring engine usability/code-structure feedback.
+  - Less flexible than Codex-generated feedback.
+  - Rules should be refined when repeated or low-value feedback appears.
+- Local dashboard files are under:
+  - `D:\PixelEngine\Tools\FeedbackDashboard`
+- Run the local dashboard with:
+  - `D:\PixelEngine\Tools\FeedbackDashboard\run_dashboard.cmd`
+- The local dashboard is available at:
+  - `http://127.0.0.1:8765`
+- The local dashboard reads Markdown feedback files and lets the user accept, discard, or reset feedback.
+- Local feedback generation and dashboard files are ignored by Git through `.gitignore`:
+  - `Tools/FeedbackDashboard/`
+- Feedback Markdown itself is public and tracked:
+  - `Docs/EngineFeedback/...`
+- Public GitHub Pages feedback log files are at the repository root:
+  - `index.html`
+  - `app.js`
+  - `styles.css`
+  - `feedback-data.json`
+- The public feedback log is updated by exporting Markdown to JSON:
+  - `python Tools\ExportFeedbackSite\export_feedback_site.py`
+- In this environment, use bundled Python if `python` is not on PATH:
+  - `C:\Users\abcc0\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`
+- GitHub Pages should be configured as:
+  - Source: `Deploy from a branch`
+  - Branch: `main`
+  - Folder: `/ (root)`
+- Public feedback site URL:
+  - `https://abccc0623.github.io/PixelEngine/`
+- GitHub Actions/OpenAI API automation was tried and then removed because API quota/billing was required.
+- Removed GitHub workflow:
+  - `.github/workflows/daily-engine-feedback.yml`
+- The local workflow is:
+  1. PC login runs startup generator.
+  2. Generator creates daily feedback if missing.
+  3. User opens local dashboard when needed.
+  4. User accepts/discards feedback locally.
+  5. To publish public updates, export feedback site JSON and push `Docs`, root site files, and exporter changes.
+
 ## 토큰 절약 규칙
 
 - 기본 답변은 짧게 한다.
