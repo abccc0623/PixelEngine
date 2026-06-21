@@ -15,6 +15,7 @@ namespace ECS
 		void Disable(const std::string& poolName, unsigned int id);
 		void Clear(const std::string& poolName);
 		void SetAutoCreateFunction(const std::string& poolName, sol::function func);
+		void SetAutoActiveFunction(const std::string& poolName, sol::function func);
 	private:
 		std::unordered_map<std::string, std::vector<unsigned int>> PoolList;
 		std::unordered_map<std::string, sol::function> PoolFunctionList;

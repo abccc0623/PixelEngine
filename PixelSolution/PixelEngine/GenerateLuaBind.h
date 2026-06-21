@@ -127,6 +127,7 @@ inline void Generate_Pool(sol::state& lua)
 	ut["Disable"] = &ECS::Pool::Disable;
 	ut["Clear"] = &ECS::Pool::Clear;
 	ut["SetAutoCreateFunction"] = &ECS::Pool::SetAutoCreateFunction;
+	ut["SetAutoActiveFunction"] = &ECS::Pool::SetAutoActiveFunction;
 }
 inline void BindAll_AddModules() 
 { 

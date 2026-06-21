@@ -143,6 +143,10 @@
                         <MenuItem Header="OnCollisionExit" Style="{StaticResource LuaEditorMenuItemStyle}" Click="Create_CollisionExit"/>
                     </MenuItem>
 
+                    <MenuItem Header="Create Coroutine" Style="{StaticResource LuaEditorMenuItemStyle}">
+                        <MenuItem Header="WaitForSeconds" Style="{StaticResource LuaEditorMenuItemStyle}" Click="Create_WaitForSeconds"/>
+                    </MenuItem>
+
                     <Separator Style="{StaticResource LuaEditorSeparatorStyle}"/>
                 </ContextMenu>
             </avalonedit:TextEditor.ContextMenu>

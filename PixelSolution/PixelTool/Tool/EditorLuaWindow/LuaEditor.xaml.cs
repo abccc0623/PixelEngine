@@ -459,5 +459,11 @@ namespace PixelTool
             string content = LuaFileManager.GetBlockByMarker("EventFunction", "OnCollisionExit");
             LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
         }
+
+        private void Create_WaitForSeconds(object sender, RoutedEventArgs e)
+        {
+            string content = LuaFileManager.GetBlockByMarker("EventFunction", "WaitForSeconds");
+            LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
+        }
     }
 }

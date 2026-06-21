@@ -56,3 +56,18 @@ void ECS::Pool::SetAutoCreateFunction(const char* poolName, sol::function func)
 	auto manager = scene->GetNowScene()->GetPoolManager();
 	manager->SetAutoCreateFunction(poolNameSTR, func);
 }
+
+void ECS::Pool::SetAutoActiveFunction(const char* poolName, sol::function func)
+{
+	if (!func.valid())
+	{
+		PixelLog::Error("[Pool][SetAutoCreateFunction] Invalid function.");
+		return;
+	}
+
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string poolNameSTR(poolName);
+
+	auto manager = scene->GetNowScene()->GetPoolManager();
+	manager->SetAutoActiveFunction(poolNameSTR, func);
+}

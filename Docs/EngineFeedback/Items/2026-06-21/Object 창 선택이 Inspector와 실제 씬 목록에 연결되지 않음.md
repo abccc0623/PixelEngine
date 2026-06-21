@@ -1,13 +1,12 @@
 - 날짜: 2026-06-21
 - 영역: 에디터
-- 상태: 미검토
+- 상태: 폐기
 - 출처: [[2026-06-21]]
 
 ## 결정
 - [ ] 채택
-- [ ] 폐기
-
-폐기 사유:
+- [x] 폐기
+폐기 사유: 현재는 인스펙터창 없음
 
 ## 상황
 에디터에서 씬 오브젝트를 선택하고 Inspector에서 컴포넌트를 조정하는 흐름이 현재 어디까지 연결돼 있는지 보려고 `PixelTool/Tool/ObjectWindow/ObjectWindow.xaml.cs`와 `PixelTool/Tool/InspectorWindow/InspectorWindow.xaml.cs`를 확인했다.

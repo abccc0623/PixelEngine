@@ -9,4 +9,5 @@ namespace ECS::Pool
 	void Clear(const char* poolName);
 
 	void SetAutoCreateFunction(const char* poolName, sol::function func);
+	void SetAutoActiveFunction(const char* poolName, sol::function func);
 }

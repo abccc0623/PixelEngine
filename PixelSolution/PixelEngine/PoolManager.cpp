@@ -87,6 +87,15 @@ void ECS::PoolManager::SetAutoCreateFunction(const std::string& poolName, sol::f
 	{
 		PixelLog::Warn("[Pool][SetAutoCreateFunction]The existing function has been overwritten");
 	}
+	PoolFunctionList[poolName] = func;
+}
 
+void ECS::PoolManager::SetAutoActiveFunction(const std::string& poolName, sol::function func)
+{
+	auto find = PoolFunctionList.find(poolName);
+	if (find != PoolFunctionList.end())
+	{
+		PixelLog::Warn("[Pool][SetAutoActiveFunction]The existing function has been overwritten");
+	}
 	PoolFunctionList[poolName] = func;
 }

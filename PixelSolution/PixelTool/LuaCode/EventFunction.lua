@@ -28,3 +28,8 @@ function Script:OnCollisionExit(targetID)
 	--Debug.LogInfo(tostring(targetID))
 end
 --#END_TABLE OnCollisionExit
+
+
+--#BEGIN_TABLE WaitForSeconds
+WaitForSeconds(1.0)
+--#END_TABLE WaitForSeconds

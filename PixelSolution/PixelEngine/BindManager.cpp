@@ -185,6 +185,7 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalPool, "Disable", GeGlobalMethodInfo(&ECS::Pool::Disable), MetaFlag::LUABIND);
 	AddGlobalMethod(globalPool, "Clear", GeGlobalMethodInfo(&ECS::Pool::Clear), MetaFlag::LUABIND);
 	AddGlobalMethod(globalPool, "SetAutoCreateFunction", GeGlobalMethodInfo(&ECS::Pool::SetAutoCreateFunction), MetaFlag::LUABIND);
+	AddGlobalMethod(globalPool, "SetAutoActiveFunction", GeGlobalMethodInfo(&ECS::Pool::SetAutoActiveFunction), MetaFlag::LUABIND);
 
 	RegisterComponentData();
 	BindEnum();
