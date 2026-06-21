@@ -7,7 +7,7 @@
 extern PixelEngine* Engine;
 PhysListener::PhysListener()
 {
-	event = Engine->GetFactory<EventManager>();
+	//event = Engine->GetFactory<EventManager>();
 }
 
 PhysListener::~PhysListener()

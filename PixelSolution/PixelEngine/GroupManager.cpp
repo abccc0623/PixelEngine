@@ -11,10 +11,7 @@ void ECS::GroupManager::Release()
 	GroupList.clear();
 }
 
-unsigned int ECS::GroupManager::CreateEntity(const std::string& groupName, const std::string& scriptName)
-{
-	return 0;
-}
+
 
 void ECS::GroupManager::Set(const std::string& groupName, unsigned int id)
 {

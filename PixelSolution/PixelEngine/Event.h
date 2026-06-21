@@ -11,11 +11,9 @@ class GameObject;
 struct PhysEvent
 {
 	bool targetIn;
-	//GameObject* target1;
-	//GameObject* target2;
 };
 
-struct Event
+struct EventMessage
 {
 	union
 	{
@@ -23,3 +21,9 @@ struct Event
 		PhysEvent Collision;
 	};
 };
+#include <sol/forward.hpp>
+namespace ECS::Event
+{
+	void BindEvent(unsigned int id, const char* eventKey, const char* eventName);
+	void CallEvent(const char* eventKey, sol::object luaTableObj);
+}

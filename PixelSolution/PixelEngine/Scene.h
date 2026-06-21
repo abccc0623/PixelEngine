@@ -18,6 +18,7 @@ namespace ECS
 	class SystemManager;
 	class GroupManager;
 	class PoolManager;
+	class EventManager;
 }
 class Scene
 {
@@ -43,6 +44,7 @@ public:
 	const std::string& GetSceneName();
 	ECS::GroupManager* GetGroupManager();
 	ECS::PoolManager* GetPoolManager();
+	ECS::EventManager* GetEventManager();
 private:
 	std::string sceneName;
 	std::string path;
@@ -53,5 +55,6 @@ private:
 	ECS::SystemManager* system;
 	ECS::GroupManager* group;
 	ECS::PoolManager* pool;
+	ECS::EventManager* event;
 };
 

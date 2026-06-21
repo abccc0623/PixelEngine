@@ -36,7 +36,6 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height, std::string asset
 	BindFactory<PhysManager>();
 	BindFactory<JsonManager>();
 	BindFactory<GenerateManager>();
-	BindFactory<EventManager>();
 	BindFactory<CoroutineManager>();
 	BindFactory<EditorManager>();
 

@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include "sol.hpp"
 namespace ECS
 {
 	class PoolManager
@@ -10,9 +11,13 @@ namespace ECS
 		void Initialize();
 		void Release();
 
-		unsigned int CreateEntity(const std::string& poolName, const std::string& scriptName);
+		unsigned int Active(const std::string& poolName);
+		void Disable(const std::string& poolName, unsigned int id);
+		void Clear(const std::string& poolName);
+		void SetAutoCreateFunction(const std::string& poolName, sol::function func);
 	private:
 		std::unordered_map<std::string, std::vector<unsigned int>> PoolList;
+		std::unordered_map<std::string, sol::function> PoolFunctionList;
 	};
 };
 

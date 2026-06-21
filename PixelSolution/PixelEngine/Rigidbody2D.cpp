@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Rigidbody2D.h"
+#include "Transform.h"
 #include "PixelEngineAPI.h"
 #include "Registry.h"
 #include "PixelEngine.h"
@@ -104,12 +105,28 @@ void ECS::Rigidbody2D::SetLayer(unsigned int id, const char* name)
 void ECS::Rigidbody2D::SetPosition(unsigned int id, float x, float y, float z)
 {
 	auto registry = GetRegistry();
-	registry->Add<Rigidbody2DData>(id);
-	auto data = registry->Get<Rigidbody2DData>(id);
-	if (data != nullptr)
+	if (registry->Has<Rigidbody2DData>(id) == false)
+	{
+		registry->Add<Rigidbody2DData>(id);
+	}
+	if (registry->Has<ECS::Transform::TransformData>(id))
+	{
+		registry->Add<ECS::Transform::TransformData>(id);
+	}
+
+	auto transformData = registry->Get<ECS::Transform::TransformData>(id);
+	auto rigidbodyData = registry->Get<Rigidbody2DData>(id);
+	if (transformData != nullptr)
+	{
+		transformData->position.x = x;
+		transformData->position.y = y;
+		transformData->position.z = z;
+	}
+
+	if (rigidbodyData != nullptr)
 	{
 		auto phys = Engine->GetFactory<PhysManager>();
-		phys->SetPosition(JPH::BodyID(data->bodyID), x, y, z, true);
+		phys->SetPosition(JPH::BodyID(rigidbodyData->bodyID), x, y, z, true);
 	}
 	else
 	{
@@ -120,7 +137,10 @@ void ECS::Rigidbody2D::SetPosition(unsigned int id, float x, float y, float z)
 void ECS::Rigidbody2D::SetRotation(unsigned int id, float x, float y, float z)
 {
 	auto registry = GetRegistry();
-	registry->Add<Rigidbody2DData>(id);
+	if (registry->Has<Rigidbody2DData>(id) == false)
+	{
+		registry->Add<Rigidbody2DData>(id);
+	}
 	auto data = registry->Get<Rigidbody2DData>(id);
 	if (data != nullptr)
 	{

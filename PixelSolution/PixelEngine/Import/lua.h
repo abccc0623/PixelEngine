@@ -308,7 +308,7 @@ LUA_API void lua_setlevel	(lua_State *from, lua_State *to);
 
 
 /*
-** Event codes
+** EventMessage codes
 */
 #define LUA_HOOKCALL	0
 #define LUA_HOOKRET	1
@@ -318,7 +318,7 @@ LUA_API void lua_setlevel	(lua_State *from, lua_State *to);
 
 
 /*
-** Event masks
+** EventMessage masks
 */
 #define LUA_MASKCALL	(1 << LUA_HOOKCALL)
 #define LUA_MASKRET	(1 << LUA_HOOKRET)

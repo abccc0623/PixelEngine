@@ -19,7 +19,6 @@ void KeyInputManager::Initialize()
 	{
 		keyStates[i] = KeyState::KEY_NONE;
 	}
-	event = Engine->GetFactory<EventManager>();
 }
 
 void KeyInputManager::Update()
@@ -42,24 +41,24 @@ void KeyInputManager::Update()
 		if (isCurrentPressed)
 		{
 			keyStates[i] = wasPressed ? PRESSED : PRESSED | DOWN;
-			if (keyStates[i] & DOWN)
-			{
-				Event eventMessage;
-				eventMessage.key.keyCode = i;
-				eventMessage.key.Pressed = true;
-				event->TriggerEvent(EventType::KeyDown, eventMessage);
-			}
+			//if (keyStates[i] & DOWN)
+			//{
+			//	EventMessage eventMessage;
+			//	eventMessage.key.keyCode = i;
+			//	eventMessage.key.Pressed = true;
+			//	event->TriggerEvent(EventType::KeyDown, eventMessage);
+			//}
 		}
 		else
 		{
 			keyStates[i] = wasPressed ? UP : KEY_NONE;
-			if (keyStates[i] & UP)
-			{
-				Event eventMessage;
-				eventMessage.key.keyCode = i;
-				eventMessage.key.Pressed = false;
-				event->TriggerEvent(EventType::KeyUp, eventMessage);
-			}
+			//if (keyStates[i] & UP)
+			//{
+			//	EventMessage eventMessage;
+			//	eventMessage.key.keyCode = i;
+			//	eventMessage.key.Pressed = false;
+			//	event->TriggerEvent(EventType::KeyUp, eventMessage);
+			//}
 		}
 	}
 }

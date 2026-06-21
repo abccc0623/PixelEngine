@@ -19,36 +19,26 @@ struct UserEvent
 	std::string functionName;
 };
 
-
-
 enum class EventType : int;
-class EventManager : public  EngineManager
+
+namespace ECS
 {
-public:
-	EventManager();
-	virtual ~EventManager();
+	class EventManager
+	{
+	public:
+		EventManager();
+		virtual ~EventManager();
 
-	void Initialize() override;
-	void Update() override;
-	void Release() override;
-	void Clear() override;
+		void Initialize();
+		void Release();
 
-	//void RegisterMessageCustom(GameObject* target, std::string EventName);
-	//void UnregisterMessageCustom(GameObject* target, std::string EventName);
-	//
-	//void RegisterMessage(GameObject* target, EventType type);
-	//void UnregisterMessage(GameObject* target, EventType type);
+		void BindLuaEvent(unsigned int id, std::string key, std::string func);
+		void CallLuaEvent(std::string eventName, sol::object event);
+	private:
+		std::vector<CustomDelayEvent> customDelayEvents;
+		std::unordered_map<std::string, std::vector<UserEvent>> eventList;
+	};
+}
 
-	void TriggerCustomEvent(std::string eventType, sol::table event, float time);
-	void TriggerEvent(EventType type, Event event);
-
-	void BindLuaEvent(unsigned int id, std::string key, std::string func);
-	void CallLuaEvent(std::string eventName, sol::object event);
-private:
-	//std::unordered_map<EventType, std::vector<GameObject*>> eventList;
-	//std::unordered_map<std::string, std::vector<GameObject*>> customEventList;
-	std::vector<CustomDelayEvent> customDelayEvents;
-	std::unordered_map<std::string, std::vector<UserEvent>> eventList;
-};
 
 

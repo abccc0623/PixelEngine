@@ -207,6 +207,12 @@ std::string LuaCreate::TypeChangeByLua(const std::string& type)
 	{
 		return "nil";
 	}
+	if (luaType.find("sol::function") != std::string::npos ||
+		luaType.find("basic_protected_function") != std::string::npos ||
+		luaType.find("protected_function") != std::string::npos)
+	{
+		return "function";
+	}
 	if (luaType.find("sol::table") != std::string::npos || luaType.find("basic_table_core") != std::string::npos)
 	{
 		return "table";

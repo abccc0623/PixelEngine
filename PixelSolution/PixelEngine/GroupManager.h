@@ -11,7 +11,6 @@ namespace ECS
 		void Initialize();
 		void Release();
 
-		unsigned int CreateEntity(const std::string& groupName, const std::string& scriptName);
 		void Set(const std::string& groupName, unsigned int id);
 		void Remove(const std::string& groupName, unsigned int id);
 		void RemoveFromAll(unsigned int id);

@@ -329,13 +329,13 @@ void DestroyEntity(unsigned int id)
 
 void BindLuaEvent(unsigned int id, const char* eventKey, const char* functionName)
 {
-	auto eventManager = Engine->GetFactory<EventManager>();
-	if (eventManager != nullptr)
-	{
-		std::string key(eventKey);
-		std::string func(functionName);
-		eventManager->BindLuaEvent(id, key, func);
-	}
+	//auto eventManager = Engine->GetFactory<EventManager>();
+	//if (eventManager != nullptr)
+	//{
+	//	std::string key(eventKey);
+	//	std::string func(functionName);
+	//	eventManager->BindLuaEvent(id, key, func);
+	//}
 }
 
 //void CallLuaEvent(const char* eventName, sol::table luaTable)
@@ -346,27 +346,27 @@ void BindLuaEvent(unsigned int id, const char* eventKey, const char* functionNam
 
 void RegisterMessage(GameObject* target, EventType type)
 {
-	auto eventManager = Engine->GetFactory<EventManager>();
+	//auto eventManager = Engine->GetFactory<EventManager>();
 	//eventManager->RegisterMessage(target, type);
 }
 
 void RegisterCustomMessage(GameObject* target, const char* type)
 {
-	std::string eventType(type);
-	auto eventManager = Engine->GetFactory<EventManager>();
+	//std::string eventType(type);
+	//auto eventManager = Engine->GetFactory<EventManager>();
 	//eventManager->RegisterMessageCustom(target, eventType);
 }
 
 void UnregisterMessage(GameObject* target, EventType type)
 {
-	auto eventManager = Engine->GetFactory<EventManager>();
+	//auto eventManager = Engine->GetFactory<EventManager>();
 	//eventManager->UnregisterMessage(target, type);
 }
 
 void UnregisterCustomMessage(GameObject* target, const char* type)
 {
-	std::string eventType(type);
-	auto eventManager = Engine->GetFactory<EventManager>();
+	//std::string eventType(type);
+	//auto eventManager = Engine->GetFactory<EventManager>();
 	//eventManager->UnregisterMessageCustom(target, eventType);
 }
 

@@ -28,5 +28,5 @@ private:
 	std::mutex mEventMutex;
 	std::vector<CollisionEvent> mEventQueue;
 
-	EventManager* event;
+	//EventManager* event;
 };

@@ -19,8 +19,9 @@
 #include "BoxCollider2D.h"
 #include "CircleCollider2D.h"
 #include "Rigidbody2D.h"
-#include "EventBus.h"
+#include "Event.h"
 #include "Group.h"
+#include "Pool.h"
 
 
 static MemberInfo LuaMember(const std::string& type, size_t offset)
@@ -167,9 +168,9 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalRigidbody2D, "LockPosition", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockPosition), MetaFlag::LUABIND);
 	AddGlobalMethod(globalRigidbody2D, "LockRotation", GeGlobalMethodInfo(&ECS::Rigidbody2D::LockRotation), MetaFlag::LUABIND);
 
-	PStatic* globalLuaEvent = CreateNewStatic("EventBus");
-	AddGlobalMethod(globalLuaEvent, "BindEvent", GeGlobalMethodInfo(&ECS::EventBus::BindEvent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalLuaEvent, "CallEvent", GeGlobalMethodInfo(&ECS::EventBus::CallEvent), MetaFlag::LUABIND);
+	PStatic* globalLuaEvent = CreateNewStatic("Event");
+	AddGlobalMethod(globalLuaEvent, "BindEvent", GeGlobalMethodInfo(&ECS::Event::BindEvent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalLuaEvent, "CallEvent", GeGlobalMethodInfo(&ECS::Event::CallEvent), MetaFlag::LUABIND);
 
 	PStatic* globalGroup = CreateNewStatic("Group");
 	AddGlobalMethod(globalGroup, "CreateEntity", GeGlobalMethodInfo(&ECS::Group::CreateEntity), MetaFlag::LUABIND);
@@ -177,6 +178,13 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalGroup, "Remove", GeGlobalMethodInfo(&ECS::Group::Remove), MetaFlag::LUABIND);
 	AddGlobalMethod(globalGroup, "Clear", GeGlobalMethodInfo(&ECS::Group::Clear), MetaFlag::LUABIND);
 	AddGlobalMethod(globalGroup, "Get", GeGlobalMethodInfo(&ECS::Group::Get), MetaFlag::LUABIND);
+
+	PStatic* globalPool = CreateNewStatic("Pool");
+	AddGlobalMethod(globalPool, "CreateEntity", GeGlobalMethodInfo(&ECS::Pool::CreateEntity), MetaFlag::LUABIND);
+	AddGlobalMethod(globalPool, "Active", GeGlobalMethodInfo(&ECS::Pool::Active), MetaFlag::LUABIND);
+	AddGlobalMethod(globalPool, "Disable", GeGlobalMethodInfo(&ECS::Pool::Disable), MetaFlag::LUABIND);
+	AddGlobalMethod(globalPool, "Clear", GeGlobalMethodInfo(&ECS::Pool::Clear), MetaFlag::LUABIND);
+	AddGlobalMethod(globalPool, "SetAutoCreateFunction", GeGlobalMethodInfo(&ECS::Pool::SetAutoCreateFunction), MetaFlag::LUABIND);
 
 	RegisterComponentData();
 	BindEnum();

@@ -188,7 +188,6 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="IComponentArray.h" />
     <ClInclude Include="ISystem.h" />
     <ClInclude Include="LuaCreate.h" />
-    <ClInclude Include="EventBus.h" />
     <ClInclude Include="ModuleEntry.h" />
     <ClInclude Include="EntityID.h" />
     <ClInclude Include="Camera.h" />
@@ -265,12 +264,12 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="ColliderFactory.cpp" />
     <ClCompile Include="EditorManager.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Event.cpp" />
     <ClCompile Include="Group.cpp" />
     <ClCompile Include="GroupManager.cpp" />
     <ClCompile Include="ISystem.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="LuaCreate.cpp" />
-    <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="PhysListener.cpp" />
     <ClCompile Include="PhysManager.cpp" />
     <ClCompile Include="CoroutineManager.cpp" />

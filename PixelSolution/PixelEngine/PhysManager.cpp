@@ -97,7 +97,7 @@ void PhysManager::Initialize()
 	colliderFactory = new ColliderFactory();
 	eventListener = new PhysListener();
 
-	event = Engine->GetFactory<EventManager>();
+	//event = Engine->GetFactory<EventManager>();
 	mBodyInterface = &physicsSystem->GetBodyInterface();
 	physicsSystem->SetContactListener(eventListener);
 }
@@ -111,7 +111,7 @@ void PhysManager::Update()
 
 	for (const auto& ev : mFrameCollisionEvents)
 	{
-		Event eventMessage;
+		EventMessage eventMessage;
 		eventMessage.Collision.targetIn = ev.isEnter;
 
 		auto target1 = static_cast<uint64_t>(mBodyInterface->GetUserData(ev.body1));
@@ -286,12 +286,15 @@ JPH::BodyID PhysManager::CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigi
 		break;
 	}
 	constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
-	JPH::Vec3 eulerRadians(0 * DEG_TO_RAD, 0 * DEG_TO_RAD, 0 * DEG_TO_RAD);
 
+	auto r = GetRegistry();
+	auto transformData = r->Get<ECS::Transform::TransformData>(pOwner);
+
+	JPH::Vec3 eulerRadians(transformData->rotation.x * DEG_TO_RAD, transformData->rotation.y * DEG_TO_RAD, transformData->rotation.z * DEG_TO_RAD);
 	JPH::BodyCreationSettings bodySettings
 	(
 		shapeRef,
-		JPH::Vec3(0, 0, 0),
+		JPH::Vec3(transformData->position.x, transformData->position.y, transformData->position.z),
 		JPH::Quat::sEulerAngles(eulerRadians), // 초기 회전값
 		eMotionType,
 		objectLayer
