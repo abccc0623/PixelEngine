@@ -299,7 +299,7 @@ void Import(const char* path)
 }
 
 
-ECS::Entity* FindEntity(unsigned int id)
+ECS::EntityObject* FindEntity(unsigned int id)
 {
 	auto sceneManager = Engine->GetFactory<SceneManager>();
 	return sceneManager->FindEntity(id);

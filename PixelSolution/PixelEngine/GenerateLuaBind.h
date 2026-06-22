@@ -11,6 +11,7 @@
 #include "Event.h" 
 #include "Group.h" 
 #include "Pool.h" 
+#include "Entity.h" 
 using namespace ECS;
 inline void Generate_Engine(sol::state& lua) 
 {
@@ -129,6 +130,12 @@ inline void Generate_Pool(sol::state& lua)
 	ut["SetAutoCreateFunction"] = &ECS::Pool::SetAutoCreateFunction;
 	ut["SetAutoActiveFunction"] = &ECS::Pool::SetAutoActiveFunction;
 }
+inline void Generate_Entity(sol::state& lua) 
+{
+	sol::table ut = lua.create_named_table("Entity");
+	ut["GetValue"] = &ECS::Entity::GetValue;
+	ut["SetValue"] = &ECS::Entity::SetValue;
+}
 inline void BindAll_AddModules() 
 { 
 }
@@ -150,4 +157,5 @@ inline void BindAll_GeneratedLuaModules(sol::state& lua)
 	Generate_Event(lua); 
 	Generate_Group(lua); 
 	Generate_Pool(lua); 
+	Generate_Entity(lua); 
 }

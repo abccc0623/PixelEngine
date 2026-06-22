@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <vector>
 #include "ChunkedArray.h"
-#include "Entity.h"
+#include "EntityObject.h"
 
 struct RenderingData;
 class GameObject;
@@ -35,7 +35,7 @@ public:
 	uint32_t CreatePoolEntity(const std::string& poolName, const std::string& scriptName);
 
 
-	ECS::Entity* FindEntity(uint32_t id);
+	ECS::EntityObject* FindEntity(uint32_t id);
 	void ActiveEntity(uint32_t id, bool active);
 
 	void DestroyEntity(uint32_t id);
@@ -50,7 +50,7 @@ private:
 	std::string path;
 	LuaSceneInfo* info;
 private:
-	ECS::ChunkedArray<ECS::Entity, 100> Chunked;
+	ECS::ChunkedArray<ECS::EntityObject, 100> Chunked;
 	ECS::Registry* registry;
 	ECS::SystemManager* system;
 	ECS::GroupManager* group;

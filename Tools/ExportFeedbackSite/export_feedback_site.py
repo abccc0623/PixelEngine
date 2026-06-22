@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
@@ -11,6 +11,8 @@ DOCS = ROOT / "Docs"
 ITEMS = DOCS / "EngineFeedback" / "Items"
 TASKS = DOCS / "EngineTasks" / "Todo"
 SITE = ROOT
+
+KST = timezone(timedelta(hours=9))
 
 
 def read_text(path: Path) -> str:
@@ -54,8 +56,9 @@ def parse_item(path: Path) -> dict[str, str]:
 
 def parse_task(path: Path) -> dict[str, str]:
     text = read_text(path)
+    lines = text.splitlines()
     return {
-        "title": re.sub(r"^#\s*", "", text.splitlines()[0]).strip() if text.splitlines() else path.stem,
+        "title": re.sub(r"^#\s*", "", lines[0]).strip() if lines else path.stem,
         "area": field(text, "영역"),
         "status": field(text, "상태", "Todo"),
         "priority": field(text, "우선순위"),
@@ -80,12 +83,11 @@ def main() -> int:
     tasks.sort(key=lambda item: (item["created"], item["title"]), reverse=True)
 
     payload = {
-        "generatedAt": datetime.now(timezone(timedelta(hours=9))).isoformat(timespec="seconds"),
+        "generatedAt": datetime.now(KST).isoformat(timespec="seconds"),
         "feedback": feedback,
         "tasks": tasks,
     }
 
-    SITE.mkdir(parents=True, exist_ok=True)
     (SITE / "feedback-data.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=2),
         encoding="utf-8",

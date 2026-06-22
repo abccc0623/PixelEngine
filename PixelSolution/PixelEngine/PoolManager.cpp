@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "PoolManager.h"
 #include "PixelEngineAPI.h"
-#include "Entity.h"
+#include "EntityObject.h"
 void ECS::PoolManager::Initialize()
 {
 
@@ -10,6 +10,8 @@ void ECS::PoolManager::Initialize()
 void ECS::PoolManager::Release()
 {
 	PoolList.clear();
+	PoolCreateFunctionList.clear();
+	PoolActiveFunctionList.clear();
 }
 
 unsigned int ECS::PoolManager::Active(const std::string& poolName)
@@ -31,8 +33,8 @@ unsigned int ECS::PoolManager::Active(const std::string& poolName)
 		}
 	}
 
-	auto CreateFunction = PoolFunctionList.find(poolName);
-	if (CreateFunction != PoolFunctionList.end())
+	auto CreateFunction = PoolCreateFunctionList.find(poolName);
+	if (CreateFunction != PoolCreateFunctionList.end())
 	{
 		if (CreateFunction->second.valid())
 		{
@@ -82,20 +84,20 @@ void ECS::PoolManager::Clear(const std::string& poolName)
 
 void ECS::PoolManager::SetAutoCreateFunction(const std::string& poolName, sol::function func)
 {
-	auto find = PoolFunctionList.find(poolName);
-	if (find != PoolFunctionList.end())
+	auto find = PoolCreateFunctionList.find(poolName);
+	if (find != PoolCreateFunctionList.end())
 	{
 		PixelLog::Warn("[Pool][SetAutoCreateFunction]The existing function has been overwritten");
 	}
-	PoolFunctionList[poolName] = func;
+	PoolCreateFunctionList[poolName] = func;
 }
 
 void ECS::PoolManager::SetAutoActiveFunction(const std::string& poolName, sol::function func)
 {
-	auto find = PoolFunctionList.find(poolName);
-	if (find != PoolFunctionList.end())
+	auto find = PoolActiveFunctionList.find(poolName);
+	if (find != PoolActiveFunctionList.end())
 	{
 		PixelLog::Warn("[Pool][SetAutoActiveFunction]The existing function has been overwritten");
 	}
-	PoolFunctionList[poolName] = func;
+	PoolActiveFunctionList[poolName] = func;
 }

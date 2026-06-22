@@ -1,33 +1,8 @@
 #pragma once
-#include <string>
+
 #include <sol/forward.hpp>
-
-class LuaManager;
-namespace ECS
+namespace ECS::Entity
 {
-	class Entity
-	{
-	public:
-		Entity();
-		~Entity();
-	public:
-		void Create(const std::string& scriptName, unsigned int ID);
-		void OnCollisionEnter(unsigned int TargetID);
-		void OnCollisionExit(unsigned int TargetID);
-		void OnEvent(std::string functionName, sol::object event);
-		unsigned int GetID();
-		bool GetActive();
-		void SetActive(bool isActive);
-	private:
-		bool Active;
-		std::string scriptName;
-		sol::table instance;
-
-		sol::protected_function OnCollisionEnterFunc;
-		sol::protected_function OnCollisionExitFunc;
-		unsigned int ID;
-	private:
-		static LuaManager* lua;
-	};
-};
-
+	sol::object GetValue(unsigned int id, const char* memberName);
+	void SetValue(unsigned int id, const char* memberName, sol::object);
+}

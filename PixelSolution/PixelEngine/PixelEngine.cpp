@@ -23,7 +23,7 @@
 #include "CoroutineManager.h"
 #include "EditorManager.h"
 
-#include "Entity.h"
+#include "EntityObject.h"
 
 void PixelEngine::Initialize(HWND hWnd, int width, int height, std::string assetPath)
 {

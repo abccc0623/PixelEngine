@@ -16,7 +16,7 @@ enum class EditorEventType : std::int32_t
 namespace ECS
 {
 	class Registry;
-	class Entity;
+	class EntityObject;
 }
 ECS::Registry* GetRegistry();
 
@@ -35,7 +35,7 @@ extern "C" PIXEL_ENGINEDLL void EditorNotify(std::int32_t eventType, const char*
 
 extern "C" PIXEL_ENGINEDLL void Import(const char* path);
 
-extern "C" PIXEL_ENGINEDLL ECS::Entity* FindEntity(unsigned int id);
+extern "C" PIXEL_ENGINEDLL ECS::EntityObject* FindEntity(unsigned int id);
 extern "C" PIXEL_ENGINEDLL void ActiveEntity(unsigned int id, bool active);
 extern "C" PIXEL_ENGINEDLL unsigned int CreateEntity(const char* script);
 extern "C" PIXEL_ENGINEDLL void DestroyEntity(unsigned int id);

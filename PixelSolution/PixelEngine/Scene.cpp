@@ -85,7 +85,7 @@ uint32_t Scene::CreateEntity(const std::string& scriptName)
 {
 	PixelLog::Info("[" + sceneName + "] CreateEntity :" + scriptName);
 	ECS::ChunkedID id = Chunked.Add();
-	ECS::Entity* entity = Chunked.Get(id);
+	ECS::EntityObject* entity = Chunked.Get(id);
 	entity->Create(scriptName, id.value);
 	return id.value;
 }
@@ -104,9 +104,9 @@ uint32_t Scene::CreatePoolEntity(const std::string& poolName, const std::string&
 	return id;
 }
 
-ECS::Entity* Scene::FindEntity(uint32_t id)
+ECS::EntityObject* Scene::FindEntity(uint32_t id)
 {
-	ECS::Entity* entity = Chunked.Get(id);
+	ECS::EntityObject* entity = Chunked.Get(id);
 	if (entity != nullptr)
 	{
 		return entity;
@@ -117,7 +117,7 @@ ECS::Entity* Scene::FindEntity(uint32_t id)
 
 void Scene::ActiveEntity(uint32_t id, bool active)
 {
-	ECS::Entity* entity = Chunked.Get(id);
+	ECS::EntityObject* entity = Chunked.Get(id);
 	if (entity == nullptr)
 	{
 		PixelLog::Error("Not Find Entity" + std::to_string(id));
@@ -130,8 +130,14 @@ void Scene::ActiveEntity(uint32_t id, bool active)
 void Scene::DestroyEntity(uint32_t id)
 {
 	PixelLog::Info("[" + sceneName + "] DeleteEntity");
+	auto lua = Engine->GetFactory<LuaManager>();
+	if (lua != nullptr)
+	{
+		lua->RemoveEntityID(id);
+	}
 	group->RemoveFromAll(id);
 	registry->Remove(id);
+	Chunked.Remove(ECS::ChunkedID(id));
 }
 
 ECS::Registry* Scene::GetRegistry()

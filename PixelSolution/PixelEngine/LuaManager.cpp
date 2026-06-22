@@ -305,6 +305,11 @@ void LuaManager::Update()
 
 void LuaManager::Release()
 {
+	if (luaManager.valid())
+	{
+		luaManager["entities"] = lua.create_table();
+	}
+
 	for (auto& k : luaModuleTableMap)
 	{
 		delete k.second;

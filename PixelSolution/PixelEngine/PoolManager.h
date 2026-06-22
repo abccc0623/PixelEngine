@@ -18,7 +18,8 @@ namespace ECS
 		void SetAutoActiveFunction(const std::string& poolName, sol::function func);
 	private:
 		std::unordered_map<std::string, std::vector<unsigned int>> PoolList;
-		std::unordered_map<std::string, sol::function> PoolFunctionList;
+		std::unordered_map<std::string, sol::function> PoolCreateFunctionList;
+		std::unordered_map<std::string, sol::function> PoolActiveFunctionList;
 	};
 };
 

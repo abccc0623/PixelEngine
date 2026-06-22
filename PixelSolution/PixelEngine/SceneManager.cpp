@@ -99,7 +99,7 @@ uint32_t SceneManager::CreateEntity(const std::string& scriptName)
 	return GetNowScene()->CreateEntity(scriptName);
 }
 
-ECS::Entity* SceneManager::FindEntity(uint32_t id)
+ECS::EntityObject* SceneManager::FindEntity(uint32_t id)
 {
 	return GetNowScene()->FindEntity(id);
 }

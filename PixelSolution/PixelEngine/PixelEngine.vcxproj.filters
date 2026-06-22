@@ -282,7 +282,7 @@
     <ClInclude Include="PixelMath.h">
       <Filter>EngineAPI\Types\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Entity.h">
+    <ClInclude Include="EntityObject.h">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClInclude>
     <ClInclude Include="EntityID.h">
@@ -374,6 +374,9 @@
     </ClInclude>
     <ClInclude Include="PoolManager.h">
       <Filter>EngineAPI\Manager\PoolManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>EngineAPI\ECS\Entity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -479,7 +482,7 @@
     <ClCompile Include="PhysListener.cpp">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClCompile>
-    <ClCompile Include="Entity.cpp">
+    <ClCompile Include="EntityObject.cpp">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClCompile>
     <ClCompile Include="Registry.cpp">
@@ -559,6 +562,9 @@
     </ClCompile>
     <ClCompile Include="Event.cpp">
       <Filter>EngineAPI\Manager\EventManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>EngineAPI\ECS\Entity</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

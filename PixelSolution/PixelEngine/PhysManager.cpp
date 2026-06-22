@@ -7,7 +7,7 @@
 #include "PhysListener.h"
 #include "EventManager.h"
 #include "PixelEngine.h"
-#include "Entity.h"
+#include "EntityObject.h"
 #include "Rigidbody2D.h"
 #include "Registry.h"
 #include "Transform.h"
@@ -117,8 +117,8 @@ void PhysManager::Update()
 		auto target1 = static_cast<uint64_t>(mBodyInterface->GetUserData(ev.body1));
 		auto target2 = static_cast<uint64_t>(mBodyInterface->GetUserData(ev.body2));
 
-		ECS::Entity* EntityTarget1 = FindEntity(target1);
-		ECS::Entity* EntityTarget2 = FindEntity(target2);
+		ECS::EntityObject* EntityTarget1 = FindEntity(target1);
+		ECS::EntityObject* EntityTarget2 = FindEntity(target2);
 
 		if (ev.isEnter == true)
 		{

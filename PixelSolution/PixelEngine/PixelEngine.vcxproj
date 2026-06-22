@@ -182,7 +182,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="ComponentArray.h" />
     <ClInclude Include="ComponentID.h" />
     <ClInclude Include="EditorManager.h" />
-    <ClInclude Include="Entity.h" />
+    <ClInclude Include="EntityObject.h" />
     <ClInclude Include="Group.h" />
     <ClInclude Include="GroupManager.h" />
     <ClInclude Include="IComponentArray.h" />
@@ -234,6 +234,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="Renderer2D.h" />
     <ClInclude Include="Rigidbody2D.h" />
     <ClInclude Include="Rigidbody2DSystem.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Registry.h" />
     <ClInclude Include="Renderer2DSystem.h" />
@@ -263,7 +264,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="Collider2DSystem.cpp" />
     <ClCompile Include="ColliderFactory.cpp" />
     <ClCompile Include="EditorManager.cpp" />
-    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="EntityObject.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="Group.cpp" />
     <ClCompile Include="GroupManager.cpp" />
@@ -306,6 +307,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="Renderer2D.cpp" />
     <ClCompile Include="Rigidbody2D.cpp" />
     <ClCompile Include="Rigidbody2DSystem.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="PtrControlBlock.cpp" />
     <ClCompile Include="Registry.cpp" />

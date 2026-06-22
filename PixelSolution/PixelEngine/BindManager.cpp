@@ -9,7 +9,7 @@
 
 #include "PixelMetaAPI.h"
 #include "PixelEngineAPI.h"
-#include "Entity.h"
+#include "EntityObject.h"
 
 #include "Transform.h"
 #include "Camera.h"
@@ -19,6 +19,7 @@
 #include "BoxCollider2D.h"
 #include "CircleCollider2D.h"
 #include "Rigidbody2D.h"
+#include "Entity.h"
 #include "Event.h"
 #include "Group.h"
 #include "Pool.h"
@@ -186,6 +187,11 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalPool, "Clear", GeGlobalMethodInfo(&ECS::Pool::Clear), MetaFlag::LUABIND);
 	AddGlobalMethod(globalPool, "SetAutoCreateFunction", GeGlobalMethodInfo(&ECS::Pool::SetAutoCreateFunction), MetaFlag::LUABIND);
 	AddGlobalMethod(globalPool, "SetAutoActiveFunction", GeGlobalMethodInfo(&ECS::Pool::SetAutoActiveFunction), MetaFlag::LUABIND);
+
+	PStatic* globalEntity = CreateNewStatic("Entity");
+	AddGlobalMethod(globalEntity, "GetValue", GeGlobalMethodInfo(&ECS::Entity::GetValue), MetaFlag::LUABIND);
+	AddGlobalMethod(globalEntity, "SetValue", GeGlobalMethodInfo(&ECS::Entity::SetValue), MetaFlag::LUABIND);
+
 
 	RegisterComponentData();
 	BindEnum();

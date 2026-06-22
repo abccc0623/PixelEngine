@@ -11,8 +11,14 @@ const els = {
   detail: document.getElementById("detail"),
 };
 
-const statusLabels = ["전체", "미검토", "일감화", "폐기", "채택"];
-const areaLabels = ["전체", "엔진", "에디터", "클라이언트", "그래픽", "물리", "사운드"];
+const ALL = "전체";
+const STATUS_UNREVIEWED = "미검토";
+const STATUS_DONE = "일감화";
+const STATUS_DISCARDED = "폐기";
+const STATUS_ADOPTED = "채택";
+
+const statusLabels = [ALL, STATUS_UNREVIEWED, STATUS_DONE, STATUS_DISCARDED, STATUS_ADOPTED];
+const areaLabels = [ALL, "엔진", "에디터", "클라이언트", "그래픽", "물리", "사운드"];
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -23,8 +29,8 @@ function escapeHtml(value) {
 }
 
 function statusClass(status) {
-  if (status === "일감화") return "done";
-  if (status === "폐기") return "drop";
+  if (status === STATUS_DONE) return "done";
+  if (status === STATUS_DISCARDED) return "drop";
   return "";
 }
 
@@ -38,8 +44,8 @@ function filtered() {
   const area = els.area.value;
   const status = els.status.value;
   return feedback.filter((item) => {
-    if (area !== "전체" && item.area !== area) return false;
-    if (status !== "전체" && item.status !== status) return false;
+    if (area !== ALL && item.area !== area) return false;
+    if (status !== ALL && item.status !== status) return false;
     if (!query) return true;
     return [item.title, item.situation, item.problem, item.suggestion]
       .join(" ")
@@ -50,10 +56,11 @@ function filtered() {
 
 function renderStats() {
   const counts = {
-    전체: feedback.length,
-    미검토: feedback.filter((item) => item.status === "미검토").length,
-    일감화: feedback.filter((item) => item.status === "일감화").length,
-    폐기: feedback.filter((item) => item.status === "폐기").length,
+    [ALL]: feedback.length,
+    [STATUS_UNREVIEWED]: feedback.filter((item) => item.status === STATUS_UNREVIEWED).length,
+    [STATUS_DONE]: feedback.filter((item) => item.status === STATUS_DONE).length,
+    [STATUS_DISCARDED]: feedback.filter((item) => item.status === STATUS_DISCARDED).length,
+    [STATUS_ADOPTED]: feedback.filter((item) => item.status === STATUS_ADOPTED).length,
   };
   els.stats.innerHTML = Object.entries(counts)
     .map(([label, count]) => `<div class="stat"><span>${label}</span><strong>${count}</strong></div>`)
@@ -122,5 +129,5 @@ async function load() {
 });
 
 load().catch((error) => {
-  els.detail.innerHTML = `<div class="empty">데이터를 불러오지 못했습니다: ${escapeHtml(error.message)}</div>`;
+  els.detail.innerHTML = `<div class="empty">데이터를 불러오지 못했습니다. ${escapeHtml(error.message)}</div>`;
 });

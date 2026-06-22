@@ -2,7 +2,7 @@
 #include "EventManager.h"
 #include <algorithm>
 #include "PixelEngineAPI.h"
-#include "Entity.h"
+#include "EntityObject.h"
 
 ECS::EventManager::EventManager()
 {
