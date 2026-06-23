@@ -40,6 +40,7 @@ unsigned int ECS::PoolManager::Active(const std::string& poolName)
 		{
 			auto returnData = CreateFunction->second();
 			auto id = returnData.get<unsigned int>();
+			PoolList[poolName].push_back(id);
 			return id;
 		}
 	}

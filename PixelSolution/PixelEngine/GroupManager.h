@@ -15,7 +15,7 @@ namespace ECS
 		void Remove(const std::string& groupName, unsigned int id);
 		void RemoveFromAll(unsigned int id);
 		void Clear(const std::string& groupName);
-		const std::vector<unsigned int>* Get(const std::string& groupName) const;
+		std::vector<unsigned int>* Get(const std::string& groupName);
 	private:
 		std::unordered_map<std::string, std::vector<unsigned int>> GroupList;
 	};

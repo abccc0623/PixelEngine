@@ -66,7 +66,7 @@ void ECS::GroupManager::Clear(const std::string& groupName)
 	GroupList.erase(groupName);
 }
 
-const std::vector<unsigned int>* ECS::GroupManager::Get(const std::string& groupName) const
+std::vector<unsigned int>* ECS::GroupManager::Get(const std::string& groupName)
 {
 	auto find = GroupList.find(groupName);
 	if (find == GroupList.end())

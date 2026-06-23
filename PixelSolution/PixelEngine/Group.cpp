@@ -33,6 +33,30 @@ void ECS::Group::Clear(const char* groupName)
 	scene->GetNowScene()->GetGroupManager()->Clear(groupName);
 }
 
+int ECS::Group::Count(const char* groupName)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	auto K = scene->GetNowScene()->GetGroupManager()->Get(groupName);
+	if (K == nullptr)
+	{
+		return 0;
+	}
+	else
+	{
+		return K->size();
+	}
+}
+
+unsigned int ECS::Group::First(const char* groupName)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::vector<unsigned int>* K = scene->GetNowScene()->GetGroupManager()->Get(groupName);
+	if (K->size() != 0)
+	{
+		return (*K)[0];
+	}
+}
+
 sol::as_table_t<std::vector<unsigned int>> ECS::Group::Get(const char* groupName)
 {
 	SceneManager* scene = Engine->GetFactory<SceneManager>();

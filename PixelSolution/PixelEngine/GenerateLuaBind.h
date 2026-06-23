@@ -119,6 +119,8 @@ inline void Generate_Group(sol::state& lua)
 	ut["Remove"] = &ECS::Group::Remove;
 	ut["Clear"] = &ECS::Group::Clear;
 	ut["Get"] = &ECS::Group::Get;
+	ut["Count"] = &ECS::Group::Count;
+	ut["First"] = &ECS::Group::First;
 }
 inline void Generate_Pool(sol::state& lua) 
 {
