@@ -71,3 +71,12 @@ void ECS::Pool::SetAutoActiveFunction(const char* poolName, sol::function func)
 	auto manager = scene->GetNowScene()->GetPoolManager();
 	manager->SetAutoActiveFunction(poolNameSTR, func);
 }
+
+sol::as_table_t<std::vector<unsigned int>> ECS::Pool::GetActiveArray(const char* poolName)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string poolNameSTR(poolName);
+
+	auto manager = scene->GetNowScene()->GetPoolManager();
+	return manager->GetActiveArray(poolNameSTR);
+}

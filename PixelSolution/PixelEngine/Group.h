@@ -1,5 +1,5 @@
 #pragma once
-#include "sol.hpp"
+#include <sol/forward.hpp>
 #include <vector>
 
 namespace ECS::Group

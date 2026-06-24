@@ -1,6 +1,66 @@
 {
-  "generatedAt": "2026-06-23T19:30:03+09:00",
+  "generatedAt": "2026-06-24T19:27:07+09:00",
   "feedback": [
+    {
+      "title": "프로젝트 루트 검증 실패 원인이 UI에 드러나지 않음",
+      "date": "2026-06-24",
+      "area": "에디터",
+      "status": "미검토",
+      "source": "[[2026-06-24]]",
+      "situation": "PixelTool 시작 창에서 기존 프로젝트 폴더를 선택했는데 유효하지 않은 프로젝트라는 오류를 만남.",
+      "problem": "`Asset`, `Engine`, `Editor` 중 어떤 폴더가 없어 실패했는지 알 수 없으면 사용자가 직접 폴더 구조를 뒤져야 한다.",
+      "suggestion": "검증 결과에 누락 폴더 목록을 포함하고, 시작 창에서 복구 안내나 폴더 생성 버튼을 제공하면 좋음.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-24/프로젝트 루트 검증 실패 원인이 UI에 드러나지 않음.md"
+    },
+    {
+      "title": "그래픽 Resize 실패 지점이 로그로 충분히 남지 않음",
+      "date": "2026-06-24",
+      "area": "그래픽",
+      "status": "미검토",
+      "source": "[[2026-06-24]]",
+      "situation": "런타임 또는 에디터 창 크기를 바꾼 뒤 화면이 검게 나오거나 깊이 버퍼가 이상해지는 문제를 확인함.",
+      "problem": "Resize 단계에서 실패한 API와 현재 크기가 로그로 남지 않으면 원인을 재현하고 좁히기 어렵다.",
+      "suggestion": "`ResizeBuffers`, RTV/DSV 생성 단계별 HRESULT와 width/height를 `PixelLog`에 남기면 좋음.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-24/그래픽 Resize 실패 지점이 로그로 충분히 남지 않음.md"
+    },
+    {
+      "title": "Scene Release에서 자기 자신을 삭제하는 흐름이 위험해 보임",
+      "date": "2026-06-24",
+      "area": "엔진",
+      "status": "미검토",
+      "source": "[[2026-06-24]]",
+      "situation": "씬 전환이나 종료 과정에서 `Scene::Release`를 호출하고 다음 씬으로 넘어가는 흐름을 점검함.",
+      "problem": "`delete this`는 호출자 쪽 소유권이 명확하지 않으면 이후 접근이나 중복 해제 위험을 만들 수 있다.",
+      "suggestion": "Scene 소유권을 `SceneManager`로 고정하고, Release는 내부 리소스 정리만 하도록 역할을 나누면 좋음.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-24/Scene Release에서 자기 자신을 삭제하는 흐름이 위험해 보임.md"
+    },
+    {
+      "title": "Lua FFI 생성에서 지원하지 않는 타입이 조용히 누락됨",
+      "date": "2026-06-24",
+      "area": "클라이언트",
+      "status": "미검토",
+      "source": "[[2026-06-24]]",
+      "situation": "새 컴포넌트 Data 구조체를 PixelMeta에 등록하고 LuaJIT FFI 파일이 자동 생성되길 기대함.",
+      "problem": "지원하지 않는 C 타입이 빈 문자열로 처리되면 생성 결과에서 필드가 조용히 빠질 수 있다.",
+      "suggestion": "누락된 타입, 컴포넌트명, 필드명을 생성 로그에 남기고 요약에 누락 개수를 표시하면 좋음.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-24/Lua FFI 생성에서 지원하지 않는 타입이 조용히 누락됨.md"
+    },
+    {
+      "title": "Entity 제거 후 Chunked 저장소 정리 여부가 불명확함",
+      "date": "2026-06-24",
+      "area": "엔진",
+      "status": "미검토",
+      "source": "[[2026-06-24]]",
+      "situation": "Lua에서 오브젝트를 생성하고 제거하는 반복 테스트 중 Entity id 재사용과 수명 관리를 확인함.",
+      "problem": "Registry 제거와 Group 제거는 보이지만 Chunked 저장소의 Entity 생명주기가 명확하지 않으면 id 재사용 정책을 판단하기 어렵다.",
+      "suggestion": "DestroyEntity에서 Entity 저장소 제거/비활성화 정책을 명시하고, 로그에 id와 정리 범위를 남기면 좋음.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-24/Entity 제거 후 Chunked 저장소 정리 여부가 불명확함.md"
+    },
     {
       "title": "프로젝트 루트 검증 실패 원인이 UI에 드러나지 않음",
       "date": "2026-06-23",
@@ -14,6 +74,54 @@
       "path": "Docs/EngineFeedback/Items/2026-06-23/프로젝트 루트 검증 실패 원인이 UI에 드러나지 않음.md"
     },
     {
+      "title": "씬 뷰를 닫아도 엔진 ReleaseEngine 경로가 실행되지 않음",
+      "date": "2026-06-23",
+      "area": "그래픽",
+      "status": "미검토",
+      "source": "[[2026-06-23]]",
+      "situation": "PixelTool에서 씬 뷰를 띄운 뒤 창을 닫거나 에디터를 종료하는 흐름을 따라가며 네이티브 엔진 수명 정리 경로를 확인했다.",
+      "problem": "`GraphicsWindow.DestroyWindowCore()`는 렌더 스레드를 멈추고 HWND는 파괴하지만, 실제 엔진 해제 호출인 `PixelEngineNative.ReleaseEngine()`은 주석 처리돼 있다. 클라이언트 실행기 쪽은 `WM_DESTROY`에서 `ReleaseEngine()`을 호출하는데, 에디터 호스트 쪽만 빠져 있어서 씬 뷰를 여러 번 열고 닫거나 종료 시점을 다룰 때 리소스 정리 기준이 흐릿하다.",
+      "suggestion": "씬 뷰 종료와 에디터 종료에서 네이티브 엔진 해제 책임을 한 곳으로 정리하고, 중복 해제를 막는 가드와 함께 실제 `ReleaseEngine` 호출 여부를 로그로 남기면 추적이 쉬워진다.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-23/씬 뷰를 닫아도 엔진 ReleaseEngine 경로가 실행되지 않음.md"
+    },
+    {
+      "title": "모듈 생성이 기존 .pxm 파일을 조용히 덮어쓸 수 있음",
+      "date": "2026-06-23",
+      "area": "에디터",
+      "status": "미검토",
+      "source": "[[2026-06-23]]",
+      "situation": "PixelTool에서 새 모듈을 만들려고 `ToolbarWindow`의 Create 메뉴를 열고, 이미 있는 모듈과 같은 이름을 다시 입력하는 작업을 했다.",
+      "problem": "`ToolbarWindow.CreateModule()`은 중복 검사를 할 때 확장자를 붙이기 전 경로만 검사하고, 실제 저장은 그 뒤에 `.pxm`을 붙여서 진행한다. 그래서 `Player`를 입력했을 때 `Player.pxm`이 이미 있어도 경고 없이 같은 파일을 다시 써버릴 수 있어, 사용자는 새 파일을 만든 줄 알았다가 기존 모듈 내용을 잃기 쉽다.",
+      "suggestion": "입력 이름을 받는 즉시 실제 저장 파일명까지 정규화해서 중복을 검사하고, 충돌 시에는 최종 대상 경로를 함께 보여주면 좋다.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-23/모듈 생성이 기존 .pxm 파일을 조용히 덮어쓸 수 있음.md"
+    },
+    {
+      "title": "레이어 충돌 설정 저장이 현재 물리 월드에 즉시 반영되지 않음",
+      "date": "2026-06-23",
+      "area": "물리",
+      "status": "미검토",
+      "source": "[[2026-06-23]]",
+      "situation": "에디터에서 `LayerSettingsWindow`로 충돌 레이어를 바꾸고 바로 플레이 테스트한다고 가정하고, 저장 이후 물리 쪽 반영 경로를 확인했다.",
+      "problem": "레이어 설정 창은 `LayerMatrix.json`을 저장만 하고 별도 엔진 알림을 보내지 않는다. 물리 쪽 `PhysManager`는 이 파일을 `Initialize()`와 `Clear()`에서만 다시 읽으므로, 실행 중에 충돌 행렬을 바꿔도 현재 월드에는 바로 반영되지 않는다. 사용자는 체크박스를 바꾼 뒤 즉시 충돌 결과가 달라질 것을 기대하기 쉬운데, 실제로는 재초기화 시점 전까지 이전 설정이 남는다.",
+      "suggestion": "레이어 저장 직후 물리 시스템에 재적용 이벤트를 보내거나, 즉시 반영이 불가능하다면 UI에서 \"다음 리로드 후 적용\" 상태를 분명히 보여주면 좋다.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-23/레이어 충돌 설정 저장이 현재 물리 월드에 즉시 반영되지 않음.md"
+    },
+    {
+      "title": "기존 프로젝트를 다시 열면 엔진 생성 파일 갱신이 자동으로 돌지 않음",
+      "date": "2026-06-23",
+      "area": "에디터",
+      "status": "미검토",
+      "source": "[[2026-06-23]]",
+      "situation": "새 프로젝트 생성이 아니라 기존 PixelTool 프로젝트를 다시 여는 흐름에서, 엔진 생성 파일이 언제 갱신되는지 코드 경로를 따라갔다.",
+      "problem": "`ProjectPathService.GenerateProjectFilesPending`은 `CreateProject()`에서만 `true`가 되고, 실제 생성 호출은 `GraphicsWindow.BuildWindowCore()` 안의 `StartNewProject()`에서만 돈다. 반면 기존 프로젝트를 여는 `OpenExistingProject()`와 `UseProjectPath()`는 이 플래그를 건드리지 않는데, `LuaLspService`는 곧바로 `Engine/EngineGenerate.lua`를 기대한다. 그래서 기존 프로젝트의 생성 파일이 비어 있거나 오래됐을 때는, 그냥 다시 여는 것만으로는 복구가 자동으로 이어지지 않는다.",
+      "suggestion": "기존 프로젝트를 열 때도 생성 파일 존재 여부나 버전을 검사해서 필요하면 자동 재생성을 걸고, 최소한 LSP 시작 전에 재생성 안내를 보여주면 좋다.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-23/기존 프로젝트를 다시 열면 엔진 생성 파일 갱신이 자동으로 돌지 않음.md"
+    },
+    {
       "title": "그래픽 Resize 실패 지점이 로그로 충분히 남지 않음",
       "date": "2026-06-23",
       "area": "그래픽",
@@ -24,6 +132,18 @@
       "suggestion": "`ResizeBuffers`, RTV/DSV 생성 단계별 HRESULT와 width/height를 `PixelLog`에 남기면 좋음.",
       "discardReason": "",
       "path": "Docs/EngineFeedback/Items/2026-06-23/그래픽 Resize 실패 지점이 로그로 충분히 남지 않음.md"
+    },
+    {
+      "title": "Scene 종료에서 EventManager가 delete되지 않아 수명 정리가 비대칭임",
+      "date": "2026-06-23",
+      "area": "엔진",
+      "status": "미검토",
+      "source": "[[2026-06-23]]",
+      "situation": "Lua 스크립트를 자주 리로드하면서 씬 전환 경로의 정리 코드를 확인하던 중, `Scene::Initialize()`와 `Scene::Release()`의 할당/해제 짝을 비교했다.",
+      "problem": "`Scene::Initialize()`는 `registry`, `system`, `group`, `pool`, `event`를 모두 `new`로 만들지만, `Scene::Release()`에서는 `event->Release()`만 호출하고 `delete event`는 하지 않은 채 `delete this`로 끝난다. 씬을 한 번만 쓸 때는 티가 약하지만, 장시간 리로드와 씬 교체를 반복하는 작업에서는 누적 누수 위치를 찾기 어렵게 만든다.",
+      "suggestion": "`Scene`이 소유하는 매니저 목록을 한 군데에서 명확히 관리하고, `Initialize()`에서 만든 객체는 `Release()`에서 모두 같은 기준으로 `delete`되도록 정리하면 좋다.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-23/Scene 종료에서 EventManager가 delete되지 않아 수명 정리가 비대칭임.md"
     },
     {
       "title": "Scene Release에서 자기 자신을 삭제하는 흐름이 위험해 보임",

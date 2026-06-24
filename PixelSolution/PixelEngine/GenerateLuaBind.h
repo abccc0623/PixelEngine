@@ -131,6 +131,7 @@ inline void Generate_Pool(sol::state& lua)
 	ut["Clear"] = &ECS::Pool::Clear;
 	ut["SetAutoCreateFunction"] = &ECS::Pool::SetAutoCreateFunction;
 	ut["SetAutoActiveFunction"] = &ECS::Pool::SetAutoActiveFunction;
+	ut["GetActiveArray"] = &ECS::Pool::GetActiveArray;
 }
 inline void Generate_Entity(sol::state& lua) 
 {
