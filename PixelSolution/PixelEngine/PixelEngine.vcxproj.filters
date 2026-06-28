@@ -37,12 +37,6 @@
     <Filter Include="EngineAPI\Types">
       <UniqueIdentifier>{059cdd80-82b6-4efa-b0c2-0704175cf3c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Types\Vector3">
-      <UniqueIdentifier>{63d2d554-216a-419a-9c82-c1aa77f8367a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EngineAPI\Types\Matrix">
-      <UniqueIdentifier>{6504ab51-dee4-430b-a0b2-8af62ef26674}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Module\Module">
       <UniqueIdentifier>{313a14e0-ecd1-4ed4-a4bf-bb4c5358dd87}</UniqueIdentifier>
     </Filter>
@@ -61,17 +55,11 @@
     <Filter Include="EngineAPI\Manager\BindManager">
       <UniqueIdentifier>{3bdc39e6-20c2-4ee3-bb49-4ae3d6cd2564}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Types\Rect">
-      <UniqueIdentifier>{29cb6009-607d-4171-a3f9-9be0701c3c35}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\SmartPointer">
       <UniqueIdentifier>{2c28ed61-3fef-4644-a1f0-5afc614173e2}</UniqueIdentifier>
     </Filter>
     <Filter Include="EngineAPI\Types\Enum">
       <UniqueIdentifier>{45623185-d5f3-41eb-90a1-6af096f462a4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EngineAPI\Log">
-      <UniqueIdentifier>{ffa2fbc2-4db7-4a13-b602-95a0900fe123}</UniqueIdentifier>
     </Filter>
     <Filter Include="EngineAPI\Manager\JsonManager">
       <UniqueIdentifier>{40ec7548-153f-44bb-a6c2-413bfc179305}</UniqueIdentifier>
@@ -81,9 +69,6 @@
     </Filter>
     <Filter Include="EngineAPI\Manager\EventManager">
       <UniqueIdentifier>{7d6ef083-32e5-4f6f-813f-142e4b417e71}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EngineAPI\Module\Movement">
-      <UniqueIdentifier>{1c9090cc-7d2b-49f9-8c78-b20ce61e36e5}</UniqueIdentifier>
     </Filter>
     <Filter Include="EngineAPI\Types\Bitmask">
       <UniqueIdentifier>{373794c8-365c-4532-8871-134652a9e750}</UniqueIdentifier>
@@ -130,6 +115,9 @@
     <Filter Include="EngineAPI\Manager\PoolManager">
       <UniqueIdentifier>{1af7f5e8-8029-4b1b-be66-d56ca625d8de}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Debug">
+      <UniqueIdentifier>{ffa2fbc2-4db7-4a13-b602-95a0900fe123}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -174,9 +162,6 @@
     <ClInclude Include="PhysManager.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClInclude>
-    <ClInclude Include="Rect.h">
-      <Filter>EngineAPI\Types\Rect</Filter>
-    </ClInclude>
     <ClInclude Include="WPointer.h">
       <Filter>EngineAPI\SmartPointer</Filter>
     </ClInclude>
@@ -198,12 +183,6 @@
     <ClInclude Include="Export\Core\Module.h">
       <Filter>EngineAPI\Module\Module</Filter>
     </ClInclude>
-    <ClInclude Include="Export\Type\PVector3.h">
-      <Filter>EngineAPI\Types\Vector3</Filter>
-    </ClInclude>
-    <ClInclude Include="Export\Type\PMatrix.h">
-      <Filter>EngineAPI\Types\Matrix</Filter>
-    </ClInclude>
     <ClInclude Include="Export\Module\DebugCamera.h">
       <Filter>EngineAPI\Module\DebugCamera</Filter>
     </ClInclude>
@@ -211,10 +190,10 @@
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
-      <Filter>EngineAPI\Log</Filter>
+      <Filter>EngineAPI\Debug</Filter>
     </ClInclude>
     <ClInclude Include="Memory.h">
-      <Filter>EngineAPI\Log</Filter>
+      <Filter>EngineAPI\Debug</Filter>
     </ClInclude>
     <ClInclude Include="json.hpp">
       <Filter>헤더 파일</Filter>
@@ -251,9 +230,6 @@
     </ClInclude>
     <ClInclude Include="Event.h">
       <Filter>EngineAPI\Manager\EventManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Export\Module\Movement.h">
-      <Filter>EngineAPI\Module\Movement</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
@@ -378,6 +354,9 @@
     <ClInclude Include="Entity.h">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>EngineAPI\Debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -425,12 +404,6 @@
     <ClCompile Include="Export\Core\Module.cpp">
       <Filter>EngineAPI\Module\Module</Filter>
     </ClCompile>
-    <ClCompile Include="Export\Type\PVector3.cpp">
-      <Filter>EngineAPI\Types\Vector3</Filter>
-    </ClCompile>
-    <ClCompile Include="Export\Type\PMatrix.cpp">
-      <Filter>EngineAPI\Types\Matrix</Filter>
-    </ClCompile>
     <ClCompile Include="Export\Module\DebugCamera.cpp">
       <Filter>EngineAPI\Module\DebugCamera</Filter>
     </ClCompile>
@@ -438,10 +411,10 @@
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClCompile>
     <ClCompile Include="Log.cpp">
-      <Filter>EngineAPI\Log</Filter>
+      <Filter>EngineAPI\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Memory.cpp">
-      <Filter>EngineAPI\Log</Filter>
+      <Filter>EngineAPI\Debug</Filter>
     </ClCompile>
     <ClCompile Include="JsonManager.cpp">
       <Filter>EngineAPI\Manager\JsonManager</Filter>
@@ -460,9 +433,6 @@
     </ClCompile>
     <ClCompile Include="EventManager.cpp">
       <Filter>EngineAPI\Manager\EventManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Export\Module\Movement.cpp">
-      <Filter>EngineAPI\Module\Movement</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
@@ -565,6 +535,9 @@
     </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>EngineAPI\ECS\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug.cpp">
+      <Filter>EngineAPI\Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

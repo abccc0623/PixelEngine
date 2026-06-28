@@ -84,6 +84,10 @@ void ECS::Rigidbody2DSystem::Update(ECS::Registry* registry)
 		});
 }
 
+void ECS::Rigidbody2DSystem::EditorUpdate(Registry* registry)
+{
+}
+
 void ECS::Rigidbody2DSystem::Release()
 {
 

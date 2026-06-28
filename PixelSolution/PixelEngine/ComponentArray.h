@@ -17,10 +17,10 @@ namespace ECS
 			{
 				return;
 			}
-			auto indexOfRemoved = entityToIndexMap[entityID];
-			chunkedArray.Remove(ECS::ChunkedID(indexOfRemoved));
+			auto id = ECS::ChunkedID(entityToIndexMap[entityID]);
+			chunkedArray.Remove(id);
 			entityToIndexMap.erase(entityID);
-			indexToEntityMap.erase(indexOfRemoved);
+			indexToEntityMap.erase(id.Index());
 		}
 		void Create(unsigned int entityID) override
 		{
@@ -31,7 +31,7 @@ namespace ECS
 
 			ChunkedID id = chunkedArray.Add();
 			entityToIndexMap[entityID] = id.value;
-			indexToEntityMap[id.value] = entityID;
+			indexToEntityMap[id.Index()] = entityID;
 		}
 
 		void* Get(unsigned int entityID)
@@ -74,7 +74,7 @@ namespace ECS
 			if (entityToIndexMap.find(entityID) != entityToIndexMap.end())
 			{
 				auto id = ECS::ChunkedID(entityToIndexMap[entityID]);
-				chunkedArray.SetLife(id.value, active);
+				chunkedArray.SetLife(id.Index(), active);
 			}
 		}
 	private:

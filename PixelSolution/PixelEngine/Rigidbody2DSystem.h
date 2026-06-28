@@ -10,6 +10,7 @@ namespace ECS
 		virtual ~Rigidbody2DSystem();
 
 		void Update(ECS::Registry* registry) override;
+		void EditorUpdate(Registry* registry) override;
 		void Release() override;
 	private:
 		PhysManager* phys;

@@ -10,6 +10,8 @@ using System.Runtime.InteropServices;
 public enum EditorEventType : int
 {
     GenerateEngineFile = 0,
+    EditorMode = 1,
+    PlayMode = 2,
 }
 
 public static class PixelEngineNative

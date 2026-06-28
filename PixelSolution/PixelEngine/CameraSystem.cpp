@@ -33,6 +33,11 @@ void ECS::CameraSystem::Update(Registry* registry)
 		});
 }
 
+void ECS::CameraSystem::EditorUpdate(Registry* registry)
+{
+	Update(registry);
+}
+
 void ECS::CameraSystem::Release()
 {
 

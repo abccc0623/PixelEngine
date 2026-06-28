@@ -10,6 +10,7 @@ namespace ECS
 		virtual ~Renderer2DSystem();
 
 		void Update(Registry* registry) override;
+		void EditorUpdate(Registry* registry) override;
 		void Release() override;
 	};
 };

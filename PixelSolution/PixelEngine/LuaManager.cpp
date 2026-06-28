@@ -16,8 +16,6 @@
 #include "CoroutineManager.h"
 
 #include "GenerateLuaBind.h"
-#include "PixelEngineAPI.h"
-#include "resource.h"
 #include <filesystem>
 
 #define SOL_ALL_SAFETIES_ON 1 // 안전장치 활성화 (권장)
@@ -186,7 +184,6 @@ void LuaManager::CreateLuaManager()
 
 		}
 	}
-	//ReadEngineGenerateFile();
 }
 
 void LuaManager::ReadEngineGenerateFile()
@@ -292,13 +289,16 @@ void LuaManager::Update()
 {
 	if (UpdateFunction.valid())
 	{
-		float DTime = GetDeltaTime();
-		auto result = UpdateFunction(luaManager, DTime);
-		if (!result.valid())
+		if (IsPlayMode())
 		{
-			sol::error err = result;
-			std::string errorMsg = err.what();
-			PixelLog::Error(errorMsg.c_str());
+			float DTime = GetDeltaTime();
+			auto result = UpdateFunction(luaManager, DTime);
+			if (!result.valid())
+			{
+				sol::error err = result;
+				std::string errorMsg = err.what();
+				PixelLog::Error(errorMsg.c_str());
+			}
 		}
 	}
 }

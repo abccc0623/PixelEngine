@@ -27,12 +27,10 @@ void LuaBind::SetIncludeString(PixelClassMeta& meta)
 	if (IsMetaOnlyType(meta.thisName)) return;
 	if (meta.thisName == "Module") return;
 
-
 	if (meta.thisName != "Engine" &&
 		meta.thisName != "Scene" &&
 		meta.thisName != "Asset" &&
-		meta.thisName != "Input" &&
-		meta.thisName != "Debug")
+		meta.thisName != "Input")
 	{
 		IncludeString += ReplaceAll(Include, "INCLUDE_TYPE", meta.thisName);
 	}
@@ -108,8 +106,7 @@ void LuaBind::SetLuaMethodString(PixelClassMeta& meta)
 			if (meta.thisName != "Engine" &&
 				meta.thisName != "Scene" &&
 				meta.thisName != "Asset" &&
-				meta.thisName != "Input" &&
-				meta.thisName != "Debug")
+				meta.thisName != "Input")
 			{
 				std::string targetNamespace = "ECS::" + meta.thisName + "::" + m.name;
 				std::unordered_map<std::string, std::string> data;

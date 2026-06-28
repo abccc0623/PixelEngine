@@ -1,11 +1,6 @@
 #include "pch.h"
 #include "BindManager.h"
-
-#include "Module/Movement.h"
-
 #include "Type/GlobalEnum.h"
-#include "Type/PVector3.h"
-#include "Rect.h"
 
 #include "PixelMetaAPI.h"
 #include "PixelEngineAPI.h"
@@ -23,6 +18,7 @@
 #include "Event.h"
 #include "Group.h"
 #include "Pool.h"
+#include "Debug.h"
 
 
 static MemberInfo LuaMember(const std::string& type, size_t offset)
@@ -46,7 +42,8 @@ static PClass* CreateLuaMetaClass(const std::string& name)
 static void RegisterComponentData()
 {
 	CreateLuaMetaClass("Vector2");
-	CreateLuaMetaClass("Vector3");
+	PClass* GlobalVector3 = CreateLuaMetaClass("Vector3");
+
 	CreateLuaMetaClass("MotionType");
 
 	PClass* transformData = CreateLuaMetaClass("TransformData");
@@ -97,9 +94,6 @@ BindManager::~BindManager()
 void BindManager::Initialize()
 {
 	PStatic* globalCreate = CreateNewStatic("Engine");
-	AddGlobalMethod(globalCreate, "CreateEntity", GeGlobalMethodInfo(&CreateEntity), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCreate, "DestroyEntity", GeGlobalMethodInfo(&DestroyEntity), MetaFlag::LUABIND);
-	AddGlobalMethod(globalCreate, "ActiveEntity", GeGlobalMethodInfo(&ActiveEntity), MetaFlag::LUABIND);
 	AddGlobalMethod(globalCreate, "BindLuaEvent", GeGlobalMethodInfo(&BindLuaEvent), MetaFlag::LUABIND);
 	//AddGlobalMethod(globalCreate, "CallLuaEvent", GeGlobalMethodInfo(&CallLuaEvent), MetaFlag::LUABIND);
 
@@ -119,9 +113,15 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalInput, "GetMousePosition_Y", GeGlobalMethodInfo(&GetMousePosition_Y), MetaFlag::LUABIND);
 
 	PStatic* globaDebug = CreateNewStatic("Debug");
-	AddGlobalMethod(globaDebug, "LogInfo", GeGlobalMethodInfo(&LogInfo), MetaFlag::LUABIND);
-	AddGlobalMethod(globaDebug, "LogError", GeGlobalMethodInfo(&LogError), MetaFlag::LUABIND);
-	AddGlobalMethod(globaDebug, "LogWarning", GeGlobalMethodInfo(&LogWarning), MetaFlag::LUABIND);
+	AddGlobalMethod(globaDebug, "Log", GeGlobalMethodInfo(&ECS::Debug::Log), MetaFlag::LUABIND);
+	AddGlobalMethod(globaDebug, "LogError", GeGlobalMethodInfo(&ECS::Debug::LogError), MetaFlag::LUABIND);
+	AddGlobalMethod(globaDebug, "LogWarning", GeGlobalMethodInfo(&ECS::Debug::LogWarning), MetaFlag::LUABIND);
+	AddGlobalMethod(globaDebug, "Line", GeGlobalMethodInfo(&ECS::Debug::Line), MetaFlag::LUABIND);
+	//AddGlobalMethod(globaDebug, "Box2D", GeGlobalMethodInfo(&ECS::Debug::Box2D), MetaFlag::LUABIND);
+	//AddGlobalMethod(globaDebug, "Sphere2D", GeGlobalMethodInfo(&ECS::Debug::Sphere2D), MetaFlag::LUABIND);
+
+
+
 
 	PStatic* globalTransform = CreateNewStatic("Transform");
 	AddGlobalMethod(globalTransform, "AddComponent", GeGlobalMethodInfo(&ECS::Transform::AddComponent), MetaFlag::LUABIND);
@@ -192,6 +192,10 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalPool, "GetActiveArray", GeGlobalMethodInfo(&ECS::Pool::GetActiveArray), MetaFlag::LUABIND);
 
 	PStatic* globalEntity = CreateNewStatic("Entity");
+	AddGlobalMethod(globalEntity, "Create", GeGlobalMethodInfo(&ECS::Entity::Create), MetaFlag::LUABIND);
+	AddGlobalMethod(globalEntity, "Destroy", GeGlobalMethodInfo(&ECS::Entity::Destroy), MetaFlag::LUABIND);
+	AddGlobalMethod(globalEntity, "GetActive", GeGlobalMethodInfo(&ECS::Entity::GetActive), MetaFlag::LUABIND);
+	AddGlobalMethod(globalEntity, "SetActive", GeGlobalMethodInfo(&ECS::Entity::SetActive), MetaFlag::LUABIND);
 	AddGlobalMethod(globalEntity, "GetValue", GeGlobalMethodInfo(&ECS::Entity::GetValue), MetaFlag::LUABIND);
 	AddGlobalMethod(globalEntity, "SetValue", GeGlobalMethodInfo(&ECS::Entity::SetValue), MetaFlag::LUABIND);
 

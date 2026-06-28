@@ -91,6 +91,8 @@ namespace PixelTool
             insertText = Regex.Replace(insertText, @"\bstring[0-9]*\b", "\"\"");
             insertText = Regex.Replace(insertText, @"\bnumber[0-9]*\b", "0");
             insertText = Regex.Replace(insertText, @"\bboolean[0-9]*\b", "false");
+            insertText = Regex.Replace(insertText, @"\bvector2[0-9]*\b", "Vector2(0,0)");
+            insertText = Regex.Replace(insertText, @"\bvector3[0-9]*\b", "Vector3(0,0,0)");
 
             // 3. (옵션) 변수일 경우 뒤에 콜론(:) 붙이기 
             // ※ 주의: kind 속성이 없다면 이 부분은 주석 처리하거나 네 코드에 맞게 수정해!

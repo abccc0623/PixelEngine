@@ -181,6 +181,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="ColliderFactory.h" />
     <ClInclude Include="ComponentArray.h" />
     <ClInclude Include="ComponentID.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="EditorManager.h" />
     <ClInclude Include="EntityObject.h" />
     <ClInclude Include="Group.h" />
@@ -195,7 +196,6 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="CoroutineManager.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventManager.h" />
-    <ClInclude Include="Export\Module\Movement.h" />
     <ClInclude Include="IBind.h" />
     <ClInclude Include="BindManager.h" />
     <ClInclude Include="PhysManager.h" />
@@ -205,8 +205,6 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="Export\PixelEngineAPI.h" />
     <ClInclude Include="Export\PixelEngineDLL.h" />
     <ClInclude Include="Export\Type\GlobalEnum.h" />
-    <ClInclude Include="Export\Type\PMatrix.h" />
-    <ClInclude Include="Export\Type\PVector3.h" />
     <ClInclude Include="GenerateLuaBind.h" />
     <ClInclude Include="GenerateManager.h" />
     <ClInclude Include="json.hpp" />
@@ -240,7 +238,6 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="Renderer2DSystem.h" />
     <ClInclude Include="SPointer.h" />
     <ClInclude Include="PtrControlBlock.h" />
-    <ClInclude Include="Rect.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
@@ -263,6 +260,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="Collider2D.cpp" />
     <ClCompile Include="Collider2DSystem.cpp" />
     <ClCompile Include="ColliderFactory.cpp" />
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="EditorManager.cpp" />
     <ClCompile Include="EntityObject.cpp" />
     <ClCompile Include="Event.cpp" />
@@ -279,9 +277,6 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="Export\Core\Module.cpp" />
     <ClCompile Include="Export\Module\DebugCamera.cpp" />
-    <ClCompile Include="Export\Module\Movement.cpp" />
-    <ClCompile Include="Export\Type\PMatrix.cpp" />
-    <ClCompile Include="Export\Type\PVector3.cpp" />
     <ClCompile Include="GenerateManager.cpp" />
     <ClCompile Include="JsonManager.cpp" />
     <ClCompile Include="Log.cpp" />

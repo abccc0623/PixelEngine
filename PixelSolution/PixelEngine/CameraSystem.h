@@ -9,6 +9,7 @@ namespace ECS
 		virtual ~CameraSystem();
 
 		void Update(Registry* registry) override;
+		void EditorUpdate(Registry* registry) override;
 		void Release() override;
 	};
 };

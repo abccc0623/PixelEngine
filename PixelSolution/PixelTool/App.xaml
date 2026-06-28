@@ -74,6 +74,72 @@
             <Setter Property="Padding" Value="9,4"/>
         </Style>
 
+        <Style x:Key="PixelModeToggle" TargetType="ToggleButton">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="84"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border x:Name="Track"
+                                    Grid.RowSpan="2"
+                                    Background="{StaticResource PixelButtonBrush}"
+                                    BorderBrush="{StaticResource PixelAccentBrush}"
+                                    BorderThickness="2"
+                                    CornerRadius="22"/>
+                            <Border x:Name="Knob"
+                                    Grid.RowSpan="2"
+                                    Width="36"
+                                    Height="36"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Top"
+                                    Margin="0,4,0,0"
+                                    Background="{StaticResource PixelAccentBrush}"
+                                    BorderBrush="{StaticResource PixelBackgroundBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="18"/>
+                            <TextBlock x:Name="EditorText"
+                                       Grid.Row="0"
+                                       Text="Editor"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource PixelBackgroundBrush}"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"
+                                       IsHitTestVisible="False"/>
+                            <TextBlock x:Name="PlayText"
+                                       Grid.Row="1"
+                                       Text="Play"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource PixelMutedTextBrush}"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"
+                                       IsHitTestVisible="False"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="{StaticResource PixelButtonHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Knob" Property="Margin" Value="0,44,0,0"/>
+                                <Setter TargetName="EditorText" Property="Foreground" Value="{StaticResource PixelMutedTextBrush}"/>
+                                <Setter TargetName="PlayText" Property="Foreground" Value="{StaticResource PixelBackgroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="PixelTextBox" TargetType="TextBox">
             <Setter Property="Background" Value="{StaticResource PixelPanelBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource PixelTextBrush}"/>

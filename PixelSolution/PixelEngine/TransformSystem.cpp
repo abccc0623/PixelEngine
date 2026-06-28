@@ -42,6 +42,11 @@ void ECS::TransformSystem::Update(ECS::Registry* registry)
 		});
 }
 
+void ECS::TransformSystem::EditorUpdate(Registry* registry)
+{
+	Update(registry);
+}
+
 void ECS::TransformSystem::Release()
 {
 

@@ -101,6 +101,13 @@
 
             <StackPanel x:Name="ToolbarItems" Orientation="Vertical" Panel.ZIndex="1">
 
+                <ToggleButton x:Name="EditorPlayToggle"
+                              Style="{DynamicResource PixelModeToggle}"
+                              Margin="0,0,0,6"
+                              Checked="EditorPlayToggle_Changed"
+                              Unchecked="EditorPlayToggle_Changed"
+                              ToolTip="Current Mode: Editor"/>
+
                 <local:ToolbarButton x:Name="CreateToolbarButton" Width="44" Height="44" ButtonIcon=""
                                      ToolHovered="ToolbarButton_Hovered" ToolHoverEnded="ToolbarButton_HoverEnded">
                     <local:ToolbarButton.PopupContent>

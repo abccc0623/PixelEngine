@@ -10,7 +10,9 @@ typedef void* PixelWindowHandle;
 
 enum class EditorEventType : std::int32_t
 {
-	GenerateEngineFile
+	GenerateEngineFile,
+	EditorMode,
+	PlayMode,
 };
 
 namespace ECS
@@ -31,6 +33,7 @@ extern "C" PIXEL_ENGINEDLL void Reload();
 
 //에디터 코드
 extern "C" PIXEL_ENGINEDLL void EditorNotify(std::int32_t eventType, const char* content);
+extern "C" PIXEL_ENGINEDLL bool IsPlayMode();
 
 
 extern "C" PIXEL_ENGINEDLL void Import(const char* path);

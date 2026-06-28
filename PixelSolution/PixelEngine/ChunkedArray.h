@@ -46,6 +46,7 @@ namespace ECS
 				//빈곳이 있다면 그곳에 데이터 넣기
 				int outIndex = freeSlots.front();
 				freeSlots.pop();
+				SetLife(outIndex, true);
 				return ChunkedID(outIndex, versions[outIndex]);
 			}
 

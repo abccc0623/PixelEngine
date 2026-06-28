@@ -112,8 +112,8 @@ std::string LuaCreate::TypeChangeByCType(const std::string& type)
 	if (type == "bool") return "bool";
 	if (type == "int" || type == "int32_t") return "int";
 	if (type == "unsigned int" || type == "uint32_t") return "uint32_t";
-	if (type == "Vector2" || type == "Pixel::Vector2") return "Vector2";
-	if (type == "Vector3" || type == "Pixel::Vector3") return "Vector3";
+	if (type == "Vector2" || type == "Pixel::Vector2" || type.find("glm::vec<2") != std::string::npos) return "Vector2";
+	if (type == "Vector3" || type == "Pixel::Vector3" || type.find("glm::vec<3") != std::string::npos) return "Vector3";
 	if (type == "MotionType") return "MotionType";
 	return "";
 }
@@ -191,6 +191,15 @@ std::string LuaCreate::CreateCDef(PixelClassMeta& meta, std::vector<PixelClassMe
 std::string LuaCreate::TypeChangeByLua(const std::string& type)
 {
 	std::string luaType = type;
+	if (luaType == "Vector2" || luaType == "Pixel::Vector2" || luaType.find("glm::vec<2") != std::string::npos)
+	{
+		return "Vector2";
+	}
+	if (luaType == "Vector3" || luaType == "Pixel::Vector3" || luaType.find("glm::vec<3") != std::string::npos)
+	{
+		return "Vector3";
+	}
+
 	if (luaType == "int" || luaType == "int32_t" || luaType == "float" || luaType == "double" || luaType == "char" || luaType == "unsigned int" || luaType == "uint32_t")
 	{
 		return "number";
@@ -247,6 +256,8 @@ std::string LuaCreate::CreatePropertyName(const std::string& type, int index)
 	std::erase(luaType, '&');
 	std::erase(luaType, ' ');
 	std::erase(luaType, ':');
+	if (luaType == "Vector2") luaType = "vector2";
+	else if (luaType == "Vector3") luaType = "vector3";
 	if (luaType.empty() || luaType == "nil")
 	{
 		luaType = "value";

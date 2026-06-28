@@ -11,6 +11,7 @@
 #include "Renderer2DSystem.h"
 
 #include "Registry.h"
+#include "PixelEngineAPI.h"
 
 ECS::SystemManager::SystemManager() {}
 ECS::SystemManager::~SystemManager() {}
@@ -28,9 +29,19 @@ void ECS::SystemManager::Initialize()
 void ECS::SystemManager::Update(ECS::Registry* registry)
 {
 	int size = SystemList.size();
-	for (int i = 0; i < size; i++)
+	if (IsPlayMode())
 	{
-		SystemList[i]->Update(registry);
+		for (int i = 0; i < size; i++)
+		{
+			SystemList[i]->Update(registry);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < size; i++)
+		{
+			SystemList[i]->EditorUpdate(registry);
+		}
 	}
 }
 

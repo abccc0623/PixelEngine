@@ -27,10 +27,29 @@ namespace PixelTool
     {
         int createSceneindex = 0;
         private ToolbarButton _hoveredButton;
+        public bool IsPlayMode { get; private set; }
+
         public ToolbarWindow()
         {
             InitializeComponent();
             Loaded += (_, _) => SelectionIndicator.Visibility = Visibility.Hidden;
+        }
+
+        private void EditorPlayToggle_Changed(object sender, RoutedEventArgs e)
+        {
+            IsPlayMode = EditorPlayToggle.IsChecked == true;
+
+            string modeName = IsPlayMode ? "Play" : "Editor";
+            EditorPlayToggle.ToolTip = $"Current Mode: {modeName}";
+
+            if (IsPlayMode)
+            {
+                PixelEngineNative.EditorNotify(EditorEventType.PlayMode, "");
+            }
+            else
+            {
+                PixelEngineNative.EditorNotify(EditorEventType.EditorMode, "");
+            }
         }
 
         private void ToolbarButton_Hovered(object sender, RoutedEventArgs e)

@@ -104,6 +104,15 @@ void EditorNotify(std::int32_t eventType, const char* content)
 	}
 }
 
+bool IsPlayMode()
+{
+	if (Engine != nullptr)
+	{
+		return (Engine->IsPlayMode) ? true : false;
+	}
+	return false;
+}
+
 bool GetKeyDown(char number)
 {
 	if (Engine != nullptr)

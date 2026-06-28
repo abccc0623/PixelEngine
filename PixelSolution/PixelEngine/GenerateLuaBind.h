@@ -1,6 +1,7 @@
 #include "sol.hpp"
 #include "PixelEngineAPI.h" 
 #include <unordered_map>
+#include "Debug.h" 
 #include "Transform.h" 
 #include "Renderer2D.h" 
 #include "Camera.h" 
@@ -16,9 +17,6 @@ using namespace ECS;
 inline void Generate_Engine(sol::state& lua) 
 {
 	sol::table ut = lua.create_named_table("Engine");
-	ut["CreateEntity"] = &CreateEntity;
-	ut["DestroyEntity"] = &DestroyEntity;
-	ut["ActiveEntity"] = &ActiveEntity;
 	ut["BindLuaEvent"] = &BindLuaEvent;
 	ut["BackgroundColor"] = &BackgroundColor;
 }
@@ -44,9 +42,10 @@ inline void Generate_Input(sol::state& lua)
 inline void Generate_Debug(sol::state& lua) 
 {
 	sol::table ut = lua.create_named_table("Debug");
-	ut["LogInfo"] = &LogInfo;
-	ut["LogError"] = &LogError;
-	ut["LogWarning"] = &LogWarning;
+	ut["Log"] = &ECS::Debug::Log;
+	ut["LogError"] = &ECS::Debug::LogError;
+	ut["LogWarning"] = &ECS::Debug::LogWarning;
+	ut["Line"] = &ECS::Debug::Line;
 }
 inline void Generate_Transform(sol::state& lua) 
 {
@@ -136,6 +135,10 @@ inline void Generate_Pool(sol::state& lua)
 inline void Generate_Entity(sol::state& lua) 
 {
 	sol::table ut = lua.create_named_table("Entity");
+	ut["Create"] = &ECS::Entity::Create;
+	ut["Destroy"] = &ECS::Entity::Destroy;
+	ut["GetActive"] = &ECS::Entity::GetActive;
+	ut["SetActive"] = &ECS::Entity::SetActive;
 	ut["GetValue"] = &ECS::Entity::GetValue;
 	ut["SetValue"] = &ECS::Entity::SetValue;
 }

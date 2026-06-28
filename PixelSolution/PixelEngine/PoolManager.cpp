@@ -84,7 +84,6 @@ unsigned int ECS::PoolManager::Active(const std::string& poolName)
 			{
 				ActiveFunction->second(id);
 			}
-
 			return id;
 		}
 	}
@@ -98,11 +97,7 @@ void ECS::PoolManager::Disable(const std::string& poolName, unsigned int id)
 	auto& pool = PoolList[poolName];
 	auto& activePool = ActivePoolList[poolName];
 	auto& inactivePool = InactivePoolList[poolName];
-	auto entity = FindEntity(id);
-	if (entity != nullptr)
-	{
-		entity->SetActive(false);
-	}
+	ActiveEntity(id, false);
 	AddUnique(pool, id);
 	RemoveID(activePool, id);
 	AddUnique(inactivePool, id);

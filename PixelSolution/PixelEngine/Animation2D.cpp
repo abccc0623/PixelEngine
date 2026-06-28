@@ -28,6 +28,9 @@ int ECS::Animation2D::Create(unsigned int id, std::string textureName, int MaxFr
 		data->animationArray[index].nowFrameTime = 0.0f;
 		data->animationArray[index].animationSpeed = speed;
 		data->animationArray[index].textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
+		data->selectIndex = index;
+		data->play = true;
+		data->selectAnimation = data->animationArray[index];
 		return index;
 	}
 	return 0;

@@ -31,9 +31,23 @@ void EditorManager::Notify(std::int32_t eventType, std::string content)
 	switch (eventType)
 	{
 	case (std::int32_t)EditorEventType::GenerateEngineFile:
+	{
 		GenerateManager* Generate = Engine->GetFactory<GenerateManager>();
 		Generate->JsonGenerate(content.c_str());
 		Engine->GetFactory<LuaManager>()->ReadEngineGenerateFile();
 		break;
+	}
+	case (std::int32_t)EditorEventType::EditorMode:
+	{
+		Engine->IsPlayMode = false;
+		Engine->Clear();
+		break;
+	}
+	case (std::int32_t)EditorEventType::PlayMode:
+	{
+		Engine->IsPlayMode = true;
+		Engine->Clear();
+		break;
+	}
 	}
 }

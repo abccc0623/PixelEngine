@@ -9,6 +9,7 @@ namespace ECS
 		virtual ~Animation2DSystem();
 
 		void Update(Registry* registry) override;
+		void EditorUpdate(Registry* registry) override;
 		void Release() override;
 	};
 }

@@ -9,6 +9,7 @@ namespace ECS
 		virtual ~TransformSystem();
 
 		void Update(ECS::Registry* registry) override;
+		void EditorUpdate(Registry* registry) override;
 		void Release() override;
 	};
 };

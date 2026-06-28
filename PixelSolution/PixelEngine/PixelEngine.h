@@ -36,11 +36,10 @@ public:
 	void EngineUpdate();
 	bool RunningCheck();
 	bool IsClear = false;
+	bool IsPlayMode = false;
 	std::string GetEngineRootFolderPath();
 
-
 	sol::state* GetModuleCall_Lua();
-	SPointer<GameObject> CreateGameObject(std::string name = "GameObject");
 	Scene* CreateScene(std::string name);
 
 	ObjectID GetResourceID(RESOURCE_TYPE type, const std::string& path);

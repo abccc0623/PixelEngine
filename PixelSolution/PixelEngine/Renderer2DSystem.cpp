@@ -37,6 +37,11 @@ void ECS::Renderer2DSystem::Update(Registry* registry)
 		});
 }
 
+void ECS::Renderer2DSystem::EditorUpdate(Registry* registry)
+{
+	Update(registry);
+}
+
 void ECS::Renderer2DSystem::Release()
 {
 

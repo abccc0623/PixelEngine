@@ -21,6 +21,10 @@ void ECS::Collider2DSystem::Update(Registry* registry)
 
 }
 
+void ECS::Collider2DSystem::EditorUpdate(Registry* registry)
+{
+}
+
 void ECS::Collider2DSystem::Release()
 {
 
