@@ -47,7 +47,7 @@ int main()
 				LSPGenerate(outputPath.c_str());
 				break;
 			case 3:
-				JsonGenerate(outputPath.c_str());
+				JsonGenerate("C:/Users/abcc0/Desktop/test");
 				//outputPath = "../PixelEngine/GenerateLuaBind.h";
 				//GenerateLuaBindCode(outputPath.c_str());
 				//outputPath = GetExePath();

@@ -12,6 +12,7 @@
 #include "Registry.h"
 #include "Transform.h"
 #include "PixelMath.h"
+#include "Asset.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -66,7 +67,7 @@ extern PixelEngine* Engine;
 void PhysManager::Initialize()
 {
 	std::string layerPath = Engine->GetEngineRootFolderPath() + "/Engine/LayerMatrix.json";
-	Import(layerPath.c_str());
+	Asset_Import(layerPath.c_str());
 
 	// 2. Jolt에게 "할 말 있으면 여기다 말해"라고 등록
 	JPH::Trace = MyTrace;
@@ -138,7 +139,7 @@ void PhysManager::Clear()
 	if (mBodyInterface == nullptr) return;
 
 	std::string layerPath = Engine->GetEngineRootFolderPath() + "/Engine/LayerMatrix.json";
-	Import(layerPath.c_str());
+	Asset_Import(layerPath.c_str());
 
 	JPH::BodyIDVector allBodies;
 	physicsSystem->GetBodies(allBodies);

@@ -24,6 +24,7 @@
 #include "EditorManager.h"
 
 #include "EntityObject.h"
+#include "Asset.h"
 
 void PixelEngine::Initialize(HWND hWnd, int width, int height, std::string assetPath)
 {
@@ -76,7 +77,7 @@ void PixelEngine::EngineUpdate()
 			k.second->Clear();
 		}
 		GraphicsClear();
-		Import("./Asset/main.lua");
+		Asset_Import("./Asset/main.lua");
 		IsClear = false;
 	}
 }

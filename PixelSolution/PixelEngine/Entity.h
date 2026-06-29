@@ -1,16 +1,11 @@
 #pragma once
+#include "PixelEngineDLL.h"
+extern "C" PIXEL_ENGINEDLL unsigned int Entity_Create(const char* scriptName);
+extern "C" PIXEL_ENGINEDLL void Entity_Destroy(unsigned int id);
+extern "C" PIXEL_ENGINEDLL void Entity_SetActive(unsigned int id, bool active);
+extern "C" PIXEL_ENGINEDLL bool Entity_GetActive(unsigned int id);
 
-#include <sol/forward.hpp>
-namespace ECS::Entity
-{
-	//생성,삭제
-	unsigned int Create(const char* scriptName);
-	void Destroy(unsigned int id);
-	void SetActive(unsigned int id, bool active);
-	bool GetActive(unsigned int id);
-
+extern "C" PIXEL_ENGINEDLL sol::object Entity_GetValue(unsigned int id, const char* memberName);
+extern "C" PIXEL_ENGINEDLL void Entity_SetValue(unsigned int id, const char* memberName, sol::object);
 
 
-	sol::object GetValue(unsigned int id, const char* memberName);
-	void SetValue(unsigned int id, const char* memberName, sol::object);
-}

@@ -109,14 +109,20 @@
     <Filter Include="EngineAPI\Manager\EditorManager">
       <UniqueIdentifier>{2c6f5dd8-16f7-4013-87a2-1ce4f003d9ca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Debug">
-      <UniqueIdentifier>{ffa2fbc2-4db7-4a13-b602-95a0900fe123}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Group">
       <UniqueIdentifier>{1155fa78-b661-4a65-8dc8-c660757f2c3a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Pool">
+    <Filter Include="EngineAPI\Function">
+      <UniqueIdentifier>{a0926078-2b36-4172-b6c2-37dbf79883fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Function\Pool">
       <UniqueIdentifier>{1af7f5e8-8029-4b1b-be66-d56ca625d8de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Function\Debug">
+      <UniqueIdentifier>{ffa2fbc2-4db7-4a13-b602-95a0900fe123}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Function\Asset">
+      <UniqueIdentifier>{1235cbf9-1187-45e7-bd68-a41e946a0f5d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -190,10 +196,10 @@
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
-      <Filter>EngineAPI\Debug</Filter>
+      <Filter>EngineAPI\Function\Debug</Filter>
     </ClInclude>
     <ClInclude Include="Memory.h">
-      <Filter>EngineAPI\Debug</Filter>
+      <Filter>EngineAPI\Function\Debug</Filter>
     </ClInclude>
     <ClInclude Include="json.hpp">
       <Filter>헤더 파일</Filter>
@@ -346,16 +352,19 @@
       <Filter>EngineAPI\Group</Filter>
     </ClInclude>
     <ClInclude Include="Pool.h">
-      <Filter>EngineAPI\Pool</Filter>
+      <Filter>EngineAPI\Function\Pool</Filter>
     </ClInclude>
     <ClInclude Include="PoolManager.h">
-      <Filter>EngineAPI\Pool</Filter>
+      <Filter>EngineAPI\Function\Pool</Filter>
     </ClInclude>
     <ClInclude Include="Entity.h">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClInclude>
     <ClInclude Include="Debug.h">
-      <Filter>EngineAPI\Debug</Filter>
+      <Filter>EngineAPI\Function\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Asset.h">
+      <Filter>EngineAPI\Function\Asset</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -411,10 +420,10 @@
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClCompile>
     <ClCompile Include="Log.cpp">
-      <Filter>EngineAPI\Debug</Filter>
+      <Filter>EngineAPI\Function\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Memory.cpp">
-      <Filter>EngineAPI\Debug</Filter>
+      <Filter>EngineAPI\Function\Debug</Filter>
     </ClCompile>
     <ClCompile Include="JsonManager.cpp">
       <Filter>EngineAPI\Manager\JsonManager</Filter>
@@ -525,10 +534,10 @@
       <Filter>EngineAPI\Group</Filter>
     </ClCompile>
     <ClCompile Include="Pool.cpp">
-      <Filter>EngineAPI\Pool</Filter>
+      <Filter>EngineAPI\Function\Pool</Filter>
     </ClCompile>
     <ClCompile Include="PoolManager.cpp">
-      <Filter>EngineAPI\Pool</Filter>
+      <Filter>EngineAPI\Function\Pool</Filter>
     </ClCompile>
     <ClCompile Include="Event.cpp">
       <Filter>EngineAPI\Manager\EventManager</Filter>
@@ -537,7 +546,10 @@
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClCompile>
     <ClCompile Include="Debug.cpp">
-      <Filter>EngineAPI\Debug</Filter>
+      <Filter>EngineAPI\Function\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Asset.cpp">
+      <Filter>EngineAPI\Function\Asset</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

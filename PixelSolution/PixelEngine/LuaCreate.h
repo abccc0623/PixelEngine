@@ -6,19 +6,18 @@ public:
 	LuaCreate();
 	virtual ~LuaCreate();
 	void Generate(const char* outPath, std::vector<PixelClassMeta>& types) override;
-	std::string CreateComponent(PixelClassMeta& meta, std::vector<PixelClassMeta>& types);
 
-	void ComponentLinkFile();
-	void Vector3File();
-	void Vector2File();
+
 private:
-	PixelClassMeta* FindType(std::vector<PixelClassMeta>& types, const std::string& name);
-	std::string CreateCDef(PixelClassMeta& meta, std::vector<PixelClassMeta>& types);
-	std::string TypeChangeByCType(const std::string& type);
-	std::string TypeChangeByLua(const std::string& type);
-	std::string CreateMethodWrapper(PixelClassMeta& meta, PixelMethodMeta& method);
-	std::string CreatePropertyList(const std::vector<std::string>& propertys);
-	std::string CreatePropertyName(const std::string& type, int index);
+	void GenerateLua(const std::string& outPath, PixelClassMeta& meta);
+	std::string NormalizeType(const std::string& type);
+	std::string ToCType(const std::string& type);
+	std::string ToLuaType(const std::string& type);
+	std::string CreateArgumentName(const std::string& type, int index);
+	std::string CreateArgumentList(const std::vector<std::string>& propertys, bool includeTypes);
+	std::string CreateNativeFunctionName(const std::string& className, const std::string& methodName);
+	std::string CreateLuaFunctionName(const std::string& className, const std::string& methodName);
+
 private:
 	std::string GenerateComponentFileName;
 	std::string createFilePath;

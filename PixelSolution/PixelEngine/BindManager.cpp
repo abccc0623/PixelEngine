@@ -19,6 +19,7 @@
 #include "Group.h"
 #include "Pool.h"
 #include "Debug.h"
+#include "Asset.h"
 
 
 static MemberInfo LuaMember(const std::string& type, size_t offset)
@@ -103,7 +104,7 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalScene, "ChangeScene", GeGlobalMethodInfo(&ChangeScene), MetaFlag::LUABIND);
 
 	PStatic* globalAsset = CreateNewStatic("Asset");
-	AddGlobalMethod(globalAsset, "Import", GeGlobalMethodInfo(&Import), MetaFlag::LUABIND);
+	AddGlobalMethod(globalAsset, "Asset_Import", GeGlobalMethodInfo(&Asset_Import), MetaFlag::LUABIND);
 
 	PStatic* globalInput = CreateNewStatic("Input");
 	AddGlobalMethod(globalInput, "GetKey", GeGlobalMethodInfo(&GetKey), MetaFlag::LUABIND);
@@ -113,14 +114,10 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalInput, "GetMousePosition_Y", GeGlobalMethodInfo(&GetMousePosition_Y), MetaFlag::LUABIND);
 
 	PStatic* globaDebug = CreateNewStatic("Debug");
-	AddGlobalMethod(globaDebug, "Log", GeGlobalMethodInfo(&ECS::Debug::Log), MetaFlag::LUABIND);
-	AddGlobalMethod(globaDebug, "LogError", GeGlobalMethodInfo(&ECS::Debug::LogError), MetaFlag::LUABIND);
-	AddGlobalMethod(globaDebug, "LogWarning", GeGlobalMethodInfo(&ECS::Debug::LogWarning), MetaFlag::LUABIND);
-	AddGlobalMethod(globaDebug, "Line", GeGlobalMethodInfo(&ECS::Debug::Line), MetaFlag::LUABIND);
-	//AddGlobalMethod(globaDebug, "Box2D", GeGlobalMethodInfo(&ECS::Debug::Box2D), MetaFlag::LUABIND);
-	//AddGlobalMethod(globaDebug, "Sphere2D", GeGlobalMethodInfo(&ECS::Debug::Sphere2D), MetaFlag::LUABIND);
-
-
+	AddGlobalMethod(globaDebug, "Debug_Log", GeGlobalMethodInfo(&Debug_Log), MetaFlag::LUABIND);
+	AddGlobalMethod(globaDebug, "Debug_LogError", GeGlobalMethodInfo(&Debug_LogError), MetaFlag::LUABIND);
+	AddGlobalMethod(globaDebug, "Debug_LogWarning", GeGlobalMethodInfo(&Debug_LogWarning), MetaFlag::LUABIND);
+	AddGlobalMethod(globaDebug, "Debug_Line", GeGlobalMethodInfo(&Debug_Line), MetaFlag::LUABIND);
 
 
 	PStatic* globalTransform = CreateNewStatic("Transform");
@@ -183,18 +180,18 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalGroup, "First", GeGlobalMethodInfo(&ECS::Group::First), MetaFlag::LUABIND);
 
 	PStatic* globalPool = CreateNewStatic("Pool");
-	AddGlobalMethod(globalPool, "Active", GeGlobalMethodInfo(&ECS::Pool::Active), MetaFlag::LUABIND);
-	AddGlobalMethod(globalPool, "Disable", GeGlobalMethodInfo(&ECS::Pool::Disable), MetaFlag::LUABIND);
-	AddGlobalMethod(globalPool, "Clear", GeGlobalMethodInfo(&ECS::Pool::Clear), MetaFlag::LUABIND);
-	AddGlobalMethod(globalPool, "GetActiveArray", GeGlobalMethodInfo(&ECS::Pool::GetActiveArray), MetaFlag::LUABIND);
+	AddGlobalMethod(globalPool, "Pool_Active", GeGlobalMethodInfo(Pool_Active), MetaFlag::LUABIND);
+	AddGlobalMethod(globalPool, "Pool_Disable", GeGlobalMethodInfo(&Pool_Disable), MetaFlag::LUABIND);
+	AddGlobalMethod(globalPool, "Pool_Clear", GeGlobalMethodInfo(&Pool_Clear), MetaFlag::LUABIND);
+
 
 	PStatic* globalEntity = CreateNewStatic("Entity");
-	AddGlobalMethod(globalEntity, "Create", GeGlobalMethodInfo(&ECS::Entity::Create), MetaFlag::LUABIND);
-	AddGlobalMethod(globalEntity, "Destroy", GeGlobalMethodInfo(&ECS::Entity::Destroy), MetaFlag::LUABIND);
-	AddGlobalMethod(globalEntity, "GetActive", GeGlobalMethodInfo(&ECS::Entity::GetActive), MetaFlag::LUABIND);
-	AddGlobalMethod(globalEntity, "SetActive", GeGlobalMethodInfo(&ECS::Entity::SetActive), MetaFlag::LUABIND);
-	AddGlobalMethod(globalEntity, "GetValue", GeGlobalMethodInfo(&ECS::Entity::GetValue), MetaFlag::LUABIND);
-	AddGlobalMethod(globalEntity, "SetValue", GeGlobalMethodInfo(&ECS::Entity::SetValue), MetaFlag::LUABIND);
+	AddGlobalMethod(globalEntity, "Entity_Create", GeGlobalMethodInfo(&Entity_Create), MetaFlag::LUABIND);
+	AddGlobalMethod(globalEntity, "Entity_Destroy", GeGlobalMethodInfo(&Entity_Destroy), MetaFlag::LUABIND);
+	AddGlobalMethod(globalEntity, "Entity_GetActive", GeGlobalMethodInfo(&Entity_GetActive), MetaFlag::LUABIND);
+	AddGlobalMethod(globalEntity, "Entity_SetActive", GeGlobalMethodInfo(&Entity_SetActive), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalEntity, "GetValue", GeGlobalMethodInfo(&Entity_Destroy), MetaFlag::LUABIND);
+	//AddGlobalMethod(globalEntity, "SetValue", GeGlobalMethodInfo(&Entity_Destroy), MetaFlag::LUABIND);
 
 
 	RegisterComponentData();

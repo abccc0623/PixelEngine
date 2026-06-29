@@ -29,7 +29,7 @@ unsigned int ECS::PoolManager::Active(const std::string& scriptName)
 	{
 		for (int i = 0; i < 10; i++)
 		{
-			auto id = Entity::Create(scriptName.c_str());
+			auto id = Entity_Create(scriptName.c_str());
 			Disable(scriptName, id);
 		}
 	}
@@ -41,7 +41,7 @@ unsigned int ECS::PoolManager::Active(const std::string& scriptName)
 	{
 		data.ActiveList.push_back(id);
 	}
-	Entity::SetActive(id, true);
+	Entity_SetActive(id, true);
 	return id;
 }
 
@@ -64,7 +64,7 @@ void ECS::PoolManager::Disable(const std::string& scriptName, unsigned int id)
 			{
 				data.InactiveList.push_back(id);
 			}
-			Entity::SetActive(id, false);
+			Entity_SetActive(id, false);
 			return;
 		}
 	}
@@ -74,7 +74,7 @@ void ECS::PoolManager::Disable(const std::string& scriptName, unsigned int id)
 	{
 		data.InactiveList.push_back(id);
 	}
-	Entity::SetActive(id, false);
+	Entity_SetActive(id, false);
 }
 
 void ECS::PoolManager::Clear(const std::string& scriptName)

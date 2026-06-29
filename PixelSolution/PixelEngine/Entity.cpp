@@ -8,7 +8,7 @@
 #include "Scene.h"
 
 extern PixelEngine* Engine;
-unsigned int ECS::Entity::Create(const char* scriptName)
+unsigned int Entity_Create(const char* scriptName)
 {
 	std::string scriptNameSTR(scriptName);
 	auto sceneManager = Engine->GetFactory<SceneManager>();
@@ -16,24 +16,27 @@ unsigned int ECS::Entity::Create(const char* scriptName)
 	auto id = sceneManager->CreateEntity(scriptNameSTR);
 	return id;
 }
-void ECS::Entity::Destroy(unsigned int id)
+
+void Entity_Destroy(unsigned int id)
 {
 	auto sceneManager = Engine->GetFactory<SceneManager>();
 	uint32_t u(id);
 	sceneManager->DestroyEntity(u);
 }
-void ECS::Entity::SetActive(unsigned int id, bool active)
+
+void Entity_SetActive(unsigned int id, bool active)
 {
 	auto find = FindEntity(id);
 	find->SetActive(active);
 }
-bool ECS::Entity::GetActive(unsigned int id)
+
+bool Entity_GetActive(unsigned int id)
 {
 	auto find = FindEntity(id);
 	return find->GetActive();
 }
 
-sol::object ECS::Entity::GetValue(unsigned int id, const char* memberName)
+sol::object Entity_GetValue(unsigned int id, const char* memberName)
 {
 	auto target = FindEntity(id);
 	if (target == nullptr)
@@ -43,7 +46,7 @@ sol::object ECS::Entity::GetValue(unsigned int id, const char* memberName)
 	return target->GetValue(memberName);
 }
 
-void ECS::Entity::SetValue(unsigned int id, const char* memberName, sol::object value)
+void Entity_SetValue(unsigned int id, const char* memberName, sol::object value)
 {
 	auto target = FindEntity(id);
 	if (target == nullptr)
@@ -51,5 +54,5 @@ void ECS::Entity::SetValue(unsigned int id, const char* memberName, sol::object 
 		PixelLog::Error("[Entity][SetValue] Not Find ID");
 		return;
 	}
-	return target->SetValue(memberName, value);
+	target->SetValue(memberName, value);
 }

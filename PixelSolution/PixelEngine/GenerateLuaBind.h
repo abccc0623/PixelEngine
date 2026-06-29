@@ -14,23 +14,22 @@
 #include "Pool.h" 
 #include "Entity.h" 
 using namespace ECS;
-inline void Generate_Engine(sol::state& lua) 
+inline void Generate_Engine(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Engine");
 	ut["BindLuaEvent"] = &BindLuaEvent;
 	ut["BackgroundColor"] = &BackgroundColor;
 }
-inline void Generate_Scene(sol::state& lua) 
+inline void Generate_Scene(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Scene");
 	ut["ChangeScene"] = &ChangeScene;
 }
-inline void Generate_Asset(sol::state& lua) 
+inline void Generate_Asset(sol::state& lua)
 {
-	sol::table ut = lua.create_named_table("Asset");
-	ut["Import"] = &Import;
+
 }
-inline void Generate_Input(sol::state& lua) 
+inline void Generate_Input(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Input");
 	ut["GetKey"] = &GetKey;
@@ -39,22 +38,18 @@ inline void Generate_Input(sol::state& lua)
 	ut["GetMousePosition_X"] = &GetMousePosition_X;
 	ut["GetMousePosition_Y"] = &GetMousePosition_Y;
 }
-inline void Generate_Debug(sol::state& lua) 
+inline void Generate_Debug(sol::state& lua)
 {
-	sol::table ut = lua.create_named_table("Debug");
-	ut["Log"] = &ECS::Debug::Log;
-	ut["LogError"] = &ECS::Debug::LogError;
-	ut["LogWarning"] = &ECS::Debug::LogWarning;
-	ut["Line"] = &ECS::Debug::Line;
+
 }
-inline void Generate_Transform(sol::state& lua) 
+inline void Generate_Transform(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Transform");
 	ut["AddComponent"] = &ECS::Transform::AddComponent;
 	ut["GetComponent"] = &ECS::Transform::GetComponent;
 	ut["HasComponent"] = &ECS::Transform::HasComponent;
 }
-inline void Generate_Renderer2D(sol::state& lua) 
+inline void Generate_Renderer2D(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Renderer2D");
 	ut["AddComponent"] = &ECS::Renderer2D::AddComponent;
@@ -62,14 +57,14 @@ inline void Generate_Renderer2D(sol::state& lua)
 	ut["HasComponent"] = &ECS::Renderer2D::HasComponent;
 	ut["SetTexture"] = &ECS::Renderer2D::SetTexture;
 }
-inline void Generate_Camera(sol::state& lua) 
+inline void Generate_Camera(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Camera");
 	ut["AddComponent"] = &ECS::Camera::AddComponent;
 	ut["GetComponent"] = &ECS::Camera::GetComponent;
 	ut["HasComponent"] = &ECS::Camera::HasComponent;
 }
-inline void Generate_Animation2D(sol::state& lua) 
+inline void Generate_Animation2D(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Animation2D");
 	ut["Add"] = &ECS::Animation2D::Add;
@@ -78,21 +73,21 @@ inline void Generate_Animation2D(sol::state& lua)
 	ut["Stop"] = &ECS::Animation2D::Stop;
 	ut["Reset"] = &ECS::Animation2D::Reset;
 }
-inline void Generate_BoxCollider2D(sol::state& lua) 
+inline void Generate_BoxCollider2D(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("BoxCollider2D");
 	ut["AddComponent"] = &ECS::BoxCollider2D::AddComponent;
 	ut["GetComponent"] = &ECS::BoxCollider2D::GetComponent;
 	ut["HasComponent"] = &ECS::BoxCollider2D::HasComponent;
 }
-inline void Generate_CircleCollider2D(sol::state& lua) 
+inline void Generate_CircleCollider2D(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("CircleCollider2D");
 	ut["AddComponent"] = &ECS::CircleCollider2D::AddComponent;
 	ut["GetComponent"] = &ECS::CircleCollider2D::GetComponent;
 	ut["HasComponent"] = &ECS::CircleCollider2D::HasComponent;
 }
-inline void Generate_Rigidbody2D(sol::state& lua) 
+inline void Generate_Rigidbody2D(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Rigidbody2D");
 	ut["AddComponent"] = &ECS::Rigidbody2D::AddComponent;
@@ -104,13 +99,13 @@ inline void Generate_Rigidbody2D(sol::state& lua)
 	ut["LockPosition"] = &ECS::Rigidbody2D::LockPosition;
 	ut["LockRotation"] = &ECS::Rigidbody2D::LockRotation;
 }
-inline void Generate_Event(sol::state& lua) 
+inline void Generate_Event(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Event");
 	ut["BindEvent"] = &ECS::Event::BindEvent;
 	ut["CallEvent"] = &ECS::Event::CallEvent;
 }
-inline void Generate_Group(sol::state& lua) 
+inline void Generate_Group(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Group");
 	ut["CreateEntity"] = &ECS::Group::CreateEntity;
@@ -121,44 +116,34 @@ inline void Generate_Group(sol::state& lua)
 	ut["Count"] = &ECS::Group::Count;
 	ut["First"] = &ECS::Group::First;
 }
-inline void Generate_Pool(sol::state& lua) 
+inline void Generate_Pool(sol::state& lua)
 {
-	sol::table ut = lua.create_named_table("Pool");
-	ut["Active"] = &ECS::Pool::Active;
-	ut["Disable"] = &ECS::Pool::Disable;
-	ut["Clear"] = &ECS::Pool::Clear;
-	ut["GetActiveArray"] = &ECS::Pool::GetActiveArray;
+
 }
-inline void Generate_Entity(sol::state& lua) 
+inline void Generate_Entity(sol::state& lua)
 {
-	sol::table ut = lua.create_named_table("Entity");
-	ut["Create"] = &ECS::Entity::Create;
-	ut["Destroy"] = &ECS::Entity::Destroy;
-	ut["GetActive"] = &ECS::Entity::GetActive;
-	ut["SetActive"] = &ECS::Entity::SetActive;
-	ut["GetValue"] = &ECS::Entity::GetValue;
-	ut["SetValue"] = &ECS::Entity::SetValue;
+
 }
-inline void BindAll_AddModules() 
-{ 
+inline void BindAll_AddModules()
+{
 }
 inline void BindAll_GeneratedLuaModules(sol::state& lua)
 {
 	BindAll_AddModules();
-	Generate_Engine(lua); 
-	Generate_Scene(lua); 
-	Generate_Asset(lua); 
-	Generate_Input(lua); 
-	Generate_Debug(lua); 
-	Generate_Transform(lua); 
-	Generate_Renderer2D(lua); 
-	Generate_Camera(lua); 
-	Generate_Animation2D(lua); 
-	Generate_BoxCollider2D(lua); 
-	Generate_CircleCollider2D(lua); 
-	Generate_Rigidbody2D(lua); 
-	Generate_Event(lua); 
-	Generate_Group(lua); 
-	Generate_Pool(lua); 
-	Generate_Entity(lua); 
+	Generate_Engine(lua);
+	Generate_Scene(lua);
+	Generate_Asset(lua);
+	Generate_Input(lua);
+	Generate_Debug(lua);
+	Generate_Transform(lua);
+	Generate_Renderer2D(lua);
+	Generate_Camera(lua);
+	Generate_Animation2D(lua);
+	Generate_BoxCollider2D(lua);
+	Generate_CircleCollider2D(lua);
+	Generate_Rigidbody2D(lua);
+	Generate_Event(lua);
+	Generate_Group(lua);
+	Generate_Pool(lua);
+	Generate_Entity(lua);
 }

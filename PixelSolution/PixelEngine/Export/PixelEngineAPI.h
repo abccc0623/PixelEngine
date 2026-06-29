@@ -35,9 +35,6 @@ extern "C" PIXEL_ENGINEDLL void Reload();
 extern "C" PIXEL_ENGINEDLL void EditorNotify(std::int32_t eventType, const char* content);
 extern "C" PIXEL_ENGINEDLL bool IsPlayMode();
 
-
-extern "C" PIXEL_ENGINEDLL void Import(const char* path);
-
 extern "C" PIXEL_ENGINEDLL ECS::EntityObject* FindEntity(unsigned int id);
 extern "C" PIXEL_ENGINEDLL void ActiveEntity(unsigned int id, bool active);
 extern "C" PIXEL_ENGINEDLL unsigned int CreateEntity(const char* script);

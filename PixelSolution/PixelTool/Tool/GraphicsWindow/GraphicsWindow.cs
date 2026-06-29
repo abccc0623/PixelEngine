@@ -55,7 +55,7 @@ namespace PixelTool
             GlobalFunction.CreateMainLuaFile(ProjectPathService.AssetPath);
             PixelEngineNative.EngineInitialize(_childHwnd, w, h, root);
             ProjectPathService.StartNewProject();
-            PixelEngineNative.Import("./Asset/main.lua");
+            PixelEngineNative.Asset_Import("./Asset/main.lua");
 
             // 메시지 훅 등록
             ComponentDispatcher.ThreadFilterMessage += OnThreadFilterMessage;
