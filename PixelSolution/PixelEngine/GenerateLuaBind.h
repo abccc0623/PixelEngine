@@ -124,12 +124,9 @@ inline void Generate_Group(sol::state& lua)
 inline void Generate_Pool(sol::state& lua) 
 {
 	sol::table ut = lua.create_named_table("Pool");
-	ut["CreateEntity"] = &ECS::Pool::CreateEntity;
 	ut["Active"] = &ECS::Pool::Active;
 	ut["Disable"] = &ECS::Pool::Disable;
 	ut["Clear"] = &ECS::Pool::Clear;
-	ut["SetAutoCreateFunction"] = &ECS::Pool::SetAutoCreateFunction;
-	ut["SetAutoActiveFunction"] = &ECS::Pool::SetAutoActiveFunction;
 	ut["GetActiveArray"] = &ECS::Pool::GetActiveArray;
 }
 inline void Generate_Entity(sol::state& lua) 

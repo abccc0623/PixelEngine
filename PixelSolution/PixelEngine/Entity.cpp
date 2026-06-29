@@ -24,12 +24,13 @@ void ECS::Entity::Destroy(unsigned int id)
 }
 void ECS::Entity::SetActive(unsigned int id, bool active)
 {
-	auto sceneManager = Engine->GetFactory<SceneManager>();
-	sceneManager->GetNowScene()->ActiveEntity(id, active);
+	auto find = FindEntity(id);
+	find->SetActive(active);
 }
 bool ECS::Entity::GetActive(unsigned int id)
 {
-	return true;
+	auto find = FindEntity(id);
+	return find->GetActive();
 }
 
 sol::object ECS::Entity::GetValue(unsigned int id, const char* memberName)

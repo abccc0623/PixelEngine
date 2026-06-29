@@ -97,10 +97,10 @@ uint32_t Scene::CreateGroupEntity(const std::string& groupName, const std::strin
 	return id;
 }
 
-uint32_t Scene::CreatePoolEntity(const std::string& poolName, const std::string& scriptName)
+uint32_t Scene::CreatePoolEntity(const std::string& scriptName)
 {
 	auto id = CreateEntity(scriptName);
-	pool->Disable(poolName, id);
+	pool->Disable(scriptName, id);
 	return id;
 }
 

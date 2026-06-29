@@ -1,6 +1,66 @@
 {
-  "generatedAt": "2026-06-28T13:35:54+09:00",
+  "generatedAt": "2026-06-29T20:29:31+09:00",
   "feedback": [
+    {
+      "title": "프로젝트 루트 검증 실패 원인이 UI에 드러나지 않음",
+      "date": "2026-06-29",
+      "area": "에디터",
+      "status": "미검토",
+      "source": "[[2026-06-29]]",
+      "situation": "PixelTool 시작 창에서 기존 프로젝트 폴더를 선택했는데 유효하지 않은 프로젝트라는 오류를 만남.",
+      "problem": "`Asset`, `Engine`, `Editor` 중 어떤 폴더가 없어 실패했는지 알 수 없으면 사용자가 직접 폴더 구조를 뒤져야 한다.",
+      "suggestion": "검증 결과에 누락 폴더 목록을 포함하고, 시작 창에서 복구 안내나 폴더 생성 버튼을 제공하면 좋음.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-29/프로젝트 루트 검증 실패 원인이 UI에 드러나지 않음.md"
+    },
+    {
+      "title": "그래픽 Resize 실패 지점이 로그로 충분히 남지 않음",
+      "date": "2026-06-29",
+      "area": "그래픽",
+      "status": "미검토",
+      "source": "[[2026-06-29]]",
+      "situation": "런타임 또는 에디터 창 크기를 바꾼 뒤 화면이 검게 나오거나 깊이 버퍼가 이상해지는 문제를 확인함.",
+      "problem": "Resize 단계에서 실패한 API와 현재 크기가 로그로 남지 않으면 원인을 재현하고 좁히기 어렵다.",
+      "suggestion": "`ResizeBuffers`, RTV/DSV 생성 단계별 HRESULT와 width/height를 `PixelLog`에 남기면 좋음.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-29/그래픽 Resize 실패 지점이 로그로 충분히 남지 않음.md"
+    },
+    {
+      "title": "Scene Release에서 자기 자신을 삭제하는 흐름이 위험해 보임",
+      "date": "2026-06-29",
+      "area": "엔진",
+      "status": "미검토",
+      "source": "[[2026-06-29]]",
+      "situation": "씬 전환이나 종료 과정에서 `Scene::Release`를 호출하고 다음 씬으로 넘어가는 흐름을 점검함.",
+      "problem": "`delete this`는 호출자 쪽 소유권이 명확하지 않으면 이후 접근이나 중복 해제 위험을 만들 수 있다.",
+      "suggestion": "Scene 소유권을 `SceneManager`로 고정하고, Release는 내부 리소스 정리만 하도록 역할을 나누면 좋음.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-29/Scene Release에서 자기 자신을 삭제하는 흐름이 위험해 보임.md"
+    },
+    {
+      "title": "Lua FFI 생성에서 지원하지 않는 타입이 조용히 누락됨",
+      "date": "2026-06-29",
+      "area": "클라이언트",
+      "status": "미검토",
+      "source": "[[2026-06-29]]",
+      "situation": "새 컴포넌트 Data 구조체를 PixelMeta에 등록하고 LuaJIT FFI 파일이 자동 생성되길 기대함.",
+      "problem": "지원하지 않는 C 타입이 빈 문자열로 처리되면 생성 결과에서 필드가 조용히 빠질 수 있다.",
+      "suggestion": "누락된 타입, 컴포넌트명, 필드명을 생성 로그에 남기고 요약에 누락 개수를 표시하면 좋음.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-29/Lua FFI 생성에서 지원하지 않는 타입이 조용히 누락됨.md"
+    },
+    {
+      "title": "Entity 제거 후 Chunked 저장소 정리 여부가 불명확함",
+      "date": "2026-06-29",
+      "area": "엔진",
+      "status": "미검토",
+      "source": "[[2026-06-29]]",
+      "situation": "Lua에서 오브젝트를 생성하고 제거하는 반복 테스트 중 Entity id 재사용과 수명 관리를 확인함.",
+      "problem": "Registry 제거와 Group 제거는 보이지만 Chunked 저장소의 Entity 생명주기가 명확하지 않으면 id 재사용 정책을 판단하기 어렵다.",
+      "suggestion": "DestroyEntity에서 Entity 저장소 제거/비활성화 정책을 명시하고, 로그에 id와 정리 범위를 남기면 좋음.",
+      "discardReason": "",
+      "path": "Docs/EngineFeedback/Items/2026-06-29/Entity 제거 후 Chunked 저장소 정리 여부가 불명확함.md"
+    },
     {
       "title": "씬 뷰 첫 초기화가 선택한 프로젝트 루트 대신 상대경로 main.lua를 읽음",
       "date": "2026-06-28",

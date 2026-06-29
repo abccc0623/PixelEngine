@@ -2,26 +2,8 @@
 #include "PoolManager.h"
 #include "PixelEngineAPI.h"
 #include "EntityObject.h"
-
-namespace
-{
-	void AddUnique(std::vector<unsigned int>& list, unsigned int id)
-	{
-		if (std::find(list.begin(), list.end(), id) == list.end())
-		{
-			list.push_back(id);
-		}
-	}
-
-	void RemoveID(std::vector<unsigned int>& list, unsigned int id)
-	{
-		auto it = std::remove(list.begin(), list.end(), id);
-		if (it != list.end())
-		{
-			list.erase(it, list.end());
-		}
-	}
-}
+#include "Pool.h"
+#include "Entity.h"
 
 void ECS::PoolManager::Initialize()
 {
@@ -30,122 +12,85 @@ void ECS::PoolManager::Initialize()
 
 void ECS::PoolManager::Release()
 {
-	PoolList.clear();
-	ActivePoolList.clear();
-	InactivePoolList.clear();
-	PoolCreateFunctionList.clear();
-	PoolActiveFunctionList.clear();
+	poolList.clear();
 }
 
-unsigned int ECS::PoolManager::Active(const std::string& poolName)
+unsigned int ECS::PoolManager::Active(const std::string& scriptName)
 {
-	auto& pool = PoolList[poolName];
-	auto& activePool = ActivePoolList[poolName];
-	auto& inactivePool = InactivePoolList[poolName];
-
-	for (int i = 0; i < inactivePool.size(); i++)
+	auto k = poolList.find(scriptName);
+	if (k == poolList.end())
 	{
-		auto ID = inactivePool[i];
-		auto entity = FindEntity(ID);
-		if (entity != nullptr && entity->GetActive() == false)
+		poolList.insert({ scriptName ,PoolData() });
+	}
+
+	//데이터가 없다면
+	auto& data = poolList[scriptName];
+	if (data.InactiveList.empty())
+	{
+		for (int i = 0; i < 10; i++)
 		{
-			entity->SetActive(true);
-			RemoveID(inactivePool, ID);
-			AddUnique(activePool, ID);
-
-			auto ActiveFunction = PoolActiveFunctionList.find(poolName);
-			if (ActiveFunction != PoolActiveFunctionList.end() && ActiveFunction->second.valid())
-			{
-				ActiveFunction->second(ID);
-			}
-
-			return ID;
+			auto id = Entity::Create(scriptName.c_str());
+			Disable(scriptName, id);
 		}
 	}
 
-	auto CreateFunction = PoolCreateFunctionList.find(poolName);
-	if (CreateFunction != PoolCreateFunctionList.end())
+	//사용하지 않는 데이터에서 하나꺼내옴
+	auto id = data.InactiveList.front();
+	data.InactiveList.pop_front();
+	if (std::find(data.ActiveList.begin(), data.ActiveList.end(), id) == data.ActiveList.end())
 	{
-		if (CreateFunction->second.valid())
-		{
-			auto returnData = CreateFunction->second();
-			auto id = returnData.get<unsigned int>();
-			auto entity = FindEntity(id);
-			if (entity != nullptr)
-			{
-				entity->SetActive(true);
-			}
-			AddUnique(pool, id);
-			AddUnique(activePool, id);
-			RemoveID(inactivePool, id);
+		data.ActiveList.push_back(id);
+	}
+	Entity::SetActive(id, true);
+	return id;
+}
 
-			auto ActiveFunction = PoolActiveFunctionList.find(poolName);
-			if (ActiveFunction != PoolActiveFunctionList.end() && ActiveFunction->second.valid())
+void ECS::PoolManager::Disable(const std::string& scriptName, unsigned int id)
+{
+	//데이터 찾기
+	auto k = poolList.find(scriptName);
+	if (k == poolList.end())
+	{
+		poolList.insert({ scriptName ,PoolData() });
+	}
+	//데이터 삭제
+	auto& data = poolList[scriptName];
+	for (int i = 0; i < data.ActiveList.size(); i++)
+	{
+		if (data.ActiveList[i] == id)
+		{
+			data.ActiveList.erase(data.ActiveList.begin() + i);
+			if (std::find(data.InactiveList.begin(), data.InactiveList.end(), id) == data.InactiveList.end())
 			{
-				ActiveFunction->second(id);
+				data.InactiveList.push_back(id);
 			}
-			return id;
+			Entity::SetActive(id, false);
+			return;
 		}
 	}
-
-	PixelLog::Error("[Pool] Not Find : AutoCreateFunction");
-	return 0;
+	//만약 여기까지 내려온다면 기존에 Pool에 있던애가 아님
+	auto it = std::find(data.InactiveList.begin(), data.InactiveList.end(), id);
+	if (it == data.InactiveList.end())
+	{
+		data.InactiveList.push_back(id);
+	}
+	Entity::SetActive(id, false);
 }
 
-void ECS::PoolManager::Disable(const std::string& poolName, unsigned int id)
+void ECS::PoolManager::Clear(const std::string& scriptName)
 {
-	auto& pool = PoolList[poolName];
-	auto& activePool = ActivePoolList[poolName];
-	auto& inactivePool = InactivePoolList[poolName];
-	ActiveEntity(id, false);
-	AddUnique(pool, id);
-	RemoveID(activePool, id);
-	AddUnique(inactivePool, id);
+	poolList[scriptName].ActiveList.clear();
+	poolList[scriptName].InactiveList.clear();
 }
 
-void ECS::PoolManager::Clear(const std::string& poolName)
-{
-	auto find = PoolList.find(poolName);
-	if (find != PoolList.end())
-	{
-		PoolList[poolName].clear();
-		ActivePoolList[poolName].clear();
-		InactivePoolList[poolName].clear();
-	}
-	else
-	{
-		PixelLog::Error("[Pool][Clear][" + poolName + "]" + ": Not Find Name");
-	}
-}
 
-void ECS::PoolManager::SetAutoCreateFunction(const std::string& poolName, sol::function func)
+sol::as_table_t<std::vector<unsigned int>> ECS::PoolManager::GetActiveArray(const std::string& scriptName)
 {
-	auto find = PoolCreateFunctionList.find(poolName);
-	if (find != PoolCreateFunctionList.end())
+	auto k = poolList.find(scriptName);
+	if (k == poolList.end())
 	{
-		PixelLog::Warn("[Pool][SetAutoCreateFunction]The existing function has been overwritten");
+		poolList.insert({ scriptName ,PoolData() });
 	}
-	PoolCreateFunctionList[poolName] = func;
-}
-
-void ECS::PoolManager::SetAutoActiveFunction(const std::string& poolName, sol::function func)
-{
-	auto find = PoolActiveFunctionList.find(poolName);
-	if (find != PoolActiveFunctionList.end())
-	{
-		PixelLog::Warn("[Pool][SetAutoActiveFunction]The existing function has been overwritten");
-	}
-	PoolActiveFunctionList[poolName] = func;
-}
-
-sol::as_table_t<std::vector<unsigned int>> ECS::PoolManager::GetActiveArray(const std::string& poolName)
-{
-	auto find = ActivePoolList.find(poolName);
-	if (find == ActivePoolList.end())
-	{
-		PixelLog::Warn("[Pool][GetActiveArray] Not Find Name");
-		return sol::as_table(std::vector<unsigned int>());
-	}
-
-	return sol::as_table(find->second);
+	auto& data = poolList[scriptName];
+	return sol::as_table(data.ActiveList);
 }

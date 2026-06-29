@@ -314,6 +314,13 @@ local ffi = require("ffi")
 ---@field x number
 ---@field y number
 ---@field z number
+---@field Length fun(self: Vector3): number
+---@field Normalize fun(self: Vector3): Vector3
+---@field Dot fun(self: Vector3, other: Vector3): number
+---@field Cross fun(self: Vector3, other: Vector3): Vector3
+---@field Direction fun(self: Vector3, target: Vector3): Vector3
+---@field Distance fun(self: Vector3, target: Vector3): number
+---@field IsZero fun(self: Vector3): boolean
 ffi.cdef[[
     typedef struct { float x, y, z; } Vector3;
 ]]
@@ -369,6 +376,23 @@ local Vector3_mt = {
                 (self.x * other.y) - (self.y * other.x)
             )
         end,
+
+		---@param self Vector3
+        ---@param target Vector3
+        ---@return Vector3
+        Direction = function(self, target)
+            return ffi.new("Vector3", target.x - self.x, target.y - self.y, target.z - self.z):Normalize()
+        end,
+
+		---@param self Vector3
+        ---@param target Vector3
+        ---@return number
+        Distance = function(self, target)
+            local dx = target.x - self.x
+            local dy = target.y - self.y
+            local dz = target.z - self.z
+            return math.sqrt(dx * dx + dy * dy + dz * dz)
+        end,
 		
 		---@param self Vector3
         ---@return boolean
@@ -383,10 +407,7 @@ local Vector3_mt = {
 
 ffi.metatype("Vector3", Vector3_mt)
 
----@param x? number
----@param y? number
----@param z? number
----@return Vector3
+---@type fun(x?: number, y?: number, z?: number): Vector3
 Vector3 = function(x, y, z)
     return ffi.new("Vector3", x or 0, y or 0, z or 0)
 end

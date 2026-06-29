@@ -6,77 +6,38 @@
 #include "PoolManager.h"
 
 extern PixelEngine* Engine;
-unsigned int ECS::Pool::CreateEntity(const char* poolName, const char* scriptName)
+unsigned int ECS::Pool::Active(const char* scriptName)
 {
 	SceneManager* scene = Engine->GetFactory<SceneManager>();
-	std::string poolNameSTR(poolName);
 	std::string scriptNameSTR(scriptName);
 
-	return scene->GetNowScene()->CreatePoolEntity(poolNameSTR, scriptNameSTR);
+	auto manager = scene->GetNowScene()->GetPoolManager();
+	return manager->Active(scriptNameSTR);
 }
 
-unsigned int ECS::Pool::Active(const char* poolName)
+void ECS::Pool::Disable(const char* scriptName, unsigned int id)
 {
 	SceneManager* scene = Engine->GetFactory<SceneManager>();
-	std::string poolNameSTR(poolName);
+	std::string scriptNameSTR(scriptName);
 
 	auto manager = scene->GetNowScene()->GetPoolManager();
-	return manager->Active(poolNameSTR);
+	manager->Disable(scriptNameSTR, id);
 }
 
-void ECS::Pool::Disable(const char* poolName, unsigned int id)
+void ECS::Pool::Clear(const char* scriptName)
 {
 	SceneManager* scene = Engine->GetFactory<SceneManager>();
-	std::string poolNameSTR(poolName);
+	std::string scriptNameSTR(scriptName);
 
 	auto manager = scene->GetNowScene()->GetPoolManager();
-	manager->Disable(poolNameSTR, id);
+	manager->Clear(scriptNameSTR);
 }
 
-void ECS::Pool::Clear(const char* poolName)
+sol::as_table_t<std::vector<unsigned int>> ECS::Pool::GetActiveArray(const char* scriptName)
 {
 	SceneManager* scene = Engine->GetFactory<SceneManager>();
-	std::string poolNameSTR(poolName);
+	std::string scriptNameSTR(scriptName);
 
 	auto manager = scene->GetNowScene()->GetPoolManager();
-	manager->Clear(poolNameSTR);
-}
-
-void ECS::Pool::SetAutoCreateFunction(const char* poolName, sol::function func)
-{
-	if (!func.valid())
-	{
-		PixelLog::Error("[Pool][SetAutoCreateFunction] Invalid function.");
-		return;
-	}
-
-	SceneManager* scene = Engine->GetFactory<SceneManager>();
-	std::string poolNameSTR(poolName);
-
-	auto manager = scene->GetNowScene()->GetPoolManager();
-	manager->SetAutoCreateFunction(poolNameSTR, func);
-}
-
-void ECS::Pool::SetAutoActiveFunction(const char* poolName, sol::function func)
-{
-	if (!func.valid())
-	{
-		PixelLog::Error("[Pool][SetAutoCreateFunction] Invalid function.");
-		return;
-	}
-
-	SceneManager* scene = Engine->GetFactory<SceneManager>();
-	std::string poolNameSTR(poolName);
-
-	auto manager = scene->GetNowScene()->GetPoolManager();
-	manager->SetAutoActiveFunction(poolNameSTR, func);
-}
-
-sol::as_table_t<std::vector<unsigned int>> ECS::Pool::GetActiveArray(const char* poolName)
-{
-	SceneManager* scene = Engine->GetFactory<SceneManager>();
-	std::string poolNameSTR(poolName);
-
-	auto manager = scene->GetNowScene()->GetPoolManager();
-	return manager->GetActiveArray(poolNameSTR);
+	return manager->GetActiveArray(scriptNameSTR);
 }

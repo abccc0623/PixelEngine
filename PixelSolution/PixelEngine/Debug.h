@@ -6,7 +6,7 @@ namespace ECS::Debug
 	void LogError(const char* log);
 	void LogWarning(const char* log);
 
-	void Line(Pixel::Vector3 start, Pixel::Vector3 end, Pixel::Vector3 color);
-	void Box2D(Pixel::Vector3 pos, Pixel::Vector2 size, Pixel::Vector3 color);
-	void Sphere2D(Pixel::Vector3 position, float radius, Pixel::Vector3 color);
+	void Line(float startX, float startY, float startZ, float endX, float endY, float endZ, float r, float g, float b);
+	void Box2D(float x, float y, float z, float width, float height, float r, float g, float b);
+	void Sphere2D(float x, float y, float z, float radius, float r, float g, float b);
 }

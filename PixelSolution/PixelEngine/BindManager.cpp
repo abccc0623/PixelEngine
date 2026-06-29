@@ -183,12 +183,9 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalGroup, "First", GeGlobalMethodInfo(&ECS::Group::First), MetaFlag::LUABIND);
 
 	PStatic* globalPool = CreateNewStatic("Pool");
-	AddGlobalMethod(globalPool, "CreateEntity", GeGlobalMethodInfo(&ECS::Pool::CreateEntity), MetaFlag::LUABIND);
 	AddGlobalMethod(globalPool, "Active", GeGlobalMethodInfo(&ECS::Pool::Active), MetaFlag::LUABIND);
 	AddGlobalMethod(globalPool, "Disable", GeGlobalMethodInfo(&ECS::Pool::Disable), MetaFlag::LUABIND);
 	AddGlobalMethod(globalPool, "Clear", GeGlobalMethodInfo(&ECS::Pool::Clear), MetaFlag::LUABIND);
-	AddGlobalMethod(globalPool, "SetAutoCreateFunction", GeGlobalMethodInfo(&ECS::Pool::SetAutoCreateFunction), MetaFlag::LUABIND);
-	AddGlobalMethod(globalPool, "SetAutoActiveFunction", GeGlobalMethodInfo(&ECS::Pool::SetAutoActiveFunction), MetaFlag::LUABIND);
 	AddGlobalMethod(globalPool, "GetActiveArray", GeGlobalMethodInfo(&ECS::Pool::GetActiveArray), MetaFlag::LUABIND);
 
 	PStatic* globalEntity = CreateNewStatic("Entity");
