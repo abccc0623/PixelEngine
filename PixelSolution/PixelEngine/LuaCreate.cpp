@@ -49,6 +49,20 @@ void LuaCreate::GenerateLua(const std::string& outPath, PixelClassMeta& meta)
 	content += "local ffi = require(\"ffi\")\n";
 	content += "local dll = ffi.load(\"PixelEngine\")\n";
 
+	if (memberCount > 0)
+	{
+		content += "\n---@class " + className + "Data\n";
+		for (int i = 0; i < memberCount; i++)
+		{
+			if (meta.members[i].luaBind == false)
+			{
+				continue;
+			}
+
+			content += "---@field " + meta.members[i].name + " " + ToLuaType(meta.members[i].type) + "\n";
+		}
+	}
+
 	content += "ffi.cdef[[\n";
 	if (memberCount > 0)
 	{
@@ -72,6 +86,7 @@ void LuaCreate::GenerateLua(const std::string& outPath, PixelClassMeta& meta)
 		content += ");\n";
 	}
 	content += "]]\n\n";
+	content += "---@class " + className + "\n";
 	content += className + " = " + className + " or {}\n\n";
 
 	for (int i = 0; i < methodsCount; i++)
