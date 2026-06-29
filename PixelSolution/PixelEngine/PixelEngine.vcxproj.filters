@@ -124,6 +124,9 @@
     <Filter Include="EngineAPI\Function\Asset">
       <UniqueIdentifier>{1235cbf9-1187-45e7-bd68-a41e946a0f5d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\Types\Vector3">
+      <UniqueIdentifier>{b22778da-e375-4a9e-b076-d1c86f67c781}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -366,6 +369,9 @@
     <ClInclude Include="Asset.h">
       <Filter>EngineAPI\Function\Asset</Filter>
     </ClInclude>
+    <ClInclude Include="PVector3.h">
+      <Filter>EngineAPI\Types\Vector3</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -550,6 +556,9 @@
     </ClCompile>
     <ClCompile Include="Asset.cpp">
       <Filter>EngineAPI\Function\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="PVector3.cpp">
+      <Filter>EngineAPI\Types\Vector3</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

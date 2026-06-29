@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "BindManager.h"
 #include "Type/GlobalEnum.h"
+#include "PVector3.h"
 
 #include "PixelMetaAPI.h"
 #include "PixelEngineAPI.h"
@@ -20,6 +21,8 @@
 #include "Pool.h"
 #include "Debug.h"
 #include "Asset.h"
+
+
 
 
 static MemberInfo LuaMember(const std::string& type, size_t offset)
@@ -43,7 +46,19 @@ static PClass* CreateLuaMetaClass(const std::string& name)
 static void RegisterComponentData()
 {
 	CreateLuaMetaClass("Vector2");
-	PClass* GlobalVector3 = CreateLuaMetaClass("Vector3");
+	CreateLuaMetaClass("Vector3");
+
+
+	PClass* GlobalVector3 = CreateLuaMetaClass("PVector3");
+	AddMember(GlobalVector3, "x", LuaMember("float", offsetof(PVector3, x)), MetaFlag::LUABIND);
+	AddMember(GlobalVector3, "y", LuaMember("float", offsetof(PVector3, y)), MetaFlag::LUABIND);
+	AddMember(GlobalVector3, "z", LuaMember("float", offsetof(PVector3, z)), MetaFlag::LUABIND);
+	AddMethod(GlobalVector3, "Length", GetMethodInfo(&PVector3::Length), MetaFlag::LUABIND);
+	AddMethod(GlobalVector3, "Normalize", GetMethodInfo(&PVector3::Normalize), MetaFlag::LUABIND);
+	AddMethod(GlobalVector3, "Dot", GetMethodInfo(&PVector3::Dot), MetaFlag::LUABIND);
+	AddMethod(GlobalVector3, "Cross", GetMethodInfo(&PVector3::Cross), MetaFlag::LUABIND);
+	AddMethod(GlobalVector3, "Direction", GetMethodInfo(&PVector3::Direction), MetaFlag::LUABIND);
+	AddMethod(GlobalVector3, "IsZero", GetMethodInfo(&PVector3::IsZero), MetaFlag::LUABIND);
 
 	CreateLuaMetaClass("MotionType");
 

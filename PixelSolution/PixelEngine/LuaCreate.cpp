@@ -28,7 +28,8 @@ void LuaCreate::Generate(const char* outPath, std::vector<PixelClassMeta>& types
 		if (K.thisName == "Debug" ||
 			K.thisName == "Pool" ||
 			K.thisName == "Asset" ||
-			K.thisName == "Entity")
+			K.thisName == "Entity" ||
+			K.thisName == "PVector3")
 		{
 			GenerateLua(std::string(outPath), K);
 		}
