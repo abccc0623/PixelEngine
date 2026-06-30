@@ -8,6 +8,8 @@ struct PixelMemberMeta
 	std::string name;
 	std::string type;
 	bool luaBind = false;
+
+
 };
 
 struct PixelMethodMeta

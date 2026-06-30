@@ -48,17 +48,19 @@ static void RegisterComponentData()
 	CreateLuaMetaClass("Vector2");
 	CreateLuaMetaClass("Vector3");
 
-
 	PClass* GlobalVector3 = CreateLuaMetaClass("PVector3");
 	AddMember(GlobalVector3, "x", LuaMember("float", offsetof(PVector3, x)), MetaFlag::LUABIND);
 	AddMember(GlobalVector3, "y", LuaMember("float", offsetof(PVector3, y)), MetaFlag::LUABIND);
 	AddMember(GlobalVector3, "z", LuaMember("float", offsetof(PVector3, z)), MetaFlag::LUABIND);
-	AddMethod(GlobalVector3, "Length", GetMethodInfo(&PVector3::Length), MetaFlag::LUABIND);
-	AddMethod(GlobalVector3, "Normalize", GetMethodInfo(&PVector3::Normalize), MetaFlag::LUABIND);
-	AddMethod(GlobalVector3, "Dot", GetMethodInfo(&PVector3::Dot), MetaFlag::LUABIND);
-	AddMethod(GlobalVector3, "Cross", GetMethodInfo(&PVector3::Cross), MetaFlag::LUABIND);
-	AddMethod(GlobalVector3, "Direction", GetMethodInfo(&PVector3::Direction), MetaFlag::LUABIND);
-	AddMethod(GlobalVector3, "IsZero", GetMethodInfo(&PVector3::IsZero), MetaFlag::LUABIND);
+
+	PClass* GlobalTransform = CreateLuaMetaClass("TransformData");
+	AddMember(GlobalTransform, "position", LuaMember("PVector3", offsetof(TransformData, position)), MetaFlag::LUABIND);
+	AddMember(GlobalTransform, "bitmask", LuaMember("unsigned int", offsetof(TransformData, bitmask)), MetaFlag::LUABIND);
+	AddMember(GlobalTransform, "rotation", LuaMember("PVector3", offsetof(TransformData, rotation)), MetaFlag::LUABIND);
+	AddMember(GlobalTransform, "unused1", LuaMember("unsigned int", offsetof(TransformData, unused1)), MetaFlag::LUABIND);
+	AddMember(GlobalTransform, "scale", LuaMember("PVector3", offsetof(TransformData, scale)), MetaFlag::LUABIND);
+	AddMember(GlobalTransform, "unused2", LuaMember("unsigned int", offsetof(TransformData, unused2)), MetaFlag::LUABIND);
+
 
 	CreateLuaMetaClass("MotionType");
 
@@ -136,9 +138,9 @@ void BindManager::Initialize()
 
 
 	PStatic* globalTransform = CreateNewStatic("Transform");
-	AddGlobalMethod(globalTransform, "AddComponent", GeGlobalMethodInfo(&ECS::Transform::AddComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalTransform, "GetComponent", GeGlobalMethodInfo(&ECS::Transform::GetComponent), MetaFlag::LUABIND);
-	AddGlobalMethod(globalTransform, "HasComponent", GeGlobalMethodInfo(&ECS::Transform::HasComponent), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "Transform_Add", GeGlobalMethodInfo(&Transform_Add), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "Transform_Get", GeGlobalMethodInfo(&Transform_Get), MetaFlag::LUABIND);
+	AddGlobalMethod(globalTransform, "Transform_Has", GeGlobalMethodInfo(&Transform_Has), MetaFlag::LUABIND);
 
 
 	PStatic* globalRenderer2D = CreateNewStatic("Renderer2D");

@@ -4,13 +4,15 @@
 #include "PixelMeta.h"
 #include "LuaBind.h"
 #include "LSPBind.h"
-#include "LuaCreate.h"
+#include "LuaClassCreate.h"
+#include "LuaStaticCreate.h"
 using json = nlohmann::json;
 void GenerateManager::Initialize()
 {
 	luaBind = new LuaBind();
 	lspBind = new LSPBind();
-	luaCreate = new LuaCreate();
+	luaClassCreate = new LuaClassCreate();
+	luaStaticCreate = new LuaStaticCreate();
 }
 
 void GenerateManager::Update()
@@ -22,7 +24,8 @@ void GenerateManager::Release()
 {
 	delete luaBind;
 	delete lspBind;
-	delete luaCreate;
+	delete luaClassCreate;
+	delete luaStaticCreate;
 }
 
 void GenerateManager::Clear()
@@ -78,7 +81,8 @@ void GenerateManager::LSPGenerate(const char* outPath)
 void GenerateManager::JsonGenerate(const char* outPath)
 {
 	CreateBindCode();
-	luaCreate->Generate(outPath, types);
+	luaStaticCreate->Generate(outPath, types);
+	luaClassCreate->Generate(outPath, types);
 }
 
 void GenerateManager::TypeMember(PixelClassMeta& PixelClass, PType* type)

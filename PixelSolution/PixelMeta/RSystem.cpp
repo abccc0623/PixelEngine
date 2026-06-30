@@ -24,86 +24,87 @@ uint64_t RSystem::bool_Type;
 uint64_t RSystem::string_Type;
 RSystem::RSystem()
 {
-   REGISTER_TYPE(int32_t)
-   REGISTER_TYPE(float)
-   REGISTER_TYPE(char)
-   REGISTER_TYPE(double)
-   REGISTER_TYPE(bool)
-   REGISTER_TYPE(string)
+	REGISTER_TYPE(int32_t)
+		REGISTER_TYPE(float)
+		REGISTER_TYPE(char)
+		REGISTER_TYPE(double)
+		REGISTER_TYPE(bool)
+		REGISTER_TYPE(string)
+		REGISTER_TYPE(uint32_t)
 
-   int_Type = HashUtil::ConstexprHash("int");
-   float_Type = HashUtil::ConstexprHash("float");
-   char_Type = HashUtil::ConstexprHash("char");
-   double_Type = HashUtil::ConstexprHash("double");
-   bool_Type = HashUtil::ConstexprHash("bool");
-   string_Type = HashUtil::ConstexprHash("string");
+		int_Type = HashUtil::ConstexprHash("int");
+	float_Type = HashUtil::ConstexprHash("float");
+	char_Type = HashUtil::ConstexprHash("char");
+	double_Type = HashUtil::ConstexprHash("double");
+	bool_Type = HashUtil::ConstexprHash("bool");
+	string_Type = HashUtil::ConstexprHash("string");
 }
 
 RSystem::~RSystem()
 {
-    for (auto& K : MapByHash)
-    {
-        delete K.second;
-    }
-    MapByHash.clear();
+	for (auto& K : MapByHash)
+	{
+		delete K.second;
+	}
+	MapByHash.clear();
 }
 PType* RSystem::GetTypeByString(std::string name)
 {
-    if (name == "string")
-    {
-        name = ExtractTypeName<string>();
-    }
-    uint64_t hash = HashUtil::ConstexprHash(name.c_str());
-    auto k = MapByHash.find(hash);
-    if (k != MapByHash.end())
-    {
-        return MapByHash[hash];
-    }
-    return nullptr;
+	if (name == "string")
+	{
+		name = ExtractTypeName<string>();
+	}
+	uint64_t hash = HashUtil::ConstexprHash(name.c_str());
+	auto k = MapByHash.find(hash);
+	if (k != MapByHash.end())
+	{
+		return MapByHash[hash];
+	}
+	return nullptr;
 }
 
 void RSystem::Register(PType* type)
 {
-    auto k = MapByHash.find(type->GetHash());
-    if (k == MapByHash.end())
-    {
-        MapByHash.insert({ type->GetHash(), type });
-        VectorByHash.push_back(type);
-    }
+	auto k = MapByHash.find(type->GetHash());
+	if (k == MapByHash.end())
+	{
+		MapByHash.insert({ type->GetHash(), type });
+		VectorByHash.push_back(type);
+	}
 }
 
 void RSystem::Release()
 {
-    for (auto& K : MapByHash)
-    {
-        delete K.second;
-    }
-    VectorByHash.clear();
-    MapByHash.clear();
+	for (auto& K : MapByHash)
+	{
+		delete K.second;
+	}
+	VectorByHash.clear();
+	MapByHash.clear();
 }
 
 int RSystem::GetTypeAllCount()
 {
-    return VectorByHash.size();
+	return VectorByHash.size();
 }
 
 PType* RSystem::GetTypeByIndex(int index)
 {
-    if (VectorByHash.size() > index)
-    {
-        return VectorByHash[index];
-    }
-    return nullptr;
+	if (VectorByHash.size() > index)
+	{
+		return VectorByHash[index];
+	}
+	return nullptr;
 }
 
 PType* RSystem::GetType(uint64_t hash)
 {
-    auto k = MapByHash.find(hash);
-    if (k != MapByHash.end())
-    {
-        return MapByHash[hash];
-    }
-    return nullptr;
+	auto k = MapByHash.find(hash);
+	if (k != MapByHash.end())
+	{
+		return MapByHash[hash];
+	}
+	return nullptr;
 }
 //
 //PObject* RSystem::CreateObject(void* target, std::string TypeName)

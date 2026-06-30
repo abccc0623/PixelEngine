@@ -72,4 +72,103 @@ protected:
 
 		return result;
 	}
+	std::string NormalizeType(const std::string& type)
+	{
+		std::string normalized = type;
+		std::erase(normalized, ' ');
+		return normalized;
+	}
+
+	std::string ToCType(const std::string& type)
+	{
+		std::string normalized = NormalizeType(type);
+		if (type == "void") return "void";
+		if (normalized == "constchar*" || normalized == "charconst*" || normalized == "char*" || type == "std::string" || type == "string") return "const char*";
+		if (type == "float") return "float";
+		if (type == "double") return "double";
+		if (type == "bool") return "bool";
+		if (type == "int" || type == "int32_t") return "int";
+		if (type == "unsigned int" || type == "uint32_t") return "uint32_t";
+		return type;
+	}
+
+	std::string ToLuaType(const std::string& type)
+	{
+		std::string normalized = NormalizeType(type);
+		if (normalized == "constchar*" || normalized == "charconst*" || normalized == "char*" || type == "std::string" || type == "string") return "string";
+		if (type == "int" || type == "int32_t" || type == "unsigned int" || type == "uint32_t" || type == "float" || type == "double") return "number";
+		if (type == "bool") return "boolean";
+		if (type == "void") return "nil";
+
+		std::erase(normalized, '*');
+		std::erase(normalized, '&');
+		return normalized;
+	}
+
+	std::string CreateArgumentName(const std::string& type, int index)
+	{
+		std::string name = ToLuaType(type);
+		std::erase(name, '*');
+		std::erase(name, '&');
+		std::erase(name, ' ');
+		std::erase(name, ':');
+		if (name.empty() || name == "nil")
+		{
+			name = "value";
+		}
+		return name + std::to_string(index);
+	}
+
+	std::string CreateArgumentList(const std::vector<std::string>& propertys, bool includeTypes)
+	{
+		std::string args;
+		for (int i = 0; i < propertys.size(); i++)
+		{
+			if (i != 0)
+			{
+				args += ", ";
+			}
+
+			if (includeTypes)
+			{
+				args += ToCType(propertys[i]) + " ";
+			}
+			args += CreateArgumentName(propertys[i], i);
+		}
+		return args;
+	}
+
+	std::string CreateNativeFunctionName(const std::string& className, const std::string& methodName)
+	{
+		std::string prefix = className + "_";
+		if (methodName.rfind(prefix, 0) == 0)
+		{
+			return methodName;
+		}
+		return prefix + methodName;
+	}
+
+	std::string CreateLuaFunctionName(const std::string& className, const std::string& methodName)
+	{
+		std::string prefix = className + "_";
+		if (methodName.rfind(prefix, 0) == 0)
+		{
+			return methodName.substr(prefix.size());
+		}
+		return methodName;
+	}
+
+	std::string CreateDefaultValue(const std::string& type)
+	{
+		std::string normalized = NormalizeType(type);
+		if (normalized == "bool")
+		{
+			return "false";
+		}
+		if (normalized == "constchar*" || normalized == "charconst*" || normalized == "char*" || type == "std::string" || type == "string")
+		{
+			return "\"\"";
+		}
+		return "0";
+	}
 };

@@ -109,23 +109,20 @@
     <Filter Include="EngineAPI\Manager\EditorManager">
       <UniqueIdentifier>{2c6f5dd8-16f7-4013-87a2-1ce4f003d9ca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\Group">
-      <UniqueIdentifier>{1155fa78-b661-4a65-8dc8-c660757f2c3a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EngineAPI\Function">
-      <UniqueIdentifier>{a0926078-2b36-4172-b6c2-37dbf79883fe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EngineAPI\Function\Pool">
-      <UniqueIdentifier>{1af7f5e8-8029-4b1b-be66-d56ca625d8de}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EngineAPI\Function\Debug">
-      <UniqueIdentifier>{ffa2fbc2-4db7-4a13-b602-95a0900fe123}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EngineAPI\Function\Asset">
-      <UniqueIdentifier>{1235cbf9-1187-45e7-bd68-a41e946a0f5d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Types\Vector3">
       <UniqueIdentifier>{b22778da-e375-4a9e-b076-d1c86f67c781}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Export">
+      <UniqueIdentifier>{d30c7b5d-a745-47db-a417-618d4e9dbaa2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\SceneManager\Group">
+      <UniqueIdentifier>{1155fa78-b661-4a65-8dc8-c660757f2c3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Manager\SceneManager\Pool">
+      <UniqueIdentifier>{1af7f5e8-8029-4b1b-be66-d56ca625d8de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EngineAPI\Debug">
+      <UniqueIdentifier>{ffa2fbc2-4db7-4a13-b602-95a0900fe123}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -199,10 +196,10 @@
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
-      <Filter>EngineAPI\Function\Debug</Filter>
+      <Filter>EngineAPI\Debug</Filter>
     </ClInclude>
     <ClInclude Include="Memory.h">
-      <Filter>EngineAPI\Function\Debug</Filter>
+      <Filter>EngineAPI\Debug</Filter>
     </ClInclude>
     <ClInclude Include="json.hpp">
       <Filter>헤더 파일</Filter>
@@ -330,7 +327,10 @@
     <ClInclude Include="ChunkedArray.h">
       <Filter>EngineAPI\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="LuaCreate.h">
+    <ClInclude Include="LuaClassCreate.h">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaStaticCreate.h">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClInclude>
     <ClInclude Include="BoxCollider2D.h">
@@ -349,28 +349,28 @@
       <Filter>EngineAPI\Manager\EditorManager</Filter>
     </ClInclude>
     <ClInclude Include="GroupManager.h">
-      <Filter>EngineAPI\Group</Filter>
-    </ClInclude>
-    <ClInclude Include="Group.h">
-      <Filter>EngineAPI\Group</Filter>
-    </ClInclude>
-    <ClInclude Include="Pool.h">
-      <Filter>EngineAPI\Function\Pool</Filter>
+      <Filter>EngineAPI\Manager\SceneManager\Group</Filter>
     </ClInclude>
     <ClInclude Include="PoolManager.h">
-      <Filter>EngineAPI\Function\Pool</Filter>
+      <Filter>EngineAPI\Manager\SceneManager\Pool</Filter>
     </ClInclude>
     <ClInclude Include="Entity.h">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Debug.h">
-      <Filter>EngineAPI\Function\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="Asset.h">
-      <Filter>EngineAPI\Function\Asset</Filter>
-    </ClInclude>
     <ClInclude Include="PVector3.h">
       <Filter>EngineAPI\Types\Vector3</Filter>
+    </ClInclude>
+    <ClInclude Include="Group.h">
+      <Filter>EngineAPI\Export</Filter>
+    </ClInclude>
+    <ClInclude Include="Pool.h">
+      <Filter>EngineAPI\Export</Filter>
+    </ClInclude>
+    <ClInclude Include="Asset.h">
+      <Filter>EngineAPI\Export</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>EngineAPI\Export</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -426,10 +426,10 @@
       <Filter>EngineAPI\Manager\LuaManager</Filter>
     </ClCompile>
     <ClCompile Include="Log.cpp">
-      <Filter>EngineAPI\Function\Debug</Filter>
+      <Filter>EngineAPI\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Memory.cpp">
-      <Filter>EngineAPI\Function\Debug</Filter>
+      <Filter>EngineAPI\Debug</Filter>
     </ClCompile>
     <ClCompile Include="JsonManager.cpp">
       <Filter>EngineAPI\Manager\JsonManager</Filter>
@@ -515,7 +515,10 @@
     <ClCompile Include="Rigidbody2DSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
-    <ClCompile Include="LuaCreate.cpp">
+    <ClCompile Include="LuaClassCreate.cpp">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaStaticCreate.cpp">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClCompile>
     <ClCompile Include="BoxCollider2D.cpp">
@@ -534,16 +537,10 @@
       <Filter>EngineAPI\Manager\EditorManager</Filter>
     </ClCompile>
     <ClCompile Include="GroupManager.cpp">
-      <Filter>EngineAPI\Group</Filter>
-    </ClCompile>
-    <ClCompile Include="Group.cpp">
-      <Filter>EngineAPI\Group</Filter>
-    </ClCompile>
-    <ClCompile Include="Pool.cpp">
-      <Filter>EngineAPI\Function\Pool</Filter>
+      <Filter>EngineAPI\Manager\SceneManager\Group</Filter>
     </ClCompile>
     <ClCompile Include="PoolManager.cpp">
-      <Filter>EngineAPI\Function\Pool</Filter>
+      <Filter>EngineAPI\Manager\SceneManager\Pool</Filter>
     </ClCompile>
     <ClCompile Include="Event.cpp">
       <Filter>EngineAPI\Manager\EventManager</Filter>
@@ -551,14 +548,17 @@
     <ClCompile Include="Entity.cpp">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="Debug.cpp">
-      <Filter>EngineAPI\Function\Debug</Filter>
+    <ClCompile Include="Group.cpp">
+      <Filter>EngineAPI\Export</Filter>
+    </ClCompile>
+    <ClCompile Include="Pool.cpp">
+      <Filter>EngineAPI\Export</Filter>
     </ClCompile>
     <ClCompile Include="Asset.cpp">
-      <Filter>EngineAPI\Function\Asset</Filter>
+      <Filter>EngineAPI\Export</Filter>
     </ClCompile>
-    <ClCompile Include="PVector3.cpp">
-      <Filter>EngineAPI\Types\Vector3</Filter>
+    <ClCompile Include="Debug.cpp">
+      <Filter>EngineAPI\Export</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
