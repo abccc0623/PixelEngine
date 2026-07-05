@@ -52,17 +52,14 @@ inline void Generate_Transform(sol::state& lua)
 inline void Generate_Renderer2D(sol::state& lua)
 {
 	sol::table ut = lua.create_named_table("Renderer2D");
-	ut["AddComponent"] = &ECS::Renderer2D::AddComponent;
-	ut["GetComponent"] = &ECS::Renderer2D::GetComponent;
-	ut["HasComponent"] = &ECS::Renderer2D::HasComponent;
-	ut["SetTexture"] = &ECS::Renderer2D::SetTexture;
+	//ut["AddComponent"] = &ECS::Renderer2D::AddComponent;
+	//ut["GetComponent"] = &ECS::Renderer2D::GetComponent;
+	//ut["HasComponent"] = &ECS::Renderer2D::HasComponent;
+	//ut["SetTexture"] = &ECS::Renderer2D::SetTexture;
 }
 inline void Generate_Camera(sol::state& lua)
 {
-	sol::table ut = lua.create_named_table("Camera");
-	ut["AddComponent"] = &ECS::Camera::AddComponent;
-	ut["GetComponent"] = &ECS::Camera::GetComponent;
-	ut["HasComponent"] = &ECS::Camera::HasComponent;
+
 }
 inline void Generate_Animation2D(sol::state& lua)
 {

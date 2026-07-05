@@ -228,9 +228,6 @@
     <ClInclude Include="IBind.h">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClInclude>
-    <ClInclude Include="LSPBind.h">
-      <Filter>EngineAPI\Manager\GenerateManager</Filter>
-    </ClInclude>
     <ClInclude Include="EventManager.h">
       <Filter>EngineAPI\Manager\EventManager</Filter>
     </ClInclude>
@@ -327,10 +324,16 @@
     <ClInclude Include="ChunkedArray.h">
       <Filter>EngineAPI\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="LuaClassCreate.h">
+    <ClInclude Include="LuaComponentCreate.h">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaEnumCreate.h">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClInclude>
     <ClInclude Include="LuaStaticCreate.h">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaTypeCreate.h">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClInclude>
     <ClInclude Include="BoxCollider2D.h">
@@ -370,6 +373,12 @@
       <Filter>EngineAPI\Export</Filter>
     </ClInclude>
     <ClInclude Include="Debug.h">
+      <Filter>EngineAPI\Export</Filter>
+    </ClInclude>
+    <ClInclude Include="PVector2.h">
+      <Filter>EngineAPI\Types\Vector3</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
       <Filter>EngineAPI\Export</Filter>
     </ClInclude>
   </ItemGroup>
@@ -443,9 +452,6 @@
     <ClCompile Include="LuaBind.cpp">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClCompile>
-    <ClCompile Include="LSPBind.cpp">
-      <Filter>EngineAPI\Manager\GenerateManager</Filter>
-    </ClCompile>
     <ClCompile Include="EventManager.cpp">
       <Filter>EngineAPI\Manager\EventManager</Filter>
     </ClCompile>
@@ -515,10 +521,16 @@
     <ClCompile Include="Rigidbody2DSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
-    <ClCompile Include="LuaClassCreate.cpp">
+    <ClCompile Include="LuaComponentCreate.cpp">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaEnumCreate.cpp">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClCompile>
     <ClCompile Include="LuaStaticCreate.cpp">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaTypeCreate.cpp">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClCompile>
     <ClCompile Include="BoxCollider2D.cpp">
@@ -559,6 +571,15 @@
     </ClCompile>
     <ClCompile Include="Debug.cpp">
       <Filter>EngineAPI\Export</Filter>
+    </ClCompile>
+    <ClCompile Include="PVector3.cpp">
+      <Filter>EngineAPI\Types\Vector3</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>EngineAPI\Export</Filter>
+    </ClCompile>
+    <ClCompile Include="IBind.cpp">
+      <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

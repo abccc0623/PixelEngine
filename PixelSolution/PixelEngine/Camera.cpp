@@ -2,51 +2,37 @@
 #include "Camera.h"
 #include "Registry.h"
 #include "PixelEngineAPI.h"
-void* ECS::Camera::AddComponent(unsigned int id)
+#include "Renderer2D.h"
+CameraData* Camera_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->Add<CameraData>(id);
-
-	auto data = registry->Get<CameraData>(id);
-	data->renderingData.Type = RENDER_TYPE::CAMERA;
-	return data;
+	if (registry->Has<CameraData>(id) == false)
+	{
+		registry->Add<CameraData>(id);
+	}
+	if (registry->Has<GraphicsData>(id) == false)
+	{
+		registry->Add<GraphicsData>(id);
+		auto g = registry->Get<GraphicsData>(id);
+		g->renderingData.Type = CAMERA;
+	}
+	return registry->Get<CameraData>(id);
 }
 
-void* ECS::Camera::GetComponent(unsigned int id)
+CameraData* Camera_Get(unsigned int id)
 {
 	auto registry = GetRegistry();
-	CameraData* data = registry->Get<CameraData>(id);
-	if (data == nullptr)
+	if (registry->Has<CameraData>(id) == false)
 	{
 		PixelLog::Error("[Camera][GetComponent] Not Find Component");
+		return nullptr;
 	}
-	return data;
+
+	return registry->Get<CameraData>(id);
 }
 
-bool ECS::Camera::HasComponent(unsigned int id)
+bool Camera_Has(unsigned int id)
 {
 	auto registry = GetRegistry();
-	CameraData* data = registry->Get<CameraData>(id);
-	if (data == nullptr)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
-std::string ECS::Camera::BindJit()
-{
-	std::string jit = R"(
-	---@class CameraData
-ffi.cdef[[
-	typedef struct 
-	{ 
-		const void* const renderingData;
-	} CameraData;
-]]
-    )";
-	return jit;
+	return registry->Has<CameraData>(id);
 }

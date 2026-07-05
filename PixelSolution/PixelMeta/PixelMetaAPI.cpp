@@ -10,6 +10,7 @@
 #include "PEnum.h"
 
 RSystem* System = nullptr;
+static const std::string G_EMPTY_STRING = "";
 uint64_t StringToByHash(const char* name)
 {
 	std::string Str(name);
@@ -163,6 +164,24 @@ uint64_t GetTypeHashByName(const std::string& name)
 	return  HashUtil::ConstexprHash(name.c_str());
 }
 
+void SetTypeFlag(PType* type, long flag)
+{
+	if (type == nullptr) return;
+	type->SetFlag(flag);
+}
+
+long GetTypeFlag(PType* type)
+{
+	if (type == nullptr) return 0;
+	return type->GetFlag();
+}
+
+bool HasTypeFlag(PType* type, long flag)
+{
+	if (type == nullptr) return false;
+	return type->HasFlag(flag);
+}
+
 int GetMemberCount(PType* type)
 {
 	auto meta = (META_TYPE)type->GetMetaType();
@@ -185,7 +204,7 @@ C_string GetMemberType(PType* type,int index)
 	}
 	else
 	{
-		return "";
+		return G_EMPTY_STRING;
 	}
 }
 
@@ -198,7 +217,7 @@ C_string GetMemberName(PType* type, int index)
 	}
 	else
 	{
-		return "";
+		return G_EMPTY_STRING;
 	}
 }
 
@@ -211,7 +230,7 @@ bool HasMemberFlag(PType* type, int index, long flag)
 	}
 	else
 	{
-		return "";
+		return false;
 	}
 }
 
@@ -245,7 +264,7 @@ C_string GetMethodName(PType* type, int index)
 	}
 	else
 	{
-		return "";
+		return G_EMPTY_STRING;
 	}
 }
 
@@ -262,10 +281,26 @@ C_string GetMethodReturnType(PType* type, int index)
 	}
 	else
 	{
-		return "";
+		return G_EMPTY_STRING;
 	}
 }
 
+C_string GetMethodTooltip(PType* type, int index)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetMethodTooltip(index);
+	}
+	else if (meta == META_TYPE::STATIC)
+	{
+		return (static_cast<PStatic*>(type))->GetMethodTooltip(index);
+	}
+	else
+	{
+		return G_EMPTY_STRING;
+	}
+}
 int GetMethodPropertyCount(PType* type, int index)
 {
 	auto meta = (META_TYPE)type->GetMetaType();
@@ -296,10 +331,43 @@ C_string GetMethodGetPropertyType(PType* type, int index,int propertyIndex)
 	}
 	else
 	{
-		return 0;
+		return G_EMPTY_STRING;
 	}
 }
 
+C_string GetMethodGetPropertyName(PType* type, int index, int propertyIndex)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetMethodPropertyName(index, propertyIndex);
+	}
+	else if (meta == META_TYPE::STATIC)
+	{
+		return (static_cast<PStatic*>(type))->GetMethodPropertyName(index, propertyIndex);
+	}
+	else
+	{
+		return G_EMPTY_STRING;
+	}
+}
+
+C_string GetMethodGetPropertyTooltip(PType* type, int index, int propertyIndex)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetMethodPropertyTooltip(index, propertyIndex);
+	}
+	else if (meta == META_TYPE::STATIC)
+	{
+		return (static_cast<PStatic*>(type))->GetMethodPropertyTooltip(index, propertyIndex);
+	}
+	else
+	{
+		return G_EMPTY_STRING;
+	}
+}
 bool HasMethodFlag(PType* type, int index, long flag)
 {
 	auto meta = (META_TYPE)type->GetMetaType();
@@ -313,7 +381,7 @@ bool HasMethodFlag(PType* type, int index, long flag)
 	}
 	else
 	{
-		return "";
+		return false;
 	}
 }
 
@@ -330,7 +398,7 @@ PValue CallMethod(PType* type, int index, void* target, std::vector<void*> prope
 	}
 	else
 	{
-		return "";
+		return PValue();
 	}
 	return PValue();
 }
@@ -354,7 +422,7 @@ C_string GetEnum(PType* type, int index)
 	}
 	else
 	{
-		return "";
+		return G_EMPTY_STRING;
 	}
 }
 
@@ -415,7 +483,7 @@ bool AddGlobalMethod(PStatic* targetClass, const std::string& methodName, Method
 {
 	uint64_t nameHash = HashUtil::ConstexprHash(methodName.c_str());
 	PMethod* field = new PMethod(methodName);
-	field->SetInfo(info.returnType, info.classType, info.memberType, info.invoker);
+	field->SetInfo(info.returnType, info.classType, info.memberType, info.memberName, info.memberTooltip, info.tooltip, info.invoker);
 	field->SetFlag(flag);
 	targetClass->AddMethod(field);
 	return true;
@@ -479,7 +547,7 @@ bool AddMethod(PClass* targetClass, const std::string& methodName, MethodInfo in
 {
 	uint64_t nameHash = HashUtil::ConstexprHash(methodName.c_str());
 	PMethod* field = new PMethod(methodName);
-	field->SetInfo(info.returnType,info.classType, info.memberType,info.invoker);
+	field->SetInfo(info.returnType, info.classType, info.memberType, info.memberName, info.memberTooltip, info.tooltip, info.invoker);
 	field->SetFlag(flag);
 	targetClass->AddMethod(field);
 	return false;

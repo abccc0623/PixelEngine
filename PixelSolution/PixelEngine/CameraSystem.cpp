@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "CameraSystem.h"
+#include "Renderer2D.h"
 #include "Registry.h"
 #include "Transform.h"
 #include "Camera.h"
@@ -16,10 +17,11 @@ ECS::CameraSystem::~CameraSystem()
 
 void ECS::CameraSystem::Update(Registry* registry)
 {
-	auto& Chunked = registry->GetChunkedArray<ECS::Camera::CameraData>();
-	Chunked.ForEach([registry](ECS::Camera::CameraData* data, size_t index)
+	auto& Chunked = registry->GetChunkedArray<CameraData>();
+	Chunked.ForEach([registry](CameraData* data, size_t index)
 		{
-			auto id = registry->GetEntityID<ECS::Camera::CameraData>(index);
+			auto id = registry->GetEntityID<CameraData>(index);
+			auto g = registry->Get<GraphicsData>(index);
 			auto world = registry->Get<ECS::Transform::WorldData>(id);
 			if (world != nullptr)
 			{
@@ -27,8 +29,8 @@ void ECS::CameraSystem::Update(Registry* registry)
 				Pixel::Matrix4x4 camMatrix = viewMatrix;
 
 				const float* sourcePtr = glm::value_ptr(camMatrix);
-				std::copy(sourcePtr, sourcePtr + 16, data->renderingData.World);
-				SetRenderingData(data->renderingData);
+				std::copy(sourcePtr, sourcePtr + 16, g->renderingData.World);
+				SetRenderingData(g->renderingData);
 			}
 		});
 }

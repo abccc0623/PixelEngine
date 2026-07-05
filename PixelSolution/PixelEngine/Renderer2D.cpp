@@ -5,15 +5,18 @@
 #include "PixelEngine.h"
 #include "ResourceManager.h"
 extern PixelEngine* Engine;
-void* ECS::Renderer2D::AddComponent(unsigned int id)
+Renderer2DData* Renderer2D_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
 	registry->Add<Renderer2DData>(id);
-	auto data = registry->Get<Renderer2DData>(id);
-	data->renderingData.Type = QUAD;
-	return data;
+	registry->Add<GraphicsData>(id);
+
+	auto data1 = registry->Get<Renderer2DData>(id);
+	auto data2 = registry->Get<GraphicsData>(id);
+	data2->renderingData.Type = QUAD;
+	return data1;
 }
-void* ECS::Renderer2D::GetComponent(unsigned int id)
+Renderer2DData* Renderer2D_Get(unsigned int id)
 {
 	auto registry = GetRegistry();
 	Renderer2DData* data = registry->Get<Renderer2DData>(id);
@@ -23,7 +26,7 @@ void* ECS::Renderer2D::GetComponent(unsigned int id)
 	}
 	return data;
 }
-bool ECS::Renderer2D::HasComponent(unsigned int id)
+bool Renderer2D_Has(unsigned int id)
 {
 	auto registry = GetRegistry();
 	Renderer2DData* data = registry->Get<Renderer2DData>(id);
@@ -36,36 +39,17 @@ bool ECS::Renderer2D::HasComponent(unsigned int id)
 		return true;
 	}
 }
-std::string ECS::Renderer2D::BindJit()
-{
-	std::string jit = R"(
-	---@class Renderer2DData
-	---@field TilingX number
-	---@field TilingY number
-	---@field OffsetX number
-	---@field OffsetY number
-ffi.cdef[[
-    typedef struct 
-    { 
-        float TilingX; 
-        float TilingY; 
-        float OffsetX; 
-        float OffsetY; 
-    } Renderer2DData;
-]]
-    )";
-	return jit;
-}
 
-void ECS::Renderer2D::SetTexture(unsigned int id, const char* name)
+void Renderer2D_SetTexture(unsigned int id, const char* name)
 {
 	auto registry = GetRegistry();
-	auto data = registry->Get<Renderer2DData>(id);
-	if (data != nullptr)
+	auto data1 = registry->Get<Renderer2DData>(id);
+	auto data2 = registry->Get<GraphicsData>(id);
+	if (data1 != nullptr)
 	{
 		std::string textureName(name);
 		auto textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
-		data->renderingData.texture_key = textureID;
+		data2->renderingData.texture_key = textureID;
 	}
 	else
 	{

@@ -1,21 +1,22 @@
 #pragma once
-#include "PixelMath.h"
 #include "PixelGraphicsAPI.h"
-namespace ECS::Renderer2D
+#include "PixelEngineDLL.h"
+struct Renderer2DData
 {
-	struct Renderer2DData
-	{
-		float TilingX = 1.0f;
-		float TilingY = 1.0f;
-		float OffsetX = 1.0f;
-		float OffsetY = 1.0f;
-		RenderingData renderingData;
-	};
+	float TilingX = 1.0f;
+	float TilingY = 1.0f;
+	float OffsetX = 1.0f;
+	float OffsetY = 1.0f;
+};
 
-	void* AddComponent(unsigned int id);
-	void* GetComponent(unsigned int id);
-	bool HasComponent(unsigned int id);
-	void SetTexture(unsigned int id, const char* name);
-	std::string BindJit();
-}
+struct GraphicsData
+{
+	RenderingData renderingData;
+};
+
+extern "C" PIXEL_ENGINEDLL Renderer2DData* Renderer2D_Add(unsigned int id);
+extern "C" PIXEL_ENGINEDLL Renderer2DData* Renderer2D_Get(unsigned int id);
+extern "C" PIXEL_ENGINEDLL bool Renderer2D_Has(unsigned int id);
+extern "C" PIXEL_ENGINEDLL void Renderer2D_SetTexture(unsigned int id, const char* name);
+
 

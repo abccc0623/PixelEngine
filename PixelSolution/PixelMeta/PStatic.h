@@ -16,7 +16,10 @@ public:
 	bool HasClassMethodFlag(int index, long flag);
 	const std::string& GetMethodName(int index);
 	const std::string& GetMethodReturnType(int index);
+	const std::string& GetMethodTooltip(int index);
 	const std::string& GetMethodPropertyType(int index, int propertyIndex);
+	const std::string& GetMethodPropertyName(int index, int propertyIndex);
+	const std::string& GetMethodPropertyTooltip(int index, int propertyIndex);
 	PValue CallMethod(int index, void* target, std::vector<void*> property);
 	void AddMethod(PMethod* method);
 private:

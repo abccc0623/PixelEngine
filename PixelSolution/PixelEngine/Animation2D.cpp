@@ -46,7 +46,7 @@ void ECS::Animation2D::Play(unsigned int id, int index)
 		data->play = true;
 		data->selectAnimation = data->animationArray[index];
 
-		auto render = registry->Get<ECS::Renderer2D::Renderer2DData>(id);
+		auto render = registry->Get<GraphicsData>(id);
 		if (render != nullptr)
 		{
 			render->renderingData.sprite.isShared = true;

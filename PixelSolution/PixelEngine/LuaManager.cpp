@@ -65,7 +65,7 @@ void LuaManager::Initialize()
 	std::string packagePathSetup = "package.path = package.path .. ';" + scriptRootStr + "/?.lua'";
 	lua.script(packagePathSetup);
 
-	BindAll_GeneratedLuaModules(lua);
+	//BindAll_GeneratedLuaModules(lua);
 	ReadEngineGenerateFile();
 	CreateLuaManager();
 }

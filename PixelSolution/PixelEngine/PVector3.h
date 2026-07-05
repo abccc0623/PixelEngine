@@ -5,3 +5,5 @@ struct PVector3
 	float y;
 	float z;
 };
+
+PVector3 PVector3_Normalize(PVector3 vector3);

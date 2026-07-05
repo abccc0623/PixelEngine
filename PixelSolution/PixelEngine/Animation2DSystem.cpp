@@ -41,14 +41,15 @@ void ECS::Animation2DSystem::Update(Registry* registry)
 				select.nowFrameTime -= select.oneFrameTime;
 			}
 			int ID = registry->GetEntityID<ECS::Animation2D::Animation2DData>(index);
-			auto render = registry->Get<ECS::Renderer2D::Renderer2DData>(ID);
-			if (render != nullptr)
+			auto render1 = registry->Get<Renderer2DData>(ID);
+			auto render2 = registry->Get<GraphicsData>(ID);
+			if (render1 != nullptr)
 			{
-				render->renderingData.texture_key = select.textureID;
-				render->TilingX = 1.0f / select.maxFramesX;
-				render->TilingY = 1.0f / select.maxFramesY;
-				render->OffsetX = (select.framesIndex % select.maxFramesX) * render->renderingData.sprite.TilingX;
-				render->OffsetY = (select.framesIndex / select.maxFramesX) * render->renderingData.sprite.TilingY;
+				render2->renderingData.texture_key = select.textureID;
+				render1->TilingX = 1.0f / select.maxFramesX;
+				render1->TilingY = 1.0f / select.maxFramesY;
+				render1->OffsetX = (select.framesIndex % select.maxFramesX) * render2->renderingData.sprite.TilingX;
+				render1->OffsetY = (select.framesIndex / select.maxFramesX) * render2->renderingData.sprite.TilingY;
 			}
 		});
 
@@ -67,14 +68,15 @@ void ECS::Animation2DSystem::EditorUpdate(Registry* registry)
 			auto& select = data->selectAnimation;
 
 			int ID = registry->GetEntityID<ECS::Animation2D::Animation2DData>(index);
-			auto render = registry->Get<ECS::Renderer2D::Renderer2DData>(ID);
-			if (render != nullptr)
+			auto render1 = registry->Get<Renderer2DData>(ID);
+			auto render2 = registry->Get<GraphicsData>(ID);
+			if (render1 != nullptr)
 			{
-				render->renderingData.texture_key = select.textureID;
-				render->TilingX = 1.0f / select.maxFramesX;
-				render->TilingY = 1.0f / select.maxFramesY;
-				render->OffsetX = (select.framesIndex % select.maxFramesX) * render->renderingData.sprite.TilingX;
-				render->OffsetY = (select.framesIndex / select.maxFramesX) * render->renderingData.sprite.TilingY;
+				render2->renderingData.texture_key = select.textureID;
+				render1->TilingX = 1.0f / select.maxFramesX;
+				render1->TilingY = 1.0f / select.maxFramesY;
+				render1->OffsetX = (select.framesIndex % select.maxFramesX) * render2->renderingData.sprite.TilingX;
+				render1->OffsetY = (select.framesIndex / select.maxFramesX) * render2->renderingData.sprite.TilingY;
 			}
 		});
 }

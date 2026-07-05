@@ -2,6 +2,7 @@
 #include <string>
 #include "PixelMetaDLL.h"
 #include "GlobalHashCode.h"
+#include "MetaFlagSet.h"
 
 class PField;
 class PMethod;
@@ -16,6 +17,9 @@ public:
 	int GetMetaType();
 	uint64_t GetHash();
 	uint64_t GetSize();
+	void SetFlag(long flag);
+	long GetFlag();
+	bool HasFlag(long flag);
 
 	bool operator==(const PType& other);
 	bool operator!=(const PType& other);
@@ -26,5 +30,6 @@ protected:
 	std::string typeName;
 	size_t typeSize;
 	META_TYPE metaType;
+	MetaFlagSet Flag;
 };
 

@@ -20,10 +20,10 @@ void Debug_LogWarning(const char* log)
 	PixelLog::Warn(logSTR);
 }
 
-void Debug_Line(float startX, float startY, float startZ, float endX, float endY, float endZ, float r, float g, float b)
+void Debug_Line(PVector3 start, PVector3 end, PVector3 color)
 {
 	constexpr float INV_255 = 1.0f / 255.0f;
-	DrawLine(startX, startY, startZ, endX, endY, endZ, r * INV_255, g * INV_255, b * INV_255);
+	DrawLine(start.x, start.y, start.z, end.x, end.y, end.z, color.x * INV_255, color.y * INV_255, color.z * INV_255);
 }
 
 void Debug_Box2D(float x, float y, float z, float width, float height, float r, float g, float b)

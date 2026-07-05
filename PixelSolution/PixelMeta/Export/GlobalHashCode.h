@@ -2,19 +2,6 @@
 #include <string>
 #include <typeinfo>
 
-enum MetaFlag : long
-{
-    None    = 0,
-    SAVE    = 1 << 0,  // 1
-    LUABIND = 1 << 1,  // 2
-    Flag3   = 1 << 2,  // 4
-    Flag4   = 1 << 3,  // 8
-    Flag5   = 1 << 4,
-    Flag6   = 1 << 5,
-    Flag7   = 1 << 6,
-    Flag8   = 1 << 7   // 128
-};
-
 enum class META_TYPE
 {
     PRIMITIVE,

@@ -5,7 +5,7 @@ class LuaBind : public IBind
 public:
 	LuaBind();
 	~LuaBind();
-	void Generate(const char* outPath, std::vector<PixelClassMeta>& types) override;
+	void Generate(const char* outPath, std::vector<PixelClassMeta>& types);
 private:
 	void SetIncludeString(PixelClassMeta& meta);
 	void SetFunctionString(PixelClassMeta& meta);

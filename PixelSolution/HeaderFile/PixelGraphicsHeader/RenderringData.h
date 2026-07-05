@@ -1,7 +1,7 @@
 #pragma once
 enum RENDER_TYPE : int
 {
-	NONE ,
+	NONE,
 	DEBUG,
 	LINE,
 	CAMERA,
@@ -29,7 +29,7 @@ struct SpriteData
 	float OffsetY;
 };
 
-struct CameraData
+struct GCameraData
 {
 	ProjectionType Projection;
 	float FovY;
@@ -51,14 +51,14 @@ public:
 	RENDER_TYPE Type = RENDER_TYPE::NONE;
 	float World[16];
 
-	Handle64 master_key		= 0;
-	Handle16 mash_key		= 0;
-	Handle16 material_key	= 0;
-	Handle16 texture_key	= 0;
+	Handle64 master_key = 0;
+	Handle16 mash_key = 0;
+	Handle16 material_key = 0;
+	Handle16 texture_key = 0;
 	union
 	{
 		SpriteData	sprite;
-		CameraData	camera;
+		GCameraData	camera;
 		LineData	line;
 	};
 	void Clear()
@@ -68,8 +68,8 @@ public:
 	void Setting()
 	{
 		master_key = 0;
-		master_key |= (uint64_t)mash_key		<< 48;
-		master_key |= (uint64_t)material_key	<< 32;
-		master_key |= (uint64_t)texture_key		<< 16;
+		master_key |= (uint64_t)mash_key << 48;
+		master_key |= (uint64_t)material_key << 32;
+		master_key |= (uint64_t)texture_key << 16;
 	}
 };

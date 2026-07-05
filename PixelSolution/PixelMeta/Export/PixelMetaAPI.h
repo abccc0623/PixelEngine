@@ -19,12 +19,42 @@ struct MethodInfo
 	std::string returnType;
 	std::string classType;
 	std::vector<std::string> memberType;
+	std::vector<std::string> memberName;
+	std::vector<std::string> memberTooltip;
+	std::string tooltip;
 	std::function<PValue (void*, std::vector<void*>&)> invoker;
 };
 
+
+inline MethodInfo SetMethodTooltip(MethodInfo info, const std::string& tooltip)
+{
+	info.tooltip = tooltip;
+	return info;
+}
+
+inline MethodInfo SetMethodParameterName(MethodInfo info, int index, const std::string& name)
+{
+	if (index < 0) return info;
+	size_t parameterIndex = static_cast<size_t>(index);
+	if (info.memberName.size() < info.memberType.size()) info.memberName.resize(info.memberType.size());
+	if (parameterIndex >= info.memberName.size()) info.memberName.resize(parameterIndex + 1);
+	info.memberName[parameterIndex] = name;
+	return info;
+}
+
+inline MethodInfo SetMethodParameterTooltip(MethodInfo info, int index, const std::string& tooltip)
+{
+	if (index < 0) return info;
+	size_t parameterIndex = static_cast<size_t>(index);
+	if (info.memberTooltip.size() < info.memberType.size()) info.memberTooltip.resize(info.memberType.size());
+	if (parameterIndex >= info.memberTooltip.size()) info.memberTooltip.resize(parameterIndex + 1);
+	info.memberTooltip[parameterIndex] = tooltip;
+	return info;
+}
 ///
 extern "C" PIXEL_META_DLL uint64_t StringToByHash(const char* name);
 
+class PType;
 class PStatic;
 class PClass;
 class PEnum;
@@ -44,6 +74,9 @@ extern "C" PIXEL_META_DLL META_TYPE		GetTypeCategory(PType* type);
 extern "C" PIXEL_META_DLL uint64_t		GetTypeParentByHash(PType* target);
 extern "C" PIXEL_META_DLL uint64_t		GetTypeHash(PType* type);
 extern "C" PIXEL_META_DLL uint64_t		GetTypeHashByName(const std::string& name);
+extern "C" PIXEL_META_DLL void			SetTypeFlag(PType* type, long flag);
+extern "C" PIXEL_META_DLL long			GetTypeFlag(PType* type);
+extern "C" PIXEL_META_DLL bool			HasTypeFlag(PType* type, long flag);
 
 extern "C" PIXEL_META_DLL int			GetMemberCount(PType* type);
 extern "C" PIXEL_META_DLL C_string		GetMemberType(PType* type, int index);
@@ -53,8 +86,11 @@ extern "C" PIXEL_META_DLL bool			HasMemberFlag(PType* type, int index, long flag
 extern "C" PIXEL_META_DLL int			GetMethodCount(PType* type);
 extern "C" PIXEL_META_DLL C_string		GetMethodName(PType* type, int index);
 extern "C" PIXEL_META_DLL C_string		GetMethodReturnType(PType* type, int index);
+extern "C" PIXEL_META_DLL C_string		GetMethodTooltip(PType* type, int index);
 extern "C" PIXEL_META_DLL int			GetMethodPropertyCount(PType* type,int index);
 extern "C" PIXEL_META_DLL C_string		GetMethodGetPropertyType(PType* type, int index, int propertyIndex);
+extern "C" PIXEL_META_DLL C_string		GetMethodGetPropertyName(PType* type, int index, int propertyIndex);
+extern "C" PIXEL_META_DLL C_string		GetMethodGetPropertyTooltip(PType* type, int index, int propertyIndex);
 extern "C" PIXEL_META_DLL bool			HasMethodFlag(PType* type, int index, long flag);
 extern "C" PIXEL_META_DLL PValue		CallMethod(PType* targetClass, int index, void* target, std::vector<void*> property);
 
@@ -105,7 +141,7 @@ MemberInfo GetMemberInfo(FieldType TClass::* memberPtr)
 
 
 template <typename T>
-std::string GetCleanTypeName() 
+std::string GetCleanTypeName()
 {
 	using Cleaned = std::remove_cv_t<std::remove_reference_t<T>>;
 	return ExtractTypeName<Cleaned>();

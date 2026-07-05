@@ -18,21 +18,22 @@ ECS::Renderer2DSystem::~Renderer2DSystem()
 
 void ECS::Renderer2DSystem::Update(Registry* registry)
 {
-	auto& Chunked = registry->GetChunkedArray<ECS::Renderer2D::Renderer2DData>();
-	Chunked.ForEach([registry](ECS::Renderer2D::Renderer2DData* data, size_t index)
+	auto& Chunked = registry->GetChunkedArray<Renderer2DData>();
+	Chunked.ForEach([registry](Renderer2DData* data, size_t index)
 		{
-			auto id = registry->GetEntityID<ECS::Renderer2D::Renderer2DData>(index);
+			auto id = registry->GetEntityID<Renderer2DData>(index);
+			auto graphic = registry->Get<GraphicsData>(index);
 			auto world = registry->Get<ECS::Transform::WorldData>(id);
 			if (world != nullptr)
 			{
-				data->renderingData.sprite.OffsetX = data->OffsetX;
-				data->renderingData.sprite.OffsetY = data->OffsetY;
-				data->renderingData.sprite.TilingX = data->TilingX;
-				data->renderingData.sprite.TilingY = data->TilingY;
+				graphic->renderingData.sprite.OffsetX = data->OffsetX;
+				graphic->renderingData.sprite.OffsetY = data->OffsetY;
+				graphic->renderingData.sprite.TilingX = data->TilingX;
+				graphic->renderingData.sprite.TilingY = data->TilingY;
 
 				const float* sourcePtr = glm::value_ptr(world->world);
-				std::copy(sourcePtr, sourcePtr + 16, data->renderingData.World);
-				SetRenderingData(data->renderingData);
+				std::copy(sourcePtr, sourcePtr + 16, graphic->renderingData.World);
+				SetRenderingData(graphic->renderingData);
 			}
 		});
 }

@@ -19,31 +19,64 @@ struct MethodInfo
 	std::string returnType;
 	std::string classType;
 	std::vector<std::string> memberType;
-	std::function<PValue(void*, std::vector<void*>&)> invoker;
+	std::vector<std::string> memberName;
+	std::vector<std::string> memberTooltip;
+	std::string tooltip;
+	std::function<PValue (void*, std::vector<void*>&)> invoker;
 };
 
+
+inline MethodInfo SetMethodTooltip(MethodInfo info, const std::string& tooltip)
+{
+	info.tooltip = tooltip;
+	return info;
+}
+
+inline MethodInfo SetMethodParameterName(MethodInfo info, int index, const std::string& name)
+{
+	if (index < 0) return info;
+	size_t parameterIndex = static_cast<size_t>(index);
+	if (info.memberName.size() < info.memberType.size()) info.memberName.resize(info.memberType.size());
+	if (parameterIndex >= info.memberName.size()) info.memberName.resize(parameterIndex + 1);
+	info.memberName[parameterIndex] = name;
+	return info;
+}
+
+inline MethodInfo SetMethodParameterTooltip(MethodInfo info, int index, const std::string& tooltip)
+{
+	if (index < 0) return info;
+	size_t parameterIndex = static_cast<size_t>(index);
+	if (info.memberTooltip.size() < info.memberType.size()) info.memberTooltip.resize(info.memberType.size());
+	if (parameterIndex >= info.memberTooltip.size()) info.memberTooltip.resize(parameterIndex + 1);
+	info.memberTooltip[parameterIndex] = tooltip;
+	return info;
+}
 ///
 extern "C" PIXEL_META_DLL uint64_t StringToByHash(const char* name);
 
+class PType;
 class PStatic;
 class PClass;
 class PEnum;
 using C_string = const std::string&;
 
 ///생성
-extern "C" PIXEL_META_DLL PStatic* CreateNewStatic(const std::string& Name);
-extern "C" PIXEL_META_DLL PClass* CreateNewClass(const std::string& thidTypeName, const std::string& parentTypeName = "");
-extern "C" PIXEL_META_DLL PEnum* CreateNewEnum(const std::string& thidTypeName);
+extern "C" PIXEL_META_DLL PStatic*		CreateNewStatic(const std::string& Name);
+extern "C" PIXEL_META_DLL PClass*		CreateNewClass(const std::string& thidTypeName, const std::string& parentTypeName = "");
+extern "C" PIXEL_META_DLL PEnum*		CreateNewEnum(const std::string& thidTypeName);
 
 ///GetType
 extern "C" PIXEL_META_DLL int			GetTypeAllCount();
-extern "C" PIXEL_META_DLL PType* GetType(const std::string& name);
-extern "C" PIXEL_META_DLL PType* GetTypeByIndex(int index);
+extern "C" PIXEL_META_DLL PType*		GetType(const std::string& name);
+extern "C" PIXEL_META_DLL PType*		GetTypeByIndex(int index);
 extern "C" PIXEL_META_DLL C_string		GetTypeName(PType* target);
 extern "C" PIXEL_META_DLL META_TYPE		GetTypeCategory(PType* type);
 extern "C" PIXEL_META_DLL uint64_t		GetTypeParentByHash(PType* target);
 extern "C" PIXEL_META_DLL uint64_t		GetTypeHash(PType* type);
 extern "C" PIXEL_META_DLL uint64_t		GetTypeHashByName(const std::string& name);
+extern "C" PIXEL_META_DLL void			SetTypeFlag(PType* type, long flag);
+extern "C" PIXEL_META_DLL long			GetTypeFlag(PType* type);
+extern "C" PIXEL_META_DLL bool			HasTypeFlag(PType* type, long flag);
 
 extern "C" PIXEL_META_DLL int			GetMemberCount(PType* type);
 extern "C" PIXEL_META_DLL C_string		GetMemberType(PType* type, int index);
@@ -53,24 +86,27 @@ extern "C" PIXEL_META_DLL bool			HasMemberFlag(PType* type, int index, long flag
 extern "C" PIXEL_META_DLL int			GetMethodCount(PType* type);
 extern "C" PIXEL_META_DLL C_string		GetMethodName(PType* type, int index);
 extern "C" PIXEL_META_DLL C_string		GetMethodReturnType(PType* type, int index);
-extern "C" PIXEL_META_DLL int			GetMethodPropertyCount(PType* type, int index);
+extern "C" PIXEL_META_DLL C_string		GetMethodTooltip(PType* type, int index);
+extern "C" PIXEL_META_DLL int			GetMethodPropertyCount(PType* type,int index);
 extern "C" PIXEL_META_DLL C_string		GetMethodGetPropertyType(PType* type, int index, int propertyIndex);
+extern "C" PIXEL_META_DLL C_string		GetMethodGetPropertyName(PType* type, int index, int propertyIndex);
+extern "C" PIXEL_META_DLL C_string		GetMethodGetPropertyTooltip(PType* type, int index, int propertyIndex);
 extern "C" PIXEL_META_DLL bool			HasMethodFlag(PType* type, int index, long flag);
 extern "C" PIXEL_META_DLL PValue		CallMethod(PType* targetClass, int index, void* target, std::vector<void*> property);
 
 extern "C" PIXEL_META_DLL int			GetEnumCount(PType* type);
-extern "C" PIXEL_META_DLL C_string		GetEnum(PType* type, int index);
+extern "C" PIXEL_META_DLL C_string		GetEnum(PType* type,int index);
 
 ///클래스 전용 함수들
 //생성자 소멸자
-extern "C" PIXEL_META_DLL void		CreateClassFunction(PClass* targetClass, void* (createFunc)());
-extern "C" PIXEL_META_DLL void		DeleteClassFunction(PClass* targetClass, void(deleteFunc)());
-extern "C" PIXEL_META_DLL void		CastClassFunction(PClass* targetClass, void* (castFunc)());
+extern "C" PIXEL_META_DLL void		CreateClassFunction(PClass* targetClass,void*(createFunc)());
+extern "C" PIXEL_META_DLL void		DeleteClassFunction(PClass* targetClass,void(deleteFunc)());
+extern "C" PIXEL_META_DLL void		CastClassFunction(PClass* targetClass, void*(castFunc)());
 
 ////등록
-extern "C" PIXEL_META_DLL bool		AddMember(PClass* targetClass, const std::string& memberName, MemberInfo info, long flag = 0);
-extern "C" PIXEL_META_DLL bool		AddMethod(PClass* targetClass, const std::string& methodName, MethodInfo info, long flag = 0);
-extern "C" PIXEL_META_DLL bool		AddEnum(PEnum* target, const std::string& Key);
+extern "C" PIXEL_META_DLL bool		AddMember(PClass* targetClass, const std::string& memberName, MemberInfo info,long flag = 0);
+extern "C" PIXEL_META_DLL bool		AddMethod(PClass* targetClass,const std::string& methodName, MethodInfo info, long flag = 0);
+extern "C" PIXEL_META_DLL bool		AddEnum(PEnum* target,const std::string& Key);
 
 
 
@@ -87,14 +123,14 @@ extern "C" PIXEL_META_DLL bool		AddEnum(PEnum* target, const std::string& Key);
 
 
 
-extern "C" PIXEL_META_DLL bool AddGlobalMethod(PStatic* targetClass, const std::string& methodName, MethodInfo info, long flag = 0);
+extern "C" PIXEL_META_DLL bool AddGlobalMethod(PStatic* targetClass, const std::string& methodName, MethodInfo info,long flag = 0);
 
 ///타입 정리
 extern "C" PIXEL_META_DLL void ReleaseMetaType();
 
 
 //클래스에서 맴버의 Offset을 구하는 편의 기능
-template<typename TClass, typename FieldType>
+template<typename TClass,typename FieldType>
 MemberInfo GetMemberInfo(FieldType TClass::* memberPtr)
 {
 	MemberInfo info;
@@ -177,7 +213,7 @@ MethodInfo GetMethodInfo(ReturnType(*Func)(Args...))
 
 
 template<typename ClassType, typename ReturnType, typename... Args>
-MethodInfo GetMethodInfo(ReturnType(ClassType::* Func)(Args...))
+MethodInfo GetMethodInfo(ReturnType(ClassType::*Func)(Args...))
 {
 	MethodInfo info;
 

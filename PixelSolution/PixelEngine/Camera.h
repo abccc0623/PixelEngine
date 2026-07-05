@@ -1,15 +1,12 @@
 #pragma once
-
 #include "PixelGraphicsAPI.h"
-namespace ECS::Camera
-{
-	struct CameraData
-	{
-		RenderingData renderingData;
-	};
-	void* AddComponent(unsigned int id);
-	void* GetComponent(unsigned int id);
-	bool HasComponent(unsigned int id);
-	std::string BindJit();
-}
+#include "PixelEngineDLL.h"
 
+struct CameraData
+{
+
+};
+
+extern "C" PIXEL_ENGINEDLL CameraData* Camera_Add(unsigned int id);
+extern "C" PIXEL_ENGINEDLL CameraData* Camera_Get(unsigned int id);
+extern "C" PIXEL_ENGINEDLL bool Camera_Has(unsigned int id);

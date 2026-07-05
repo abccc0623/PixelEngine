@@ -3,8 +3,10 @@
 #include "PixelMeta.h"
 class LSPBind;
 class LuaBind;
-class LuaClassCreate;
+class LuaComponentCreate;
+class LuaEnumCreate;
 class LuaStaticCreate;
+class LuaTypeCreate;
 class PType;
 class GenerateManager :public EngineManager
 {
@@ -21,14 +23,23 @@ public:
 	void LSPGenerate(const char* outPath);
 	void JsonGenerate(const char* outPath);
 private:
-	void TypeMember(PixelClassMeta& PixelClass, PType* type);
-	void TypeMethod(PixelClassMeta& PixelClass, PType* type);
-	void TypeEnum(PixelClassMeta& PixelClass, PType* type);
+	void AddClassData(PType* type, std::map<std::string, PixelClassMeta>& list);
+	void AddClass(PType* type, std::map<std::string, PixelClassMeta>& list);
 
-	LuaBind* luaBind;
-	LSPBind* lspBind;
-	LuaClassCreate* luaClassCreate;
-	LuaStaticCreate* luaStaticCreate;
-	std::vector<PixelClassMeta> types;
+	std::vector<PixelMemberMeta> TypeMember(PType* type, int memberCount);
+	std::vector<PixelMethodMeta> TypeMethod(PType* type, int methodCount);
+	std::vector<std::string> TypeEnum(PType* type, int enumCount);
+	void CreateRequireFile(const std::string& outPath);
+
+	//LuaBind* luaBind;
+	//LSPBind* lspBind;
+	LuaComponentCreate* luaComponentCreate = nullptr;
+	LuaEnumCreate* luaEnumCreate = nullptr;
+	LuaStaticCreate* luaStaticCreate = nullptr;
+	//LuaTypeCreate* luaTypeCreate = nullptr;
+
+	std::map<std::string, PixelClassMeta> PClassMetaList;
+	std::map<std::string, PixelClassMeta> PComponentMetaList;
+	std::map<std::string, PixelEnumMeta> PEnumMetaList;
 };
 

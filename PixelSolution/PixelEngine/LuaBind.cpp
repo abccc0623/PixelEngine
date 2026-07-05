@@ -22,39 +22,39 @@ LuaBind::~LuaBind()
 
 void LuaBind::SetIncludeString(PixelClassMeta& meta)
 {
-	if (meta.metaType == META_TYPE::PRIMITIVE) return;
-	if (meta.metaType == META_TYPE::ENUM) return;
-	if (IsMetaOnlyType(meta.thisName)) return;
-	if (meta.thisName == "Module") return;
-
-	if (meta.thisName != "Engine" &&
-		meta.thisName != "Scene" &&
-		meta.thisName != "Asset" &&
-		meta.thisName != "Input")
-	{
-		IncludeString += ReplaceAll(Include, "INCLUDE_TYPE", meta.thisName);
-	}
+	//if (meta.metaType == META_TYPE::PRIMITIVE) return;
+	//if (meta.metaType == META_TYPE::ENUM) return;
+	//if (IsMetaOnlyType(meta.name)) return;
+	//if (meta.name == "Module") return;
+	//
+	//if (meta.name != "Engine" &&
+	//	meta.name != "Scene" &&
+	//	meta.name != "Asset" &&
+	//	meta.name != "Input")
+	//{
+	//	IncludeString += ReplaceAll(Include, "INCLUDE_TYPE", meta.name);
+	//}
 }
 
 void LuaBind::SetFunctionString(PixelClassMeta& meta)
 {
-	if (meta.metaType == META_TYPE::PRIMITIVE) return;
-	if (IsMetaOnlyType(meta.thisName)) return;
-
-	FunctionCallString += ReplaceAll(FunctionCallName, "TYPE_NAME", meta.thisName);
-	FunctionString += ReplaceAll(FunctionName, "TYPE_NAME", meta.thisName);
-	FunctionString += "{\n";
-	if (meta.metaType == META_TYPE::CLASS || meta.metaType == META_TYPE::STATIC)
-	{
-		SetLuaClassString(meta);
-		SetLuaMemberString(meta);
-		SetLuaMethodString(meta);
-	}
-	else if (meta.metaType == META_TYPE::ENUM)
-	{
-		SetLuaEnumString(meta);
-	}
-	FunctionString += "}\n";
+	//if (meta.metaType == META_TYPE::PRIMITIVE) return;
+	//if (IsMetaOnlyType(meta.name)) return;
+	//
+	//FunctionCallString += ReplaceAll(FunctionCallName, "TYPE_NAME", meta.name);
+	//FunctionString += ReplaceAll(FunctionName, "TYPE_NAME", meta.name);
+	//FunctionString += "{\n";
+	//if (meta.metaType == META_TYPE::CLASS || meta.metaType == META_TYPE::STATIC)
+	//{
+	//	SetLuaClassString(meta);
+	//	SetLuaMemberString(meta);
+	//	SetLuaMethodString(meta);
+	//}
+	//else if (meta.metaType == META_TYPE::ENUM)
+	//{
+	//	SetLuaEnumString(meta);
+	//}
+	//FunctionString += "}\n";
 }
 
 void LuaBind::SetLuaClassString(PixelClassMeta& meta)
@@ -71,19 +71,19 @@ void LuaBind::SetLuaClassString(PixelClassMeta& meta)
 	//	data["CLASS_NAME"] = meta.thisName;
 	//	FunctionString += ReplaceSimple(CreateClassBind, data);
 	//}
-	if (meta.metaType == META_TYPE::STATIC)
-	{
-		FunctionString += ReplaceAll(StaticClassBind, "CLASS_NAME", meta.thisName);
-	}
-	else if (meta.metaType == META_TYPE::CLASS)
-	{
-		FunctionString += ReplaceAll(ClassBind, "CLASS_NAME", meta.thisName);
-
-		if (meta.parentHash == GetTypeHashByName("Module"))
-		{
-			AddModuleLuaString += ReplaceAll(LuaAddModuleBind, "CLASS_NAME", meta.thisName);
-		}
-	}
+	//if (meta.metaType == META_TYPE::STATIC)
+	//{
+	//	FunctionString += ReplaceAll(StaticClassBind, "CLASS_NAME", meta.name);
+	//}
+	//else if (meta.metaType == META_TYPE::CLASS)
+	//{
+	//	FunctionString += ReplaceAll(ClassBind, "CLASS_NAME", meta.name);
+	//
+	//	if (meta.parentHash == GetTypeHashByName("Module"))
+	//	{
+	//		AddModuleLuaString += ReplaceAll(LuaAddModuleBind, "CLASS_NAME", meta.name);
+	//	}
+	//}
 }
 
 void LuaBind::SetLuaMemberString(PixelClassMeta& meta)
@@ -92,55 +92,55 @@ void LuaBind::SetLuaMemberString(PixelClassMeta& meta)
 	{
 		std::unordered_map<std::string, std::string> data;
 		data["MEMBER_NAME"] = m.name;
-		data["CLASS_NAME"] = meta.thisName;
+		data["CLASS_NAME"] = meta.name;
 		FunctionString += ReplaceSimple(ClassMemberBind, data);
 	}
 }
 
 void LuaBind::SetLuaMethodString(PixelClassMeta& meta)
 {
-	for (auto& m : meta.methods)
-	{
-		if (meta.metaType == META_TYPE::STATIC)
-		{
-			if (meta.thisName != "Engine" &&
-				meta.thisName != "Scene" &&
-				meta.thisName != "Asset" &&
-				meta.thisName != "Input")
-			{
-				std::string targetNamespace = "ECS::" + meta.thisName + "::" + m.name;
-				std::unordered_map<std::string, std::string> data;
-				data["METHOD_NAME"] = m.name;
-				data["METHOD_NAMESPACE"] = targetNamespace;
-				FunctionString += ReplaceSimple(ClassGlobalMethodBindComponent, data);
-			}
-			else
-			{
-				std::unordered_map<std::string, std::string> data;
-				data["METHOD_NAME"] = m.name;
-				FunctionString += ReplaceSimple(ClassGlobalMethodBind, data);
-			}
-		}
-		else
-		{
-			std::unordered_map<std::string, std::string> data;
-			data["METHOD_NAME"] = m.name;
-			data["CLASS_NAME"] = meta.thisName;
-			FunctionString += ReplaceSimple(ClassMethodBind, data);
-		}
-	}
+	//for (auto& m : meta.methods)
+	//{
+	//	if (meta.metaType == META_TYPE::STATIC)
+	//	{
+	//		if (meta.name != "Engine" &&
+	//			meta.name != "Scene" &&
+	//			meta.name != "Asset" &&
+	//			meta.name != "Input")
+	//		{
+	//			std::string targetNamespace = "ECS::" + meta.name + "::" + m.name;
+	//			std::unordered_map<std::string, std::string> data;
+	//			data["METHOD_NAME"] = m.name;
+	//			data["METHOD_NAMESPACE"] = targetNamespace;
+	//			FunctionString += ReplaceSimple(ClassGlobalMethodBindComponent, data);
+	//		}
+	//		else
+	//		{
+	//			std::unordered_map<std::string, std::string> data;
+	//			data["METHOD_NAME"] = m.name;
+	//			FunctionString += ReplaceSimple(ClassGlobalMethodBind, data);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		std::unordered_map<std::string, std::string> data;
+	//		data["METHOD_NAME"] = m.name;
+	//		data["CLASS_NAME"] = meta.name;
+	//		FunctionString += ReplaceSimple(ClassMethodBind, data);
+	//	}
+	//}
 }
 
 void LuaBind::SetLuaEnumString(PixelClassMeta& meta)
 {
-	FunctionString += ReplaceAll(ClassEnumBind, "ENUM_NAME", meta.thisName);
-	for (auto& K : meta.enums) {
-		std::unordered_map<std::string, std::string> data;
-		data["ENUM_VALUE"] = K.value;
-		data["ENUM_NAME"] = meta.thisName;
-		FunctionString += ReplaceSimple(ClassEnumValueBind, data);
-	}
-	FunctionString += "});\n";
+	//FunctionString += ReplaceAll(ClassEnumBind, "ENUM_NAME", meta.name);
+	//for (auto& K : meta.enums) {
+	//	std::unordered_map<std::string, std::string> data;
+	//	data["ENUM_VALUE"] = K.value;
+	//	data["ENUM_NAME"] = meta.name;
+	//	FunctionString += ReplaceSimple(ClassEnumValueBind, data);
+	//}
+	//FunctionString += "});\n";
 }
 
 std::string LuaBind::propertyToString(std::vector<std::string> propertys)

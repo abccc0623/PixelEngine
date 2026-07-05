@@ -42,9 +42,24 @@ const std::string& PStatic::GetMethodReturnType(int index)
 	return methodList[index]->GetReturnType();
 }
 
+const std::string& PStatic::GetMethodTooltip(int index)
+{
+	return methodList[index]->GetTooltip();
+}
+
 const std::string& PStatic::GetMethodPropertyType(int index, int propertyIndex)
 {
 	return methodList[index]->GetPropertyType(propertyIndex);
+}
+
+const std::string& PStatic::GetMethodPropertyName(int index, int propertyIndex)
+{
+	return methodList[index]->GetPropertyName(propertyIndex);
+}
+
+const std::string& PStatic::GetMethodPropertyTooltip(int index, int propertyIndex)
+{
+	return methodList[index]->GetPropertyTooltip(propertyIndex);
 }
 
 PValue PStatic::CallMethod(int index, void* target, std::vector<void*> property)

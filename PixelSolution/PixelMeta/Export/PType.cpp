@@ -38,6 +38,21 @@ uint64_t PType::GetSize()
 	return typeSize;
 }
 
+void PType::SetFlag(long flag)
+{
+	Flag.Set(flag);
+}
+
+long PType::GetFlag()
+{
+	return Flag.GetRaw();
+}
+
+bool PType::HasFlag(long flag)
+{
+	return Flag.Has(flag);
+}
+
 bool PType::operator==(const PType& other)
 {
 	return (this->typeHash == other.typeHash);

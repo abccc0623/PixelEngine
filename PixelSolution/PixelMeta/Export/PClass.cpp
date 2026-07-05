@@ -116,9 +116,24 @@ const std::string& PClass::GetMethodReturnType(int index)
 	return methodList[index]->GetReturnType();
 }
 
+const std::string& PClass::GetMethodTooltip(int index)
+{
+	return methodList[index]->GetTooltip();
+}
+
 const std::string& PClass::GetMethodPropertyType(int index, int propertyIndex)
 {
 	return methodList[index]->GetPropertyType(propertyIndex);
+}
+
+const std::string& PClass::GetMethodPropertyName(int index, int propertyIndex)
+{
+	return methodList[index]->GetPropertyName(propertyIndex);
+}
+
+const std::string& PClass::GetMethodPropertyTooltip(int index, int propertyIndex)
+{
+	return methodList[index]->GetPropertyTooltip(propertyIndex);
 }
 
 PValue PClass::CallMethod(int index, void* target, std::vector<void*> property)

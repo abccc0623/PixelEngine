@@ -43,12 +43,12 @@ void PField::SetValue(void* target, void* value)
 
 void PField::SetFlag(long flag)
 {
-	Flag.Set((MetaFlag)flag);
+	Flag.Set(flag);
 }
 
 bool PField::HasFlag(long flag)
 {
-	return Flag.Has((MetaFlag)flag);
+	return Flag.Has(flag);
 }
 
 void* PField::GetValue(void* target)

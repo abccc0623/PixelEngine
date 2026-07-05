@@ -2,13 +2,12 @@
 #include "PixelMeta.h"
 #include <vector>
 #include <unordered_map>
+#include "EngineMetaFlag.h"
 class IBind
 {
 public:
 	IBind() = default;
 	~IBind() = default;
-
-	virtual void Generate(const char* outPath, std::vector<PixelClassMeta>& types) = 0;
 protected:
 	std::string ApplyTemplate(const std::string& templateStr, const std::unordered_map<std::string, std::string>& values)
 	{
@@ -171,4 +170,11 @@ protected:
 		}
 		return "0";
 	}
+
+	std::string CreateCDef(const PixelClassMeta& meta);
+	std::string CreateClassAnnotation(const PixelClassMeta& meta);
+
+	std::string CreateMethodParameter(const PixelMethodMeta& meta);
+	std::string CreateMethod(const PixelMethodMeta& meta);
+	virtual std::string CreateFunction(const PixelClassMeta& PClass);
 };
