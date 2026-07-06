@@ -226,7 +226,7 @@ void PhysManager::SetActive(JPH::BodyID id, bool active)
 		}
 
 		unsigned int userData = mBodyInterface->GetUserData(id);
-		auto data = reinterpret_cast<ECS::Transform::TransformData*>(ECS::Transform::GetComponent(userData));
+		auto data = reinterpret_cast<TransformData*>(Transform_Get(userData));
 
 
 		JPH::RVec3 RPos(data->position.x, data->position.y, data->position.z);
@@ -289,7 +289,7 @@ JPH::BodyID PhysManager::CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigi
 	constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
 
 	auto r = GetRegistry();
-	auto transformData = r->Get<ECS::Transform::TransformData>(pOwner);
+	auto transformData = r->Get<TransformData>(pOwner);
 
 	JPH::Vec3 eulerRadians(transformData->rotation.x * DEG_TO_RAD, transformData->rotation.y * DEG_TO_RAD, transformData->rotation.z * DEG_TO_RAD);
 	JPH::BodyCreationSettings bodySettings
@@ -389,8 +389,8 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
 	JPH::RVec3 pos = mBodyInterface->GetPosition(id);
 	JPH::Quat rot = mBodyInterface->GetRotation(id);
 	auto r = GetRegistry();
-	auto worldData = r->Get<ECS::Transform::WorldData>(EntityID);
-	auto transformData = r->Get<ECS::Transform::TransformData>(EntityID);
+	auto worldData = r->Get<WorldData>(EntityID);
+	auto transformData = r->Get<TransformData>(EntityID);
 	transformData->position.x = pos.GetX();
 	transformData->position.y = pos.GetY();
 	transformData->position.z = pos.GetZ();

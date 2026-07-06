@@ -15,8 +15,8 @@
 #include "PixelMetaAPI.h"
 #include "CoroutineManager.h"
 
-#include "GenerateLuaBind.h"
 #include <filesystem>
+#include "Debug.h"
 
 #define SOL_ALL_SAFETIES_ON 1 // 안전장치 활성화 (권장)
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
@@ -202,7 +202,7 @@ void LuaManager::ReadEngineGenerateFile()
 	if (!loadResult.valid())
 	{
 		sol::error err = loadResult;
-		PixelLog::Error(err.what());
+		Debug_LogError(err.what());
 		return;
 	}
 
@@ -211,7 +211,7 @@ void LuaManager::ReadEngineGenerateFile()
 	if (!result.valid())
 	{
 		sol::error err = result;
-		PixelLog::Error(err.what());
+		Debug_LogError(err.what());
 	}
 }
 
@@ -224,7 +224,7 @@ void LuaManager::AddEntityID(unsigned int id, sol::table target)
 		{
 			sol::error err = result;
 			std::string errorMsg = err.what();
-			PixelLog::Error(errorMsg.c_str());
+			Debug_LogError(errorMsg.c_str());
 		}
 	}
 }

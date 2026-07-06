@@ -210,9 +210,6 @@
     <ClInclude Include="JsonManager.h">
       <Filter>EngineAPI\Manager\JsonManager</Filter>
     </ClInclude>
-    <ClInclude Include="GenerateLuaBind.h">
-      <Filter>EngineAPI\Manager\LuaManager</Filter>
-    </ClInclude>
     <ClInclude Include="GenerateManager.h">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
     </ClInclude>
@@ -379,6 +376,9 @@
       <Filter>EngineAPI\Types\Vector3</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
+      <Filter>EngineAPI\Export</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
       <Filter>EngineAPI\Export</Filter>
     </ClInclude>
   </ItemGroup>
@@ -580,6 +580,9 @@
     </ClCompile>
     <ClCompile Include="IBind.cpp">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>EngineAPI\Export</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

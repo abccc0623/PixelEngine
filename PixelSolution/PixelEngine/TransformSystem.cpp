@@ -17,8 +17,8 @@ ECS::TransformSystem::~TransformSystem()
 
 void ECS::TransformSystem::Update(ECS::Registry* registry)
 {
-	auto& T = registry->GetChunkedArray<ECS::Transform::TransformData>();
-	T.ForEach([registry](ECS::Transform::TransformData* data, size_t index)
+	auto& T = registry->GetChunkedArray<TransformData>();
+	T.ForEach([registry](TransformData* data, size_t index)
 		{
 			glm::vec3 eulerAngles(data->rotation.x, data->rotation.y, data->rotation.z);
 
@@ -32,8 +32,8 @@ void ECS::TransformSystem::Update(ECS::Registry* registry)
 
 			glm::mat4 worldMatrix = translationMatrix * rotationMatrix * scaleMatrix;
 
-			auto id = registry->GetEntityID<ECS::Transform::TransformData>(index);
-			auto world = registry->Get<ECS::Transform::WorldData>(id);
+			auto id = registry->GetEntityID<TransformData>(index);
+			auto world = registry->Get<WorldData>(id);
 			if (world != nullptr)
 			{
 				world->world = worldMatrix;

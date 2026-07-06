@@ -109,12 +109,12 @@ void ECS::Rigidbody2D::SetPosition(unsigned int id, float x, float y, float z)
 	{
 		registry->Add<Rigidbody2DData>(id);
 	}
-	if (registry->Has<ECS::Transform::TransformData>(id))
+	if (registry->Has<TransformData>(id))
 	{
-		registry->Add<ECS::Transform::TransformData>(id);
+		registry->Add<TransformData>(id);
 	}
 
-	auto transformData = registry->Get<ECS::Transform::TransformData>(id);
+	auto transformData = registry->Get<TransformData>(id);
 	auto rigidbodyData = registry->Get<Rigidbody2DData>(id);
 	if (transformData != nullptr)
 	{

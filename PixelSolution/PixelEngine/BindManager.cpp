@@ -24,6 +24,7 @@
 #include "Debug.h"
 #include "Asset.h"
 #include "Input.h"
+#include "Engine.h"
 
 
 
@@ -176,7 +177,7 @@ void BindManager::Initialize()
 	//Engine
 	MethodInfo info;
 	PStatic* globalCreate = CreateLuaMetaStatic("Engine", EngineMetaFlag::Class);
-	info = GeGlobalMethodInfo(&BackgroundColor);
+	info = GeGlobalMethodInfo(&Engine_BackgroundColor);
 	info.memberName.push_back("colorR");
 	info.memberName.push_back("colorG");
 	info.memberName.push_back("colorB");
@@ -186,7 +187,7 @@ void BindManager::Initialize()
 	PStatic* globalScene = CreateLuaMetaStatic("Scene", EngineMetaFlag::Class);
 	info = GeGlobalMethodInfo(&ChangeScene);
 	info.memberName.push_back("sceneName");
-	AddGlobalMethod(globalScene, "Scene_ChangeScene", info, EngineMetaFlag::Class);
+	AddGlobalMethod(globalScene, "ChangeScene", info, EngineMetaFlag::Class);
 
 	//Asset
 	PStatic* globalAsset = CreateLuaMetaStatic("Asset", EngineMetaFlag::Class);
@@ -233,7 +234,9 @@ void BindManager::Initialize()
 	auto EntityDestroy = GeGlobalMethodInfo(&Entity_Destroy);
 	EntityDestroy.memberName.push_back("ID");
 	auto EntityGetActive = GeGlobalMethodInfo(&Entity_GetActive);
+	EntityGetActive.memberName.push_back("ID");
 	auto EntitySetActive = GeGlobalMethodInfo(&Entity_SetActive);
+	EntitySetActive.memberName.push_back("ID");
 	EntitySetActive.memberName.push_back("IsActive");
 	AddGlobalMethod(globalEntity, "Entity_Create", EntityCreate, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_Destroy", EntityDestroy, EngineMetaFlag::Class);

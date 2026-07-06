@@ -23,7 +23,7 @@ void ECS::Renderer2DSystem::Update(Registry* registry)
 		{
 			auto id = registry->GetEntityID<Renderer2DData>(index);
 			auto graphic = registry->Get<GraphicsData>(index);
-			auto world = registry->Get<ECS::Transform::WorldData>(id);
+			auto world = registry->Get<WorldData>(id);
 			if (world != nullptr)
 			{
 				graphic->renderingData.sprite.OffsetX = data->OffsetX;

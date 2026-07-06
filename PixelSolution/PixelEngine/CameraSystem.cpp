@@ -22,7 +22,7 @@ void ECS::CameraSystem::Update(Registry* registry)
 		{
 			auto id = registry->GetEntityID<CameraData>(index);
 			auto g = registry->Get<GraphicsData>(index);
-			auto world = registry->Get<ECS::Transform::WorldData>(id);
+			auto world = registry->Get<WorldData>(id);
 			if (world != nullptr)
 			{
 				glm::mat4 viewMatrix = glm::inverse(world->world);

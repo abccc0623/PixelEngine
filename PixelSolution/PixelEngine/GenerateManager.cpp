@@ -83,53 +83,7 @@ void GenerateManager::CreateBindCode()
 			PEnum.value = TypeEnum(targetType, enumCount);
 			PEnumMetaList.insert({ PEnum.name ,PEnum });
 		}
-
-
-		//switch (metaType)
-		//{
-		//case META_TYPE::CLASS:
-		//{
-		//	PixelClassMeta PClass;
-		//	PClass.name = GetTypeName(targetType);
-		//	PClass.type = HasTypeFlag(targetType, EngineMetaFlag::ComponentData) ? "ComponentData" : "Class";
-		//	int memberCount = GetMemberCount(targetType);
-		//	int methodCount = GetMethodCount(targetType);
-		//	if (memberCount > 0)
-		//	{
-		//		PClass.members = TypeMember(targetType, memberCount);
-		//	}
-		//	if (methodCount > 0)
-		//	{
-		//		PClass.methods = TypeMethod(targetType, methodCount);
-		//	}
-		//	types.classList.push_back(PClass);
-		//}
-		//break;
-		//case META_TYPE::ENUM:
-		//{
-		//	PixelEnumMeta PEnum;
-		//	PEnum.name = GetTypeName(targetType);
-		//	int enumCount = GetEnumCount(targetType);
-		//	PEnum.value = TypeEnum(targetType, enumCount);
-		//	types.enumList.push_back(PEnum);
-		//}
-		//break;
-		//case META_TYPE::STATIC:
-		//{
-		//	PixelStaticMeta PStatic;
-		//	PStatic.name = GetTypeName(targetType);
-		//	PStatic.type = HasTypeFlag(targetType, EngineMetaFlag::Component) ? "Component" : "Static";
-		//	int methodCount = GetMethodCount(targetType);
-		//	if (methodCount > 0)
-		//	{
-		//		PStatic.methods = TypeMethod(targetType, methodCount);
-		//	}
-		//	types.staticList.push_back(PStatic);
-		//}
-		//break;
-		//}
 	}
-	int a = 0;
 }
 
 void GenerateManager::LuaGenerate(const char* outPath)
@@ -204,38 +158,24 @@ void GenerateManager::CreateRequireFile(const std::string& outPath)
 {
 	std::filesystem::create_directories(outPath);
 	std::ofstream file(outPath + "/EngineGenerate.lua");
-	file << "require(\"" << "Enum.lua" << "\")\n";
+	file << "require(\"" << "Enum" << "\")\n";
+	file << "require(\"" << "PVector2" << "\")\n";
+	file << "require(\"" << "PVector3" << "\")\n";
 
 	for (auto& K : PClassMetaList)
+	{
+		if (K.second.name == "PVector2" || K.second.name == "PVector3")
+		{
+			continue;
+		}
+		file << "require(\"" << K.second.name << "\")\n";
+	}
+
+	for (auto& K : PComponentMetaList)
 	{
 		file << "require(\"" << K.second.name << "\")\n";
 	}
 
-	//const char* priorityTypes[] = { "PVector2", "PVector3" };
-	//for (const char* priorityType : priorityTypes)
-	//{
-	//	for (const auto& type : types.classList)
-	//	{
-	//		if (type.name == priorityType)
-	//		{
-	//			file << "require(\"" << type.name << "\")\n";
-	//			break;
-	//		}
-	//	}
-	//}
-	//
-	//for (const auto& component : components)
-	//{
-	//	file << "require(\"" << component.staticComponent.name << "\")\n";
-	//}
-
-	//for (const auto& type : types.staticList)
-	//{
-	//	if (type.type != "Component" && luaStaticCreate->HasGeneratedMethods(type))
-	//	{
-	//		file << "require(\"" << type.name << "\")\n";
-	//	}
-	//}
 }
 std::vector<PixelMemberMeta> GenerateManager::TypeMember(PType* type, int memberCount)
 {
