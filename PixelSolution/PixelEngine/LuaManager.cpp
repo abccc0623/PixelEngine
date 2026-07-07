@@ -211,6 +211,7 @@ void LuaManager::ReadEngineGenerateFile()
 	if (!result.valid())
 	{
 		sol::error err = result;
+		std::string test = err.what();
 		Debug_LogError(err.what());
 	}
 }

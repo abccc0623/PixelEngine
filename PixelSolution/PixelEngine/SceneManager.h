@@ -5,7 +5,7 @@
 #include "WPointer.h"
 #include <unordered_map>
 #include <string>
-class Scene;
+class SceneObject;
 class GameObject;
 namespace ECS
 {
@@ -30,9 +30,9 @@ public:
 
 	void CreateScene(const std::string& luaPath);
 	void ChangeScene(std::string SceneName);
-	Scene* GetNowScene();
+	SceneObject* GetNowScene();
 private:
-	Scene* nowScene = nullptr;
-	std::unordered_map<std::string, Scene*> SceneMap;
+	SceneObject* nowScene = nullptr;
+	std::unordered_map<std::string, SceneObject*> SceneMap;
 };
 

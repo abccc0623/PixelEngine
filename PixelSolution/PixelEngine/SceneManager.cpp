@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "SceneManager.h"
-#include "Scene.h"
+#include "SceneObject.h"
 #include "Log.h"
 #include "JsonManager.h"
 #include "PixelEngine.h"
@@ -9,7 +9,7 @@ extern PixelEngine* Engine;
 SceneManager::SceneManager()
 {
 	nowScene = nullptr;
-	SceneMap = std::unordered_map<std::string, Scene*>();
+	SceneMap = std::unordered_map<std::string, SceneObject*>();
 }
 
 SceneManager::~SceneManager()
@@ -61,7 +61,7 @@ void SceneManager::ChangeScene(std::string name)
 	}
 }
 
-Scene* SceneManager::GetNowScene()
+SceneObject* SceneManager::GetNowScene()
 {
 	if (nowScene == nullptr)
 	{
@@ -69,7 +69,7 @@ Scene* SceneManager::GetNowScene()
 		auto find = SceneMap.find(defaultSceneName);
 		if (find == SceneMap.end())
 		{
-			Scene* defaultScene = new Scene();
+			SceneObject* defaultScene = new SceneObject();
 			defaultScene->Initialize("", defaultSceneName);
 			SceneMap.insert({ defaultSceneName, defaultScene });
 			nowScene = defaultScene;
@@ -133,7 +133,7 @@ void SceneManager::CreateScene(const std::string& luaPath)
 	auto find = SceneMap.find(stem);
 	if (find == SceneMap.end())
 	{
-		Scene* newScene = new Scene();
+		SceneObject* newScene = new SceneObject();
 		newScene->Initialize(luaPath, stem);
 		SceneMap.insert({ stem,newScene });
 	}

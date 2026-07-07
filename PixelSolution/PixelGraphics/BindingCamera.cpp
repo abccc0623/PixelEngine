@@ -5,6 +5,16 @@
 #include "RenderringData.h"
 #include "PixelResources.h"
 #include "GraphicsCore.h"
+#include <cmath>
+
+namespace
+{
+	constexpr float DefaultFovY = 0.3f * 3.1415926535f;
+	constexpr float DefaultNearZ = 0.1f;
+	constexpr float DefaultFarZ = 4000.0f;
+	constexpr float MinClipDistance = 0.00001f;
+}
+
 BindingCamera::BindingCamera()
 {
 
@@ -27,9 +37,9 @@ void BindingCamera::Binding(RenderingData* mData, Handle64 prev)
 	{
 		//기본값으로 셋팅
 		mData->camera.Projection = ProjectionType::Perspective;
-		mData->camera.FovY = 0.3f * 3.1415926535f;
-		mData->camera.NearZ = 0.1f;
-		mData->camera.FarZ = 4000.0f;
+		mData->camera.FovY = DefaultFovY;
+		mData->camera.NearZ = DefaultNearZ;
+		mData->camera.FarZ = DefaultFarZ;
 		mData->camera.ZoomLevel = 1.0f;
 	}
 
@@ -51,6 +61,23 @@ void BindingCamera::Binding(RenderingData* mData, Handle64 prev)
 	float aspect = width / height;
 	float nearZ = mData->camera.NearZ;
 	float farZ = mData->camera.FarZ;
+
+	if (!std::isfinite(fovY) || fovY <= 0.0f)
+	{
+		fovY = DefaultFovY;
+	}
+	if (!std::isfinite(nearZ) || nearZ <= 0.0f)
+	{
+		nearZ = DefaultNearZ;
+	}
+	if (!std::isfinite(farZ) || farZ <= nearZ + MinClipDistance)
+	{
+		farZ = DefaultFarZ;
+		if (farZ <= nearZ + MinClipDistance)
+		{
+			farZ = nearZ + 1.0f;
+		}
+	}
 
 	if (mData->camera.Projection == ProjectionType::Perspective)
 	{

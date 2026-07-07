@@ -22,7 +22,7 @@ void ECS::Renderer2DSystem::Update(Registry* registry)
 	Chunked.ForEach([registry](Renderer2DData* data, size_t index)
 		{
 			auto id = registry->GetEntityID<Renderer2DData>(index);
-			auto graphic = registry->Get<GraphicsData>(index);
+			auto graphic = registry->Get<GraphicsData>(id);
 			auto world = registry->Get<WorldData>(id);
 			if (world != nullptr)
 			{

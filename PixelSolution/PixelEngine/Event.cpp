@@ -3,7 +3,7 @@
 #include "Registry.h"
 #include "PixelEngine.h"
 #include "EventManager.h"
-#include "Scene.h"
+#include "SceneObject.h"
 #include "SceneManager.h"
 extern PixelEngine* Engine;
 void ECS::Event::BindEvent(unsigned int id, const char* eventKey, const char* eventName)

@@ -5,7 +5,7 @@
 #include "PixelEngine.h"
 #include "SceneManager.h"
 #include "LuaManager.h"
-#include "Scene.h"
+#include "SceneObject.h"
 
 extern PixelEngine* Engine;
 unsigned int Entity_Create(const char* scriptName)

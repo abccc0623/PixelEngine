@@ -3,7 +3,6 @@
 #include "PixelMetaAPI.h"
 #include "EngineMetaFlag.h"
 #include "PixelMeta.h"
-#include "LuaBind.h"
 #include "LuaComponentCreate.h"
 #include "LuaEnumCreate.h"
 #include "LuaStaticCreate.h"
@@ -14,12 +13,9 @@
 using json = nlohmann::json;
 void GenerateManager::Initialize()
 {
-	//luaBind = new LuaBind();
-	//lspBind = new LSPBind();
 	luaComponentCreate = new LuaComponentCreate();
 	luaEnumCreate = new LuaEnumCreate();
 	luaStaticCreate = new LuaStaticCreate();
-	//luaTypeCreate = new LuaTypeCreate();
 }
 
 void GenerateManager::Update()
@@ -29,16 +25,12 @@ void GenerateManager::Update()
 
 void GenerateManager::Release()
 {
-	//delete luaBind;
-	//delete lspBind;
-	//delete luaComponentCreate;
-	//luaComponentCreate = nullptr;
-	//delete luaEnumCreate;
-	//luaEnumCreate = nullptr;
-	//delete luaStaticCreate;
-	//luaStaticCreate = nullptr;
-	//delete luaTypeCreate;
-	//luaTypeCreate = nullptr;
+	delete luaComponentCreate;
+	luaComponentCreate = nullptr;
+	delete luaEnumCreate;
+	luaEnumCreate = nullptr;
+	delete luaStaticCreate;
+	luaStaticCreate = nullptr;
 }
 
 void GenerateManager::Clear()

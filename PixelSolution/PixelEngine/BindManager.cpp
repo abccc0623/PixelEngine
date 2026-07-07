@@ -25,6 +25,7 @@
 #include "Asset.h"
 #include "Input.h"
 #include "Engine.h"
+#include "Scene.h"
 
 
 
@@ -111,10 +112,15 @@ static void RegisterComponentData()
 	AddGlobalMethod(GlobalRenderer2D, name + "_Add", info_Add, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalRenderer2D, name + "_Get", info_Get, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalRenderer2D, name + "_Has", info_Has, EngineMetaFlag::Component);
-	AddGlobalMethod(GlobalRenderer2D, "SetTexture", info_SetTextrue, EngineMetaFlag::Component);
+	AddGlobalMethod(GlobalRenderer2D, "Renderer2D_SetTexture", info_SetTextrue, EngineMetaFlag::Component);
 
 
 	name = "Camera";
+	PClass* cameraData = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
+	AddMember(cameraData, "FovY", LuaMember("float", offsetof(CameraData, FovY)), EngineMetaFlag::ComponentData);
+	AddMember(cameraData, "NearZ", LuaMember("float", offsetof(CameraData, NearZ)), EngineMetaFlag::ComponentData);
+	AddMember(cameraData, "FarZ", LuaMember("float", offsetof(CameraData, FarZ)), EngineMetaFlag::ComponentData);
+	AddMember(cameraData, "ZoomLevel", LuaMember("float", offsetof(CameraData, ZoomLevel)), EngineMetaFlag::ComponentData);
 	PStatic* GlobalCamera = CreateLuaMetaStatic(name, EngineMetaFlag::Component);
 	info_Add = GeGlobalMethodInfo(&Camera_Add);
 	info_Add.memberName.push_back("ID");
@@ -183,11 +189,11 @@ void BindManager::Initialize()
 	info.memberName.push_back("colorB");
 	AddGlobalMethod(globalCreate, "Engine_BackgroundColor", info, EngineMetaFlag::Class);
 
-	//Scene
+	//SceneObject
 	PStatic* globalScene = CreateLuaMetaStatic("Scene", EngineMetaFlag::Class);
-	info = GeGlobalMethodInfo(&ChangeScene);
+	info = GeGlobalMethodInfo(&Scene_Change);
 	info.memberName.push_back("sceneName");
-	AddGlobalMethod(globalScene, "ChangeScene", info, EngineMetaFlag::Class);
+	AddGlobalMethod(globalScene, "Scene_Change", info, EngineMetaFlag::Class);
 
 	//Asset
 	PStatic* globalAsset = CreateLuaMetaStatic("Asset", EngineMetaFlag::Class);

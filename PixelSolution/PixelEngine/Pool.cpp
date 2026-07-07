@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Pool.h"
 #include "PixelEngine.h"
-#include "Scene.h"
+#include "SceneObject.h"
 #include "SceneManager.h"
 #include "PoolManager.h"
 

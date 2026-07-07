@@ -105,6 +105,7 @@ namespace ECS
 		template <typename Func>
 		void ForEach(Func callback)
 		{
+			std::string name = typeid(T).name();
 			for (size_t i = 0; i < currentSize; ++i)
 			{
 				// ºó ¹æ(±¸¸Û)ÀÌ¸é ºûÀÇ ¼Óµµ·Î ´ÙÀ½ ¹æÀ¸·Î °Ç³Ê¶Ü!

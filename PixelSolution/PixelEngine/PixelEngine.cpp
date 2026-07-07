@@ -2,7 +2,7 @@
 #include "PixelEngine.h"
 #include "PixelGraphicsAPI.h"
 #include "Core/Module.h"
-#include "Scene.h"
+#include "SceneObject.h"
 #include <iostream>
 #include <Windows.h>
 #include "TimeManager.h"
@@ -138,7 +138,7 @@ void PixelEngine::QuitWindow()
 
 }
 
-Scene* PixelEngine::CreateScene(std::string name)
+SceneObject* PixelEngine::CreateScene(std::string name)
 {
 	//auto scene = GetFactory<SceneManager>();
 	//scene->CreateScene(name);

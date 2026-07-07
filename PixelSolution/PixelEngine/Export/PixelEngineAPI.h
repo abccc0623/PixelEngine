@@ -84,7 +84,7 @@ extern "C" PIXEL_ENGINEDLL void LogWarning(const char* log);
 
 typedef void(__stdcall* LogCallbackFunc)(const char* message, int level);
 typedef void(__stdcall* SceneChangeCallbackFunc)();
-//Scene
+//SceneObject
 extern "C" PIXEL_ENGINEDLL bool CreateScene(const char* sceneName);
 extern "C" PIXEL_ENGINEDLL void ChangeScene(const char* sceneName);
 extern "C" PIXEL_ENGINEDLL void RegisterSceneObjectChange(SceneChangeCallbackFunc callBack);

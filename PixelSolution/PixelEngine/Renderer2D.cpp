@@ -9,7 +9,12 @@ Renderer2DData* Renderer2D_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
 	registry->Add<Renderer2DData>(id);
-	registry->Add<GraphicsData>(id);
+
+	if (registry->Has<GraphicsData>(id) == false)
+	{
+		registry->Add<GraphicsData>(id);
+	}
+
 
 	auto data1 = registry->Get<Renderer2DData>(id);
 	auto data2 = registry->Get<GraphicsData>(id);

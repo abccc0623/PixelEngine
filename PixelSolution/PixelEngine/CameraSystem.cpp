@@ -25,6 +25,12 @@ void ECS::CameraSystem::Update(Registry* registry)
 			auto world = registry->Get<WorldData>(id);
 			if (world != nullptr)
 			{
+				g->renderingData.camera.Projection = ProjectionType::Perspective;
+				g->renderingData.camera.FovY = data->FovY;
+				g->renderingData.camera.NearZ = data->NearZ;
+				g->renderingData.camera.FarZ = data->FarZ;
+				g->renderingData.camera.ZoomLevel = data->ZoomLevel;
+
 				glm::mat4 viewMatrix = glm::inverse(world->world);
 				Pixel::Matrix4x4 camMatrix = viewMatrix;
 

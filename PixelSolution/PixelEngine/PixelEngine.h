@@ -12,7 +12,7 @@ class EngineManager;
 class SceneManager;
 class GameObject;
 class Module;
-class Scene;
+class SceneObject;
 class TextureManager;
 class ResourceManager;
 class EventManager;
@@ -40,7 +40,7 @@ public:
 	std::string GetEngineRootFolderPath();
 
 	sol::state* GetModuleCall_Lua();
-	Scene* CreateScene(std::string name);
+	SceneObject* CreateScene(std::string name);
 
 	ObjectID GetResourceID(RESOURCE_TYPE type, const std::string& path);
 
