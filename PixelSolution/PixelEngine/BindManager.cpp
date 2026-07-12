@@ -66,12 +66,15 @@ static PStatic* CreateLuaMetaStatic(const std::string& name, long flag = EngineM
 
 static void RegisterComponentData()
 {
+	PClass* Data = nullptr;
+	PStatic* Static = nullptr;
 	std::string name = "Transform";
+
 	PClass* GlobalTransformData = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
 	AddMember(GlobalTransformData, "position", LuaMember("PVector3", offsetof(TransformData, position)), EngineMetaFlag::ComponentData);
-	AddMember(GlobalTransformData, "bitmask", LuaMember("unsigned int", offsetof(TransformData, bitmask)), EngineMetaFlag::ComponentData);
+	AddMember(GlobalTransformData, "thisID", LuaMember("unsigned int", offsetof(TransformData, thisID)), EngineMetaFlag::ComponentData);
 	AddMember(GlobalTransformData, "rotation", LuaMember("PVector3", offsetof(TransformData, rotation)), EngineMetaFlag::ComponentData);
-	AddMember(GlobalTransformData, "unused1", LuaMember("unsigned int", offsetof(TransformData, unused1)), EngineMetaFlag::ComponentData);
+	AddMember(GlobalTransformData, "bitmask", LuaMember("unsigned int", offsetof(TransformData, bitmask)), EngineMetaFlag::ComponentData);
 	AddMember(GlobalTransformData, "scale", LuaMember("PVector3", offsetof(TransformData, scale)), EngineMetaFlag::ComponentData);
 	AddMember(GlobalTransformData, "unused2", LuaMember("unsigned int", offsetof(TransformData, unused2)), EngineMetaFlag::ComponentData);
 	PStatic* GlobalTransform = CreateLuaMetaStatic("Transform", EngineMetaFlag::Component);
@@ -85,9 +88,6 @@ static void RegisterComponentData()
 	AddGlobalMethod(GlobalTransform, name + "_Get", info_Get, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalTransform, name + "_Has", info_Has, EngineMetaFlag::Component);
 
-
-
-
 	PEnum* GlobalMotionType = CreateNewEnum("MotionType");
 	AddEnum(GlobalMotionType, "Static");
 	AddEnum(GlobalMotionType, "Kinematic");
@@ -95,6 +95,7 @@ static void RegisterComponentData()
 
 	name = "Renderer2D";
 	PClass* renderer2DData = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
+	AddMember(renderer2DData, "thisID", LuaMember("unsigned int", offsetof(Renderer2DData, thisID)), EngineMetaFlag::ComponentData);
 	AddMember(renderer2DData, "TilingX", LuaMember("float", offsetof(Renderer2DData, TilingX)), EngineMetaFlag::ComponentData);
 	AddMember(renderer2DData, "TilingY", LuaMember("float", offsetof(Renderer2DData, TilingY)), EngineMetaFlag::ComponentData);
 	AddMember(renderer2DData, "OffsetX", LuaMember("float", offsetof(Renderer2DData, OffsetX)), EngineMetaFlag::ComponentData);
@@ -116,11 +117,12 @@ static void RegisterComponentData()
 
 
 	name = "Camera";
-	PClass* cameraData = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
-	AddMember(cameraData, "FovY", LuaMember("float", offsetof(CameraData, FovY)), EngineMetaFlag::ComponentData);
-	AddMember(cameraData, "NearZ", LuaMember("float", offsetof(CameraData, NearZ)), EngineMetaFlag::ComponentData);
-	AddMember(cameraData, "FarZ", LuaMember("float", offsetof(CameraData, FarZ)), EngineMetaFlag::ComponentData);
-	AddMember(cameraData, "ZoomLevel", LuaMember("float", offsetof(CameraData, ZoomLevel)), EngineMetaFlag::ComponentData);
+	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
+	AddMember(Data, "thisID", LuaMember("unsigned int", offsetof(CameraData, thisID)), EngineMetaFlag::ComponentData);
+	AddMember(Data, "FovY", LuaMember("float", offsetof(CameraData, FovY)), EngineMetaFlag::ComponentData);
+	AddMember(Data, "NearZ", LuaMember("float", offsetof(CameraData, NearZ)), EngineMetaFlag::ComponentData);
+	AddMember(Data, "FarZ", LuaMember("float", offsetof(CameraData, FarZ)), EngineMetaFlag::ComponentData);
+	AddMember(Data, "ZoomLevel", LuaMember("float", offsetof(CameraData, ZoomLevel)), EngineMetaFlag::ComponentData);
 	PStatic* GlobalCamera = CreateLuaMetaStatic(name, EngineMetaFlag::Component);
 	info_Add = GeGlobalMethodInfo(&Camera_Add);
 	info_Add.memberName.push_back("ID");
@@ -131,6 +133,37 @@ static void RegisterComponentData()
 	AddGlobalMethod(GlobalCamera, name + "_Add", info_Add, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalCamera, name + "_Get", info_Get, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalCamera, name + "_Has", info_Has, EngineMetaFlag::Component);
+
+
+	name = "Animation2D";
+	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
+	AddMember(Data, "thisID", LuaMember("unsigned int", offsetof(Animation2DData, thisID)), EngineMetaFlag::ComponentData);
+
+	Static = CreateLuaMetaStatic(name, EngineMetaFlag::Component);
+	info_Add = GeGlobalMethodInfo(&Animation2D_Add);
+	info_Add.memberName.push_back("ID");
+	info_Get = GeGlobalMethodInfo(&Animation2D_Get);
+	info_Get.memberName.push_back("ID");
+	info_Has = GeGlobalMethodInfo(&Animation2D_Has);
+	info_Has.memberName.push_back("ID");
+	AddGlobalMethod(Static, name + "_Add", info_Add, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Get", info_Get, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Has", info_Has, EngineMetaFlag::Component);
+
+	auto info_Play = GeGlobalMethodInfo(&Animation2D_Play);
+	info_Play.memberName.push_back("ID");
+	info_Play.memberName.push_back("AnimationIndex");
+	auto info_Stop = GeGlobalMethodInfo(&Animation2D_Stop);
+	info_Stop.memberName.push_back("ID");
+	auto info_Create = GeGlobalMethodInfo(&Animation2D_Create);
+	info_Create.memberName.push_back("ID");
+	info_Create.memberName.push_back("TextureName");
+	info_Create.memberName.push_back("MaxFrameX");
+	info_Create.memberName.push_back("MaxFrameY");
+	info_Create.memberName.push_back("Speed");
+	AddGlobalMethod(Static, name + "_Play", info_Play, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Stop", info_Stop, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Create", info_Create, EngineMetaFlag::Component);
 
 
 	//CreateLuaMetaClass("CameraData", EngineMetaFlag::ComponentData);
@@ -169,16 +202,27 @@ BindManager::~BindManager()
 
 void BindManager::Initialize()
 {
-	PClass* GlobalVector2 = CreateLuaMetaClass("PVector2", EngineMetaFlag::ClassData);
-	AddMember(GlobalVector2, "x", LuaMember("float", offsetof(PVector2, x)), EngineMetaFlag::ClassData);
-	AddMember(GlobalVector2, "y", LuaMember("float", offsetof(PVector2, y)), EngineMetaFlag::ClassData);
+	PClass* GlobalVector2Data = CreateLuaMetaClass("PVector2", EngineMetaFlag::TypeClassData);
+	AddMember(GlobalVector2Data, "x", LuaMember("float", offsetof(PVector2, x)), EngineMetaFlag::TypeClassData);
+	AddMember(GlobalVector2Data, "y", LuaMember("float", offsetof(PVector2, y)), EngineMetaFlag::TypeClassData);
+	PStatic* GlobalVector2 = CreateLuaMetaStatic("PVector2Function", EngineMetaFlag::TypeClass);
+	auto v2_Create = GeGlobalMethodInfo(&PVector2_Create);
+	v2_Create.memberName.push_back("x");
+	v2_Create.memberName.push_back("y");
+	AddGlobalMethod(GlobalVector2, "PVector2_Create", v2_Create, EngineMetaFlag::TypeClass);
 
-	PClass* GlobalVector3Data = CreateLuaMetaClass("PVector3", EngineMetaFlag::ClassData);
-	AddMember(GlobalVector3Data, "x", LuaMember("float", offsetof(PVector3, x)), EngineMetaFlag::ClassData);
-	AddMember(GlobalVector3Data, "y", LuaMember("float", offsetof(PVector3, y)), EngineMetaFlag::ClassData);
-	AddMember(GlobalVector3Data, "z", LuaMember("float", offsetof(PVector3, z)), EngineMetaFlag::ClassData);
-	PStatic* GlobalVector3 = CreateLuaMetaStatic("PVector3Function", EngineMetaFlag::Class);
-	AddGlobalMethod(GlobalVector3, "PVector3_Normalize", GeGlobalMethodInfo(&PVector3_Normalize), EngineMetaFlag::Class);
+
+	PClass* GlobalVector3Data = CreateLuaMetaClass("PVector3", EngineMetaFlag::TypeClassData);
+	AddMember(GlobalVector3Data, "x", LuaMember("float", offsetof(PVector3, x)), EngineMetaFlag::TypeClassData);
+	AddMember(GlobalVector3Data, "y", LuaMember("float", offsetof(PVector3, y)), EngineMetaFlag::TypeClassData);
+	AddMember(GlobalVector3Data, "z", LuaMember("float", offsetof(PVector3, z)), EngineMetaFlag::TypeClassData);
+	PStatic* GlobalVector3 = CreateLuaMetaStatic("PVector3Function", EngineMetaFlag::TypeClass);
+	AddGlobalMethod(GlobalVector3, "PVector3_Normalize", GeGlobalMethodInfo(&PVector3_Normalize), EngineMetaFlag::TypeClass);
+	auto v3_Create = GeGlobalMethodInfo(&PVector3_Create);
+	v3_Create.memberName.push_back("x");
+	v3_Create.memberName.push_back("y");
+	v3_Create.memberName.push_back("z");
+	AddGlobalMethod(GlobalVector3, "PVector3_Create", v3_Create, EngineMetaFlag::TypeClass);
 
 	//Engine
 	MethodInfo info;
@@ -231,7 +275,6 @@ void BindManager::Initialize()
 	AddGlobalMethod(globaDebug, "Debug_LogError", DebugErrorinfo, EngineMetaFlag::Class);
 	AddGlobalMethod(globaDebug, "Debug_LogWarning", DebugWarninginfo, EngineMetaFlag::Class);
 	AddGlobalMethod(globaDebug, "Debug_Line", DebugLineinfo, EngineMetaFlag::Class);
-
 
 	//Entity;
 	PStatic* globalEntity = CreateLuaMetaStatic("Entity", EngineMetaFlag::Class);
@@ -340,8 +383,7 @@ void BindManager::Update()
 }
 
 void BindManager::Clear()
-{
-}
+{}
 
 void BindManager::Release()
 {

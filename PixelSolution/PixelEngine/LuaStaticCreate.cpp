@@ -3,13 +3,12 @@
 #include <filesystem>
 #include <fstream>
 
+
 LuaStaticCreate::LuaStaticCreate()
-{
-}
+{}
 
 LuaStaticCreate::~LuaStaticCreate()
-{
-}
+{}
 
 void LuaStaticCreate::Generate(const std::string& outPath, std::map<std::string, PixelClassMeta>& staticClass)
 {

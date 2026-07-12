@@ -7,6 +7,7 @@
 #include "LuaEnumCreate.h"
 #include "LuaStaticCreate.h"
 #include "LuaTypeCreate.h"
+
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -16,6 +17,8 @@ void GenerateManager::Initialize()
 	luaComponentCreate = new LuaComponentCreate();
 	luaEnumCreate = new LuaEnumCreate();
 	luaStaticCreate = new LuaStaticCreate();
+	luaTypeCreate = new	LuaTypeCreate();
+
 }
 
 void GenerateManager::Update()
@@ -31,6 +34,8 @@ void GenerateManager::Release()
 	luaEnumCreate = nullptr;
 	delete luaStaticCreate;
 	luaStaticCreate = nullptr;
+	delete luaTypeCreate;
+	luaTypeCreate = nullptr;
 }
 
 void GenerateManager::Clear()
@@ -67,6 +72,14 @@ void GenerateManager::CreateBindCode()
 		{
 			AddClassData(targetType, PComponentMetaList);
 		}
+		else if (HasTypeFlag(targetType, EngineMetaFlag::TypeClass))
+		{
+			AddClass(targetType, PTypeMetaList);
+		}
+		else if (HasTypeFlag(targetType, EngineMetaFlag::TypeClassData))
+		{
+			AddClassData(targetType, PTypeMetaList);
+		}
 		else if (metaType == META_TYPE::ENUM)
 		{
 			PixelEnumMeta PEnum;
@@ -76,6 +89,7 @@ void GenerateManager::CreateBindCode()
 			PEnumMetaList.insert({ PEnum.name ,PEnum });
 		}
 	}
+	int a = 0;
 }
 
 void GenerateManager::LuaGenerate(const char* outPath)
@@ -96,7 +110,7 @@ void GenerateManager::JsonGenerate(const char* outPath)
 	luaEnumCreate->Generate(outPath, PEnumMetaList);
 	luaStaticCreate->Generate(outPath, PClassMetaList);
 	luaComponentCreate->Generate(outPath, PComponentMetaList);
-	//luaStaticCreate->Generate(outPath, types.staticList);
+	luaTypeCreate->Generate(outPath, PTypeMetaList);
 	CreateRequireFile(outPath);
 }
 
@@ -116,7 +130,7 @@ void GenerateManager::AddClassData(PType* type, std::map<std::string, PixelClass
 		list[name].name = name;
 	}
 	int memberCount = GetMemberCount(type);
-	list[name].flag = GetTypeFlag(type);
+	list[name].flag |= GetTypeFlag(type);
 	if (memberCount > 0)
 	{
 		list[name].members = TypeMember(type, memberCount);
@@ -136,38 +150,31 @@ void GenerateManager::AddClass(PType* type, std::map<std::string, PixelClassMeta
 		list[name].name = name;
 	}
 	int methodCount = GetMethodCount(type);
-	list[name].flag = GetTypeFlag(type);
+	list[name].flag |= GetTypeFlag(type);
 	if (methodCount > 0)
 	{
 		list[name].methods = TypeMethod(type, methodCount);
 	}
 }
 
-
-
-
 void GenerateManager::CreateRequireFile(const std::string& outPath)
 {
 	std::filesystem::create_directories(outPath);
 	std::ofstream file(outPath + "/EngineGenerate.lua");
 	file << "require(\"" << "Enum" << "\")\n";
-	file << "require(\"" << "PVector2" << "\")\n";
-	file << "require(\"" << "PVector3" << "\")\n";
 
-	for (auto& K : PClassMetaList)
+	for (auto& K : PTypeMetaList)
 	{
-		if (K.second.name == "PVector2" || K.second.name == "PVector3")
-		{
-			continue;
-		}
 		file << "require(\"" << K.second.name << "\")\n";
 	}
-
+	for (auto& K : PClassMetaList)
+	{
+		file << "require(\"" << K.second.name << "\")\n";
+	}
 	for (auto& K : PComponentMetaList)
 	{
 		file << "require(\"" << K.second.name << "\")\n";
 	}
-
 }
 std::vector<PixelMemberMeta> GenerateManager::TypeMember(PType* type, int memberCount)
 {

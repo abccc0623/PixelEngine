@@ -584,6 +584,9 @@
     <ClCompile Include="Scene.cpp">
       <Filter>EngineAPI\Export</Filter>
     </ClCompile>
+    <ClCompile Include="PVector2.cpp">
+      <Filter>EngineAPI\Types\Vector3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Setting.lua">

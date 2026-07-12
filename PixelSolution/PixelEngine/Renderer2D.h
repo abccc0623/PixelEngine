@@ -3,6 +3,7 @@
 #include "PixelEngineDLL.h"
 struct Renderer2DData
 {
+	unsigned int thisID;
 	float TilingX = 1.0f;
 	float TilingY = 1.0f;
 	float OffsetX = 1.0f;

@@ -7,7 +7,10 @@ TransformData* Transform_Add(unsigned int id)
 	auto registry = GetRegistry();
 	registry->Add<TransformData>(id);
 	registry->Add<WorldData>(id);
-	return registry->Get<TransformData>(id);
+
+	auto data = registry->Get<TransformData>(id);
+	data->thisID = id;
+	return data;
 }
 
 TransformData* Transform_Get(unsigned int id)

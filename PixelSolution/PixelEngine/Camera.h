@@ -4,6 +4,7 @@
 
 struct CameraData
 {
+	unsigned int thisID;
 	float FovY = 0.3f * 3.1415926535f;
 	float NearZ = 0.1f;
 	float FarZ = 4000.0f;

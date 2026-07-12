@@ -54,7 +54,10 @@ std::string IBind::CreateCDef(const PixelClassMeta& meta)
 std::string IBind::CreateClassAnnotation(const PixelClassMeta& meta)
 {
 	std::string content;
-	if ((meta.flag & EngineMetaFlag::Component) != 0)
+	const bool isComponent =
+		(meta.flag & (EngineMetaFlag::Component | EngineMetaFlag::ComponentData)) != 0;
+
+	if (isComponent)
 	{
 		content += "---@class " + meta.name + "Data\n";
 	}
@@ -64,9 +67,11 @@ std::string IBind::CreateClassAnnotation(const PixelClassMeta& meta)
 	}
 	for (int i = 0; i < meta.members.size(); i++)
 	{
+		if (meta.members[i].name == "thisID") continue;
+
 		content += "---@field " + meta.members[i].name + " " + ToLuaType(meta.members[i].type) + "\n";
 	}
-	content + "\n\n";
+
 	return content;
 }
 

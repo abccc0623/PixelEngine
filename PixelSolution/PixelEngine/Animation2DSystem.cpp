@@ -18,13 +18,14 @@ void ECS::Animation2DSystem::Update(Registry* registry)
 {
 	float dTime = GetDeltaTime();
 
-	auto& Chunked = registry->GetChunkedArray<ECS::Animation2D::Animation2DData>();
-	Chunked.ForEach([registry, dTime](ECS::Animation2D::Animation2DData* data, size_t index)
+	auto& Chunked = registry->GetChunkedArray<Animation2DData>();
+	Chunked.ForEach([registry, dTime](Animation2DData* data, size_t index)
 		{
-			if (data->play == false) return;
-			int playindex = data->selectIndex;
-			if (data->animationArray.size() < playindex) return;
-			auto& select = data->selectAnimation;
+			auto animationlist = registry->Get<Animation2DDList>(data->thisID);
+			if (animationlist->play == false) return;
+			int playindex = animationlist->selectIndex;
+			if (animationlist->animationArray.size() < playindex) return;
+			auto& select = animationlist->selectAnimation;
 
 			select.nowFrameTime += dTime * select.animationSpeed;
 			if (select.nowFrameTime >= select.oneFrameTime)
@@ -40,7 +41,7 @@ void ECS::Animation2DSystem::Update(Registry* registry)
 				}
 				select.nowFrameTime -= select.oneFrameTime;
 			}
-			int ID = registry->GetEntityID<ECS::Animation2D::Animation2DData>(index);
+			int ID = registry->GetEntityID<Animation2DData>(index);
 			auto render1 = registry->Get<Renderer2DData>(ID);
 			auto render2 = registry->Get<GraphicsData>(ID);
 			if (render1 != nullptr)
@@ -59,17 +60,17 @@ void ECS::Animation2DSystem::EditorUpdate(Registry* registry)
 {
 	float dTime = GetDeltaTime();
 
-	auto& Chunked = registry->GetChunkedArray<ECS::Animation2D::Animation2DData>();
-	Chunked.ForEach([registry, dTime](ECS::Animation2D::Animation2DData* data, size_t index)
+	auto& Chunked = registry->GetChunkedArray<Animation2DData>();
+	Chunked.ForEach([registry, dTime](Animation2DData* data, size_t index)
 		{
-			if (data->play == false) return;
-			int playindex = data->selectIndex;
-			if (data->animationArray.size() < playindex) return;
-			auto& select = data->selectAnimation;
+			auto animationlist = registry->Get<Animation2DDList>(data->thisID);
+			if (animationlist->play == false) return;
+			int playindex = animationlist->selectIndex;
+			if (animationlist->animationArray.size() < playindex) return;
+			auto& select = animationlist->selectAnimation;
 
-			int ID = registry->GetEntityID<ECS::Animation2D::Animation2DData>(index);
-			auto render1 = registry->Get<Renderer2DData>(ID);
-			auto render2 = registry->Get<GraphicsData>(ID);
+			auto render1 = registry->Get<Renderer2DData>(data->thisID);
+			auto render2 = registry->Get<GraphicsData>(data->thisID);
 			if (render1 != nullptr)
 			{
 				render2->renderingData.texture_key = select.textureID;

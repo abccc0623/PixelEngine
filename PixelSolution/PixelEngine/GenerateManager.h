@@ -36,10 +36,11 @@ private:
 	LuaComponentCreate* luaComponentCreate = nullptr;
 	LuaEnumCreate* luaEnumCreate = nullptr;
 	LuaStaticCreate* luaStaticCreate = nullptr;
-	//LuaTypeCreate* luaTypeCreate = nullptr;
+	LuaTypeCreate* luaTypeCreate = nullptr;
 
 	std::map<std::string, PixelClassMeta> PClassMetaList;
 	std::map<std::string, PixelClassMeta> PComponentMetaList;
+	std::map<std::string, PixelClassMeta> PTypeMetaList;
 	std::map<std::string, PixelEnumMeta> PEnumMetaList;
 };
 

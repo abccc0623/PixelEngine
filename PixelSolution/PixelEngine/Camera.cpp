@@ -16,7 +16,10 @@ CameraData* Camera_Add(unsigned int id)
 		auto g = registry->Get<GraphicsData>(id);
 		g->renderingData.Type = CAMERA;
 	}
-	return registry->Get<CameraData>(id);
+
+	auto data = registry->Get<CameraData>(id);
+	data->thisID = id;
+	return data;
 }
 
 CameraData* Camera_Get(unsigned int id)
