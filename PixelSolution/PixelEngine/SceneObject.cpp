@@ -90,7 +90,7 @@ uint32_t SceneObject::CreateEntity(const std::string& scriptName)
 	return id.value;
 }
 
-uint32_t SceneObject::CreateGroupEntity(const std::string& groupName, const std::string& scriptName)
+uint32_t SceneObject::CreateGroupAndEntity(const std::string& groupName, const std::string& scriptName)
 {
 	auto id = CreateEntity(scriptName);
 	group->Set(groupName, id);

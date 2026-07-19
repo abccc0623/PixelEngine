@@ -13,6 +13,9 @@ namespace EngineMetaFlag
 	constexpr long TypeClass = 1 << 6;
 	constexpr long TypeClassData = 1 << 7;
 
+	constexpr long Public = 1 << 8;
+	constexpr long Private = 1 << 9;
+
 	constexpr long StaticGlobal = 1 << 11;
 	constexpr long Enum = 1 << 12;
 }

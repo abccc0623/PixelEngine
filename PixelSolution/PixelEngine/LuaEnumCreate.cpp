@@ -4,12 +4,10 @@
 #include <fstream>
 
 LuaEnumCreate::LuaEnumCreate()
-{
-}
+{}
 
 LuaEnumCreate::~LuaEnumCreate()
-{
-}
+{}
 
 void LuaEnumCreate::Generate(const std::string& outPath, std::map<std::string, PixelEnumMeta>& enumlist)
 {
@@ -26,7 +24,7 @@ void LuaEnumCreate::Generate(const std::string& outPath, std::map<std::string, P
 	for (auto& K : enumlist)
 	{
 		content += "---@enum " + K.second.name + "\n";
-		content += "local " + K.second.name + " = ";
+		content += K.second.name + " = ";
 		content += CreateEnumTable(K.second);
 		content += "\n\n";
 	}

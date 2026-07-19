@@ -221,6 +221,18 @@ C_string GetMemberName(PType* type, int index)
 	}
 }
 
+long GetMemberFlag(PType* type, int index)
+{
+	auto meta = (META_TYPE)type->GetMetaType();
+	if (meta == META_TYPE::CLASS)
+	{
+		return (static_cast<PClass*>(type))->GetClassMemberFlag(index);
+	}
+	else
+	{
+		return 0;
+	}
+}
 bool HasMemberFlag(PType* type, int index, long flag)
 {
 	auto meta = (META_TYPE)type->GetMetaType();

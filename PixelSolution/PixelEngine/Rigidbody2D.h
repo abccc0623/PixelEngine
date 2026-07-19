@@ -1,11 +1,47 @@
 #pragma once
-
+#include "PixelEngineDLL.h"
+#include "PVector3.h"
+#include "PVector2.h"
 enum MotionType
 {
 	Static,
 	Kinematic,
 	Dynamic,
 };
+struct Rigidbody2DData
+{
+	unsigned int thisID;
+	const char* layer = "Default";
+	MotionType motion = MotionType::Kinematic;
+};
+extern "C" PIXEL_ENGINEDLL Rigidbody2DData* Rigidbody2D_Add(unsigned int id);
+extern "C" PIXEL_ENGINEDLL Rigidbody2DData* Rigidbody2D_Get(unsigned int id);
+extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_Has(unsigned int id);
+
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_CreateBoxCollider(unsigned int id, PVector2 size, PVector2 center);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_CreateCircleCollider(unsigned int id, float radius, PVector2 center);
+
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetMotionType(unsigned int id, MotionType motionType);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetPosition(unsigned int id, PVector3 position);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetRotation(unsigned int id, PVector3 rotation);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetVelocity(unsigned int id, PVector3 velocity);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetGravity(unsigned int id, float gravity);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetRestitution(unsigned int id, float restitution);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetFriction(unsigned int id, float friction);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetLinearDamping(unsigned int id, float linearDamping);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetSensor(unsigned int id, bool sensor);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetActive(unsigned int id, bool active);
+extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetLayer(unsigned int id, const char* layerName);
+
+//extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetAutoSleep(unsigned int id, bool sleep);
+//extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetVelocity(unsigned int id, PVector3 velocity);
+//extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetPosition(unsigned int id, PVector3 position);
+//extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetLockPosition(unsigned int id, bool x, bool y, bool z);
+//extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetLockRotation(unsigned int id, bool x, bool y, bool z);
+
+
+/*
+
 namespace ECS::Rigidbody2D
 {
 	struct Rigidbody2DData
@@ -42,4 +78,4 @@ namespace ECS::Rigidbody2D
 	void LockPosition(unsigned int id, bool x, bool y, bool z);
 	void LockRotation(unsigned int id, bool x, bool y, bool z);
 }
-
+*/

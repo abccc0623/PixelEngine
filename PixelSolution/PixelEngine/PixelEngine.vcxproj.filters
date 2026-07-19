@@ -246,9 +246,6 @@
     <ClInclude Include="PhysListener.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClInclude>
-    <ClInclude Include="PhysStruct.h">
-      <Filter>EngineAPI\Manager\PhysManager</Filter>
-    </ClInclude>
     <ClInclude Include="ModuleEntry.h">
       <Filter>EngineAPI\Module\Module</Filter>
     </ClInclude>
@@ -303,9 +300,6 @@
     <ClInclude Include="Animation2DSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
-    <ClInclude Include="Collider2D.h">
-      <Filter>EngineAPI\ECS\Component</Filter>
-    </ClInclude>
     <ClInclude Include="Collider2DSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
@@ -329,12 +323,6 @@
     </ClInclude>
     <ClInclude Include="LuaTypeCreate.h">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
-    </ClInclude>
-    <ClInclude Include="BoxCollider2D.h">
-      <Filter>EngineAPI\ECS\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="CircleCollider2D.h">
-      <Filter>EngineAPI\ECS\Component</Filter>
     </ClInclude>
     <ClInclude Include="PixelObjectLayerPairFilter.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
@@ -380,6 +368,12 @@
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>EngineAPI\Export</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics2DData.h">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsFunction.h">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -506,9 +500,6 @@
     <ClCompile Include="Animation2DSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
-    <ClCompile Include="Collider2D.cpp">
-      <Filter>EngineAPI\ECS\Component</Filter>
-    </ClCompile>
     <ClCompile Include="Collider2DSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
@@ -529,12 +520,6 @@
     </ClCompile>
     <ClCompile Include="LuaTypeCreate.cpp">
       <Filter>EngineAPI\Manager\GenerateManager</Filter>
-    </ClCompile>
-    <ClCompile Include="BoxCollider2D.cpp">
-      <Filter>EngineAPI\ECS\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="CircleCollider2D.cpp">
-      <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
     <ClCompile Include="PixelObjectLayerPairFilter.cpp">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
@@ -586,6 +571,12 @@
     </ClCompile>
     <ClCompile Include="PVector2.cpp">
       <Filter>EngineAPI\Types\Vector3</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics2DData.cpp">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsFunction.cpp">
+      <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

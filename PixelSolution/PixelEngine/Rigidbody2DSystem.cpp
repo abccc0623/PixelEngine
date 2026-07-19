@@ -3,12 +3,11 @@
 #include "PixelGraphicsAPI.h"
 #include "Registry.h"
 #include "Rigidbody2D.h"
-#include "Collider2D.h"
-#include "BoxCollider2D.h"
-#include "CircleCollider2D.h"
 #include "PixelEngine.h"
 #include "PhysManager.h"
 #include "PixelEngineAPI.h"
+#include "Physics2DData.h"
+#include "ColliderFactory.h"
 extern PixelEngine* Engine;
 ECS::Rigidbody2DSystem::Rigidbody2DSystem()
 {
@@ -22,72 +21,29 @@ ECS::Rigidbody2DSystem::~Rigidbody2DSystem()
 void ECS::Rigidbody2DSystem::Update(ECS::Registry* registry)
 {
 	auto phys = Engine->GetFactory<PhysManager>();
-	auto& Chunked = registry->GetChunkedArray<ECS::Rigidbody2D::Rigidbody2DData>();
-	Chunked.ForEach([registry, phys](ECS::Rigidbody2D::Rigidbody2DData* data, size_t index)
+	auto& Chunked = registry->GetChunkedArray<Rigidbody2DData>();
+	Chunked.ForEach([registry, phys](Rigidbody2DData* data, size_t index)
 		{
-			if (data->IsCreate == false)
+			auto physData = registry->Get<Physics2DData>(data->thisID);
+			if (physData->Create == false)
 			{
-				ECS::Collider2D::Collider2DData collider;
-				auto id = registry->GetEntityID<ECS::Rigidbody2D::Rigidbody2DData>(index);
-				if (registry->Has<ECS::BoxCollider2D::BoxCollider2DData>(id))
+				if (physData->colliderRefC == nullptr)
 				{
-					auto box = registry->Get<ECS::BoxCollider2D::BoxCollider2DData>(id);
-					if (box)
-					{
-						collider.type = ECS::Collider2D::Collider2DType::BOX;
-						collider.BoxOffset = box->Offset;
-						collider.Center = box->Center;
-					}
+					PVector2 size{ 1,1 };
+					PVector2 center{ 0,0 };
+					physData->colliderRefC = ColliderFactory::CreateBox2D(&size, &center);
 				}
-				else if (registry->Has<ECS::CircleCollider2D::CircleCollider2DData>(id))
-				{
-					auto circle = registry->Get<ECS::CircleCollider2D::CircleCollider2DData>(id);
-					if (circle)
-					{
-						collider.type = ECS::Collider2D::Collider2DType::Circle;
-						collider.CircleRadius = circle->Radius;
-						collider.Center = circle->Center;
-					}
-				}
-
-				auto shape = phys->CreateCollider(&collider);
-				auto bodyID = phys->CreateRigidbody(data, shape, id);
-				data->bodyID = bodyID.GetIndexAndSequenceNumber();
-				data->IsCreate = true;
+				physData->bodyID = phys->CreateRigidbody(data, physData);
+				physData->Create = true;
 			}
-
-
-
-			if (data->impulse != Pixel::Vector3(0, 0, 0))
-			{
-				phys->AddImpulse(JPH::BodyID(data->bodyID), data->impulse.x, data->impulse.y, data->impulse.z);
-				data->impulse = Pixel::Vector3(0, 0, 0);
-			}
-			if (data->force != Pixel::Vector3(0, 0, 0))
-			{
-				phys->AddForce(JPH::BodyID(data->bodyID), data->force.x, data->force.y, data->force.z);
-				data->force = Pixel::Vector3(0, 0, 0);
-			}
-			if (data->velocity != data->velocityCopy)
-			{
-				Pixel::Vector3 final = phys->GetVelocity(JPH::BodyID(data->bodyID));
-				if (data->velocity.x != data->velocityCopy.x) final.x = data->velocity.x;
-				if (data->velocity.y != data->velocityCopy.y) final.y = data->velocity.y;
-				if (data->velocity.z != data->velocityCopy.z) final.z = data->velocity.z;
-
-				phys->SetVelocity(JPH::BodyID(data->bodyID), final.x, final.y, final.z);
-
-				data->velocity = final;
-				data->velocityCopy = final;
-			}
-			phys->SyncPhysics(JPH::BodyID(data->bodyID));
+			phys->SyncPhysics(physData->bodyID);
 		});
 }
 
 void ECS::Rigidbody2DSystem::EditorUpdate(Registry* registry)
 {
-}
 
+}
 void ECS::Rigidbody2DSystem::Release()
 {
 

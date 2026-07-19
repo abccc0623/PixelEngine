@@ -67,8 +67,7 @@ std::string IBind::CreateClassAnnotation(const PixelClassMeta& meta)
 	}
 	for (int i = 0; i < meta.members.size(); i++)
 	{
-		if (meta.members[i].name == "thisID") continue;
-
+		if (meta.members[i].flag == EngineMetaFlag::Private) continue;
 		content += "---@field " + meta.members[i].name + " " + ToLuaType(meta.members[i].type) + "\n";
 	}
 

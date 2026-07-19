@@ -41,6 +41,7 @@
 #include <concepts>
 #include <vector>
 #include <array>
+#include <format>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>

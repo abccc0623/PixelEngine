@@ -81,6 +81,7 @@ extern "C" PIXEL_META_DLL bool			HasTypeFlag(PType* type, long flag);
 extern "C" PIXEL_META_DLL int			GetMemberCount(PType* type);
 extern "C" PIXEL_META_DLL C_string		GetMemberType(PType* type, int index);
 extern "C" PIXEL_META_DLL C_string		GetMemberName(PType* type, int index);
+extern "C" PIXEL_META_DLL long			GetMemberFlag(PType* type, int index);
 extern "C" PIXEL_META_DLL bool			HasMemberFlag(PType* type, int index, long flag);
 
 extern "C" PIXEL_META_DLL int			GetMethodCount(PType* type);

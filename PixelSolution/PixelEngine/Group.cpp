@@ -12,7 +12,7 @@ unsigned int ECS::Group::CreateEntity(const char* groupName, const char* scriptN
 	std::string groupNameSTR(groupName);
 	std::string scriptNameSTR(scriptName);
 
-	return scene->GetNowScene()->CreateGroupEntity(groupNameSTR, scriptNameSTR);
+	return scene->GetNowScene()->CreateGroupAndEntity(groupNameSTR, scriptNameSTR);
 }
 
 void ECS::Group::Set(const char* groupName, unsigned int id)
@@ -67,4 +67,52 @@ sol::as_table_t<std::vector<unsigned int>> ECS::Group::Get(const char* groupName
 	}
 
 	return sol::as_table(*ids);
+}
+
+unsigned int Group_CreateGroupAndEntity(const char* group, const char* scriptName)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string groupNameSTR(group);
+	std::string scriptNameSTR(scriptName);
+	return scene->GetNowScene()->CreateGroupAndEntity(groupNameSTR, scriptNameSTR);
+}
+
+void Group_Set(const char* groupName, unsigned int id)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string groupNameSTR(groupName);
+	scene->GetNowScene()->GetGroupManager()->Set(groupNameSTR, id);
+}
+
+void Group_Remove(const char* groupName, unsigned int id)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string groupNameSTR(groupName);
+	scene->GetNowScene()->GetGroupManager()->Remove(groupNameSTR, id);
+}
+
+void Group_Clear(const char* groupName)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string groupNameSTR(groupName);
+	scene->GetNowScene()->GetGroupManager()->Clear(groupNameSTR);
+}
+
+int Group_Count(const char* groupName)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string groupNameSTR(groupName);
+	auto K = scene->GetNowScene()->GetGroupManager()->Get(groupNameSTR);
+	return (int)K->size();
+}
+
+unsigned int Group_First(const char* groupName)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string groupNameSTR(groupName);
+	std::vector<unsigned int>* K = scene->GetNowScene()->GetGroupManager()->Get(groupNameSTR);
+	if (K->size() != 0)
+	{
+		return (*K)[0];
+	}
 }

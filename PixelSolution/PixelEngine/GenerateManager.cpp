@@ -184,7 +184,8 @@ std::vector<PixelMemberMeta> GenerateManager::TypeMember(PType* type, int member
 		PixelMemberMeta PixelMember;
 		PixelMember.name = GetMemberName(type, memberIndex);
 		PixelMember.type = GetMemberType(type, memberIndex);
-		PixelMember.luaBind = HasMemberFlag(type, memberIndex, EngineMetaFlag::LuaBind);
+		PixelMember.flag = GetMemberFlag(type, memberIndex);
+		PixelMember.luaBind = (PixelMember.flag & EngineMetaFlag::LuaBind) != 0;
 		members.push_back(PixelMember);
 	}
 	return members;

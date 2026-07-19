@@ -18,6 +18,7 @@ public:
 	 void* GetValue(void* target);
 	 void SetValue(void* target,void* value);
 	 void SetFlag(long flag);
+	 long GetFlag();
 	 bool HasFlag(long flag);
 private:
 	PType* memberType;

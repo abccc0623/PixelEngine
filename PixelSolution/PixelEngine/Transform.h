@@ -6,10 +6,8 @@ struct TransformData
 {
 	PVector3 position{ 0.0f, 0.0f, 0.0f };
 	unsigned int thisID;
-
 	PVector3 rotation{ 0.0f, 0.0f, 0.0f };
 	unsigned int bitmask = 1;
-
 	PVector3 scale{ 1.0f, 1.0f, 1.0f };
 	unsigned int  unused2;
 };

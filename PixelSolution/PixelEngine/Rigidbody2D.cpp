@@ -5,8 +5,13 @@
 #include "Registry.h"
 #include "PixelEngine.h"
 #include "PhysManager.h"
+#include "ColliderFactory.h"
+#include "Physics2DData.h"
+#include "PixelMetaAPI.h"
 
 extern PixelEngine* Engine;
+/*
+
 void* ECS::Rigidbody2D::AddComponent(unsigned int id)
 {
 	auto registry = GetRegistry();
@@ -36,56 +41,6 @@ bool ECS::Rigidbody2D::HasComponent(unsigned int id)
 	{
 		return true;
 	}
-}
-std::string ECS::Rigidbody2D::BindJit()
-{
-	std::string jit = R"(
-	---@alias MotionType
-	---| 0 # Static (고정된 벽, 바닥 등)
-	---| 1 # Kinematic (스크립트로 물리 법칙을 무시하고 움직이는 발판 등)
-	---| 2 # Dynamic (중력과 충돌의 영향을 받는 일반적인 동적 객체)
-
-	---@class Rigidbody2DData
-	---@field type MotionType          # 물체의 물리적 성격 (Static, Kinematic, Dynamic)
-	---@field active boolean           # 활성화 여부
-	---@field kinematic boolean        # 키네마틱 모드 활성화 여부
-	---@field autoSleep boolean        # 움직임이 없을 때 자동으로 수면(최적화) 상태로 전환할지 여부
-	---@field sensor boolean           # 트리거(충돌 연산은 안 하고 감지만 함) 여부
-	---@field gravity number           # 이 물체에 적용될 중력 배율
-	---@field restitution number       # 탄성 계수 (통통 튀는 정도, 0.0 ~ 1.0)
-	---@field friction number          # 마찰 계수 (미끄러지는 정도)
-	---@field linearDamping number     # 공기 저항 (속도 감속 비율)
-	---@field velocity Vector3         # 현재 선속도 (우리가 앞서 정의한 Vector3 클래스와 연동됩니다)
-	---@field impulse Vector3          # 외부에서 가해진 1회성 충격량
-	---@field force Vector3            # 외부에서 지속적으로 가해지는 힘
-ffi.cdef[[
-	typedef enum {
-        Static = 0,
-		Kinematic = 1,
-        Dynamic = 2,
-    } MotionType;
-
-	typedef struct 
-	{ 
-		MotionType type;
-		bool active;
-		bool kinematic;
-		bool autoSleep;
-		bool sensor;
-		
-		float gravity;
-		float restitution;
-		float friction;
-		float linearDamping;
-
-		Vector3 velocity;
-		Vector3 impulse;
-		Vector3 force;
-
-	} Rigidbody2DData;
-]]
-    )";
-	return jit;
 }
 
 void ECS::Rigidbody2D::SetLayer(unsigned int id, const char* name)
@@ -197,3 +152,180 @@ void ECS::Rigidbody2D::LockRotation(unsigned int id, bool x, bool y, bool z)
 		PixelLog::Error("[Rigidbody2D][LockRotation] Not Find Component");
 	}
 }
+*/
+
+Rigidbody2DData* Rigidbody2D_Add(unsigned int id)
+{
+	auto registry = GetRegistry();
+	registry->Add<Rigidbody2DData>(id);
+	registry->Add<Physics2DData>(id);
+	auto data1 = registry->Get<Rigidbody2DData>(id);
+	auto data2 = registry->Get<Physics2DData>(id);
+	data1->thisID = id;
+	data2->thisID = id;
+	return data1;
+}
+
+Rigidbody2DData* Rigidbody2D_Get(unsigned int id)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<Rigidbody2DData>(id);
+	return data;
+}
+
+bool Rigidbody2D_Has(unsigned int id)
+{
+	auto registry = GetRegistry();
+	return registry->Has<Rigidbody2DData>(id);
+}
+
+void Rigidbody2D_CreateBoxCollider(unsigned int id, PVector2 size, PVector2 center)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
+	data1->colliderRefC = ColliderFactory::CreateBox2D(&size, &center);
+	data1->colliderType = Physics2DData::BOX;
+}
+
+void Rigidbody2D_CreateCircleCollider(unsigned int id, float radius, PVector2 center)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
+	data1->colliderRefC = ColliderFactory::CreateCircle2D(radius, &center);
+	data1->colliderType = Physics2DData::CIRCLE;
+}
+
+void Rigidbody2D_SetMotionType(unsigned int id, MotionType motionType)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
+
+	switch (motionType)
+	{
+	case MotionType::Kinematic:
+		data1->Motiontype = JPH::EMotionType::Kinematic;
+		break;
+	case MotionType::Dynamic:
+		data1->Motiontype = JPH::EMotionType::Dynamic;
+		break;
+	case MotionType::Static:
+		data1->Motiontype = JPH::EMotionType::Static;
+		break;
+	}
+
+	if (data1->bodyID.IsInvalid() == true)
+	{
+		auto phys = Engine->GetFactory<PhysicsFunction>();
+		phys->SetMotionType(data1->bodyID, data1->Motiontype);
+	}
+}
+
+void Rigidbody2D_SetPosition(unsigned int id, PVector3 position)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
+	if (data1->bodyID.IsInvalid() == true)
+	{
+		auto phys = Engine->GetFactory<PhysicsFunction>();
+		phys->SetPosition(data1->bodyID, position.x, position.y, position.z);
+	}
+	auto transform = registry->Get<TransformData>(id);
+	transform->position.x = position.x;
+	transform->position.y = position.y;
+	transform->position.z = position.z;
+}
+
+void Rigidbody2D_SetRotation(unsigned int id, PVector3 rotation)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
+	if (data1->bodyID.IsInvalid() == true)
+	{
+		auto phys = Engine->GetFactory<PhysicsFunction>();
+		phys->SetRotation(data1->bodyID, rotation.x, rotation.y, rotation.z);
+	}
+	auto transform = registry->Get<TransformData>(id);
+	transform->rotation.x = rotation.x;
+	transform->rotation.y = rotation.y;
+	transform->rotation.z = rotation.z;
+}
+
+void Rigidbody2D_SetVelocity(unsigned int id, PVector3 velocity)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
+	if (data1->bodyID.IsInvalid() == false)
+	{
+		auto phys = Engine->GetFactory<PhysicsFunction>();
+		phys->SetVelocity(data1->bodyID, velocity.x, velocity.y, velocity.z);
+	}
+	else
+	{
+		if (data1->Create == true)
+		{
+			PixelLog::Error("[Rigidbody2D][SetVelocity] Not Find Collider");
+		}
+	}
+}
+
+void Rigidbody2D_SetGravity(unsigned int id, float gravity)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
+	if (data1->bodyID.IsInvalid())
+	{
+
+	}
+}
+
+void Rigidbody2D_SetRestitution(unsigned int id, float restitution)
+{
+
+}
+
+void Rigidbody2D_SetFriction(unsigned int id, float restitution)
+{
+
+}
+
+void Rigidbody2D_SetLinearDamping(unsigned int id, float linearDamping)
+{
+
+}
+
+void Rigidbody2D_SetSensor(unsigned int id, bool sensor)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
+	if (data1->bodyID.IsInvalid() == false)
+	{
+		auto phys = Engine->GetFactory<PhysicsFunction>();
+		phys->SetSensor(data1->bodyID, sensor);
+	}
+	data1->sensor = sensor;
+}
+
+void Rigidbody2D_SetActive(unsigned int id, bool active)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
+	if (data1->bodyID.IsInvalid() == false)
+	{
+		auto phys = Engine->GetFactory<PhysicsFunction>();
+		phys->SetActive(data1->bodyID, active);
+	}
+	data1->active = active;
+}
+
+void Rigidbody2D_SetLayer(unsigned int id, const char* layerName)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
+	if (data1->bodyID.IsInvalid() == false)
+	{
+		auto phys = Engine->GetFactory<PhysicsFunction>();
+		phys->SetLayer(data1->bodyID, layerName);
+	}
+	data1->layer = layerName;
+}
+

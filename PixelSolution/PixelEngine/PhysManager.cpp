@@ -2,7 +2,6 @@
 #include "PhysManager.h"
 #include "PixelEngineAPI.h"
 #include "Type/GlobalEnum.h"
-#include "ColliderFactory.h"
 #include "PixelGraphicsAPI.h"
 #include "PhysListener.h"
 #include "EventManager.h"
@@ -12,6 +11,8 @@
 #include "Registry.h"
 #include "Transform.h"
 #include "PixelMath.h"
+#include "PixelEngineAPI.h"
+#include "Physics2DData.h"
 #include "Asset.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -20,6 +21,9 @@
 #include "PixelBroadPhaseLayerFilter.h"
 
 using namespace JPH;
+JPH::BodyInterface* PhysManager::mBodyInterface = nullptr;
+const JPH::BodyLockInterfaceLocking* PhysManager::mBodyLockInterface = nullptr;
+
 PhysManager::PhysManager()
 {
 	layerList.insert({ "Default", 0 });
@@ -34,7 +38,6 @@ PhysManager::~PhysManager()
 		physicsSystem->SetContactListener(nullptr);
 	}
 
-	delete colliderFactory;
 	delete eventListener;
 
 	delete physicsSystem;
@@ -95,11 +98,11 @@ void PhysManager::Initialize()
 		*static_cast<PixelObjectLayerPairFilter*>(mObjVsObjFilter)
 	);
 
-	colliderFactory = new ColliderFactory();
 	eventListener = new PhysListener();
 
 	//event = Engine->GetFactory<EventManager>();
 	mBodyInterface = &physicsSystem->GetBodyInterface();
+	mBodyLockInterface = &physicsSystem->GetBodyLockInterface();
 	physicsSystem->SetContactListener(eventListener);
 }
 
@@ -174,7 +177,6 @@ void PhysManager::Clear()
 	}
 
 	colliderMap.clear();
-	colliderFactory->Clear();
 }
 
 void PhysManager::Release()
@@ -258,65 +260,98 @@ void PhysManager::AddForce(JPH::BodyID id, float x, float y, float z)
 	physicsSystem->GetBodyInterface().AddForce(id, JPH::Vec3(x, y, z));
 }
 
-JPH::ShapeRefC PhysManager::CreateCollider(ECS::Collider2D::Collider2DData* collider)
-{
-	switch (collider->type)
-	{
-	case (int)ColliderType::Box2D: return colliderFactory->CreateBox2D(collider);
-	case (int)ColliderType::Circle2D: return colliderFactory->CreateCircle2D(collider);
-	}
-}
 
-JPH::BodyID PhysManager::CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigidbody, JPH::ShapeRefC shapeRef, unsigned int pOwner)
-{
+//JPH::BodyID PhysManager::CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigidbody, JPH::ShapeRefC shapeRef, unsigned int pOwner)
+//{
 	//data->
-	JPH::ObjectLayer objectLayer = FindLayer(rigidbody->layer);
-	JPH::EMotionType eMotionType = JPH::EMotionType::Dynamic;
-	JPH::EActivation active = (rigidbody->Active) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate;
+	//JPH::ObjectLayer objectLayer = FindLayer(rigidbody->layer);
+	//JPH::EMotionType eMotionType = JPH::EMotionType::Dynamic;
+	//JPH::EActivation active = (rigidbody->Active) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate;
+	//
+	//switch (rigidbody->type)
+	//{
+	//case MotionType::Static:
+	//	eMotionType = EMotionType::Static;
+	//	break;
+	//case MotionType::Kinematic:
+	//	eMotionType = EMotionType::Kinematic;
+	//	break;
+	//case MotionType::Dynamic:
+	//	eMotionType = EMotionType::Dynamic;
+	//	break;
+	//}
+	//constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
+	//
+	//auto r = GetRegistry();
+	//auto transformData = r->Get<TransformData>(pOwner);
+	//
+	//JPH::Vec3 eulerRadians(transformData->rotation.x * DEG_TO_RAD, transformData->rotation.y * DEG_TO_RAD, transformData->rotation.z * DEG_TO_RAD);
+	//JPH::BodyCreationSettings bodySettings
+	//(
+	//	shapeRef,
+	//	JPH::Vec3(transformData->position.x, transformData->position.y, transformData->position.z),
+	//	JPH::Quat::sEulerAngles(eulerRadians), // 초기 회전값
+	//	eMotionType,
+	//	objectLayer
+	//);
+	//bodySettings.mGravityFactor = rigidbody->Gravity;
+	//bodySettings.mAllowSleeping = rigidbody->AutoSleep;
+	//bodySettings.mIsSensor = rigidbody->Sensor;
+	//bodySettings.mRestitution = rigidbody->Restitution;
+	//bodySettings.mFriction = rigidbody->Friction;
+	//bodySettings.mLinearDamping = rigidbody->LinearDamping;
+	//
+	//bodySettings.mAllowedDOFs = JPH::EAllowedDOFs::All;
+	//if (rigidbody->lockPosition[0] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationX;
+	//if (rigidbody->lockPosition[1] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationY;
+	//if (rigidbody->lockPosition[2] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationZ;
+	//if (rigidbody->lockRotation[0] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationX;
+	//if (rigidbody->lockRotation[1] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationY;
+	//if (rigidbody->lockRotation[2] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationZ;
+	//auto id = mBodyInterface->CreateAndAddBody(bodySettings, active);
+	//mBodyInterface->SetUserData(id, static_cast<uint64_t>(pOwner));
+	//return id;
+//return JPH::BodyID(0);
+//}
 
-	switch (rigidbody->type)
-	{
-	case MotionType::Static:
-		eMotionType = EMotionType::Static;
-		break;
-	case MotionType::Kinematic:
-		eMotionType = EMotionType::Kinematic;
-		break;
-	case MotionType::Dynamic:
-		eMotionType = EMotionType::Dynamic;
-		break;
-	}
+JPH::BodyID PhysManager::CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DData* physics)
+{
+	JPH::ObjectLayer objectLayer = FindLayer(physics->layer);
+	JPH::EMotionType eMotionType = JPH::EMotionType::Dynamic;
+	JPH::EActivation active = JPH::EActivation::Activate;
+	eMotionType = physics->Motiontype;
+
 	constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
 
 	auto r = GetRegistry();
-	auto transformData = r->Get<TransformData>(pOwner);
+	auto transformData = r->Get<TransformData>(rigidbody->thisID);
 
 	JPH::Vec3 eulerRadians(transformData->rotation.x * DEG_TO_RAD, transformData->rotation.y * DEG_TO_RAD, transformData->rotation.z * DEG_TO_RAD);
 	JPH::BodyCreationSettings bodySettings
 	(
-		shapeRef,
+		physics->colliderRefC,
 		JPH::Vec3(transformData->position.x, transformData->position.y, transformData->position.z),
 		JPH::Quat::sEulerAngles(eulerRadians), // 초기 회전값
 		eMotionType,
 		objectLayer
 	);
-	bodySettings.mGravityFactor = rigidbody->Gravity;
-	bodySettings.mAllowSleeping = rigidbody->AutoSleep;
-	bodySettings.mIsSensor = rigidbody->Sensor;
-	bodySettings.mRestitution = rigidbody->Restitution;
-	bodySettings.mFriction = rigidbody->Friction;
-	bodySettings.mLinearDamping = rigidbody->LinearDamping;
 
-	bodySettings.mAllowedDOFs = JPH::EAllowedDOFs::All;
-	if (rigidbody->lockPosition[0] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationX;
-	if (rigidbody->lockPosition[1] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationY;
-	if (rigidbody->lockPosition[2] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::TranslationZ;
-	if (rigidbody->lockRotation[0] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationX;
-	if (rigidbody->lockRotation[1] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationY;
-	if (rigidbody->lockRotation[2] == true) bodySettings.mAllowedDOFs &= ~JPH::EAllowedDOFs::RotationZ;
-	auto id = mBodyInterface->CreateAndAddBody(bodySettings, active);
-	mBodyInterface->SetUserData(id, static_cast<uint64_t>(pOwner));
-	return id;
+	bodySettings.mIsSensor = physics->sensor;
+	bodySettings.mLinearDamping = physics->linearDamping;
+
+	if (physics->active == true)
+	{
+		auto id = mBodyInterface->CreateAndAddBody(bodySettings, active);
+		mBodyInterface->SetUserData(id, static_cast<uint64_t>(rigidbody->thisID));
+		return id;
+	}
+	else
+	{
+		auto body = mBodyInterface->CreateBody(bodySettings);
+		auto id = body->GetID();
+		mBodyInterface->SetUserData(id, static_cast<uint64_t>(rigidbody->thisID));
+		return id;
+	}
 }
 
 void PhysManager::DebugDraw(JPH::BodyID id)

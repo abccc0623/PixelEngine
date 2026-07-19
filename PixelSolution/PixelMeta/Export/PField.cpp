@@ -46,6 +46,11 @@ void PField::SetFlag(long flag)
 	Flag.Set(flag);
 }
 
+long PField::GetFlag()
+{
+	return Flag.GetRaw();
+}
+
 bool PField::HasFlag(long flag)
 {
 	return Flag.Has(flag);

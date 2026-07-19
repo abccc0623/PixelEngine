@@ -22,12 +22,14 @@ void ECS::Animation2DSystem::Update(Registry* registry)
 	Chunked.ForEach([registry, dTime](Animation2DData* data, size_t index)
 		{
 			auto animationlist = registry->Get<Animation2DDList>(data->thisID);
-			if (animationlist->play == false) return;
 			int playindex = animationlist->selectIndex;
 			if (animationlist->animationArray.size() < playindex) return;
 			auto& select = animationlist->selectAnimation;
 
-			select.nowFrameTime += dTime * select.animationSpeed;
+			if (animationlist->play == true)
+			{
+				select.nowFrameTime += dTime * select.animationSpeed;
+			}
 			if (select.nowFrameTime >= select.oneFrameTime)
 			{
 				int totalFrames = select.maxFramesX * select.maxFramesY;

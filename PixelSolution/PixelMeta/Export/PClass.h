@@ -31,6 +31,7 @@ public:
 	int GetMemberCount();
 	const std::string& GetMemberName(int index);
 	const std::string& GetMemberType(int index);
+	long GetClassMemberFlag(int index);
 	bool HasClassMemberFlag(int index, long flag);
 	void* GetMemberValue(int index,void* target);
 	void  SetMemberValue(int index,void* target,void* value);

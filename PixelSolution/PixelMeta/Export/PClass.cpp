@@ -76,6 +76,11 @@ const std::string& PClass::GetMemberType(int index)
 	return memberList[index]->GetType();
 }
 
+long PClass::GetClassMemberFlag(int index)
+{
+	return memberList[index]->GetFlag();
+}
+
 bool PClass::HasClassMemberFlag(int index, long flag)
 {
 	return memberList[index]->HasFlag(flag);

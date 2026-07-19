@@ -17,6 +17,27 @@ void LuaTypeCreate::Generate(const std::string& outPath, std::map<std::string, P
 		content += "local ffi = require(\"ffi\")\n";
 		content += "local dll = ffi.load(\"PixelEngine\")\n\n";
 		content += CreateClassAnnotation(meta.second);
+		for (const auto& method : meta.second.methods)
+		{
+			if (method.name == meta.second.name + "_Create")
+			{
+				continue;
+			}
+
+			content += "---@field " + CreateLuaFunctionName(meta.second.name, method.name)
+				+ " fun(self: " + meta.second.name;
+			for (size_t i = 1; i < method.propertys.size(); ++i)
+			{
+				content += ", " + method.propertys[i].name + ": "
+					+ ToLuaType(method.propertys[i].type);
+			}
+			content += ")";
+			if (method.returnType != "void" && !method.returnType.empty())
+			{
+				content += ": " + ToLuaType(method.returnType);
+			}
+			content += "\n";
+		}
 		content += "ffi.cdef[[\n";
 		content += CreateCDef(meta.second);
 		content += "]]\n\n";
@@ -50,7 +71,8 @@ std::string LuaTypeCreate::CreateFunction(const PixelClassMeta& PClass)
 		{
 			continue;
 		}
-		content += "\t\t" + PClass.methods[i].name + " = function(" + CreateMethodParameter(PClass.methods[i]) + ")\n";
+		content += "\t\t" + CreateLuaFunctionName(PClass.name, PClass.methods[i].name)
+			+ " = function(" + CreateMethodParameter(PClass.methods[i]) + ")\n";
 		content += "\t\t\t" + CreateMethod(PClass.methods[i]);
 		content += "\t\tend,\n";
 	}

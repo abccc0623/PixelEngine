@@ -90,16 +90,21 @@ void ECS::EntityObject::SetActive(bool isActive)
 	Active = isActive;
 	instance["Active"] = Active;
 
-	if (ECS::Rigidbody2D::HasComponent(ID))
+	if (Rigidbody2D_Has(ID))
 	{
-		auto registry = GetRegistry();
-		PhysManager* phys = Engine->GetFactory<PhysManager>();
-		ECS::Rigidbody2D::Rigidbody2DData* data = registry->Get<ECS::Rigidbody2D::Rigidbody2DData>(ID);
-		phys->SetActive(JPH::BodyID(data->bodyID), isActive);
-		data->velocity = { 0,0,0 };
-		data->velocityCopy = { 0,0,0 };
+		Rigidbody2D_SetActive(ID, isActive);
 	}
 	ActiveEntity(ID, isActive);
+}
+
+void ECS::EntityObject::SetLayer(const char* layer)
+{
+	layerName = std::string(layer);
+}
+
+const char* ECS::EntityObject::GetLayer()
+{
+	return layerName.c_str();
 }
 
 sol::object ECS::EntityObject::GetValue(const char* memberName)

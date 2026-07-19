@@ -31,7 +31,7 @@ public:
 	void Release();
 
 	uint32_t CreateEntity(const std::string& scriptName);
-	uint32_t CreateGroupEntity(const std::string& groupName, const std::string& scriptName);
+	uint32_t CreateGroupAndEntity(const std::string& groupName, const std::string& scriptName);
 	uint32_t CreatePoolEntity(const std::string& scriptName);
 
 

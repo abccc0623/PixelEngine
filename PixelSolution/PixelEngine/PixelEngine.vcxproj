@@ -173,11 +173,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="Animation2DSystem.h" />
     <ClInclude Include="Asset.h" />
     <ClInclude Include="BitMask8.h" />
-    <ClInclude Include="BoxCollider2D.h" />
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="ChunkedArray.h" />
-    <ClInclude Include="CircleCollider2D.h" />
-    <ClInclude Include="Collider2D.h" />
     <ClInclude Include="Collider2DSystem.h" />
     <ClInclude Include="ColliderFactory.h" />
     <ClInclude Include="ComponentArray.h" />
@@ -198,6 +195,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="ModuleEntry.h" />
     <ClInclude Include="EntityID.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Physics2DData.h" />
+    <ClInclude Include="PhysicsFunction.h" />
     <ClInclude Include="PhysListener.h" />
     <ClInclude Include="CoroutineManager.h" />
     <ClInclude Include="Event.h" />
@@ -224,7 +223,6 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="KeyInputManager.h" />
     <ClInclude Include="LuaManager.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PhysStruct.h" />
     <ClInclude Include="PixelBroadPhaseLayerFilter.h" />
     <ClInclude Include="PixelEngine.h" />
     <ClInclude Include="PixelMath.h" />
@@ -261,10 +259,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="Asset.cpp" />
     <ClCompile Include="BindManager.cpp" />
     <ClCompile Include="BitMask8.cpp" />
-    <ClCompile Include="BoxCollider2D.cpp" />
     <ClCompile Include="CameraSystem.cpp" />
-    <ClCompile Include="CircleCollider2D.cpp" />
-    <ClCompile Include="Collider2D.cpp" />
     <ClCompile Include="Collider2DSystem.cpp" />
     <ClCompile Include="ColliderFactory.cpp" />
     <ClCompile Include="Debug.cpp" />
@@ -282,6 +277,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="LuaEnumCreate.cpp" />
     <ClCompile Include="LuaStaticCreate.cpp" />
     <ClCompile Include="LuaTypeCreate.cpp" />
+    <ClCompile Include="Physics2DData.cpp" />
+    <ClCompile Include="PhysicsFunction.cpp" />
     <ClCompile Include="PhysListener.cpp" />
     <ClCompile Include="PhysManager.cpp" />
     <ClCompile Include="CoroutineManager.cpp" />

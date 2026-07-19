@@ -2,7 +2,6 @@
 #include "Collider2DSystem.h"
 #include "PixelGraphicsAPI.h"
 #include "Registry.h"
-#include "Collider2D.h"
 #include "PhysManager.h"
 #include "PixelEngine.h"
 extern PixelEngine* Engine;
@@ -23,6 +22,8 @@ void ECS::Collider2DSystem::Update(Registry* registry)
 
 void ECS::Collider2DSystem::EditorUpdate(Registry* registry)
 {
+
+
 }
 
 void ECS::Collider2DSystem::Release()

@@ -1,19 +1,19 @@
 ﻿#pragma once
 #include "EngineManager.h"
+#include "PhysicsFunction.h"
 #include <Jolt/Core/Reference.h>
 #include <Jolt/Physics/Body/BodyID.h>       
 #include <Jolt/Physics/Body/MotionType.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
 #include <unordered_map>
 #include <vector>
-#include "PhysStruct.h"
-#include "Collider2D.h"
 namespace JPH
 {
 	class PhysicsSystem;
 	class TempAllocatorImpl;
 	class JobSystemThreadPool;
 	class BodyInterface;
+	class BodyLockInterfaceLocking;
 	class Shape;
 	class BodyCreationSettings;
 }
@@ -23,11 +23,10 @@ namespace ECS
 	{
 		struct Collider2DData;
 	}
-	namespace Rigidbody2D
-	{
-		struct Rigidbody2DData;
-	}
 }
+struct BoxCollider2DData;
+struct Physics2DData;
+struct Rigidbody2DData;
 
 struct CollisionEvent;
 class PhysListener;
@@ -56,8 +55,7 @@ public:
 	void AddImpulse(JPH::BodyID id, float x, float y, float z);
 	void AddForce(JPH::BodyID id, float x, float y, float z);
 
-	JPH::ShapeRefC CreateCollider(ECS::Collider2D::Collider2DData* collider);
-	JPH::BodyID CreateRigidbody(ECS::Rigidbody2D::Rigidbody2DData* rigidbody, JPH::ShapeRefC shapeRef, unsigned int pOwner);
+	JPH::BodyID CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DData* physics);
 
 	void DebugDraw(JPH::BodyID id);
 	void SyncPhysics(JPH::BodyID id);
@@ -71,7 +69,9 @@ private:
 	JPH::PhysicsSystem* physicsSystem = nullptr;
 	JPH::TempAllocatorImpl* tempAllocator = nullptr;
 	JPH::JobSystemThreadPool* jobSystem = nullptr;
-	JPH::BodyInterface* mBodyInterface = nullptr;
+
+	static JPH::BodyInterface* mBodyInterface;
+	static const JPH::BodyLockInterfaceLocking* mBodyLockInterface;
 
 	void* mBpInterface = nullptr;
 	void* mObjVsBpFilter = nullptr;
@@ -80,5 +80,7 @@ private:
 	std::unordered_map<std::string, JPH::ShapeRefC> colliderMap;
 	std::vector<CollisionEvent> mFrameCollisionEvents;
 	std::unordered_map<std::string, int> layerList;
+
+	friend PhysicsFunction;
 };
 

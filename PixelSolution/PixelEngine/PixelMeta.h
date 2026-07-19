@@ -13,6 +13,7 @@ struct PixelMemberMeta
 {
 	std::string name;
 	std::string type;
+	long flag = 0;
 	bool luaBind = false;
 };
 
