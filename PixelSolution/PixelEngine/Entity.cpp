@@ -36,12 +36,6 @@ bool Entity_GetActive(unsigned int id)
 	return find->GetActive();
 }
 
-void Entity_SetLayer(unsigned int id, const char* layerName)
-{
-	auto find = FindEntity(id);
-	find->SetLayer(layerName);
-}
-
 sol::object Entity_GetValue(unsigned int id, const char* memberName)
 {
 	auto target = FindEntity(id);

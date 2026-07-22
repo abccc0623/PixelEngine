@@ -97,15 +97,8 @@ void ECS::EntityObject::SetActive(bool isActive)
 	ActiveEntity(ID, isActive);
 }
 
-void ECS::EntityObject::SetLayer(const char* layer)
-{
-	layerName = std::string(layer);
-}
 
-const char* ECS::EntityObject::GetLayer()
-{
-	return layerName.c_str();
-}
+
 
 sol::object ECS::EntityObject::GetValue(const char* memberName)
 {

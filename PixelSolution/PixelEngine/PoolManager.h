@@ -21,6 +21,9 @@ namespace ECS
 		unsigned int Active(const std::string& scriptName);
 		void Disable(const std::string& scriptName, unsigned int id);
 		void Clear(const std::string& scriptName);
+		int ActiveCount(const std::string& scriptName);
+		unsigned int ActiveID(const std::string& scriptName, int index);
+
 
 		sol::as_table_t<std::vector<unsigned int>> GetActiveArray(const std::string& scriptName);
 	private:

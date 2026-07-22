@@ -22,6 +22,10 @@ void LuaStaticCreate::Generate(const std::string& outPath, std::map<std::string,
 		content += CreateCDef(meta.second);
 		content += "]]\n\n";
 		content += "---@class " + meta.second.name + "\n";
+		if (meta.second.name == "Entity")
+		{
+			content += CreateEntityScriptAnnotation();
+		}
 		content += meta.second.name + " = " + meta.second.name + " or {}\n\n";
 		content += CreateFunction(meta.second);
 		content += "return " + meta.second.name;
@@ -70,5 +74,15 @@ std::string LuaStaticCreate::CreateFunction(const PixelClassMeta& PClass)
 
 	}
 
+	return content;
+}
+
+std::string LuaStaticCreate::CreateEntityScriptAnnotation()
+{
+	std::string content;
+	content += "---@field GetScript fun(ID: number): LuaInstance?\n";
+	content += "---@field SetValue fun(ID: number, variableName: string, value: any): boolean\n";
+	content += "---@field GetValue fun(ID: number, variableName: string): any\n";
+	content += "---@field CallFunction fun(ID: number, functionName: string, ...: any): boolean, any\n";
 	return content;
 }

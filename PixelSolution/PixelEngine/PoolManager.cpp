@@ -83,6 +83,21 @@ void ECS::PoolManager::Clear(const std::string& scriptName)
 	poolList[scriptName].InactiveList.clear();
 }
 
+int ECS::PoolManager::ActiveCount(const std::string& scriptName)
+{
+	return (int)poolList[scriptName].ActiveList.size();
+}
+
+unsigned int ECS::PoolManager::ActiveID(const std::string& scriptName, int index)
+{
+	int size = (int)poolList[scriptName].ActiveList.size();
+	if (index < size)
+	{
+		return poolList[scriptName].ActiveList[index];
+	}
+	return 0;
+}
+
 
 sol::as_table_t<std::vector<unsigned int>> ECS::PoolManager::GetActiveArray(const std::string& scriptName)
 {

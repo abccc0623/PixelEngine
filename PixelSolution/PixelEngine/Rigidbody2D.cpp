@@ -224,7 +224,7 @@ void Rigidbody2D_SetPosition(unsigned int id, PVector3 position)
 {
 	auto registry = GetRegistry();
 	auto data1 = registry->Get<Physics2DData>(id);
-	if (data1->bodyID.IsInvalid() == true)
+	if (data1->bodyID.IsInvalid() == false)
 	{
 		auto phys = Engine->GetFactory<PhysicsFunction>();
 		phys->SetPosition(data1->bodyID, position.x, position.y, position.z);
@@ -239,7 +239,7 @@ void Rigidbody2D_SetRotation(unsigned int id, PVector3 rotation)
 {
 	auto registry = GetRegistry();
 	auto data1 = registry->Get<Physics2DData>(id);
-	if (data1->bodyID.IsInvalid() == true)
+	if (data1->bodyID.IsInvalid() == false)
 	{
 		auto phys = Engine->GetFactory<PhysicsFunction>();
 		phys->SetRotation(data1->bodyID, rotation.x, rotation.y, rotation.z);

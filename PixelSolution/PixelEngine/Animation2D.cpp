@@ -118,18 +118,21 @@ void Animation2D_Play(unsigned int id, int AnimationIndex)
 	auto data = registry->Get<Animation2DDList>(id);
 	if (data != nullptr)
 	{
-		data->selectIndex = AnimationIndex;
-		data->play = true;
-		data->selectAnimation = data->animationArray[AnimationIndex];
+		if (data->selectIndex != AnimationIndex)
+		{
+			data->selectIndex = AnimationIndex;
+			data->play = true;
+			data->selectAnimation = data->animationArray[AnimationIndex];
 
-		auto render = registry->Get<GraphicsData>(id);
-		if (render != nullptr)
-		{
-			render->renderingData.sprite.isShared = true;
-		}
-		else
-		{
-			PixelLog::Error("[Animation2D][Play] Not Find Renderer2D");
+			auto render = registry->Get<GraphicsData>(id);
+			if (render != nullptr)
+			{
+				render->renderingData.sprite.isShared = true;
+			}
+			else
+			{
+				PixelLog::Error("[Animation2D][Play] Not Find Renderer2D");
+			}
 		}
 	}
 	else

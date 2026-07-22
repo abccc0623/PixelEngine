@@ -10,4 +10,5 @@ public:
 	void Generate(const std::string& outPath, std::map<std::string, PixelClassMeta>& staticClass);
 private:
 	std::string CreateFunction(const PixelClassMeta& PClass) override;
+	std::string CreateEntityScriptAnnotation();
 };

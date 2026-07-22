@@ -17,6 +17,15 @@ void LuaTypeCreate::Generate(const std::string& outPath, std::map<std::string, P
 		content += "local ffi = require(\"ffi\")\n";
 		content += "local dll = ffi.load(\"PixelEngine\")\n\n";
 		content += CreateClassAnnotation(meta.second);
+		if (meta.second.name == "PVector3")
+		{
+			content += "---@operator add(PVector3): PVector3\n";
+			content += "---@operator sub(PVector3): PVector3\n";
+			content += "---@operator mul(number|PVector3): PVector3\n";
+			content += "---@operator eq(PVector3): boolean\n";
+			content += "---@operator lt(PVector3): boolean\n";
+			content += "---@operator le(PVector3): boolean\n";
+		}
 		for (const auto& method : meta.second.methods)
 		{
 			if (method.name == meta.second.name + "_Create")
@@ -76,7 +85,15 @@ std::string LuaTypeCreate::CreateFunction(const PixelClassMeta& PClass)
 		content += "\t\t\t" + CreateMethod(PClass.methods[i]);
 		content += "\t\tend,\n";
 	}
-	content += "\t}\n";
+	content += "\t},\n";
+	if (PClass.name == "PVector3")
+	{
+		content += CreateVector3Operator();
+	}
+	else if (PClass.name == "PVector2")
+	{
+		content += CreateVector2Operator();
+	}
 	content += "}\n\n";
 	content += "ffi.metatype(\"" + PClass.name + "\", " + PClass.name + "_value_mt)\n\n";
 	content += "---@class " + PClass.name + "\n";
@@ -93,5 +110,57 @@ std::string LuaTypeCreate::CreateFunction(const PixelClassMeta& PClass)
 	}
 	content += "\n";
 
+	return content;
+}
+
+std::string LuaTypeCreate::CreateVector3Operator()
+{
+	std::string content;
+	content += "\t__eq = function(a, b)\n";
+	content += "\t\treturn a.x == b.x and a.y == b.y and a.z == b.z\n";
+	content += "\tend,\n";
+
+	content += "\t__lt = function(a, b)\n";
+	content += "\t\treturn a.x < b.x and a.y < b.y and a.z < b.z\n";
+	content += "\tend,\n";
+
+	content += "\t__le = function(a, b)\n";
+	content += "\t\treturn a.x <= b.x and a.y <= b.y and a.z <= b.z\n";
+	content += "\tend,\n";
+
+	content += "\t__add = function(a, b)\n";
+	content += "\t\treturn dll.PVector3_Create(a.x + b.x, a.y + b.y, a.z + b.z)\n";
+	content += "\tend,\n";
+
+	content += "\t__sub = function(a, b)\n";
+	content += "\t\treturn dll.PVector3_Create(a.x - b.x, a.y - b.y, a.z - b.z)\n";
+	content += "\tend,\n";
+
+	content += "\t__mul = function(a, b)\n";
+	content += "\t\tif type(a) == \"number\" then\n";
+	content += "\t\t\treturn dll.PVector3_Create(a * b.x, a * b.y, a * b.z)\n";
+	content += "\t\tend\n";
+	content += "\t\tif type(b) == \"number\" then\n";
+	content += "\t\t\treturn dll.PVector3_Create(a.x * b, a.y * b, a.z * b)\n";
+	content += "\t\tend\n";
+	content += "\t\treturn dll.PVector3_Create(a.x * b.x, a.y * b.y, a.z * b.z)\n";
+	content += "\tend\n";
+	return content;
+}
+
+std::string LuaTypeCreate::CreateVector2Operator()
+{
+	std::string content;
+	content += "\t__eq = function(a, b)\n";
+	content += "\t\treturn a.x == b.x and a.y == b.y\n";
+	content += "\tend,\n";
+
+	content += "\t__lt = function(a, b)\n";
+	content += "\t\treturn a.x < b.x and a.y < b.y\n";
+	content += "\tend,\n";
+
+	content += "\t__le = function(a, b)\n";
+	content += "\t\treturn a.x <= b.x and a.y <= b.y\n";
+	content += "\tend\n";
 	return content;
 }

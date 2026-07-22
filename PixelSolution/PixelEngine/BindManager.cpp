@@ -250,6 +250,42 @@ void BindManager::Initialize()
 	info_Normalize.memberName.push_back("normalizeVector3");
 	AddGlobalMethod(GlobalVector3, "PVector3_Normalize", info_Normalize, EngineMetaFlag::TypeClass);
 
+	auto info_Length = GeGlobalMethodInfo(&PVector3_Length);
+	info_Length.memberName.push_back("vector3");
+	AddGlobalMethod(GlobalVector3, "PVector3_Length", info_Length, EngineMetaFlag::TypeClass);
+
+	auto info_Distance = GeGlobalMethodInfo(&PVector3_Distance);
+	info_Distance.memberName.push_back("from");
+	info_Distance.memberName.push_back("to");
+	AddGlobalMethod(GlobalVector3, "PVector3_Distance", info_Distance, EngineMetaFlag::TypeClass);
+
+	auto info_Dot = GeGlobalMethodInfo(&PVector3_Dot);
+	info_Dot.memberName.push_back("lhs");
+	info_Dot.memberName.push_back("rhs");
+	AddGlobalMethod(GlobalVector3, "PVector3_Dot", info_Dot, EngineMetaFlag::TypeClass);
+
+	auto info_Cross = GeGlobalMethodInfo(&PVector3_Cross);
+	info_Cross.memberName.push_back("lhs");
+	info_Cross.memberName.push_back("rhs");
+	AddGlobalMethod(GlobalVector3, "PVector3_Cross", info_Cross, EngineMetaFlag::TypeClass);
+
+	auto info_Direction = GeGlobalMethodInfo(&PVector3_Direction);
+	info_Direction.memberName.push_back("from");
+	info_Direction.memberName.push_back("to");
+	AddGlobalMethod(GlobalVector3, "PVector3_Direction", info_Direction, EngineMetaFlag::TypeClass);
+
+	auto info_Lerp = GeGlobalMethodInfo(&PVector3_Lerp);
+	info_Lerp.memberName.push_back("from");
+	info_Lerp.memberName.push_back("to");
+	info_Lerp.memberName.push_back("amount");
+	AddGlobalMethod(GlobalVector3, "PVector3_Lerp", info_Lerp, EngineMetaFlag::TypeClass);
+
+	auto info_ApproximatelyEquals = GeGlobalMethodInfo(&PVector3_ApproximatelyEquals);
+	info_ApproximatelyEquals.memberName.push_back("lhs");
+	info_ApproximatelyEquals.memberName.push_back("rhs");
+	info_ApproximatelyEquals.memberName.push_back("epsilon");
+	AddGlobalMethod(GlobalVector3, "PVector3_ApproximatelyEquals", info_ApproximatelyEquals, EngineMetaFlag::TypeClass);
+
 	auto v3_Create = GeGlobalMethodInfo(&PVector3_Create);
 	v3_Create.memberName.push_back("x");
 	v3_Create.memberName.push_back("y");
@@ -319,15 +355,11 @@ void BindManager::Initialize()
 	auto EntitySetActive = GeGlobalMethodInfo(&Entity_SetActive);
 	EntitySetActive.memberName.push_back("ID");
 	EntitySetActive.memberName.push_back("IsActive");
-	auto EntitySetLayer = GeGlobalMethodInfo(&Entity_SetLayer);
-	EntitySetLayer.memberName.push_back("ID");
-	EntitySetLayer.memberName.push_back("LayerName");
 
 	AddGlobalMethod(globalEntity, "Entity_Create", EntityCreate, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_Destroy", EntityDestroy, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_GetActive", EntityGetActive, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_SetActive", EntitySetActive, EngineMetaFlag::Class);
-	AddGlobalMethod(globalEntity, "Entity_SetLayer", EntitySetLayer, EngineMetaFlag::Class);
 
 
 	//Pool
@@ -342,6 +374,13 @@ void BindManager::Initialize()
 	auto PoolClear = GeGlobalMethodInfo(&Pool_Clear);
 	PoolClear.memberName.push_back("ScriptName");
 	AddGlobalMethod(globalPool, "Pool_Clear", PoolClear, EngineMetaFlag::Class);
+	auto PoolGetActiveCount = GeGlobalMethodInfo(&Pool_GetActiveCount);
+	PoolGetActiveCount.memberName.push_back("ScriptName");
+	AddGlobalMethod(globalPool, "Pool_GetActiveCount", PoolGetActiveCount, EngineMetaFlag::Class);
+	auto PoolGetActiveID = GeGlobalMethodInfo(&Pool_GetActiveID);
+	PoolGetActiveID.memberName.push_back("ScriptName");
+	PoolGetActiveID.memberName.push_back("Index");
+	AddGlobalMethod(globalPool, "Pool_GetActiveID", PoolGetActiveID, EngineMetaFlag::Class);
 
 	//Group
 	PStatic* globalGroup = CreateLuaMetaStatic("Group", EngineMetaFlag::Class);

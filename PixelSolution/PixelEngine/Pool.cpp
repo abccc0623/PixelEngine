@@ -32,3 +32,21 @@ void Pool_Clear(const char* scriptName)
 	auto manager = scene->GetNowScene()->GetPoolManager();
 	manager->Clear(scriptNameSTR);
 }
+
+int Pool_GetActiveCount(const char* scriptName)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string scriptNameSTR(scriptName);
+
+	auto manager = scene->GetNowScene()->GetPoolManager();
+	return manager->ActiveCount(scriptNameSTR);
+}
+
+unsigned int Pool_GetActiveID(const char* scriptName, int index)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string scriptNameSTR(scriptName);
+
+	auto manager = scene->GetNowScene()->GetPoolManager();
+	return manager->ActiveID(scriptNameSTR, index);
+}

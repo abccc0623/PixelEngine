@@ -35,4 +35,47 @@ function LuaManager:Update(DTime)
 	end
 end
 
+Entity = Entity or {}
+
+function Entity.GetScript(ID)
+	local entity = LuaManager.entities[ID]
+	if entity == nil then
+		return nil
+	end
+
+	return entity.EntityTable
+end
+
+function Entity.SetValue(ID, variableName, value)
+	local scriptInstance = Entity.GetScript(ID)
+	if scriptInstance == nil then
+		return false
+	end
+
+	scriptInstance[variableName] = value
+	return true
+end
+
+function Entity.GetValue(ID, variableName)
+	local scriptInstance = Entity.GetScript(ID)
+	if scriptInstance == nil then
+		return nil
+	end
+
+	return scriptInstance[variableName]
+end
+
+function Entity.CallFunction(ID, functionName, ...)
+	local scriptInstance = Entity.GetScript(ID)
+	if scriptInstance == nil then
+		return false, "Entity has no script"
+	end
+
+	local targetFunction = scriptInstance[functionName]
+	if type(targetFunction) ~= "function" then
+		return false, "Function does not exist: " .. tostring(functionName)
+	end
+
+	return pcall(targetFunction, scriptInstance, ...)
+end
 return LuaManager

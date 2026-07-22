@@ -11,8 +11,6 @@ enum MotionType
 struct Rigidbody2DData
 {
 	unsigned int thisID;
-	const char* layer = "Default";
-	MotionType motion = MotionType::Kinematic;
 };
 extern "C" PIXEL_ENGINEDLL Rigidbody2DData* Rigidbody2D_Add(unsigned int id);
 extern "C" PIXEL_ENGINEDLL Rigidbody2DData* Rigidbody2D_Get(unsigned int id);

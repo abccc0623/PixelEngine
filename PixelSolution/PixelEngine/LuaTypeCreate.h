@@ -9,4 +9,6 @@ public:
 	void Generate(const std::string& outPath, std::map<std::string, PixelClassMeta>& classList);
 private:
 	std::string CreateFunction(const PixelClassMeta& PClass) override;
+	std::string CreateVector3Operator();
+	std::string CreateVector2Operator();
 };

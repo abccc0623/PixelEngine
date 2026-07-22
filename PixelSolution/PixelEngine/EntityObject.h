@@ -19,14 +19,10 @@ namespace ECS
 		bool GetActive();
 		void SetActive(bool isActive);
 
-		void SetLayer(const char* layer);
-		const char* GetLayer();
-
 		sol::object GetValue(const char* memberName);
 		void SetValue(const char* memberName, sol::object);
 	private:
 		bool Active;
-		std::string layerName = "Default";
 		std::string scriptName;
 		sol::table instance;
 		sol::protected_function OnCollisionEnterFunc;
