@@ -100,6 +100,7 @@ uint32_t SceneObject::CreateGroupAndEntity(const std::string& groupName, const s
 uint32_t SceneObject::CreatePoolEntity(const std::string& scriptName)
 {
 	auto id = CreateEntity(scriptName);
+	pool->Register(scriptName, id);
 	pool->Disable(scriptName, id);
 	return id;
 }

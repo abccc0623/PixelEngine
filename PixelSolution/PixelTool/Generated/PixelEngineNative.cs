@@ -33,6 +33,12 @@ public static class PixelEngineNative
     public static extern void UpdateEngine();
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int GetFPS();
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern float GetDeltaTime();
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern void ReleaseEngine();
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]

@@ -15,6 +15,15 @@ unsigned int Pool_Active(const char* scriptName)
 	return manager->Active(scriptNameSTR);
 }
 
+void Pool_SetExpansionSize(const char* scriptName, int CreateCount)
+{
+	SceneManager* scene = Engine->GetFactory<SceneManager>();
+	std::string scriptNameSTR(scriptName);
+
+	auto manager = scene->GetNowScene()->GetPoolManager();
+	manager->SetExpansionSize(scriptNameSTR, CreateCount);
+}
+
 void Pool_Disable(const char* scriptName, unsigned int id)
 {
 	SceneManager* scene = Engine->GetFactory<SceneManager>();

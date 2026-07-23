@@ -27,9 +27,10 @@ unsigned int ECS::PoolManager::Active(const std::string& scriptName)
 	auto& data = poolList[scriptName];
 	if (data.InactiveList.empty())
 	{
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < data.CreateCount; i++)
 		{
 			auto id = Entity_Create(scriptName.c_str());
+			Register(scriptName, id);
 			Disable(scriptName, id);
 		}
 	}
@@ -45,35 +46,47 @@ unsigned int ECS::PoolManager::Active(const std::string& scriptName)
 	return id;
 }
 
+void ECS::PoolManager::Register(const std::string& scriptName, unsigned int id)
+{
+	auto& data = poolList[scriptName];
+	const bool isActive = std::find(data.ActiveList.begin(), data.ActiveList.end(), id) != data.ActiveList.end();
+	const bool isInactive = std::find(data.InactiveList.begin(), data.InactiveList.end(), id) != data.InactiveList.end();
+	if (!isActive && !isInactive)
+	{
+		data.ActiveList.push_back(id);
+	}
+}
+
 void ECS::PoolManager::Disable(const std::string& scriptName, unsigned int id)
 {
-	//데이터 찾기
-	auto k = poolList.find(scriptName);
-	if (k == poolList.end())
+	auto poolIt = poolList.find(scriptName);
+	if (poolIt == poolList.end())
 	{
-		poolList.insert({ scriptName ,PoolData() });
+		PixelLog::Error("[Pool][Disable] Not Find Pool: " + scriptName);
+		return;
 	}
-	//데이터 삭제
-	auto& data = poolList[scriptName];
-	for (int i = 0; i < data.ActiveList.size(); i++)
+
+	auto& data = poolIt->second;
+	auto activeIt = std::find(data.ActiveList.begin(), data.ActiveList.end(), id);
+	if (activeIt == data.ActiveList.end())
 	{
-		if (data.ActiveList[i] == id)
+		auto inactiveIt = std::find(data.InactiveList.begin(), data.InactiveList.end(), id);
+		if (inactiveIt != data.InactiveList.end())
 		{
-			data.ActiveList.erase(data.ActiveList.begin() + i);
-			if (std::find(data.InactiveList.begin(), data.InactiveList.end(), id) == data.InactiveList.end())
-			{
-				data.InactiveList.push_back(id);
-			}
-			Entity_SetActive(id, false);
+			PixelLog::Warn(
+				"[Pool][Disable] Entity is already inactive. Pool: " +
+				scriptName + ", ID: " + std::to_string(id));
 			return;
 		}
+
+		PixelLog::Error(
+			"[Pool][Disable] Entity does not belong to pool. Pool: " +
+			scriptName + ", ID: " + std::to_string(id));
+		return;
 	}
-	//만약 여기까지 내려온다면 기존에 Pool에 있던애가 아님
-	auto it = std::find(data.InactiveList.begin(), data.InactiveList.end(), id);
-	if (it == data.InactiveList.end())
-	{
-		data.InactiveList.push_back(id);
-	}
+
+	data.ActiveList.erase(activeIt);
+	data.InactiveList.push_back(id);
 	Entity_SetActive(id, false);
 }
 
@@ -96,6 +109,11 @@ unsigned int ECS::PoolManager::ActiveID(const std::string& scriptName, int index
 		return poolList[scriptName].ActiveList[index];
 	}
 	return 0;
+}
+
+void ECS::PoolManager::SetExpansionSize(const std::string& scriptName, int createCount)
+{
+	poolList[scriptName].CreateCount = createCount;
 }
 
 

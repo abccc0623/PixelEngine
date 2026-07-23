@@ -8,6 +8,7 @@ namespace ECS
 {
 	struct PoolData
 	{
+		int CreateCount = 10;
 		std::vector<unsigned int> ActiveList;
 		std::deque<unsigned int> InactiveList;
 	};
@@ -19,10 +20,12 @@ namespace ECS
 		void Release();
 
 		unsigned int Active(const std::string& scriptName);
+		void Register(const std::string& scriptName, unsigned int id);
 		void Disable(const std::string& scriptName, unsigned int id);
 		void Clear(const std::string& scriptName);
 		int ActiveCount(const std::string& scriptName);
 		unsigned int ActiveID(const std::string& scriptName, int index);
+		void SetExpansionSize(const std::string& scriptName, int createCount);
 
 
 		sol::as_table_t<std::vector<unsigned int>> GetActiveArray(const std::string& scriptName);

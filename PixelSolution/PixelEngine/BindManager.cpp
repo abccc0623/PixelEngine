@@ -381,6 +381,10 @@ void BindManager::Initialize()
 	PoolGetActiveID.memberName.push_back("ScriptName");
 	PoolGetActiveID.memberName.push_back("Index");
 	AddGlobalMethod(globalPool, "Pool_GetActiveID", PoolGetActiveID, EngineMetaFlag::Class);
+	auto PoolSetExpansionSize = GeGlobalMethodInfo(&Pool_SetExpansionSize);
+	PoolSetExpansionSize.memberName.push_back("ScriptName");
+	PoolSetExpansionSize.memberName.push_back("CreateCount");
+	AddGlobalMethod(globalPool, "Pool_SetExpansionSize", PoolSetExpansionSize, EngineMetaFlag::Class);
 
 	//Group
 	PStatic* globalGroup = CreateLuaMetaStatic("Group", EngineMetaFlag::Class);

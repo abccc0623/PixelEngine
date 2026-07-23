@@ -429,7 +429,7 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
 	transformData->position.x = pos.GetX();
 	transformData->position.y = pos.GetY();
 	transformData->position.z = pos.GetZ();
-	DebugDraw(id);
+	//DebugDraw(id);
 }
 
 JPH::ObjectLayer PhysManager::FindLayer(std::string key)

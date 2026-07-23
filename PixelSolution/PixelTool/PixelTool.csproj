@@ -24,6 +24,7 @@
    <None Remove="LuaCode\main.lua" />
    <None Remove="LuaCode\Module.lua" />
    <None Remove="LuaCode\Scene.lua" />
+   <None Remove="LuaCode\Default.lua" />
    <None Remove="Tool\EditorLuaWindow\Lua.xshd" />
    <None Remove="Tool\LuaDark.xshd" />
  </ItemGroup>
@@ -45,6 +46,9 @@
      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="LuaCode\Scene.lua">
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </EmbeddedResource>
+   <EmbeddedResource Include="LuaCode\Default.lua">
      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
    </EmbeddedResource>
  </ItemGroup>

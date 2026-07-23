@@ -174,6 +174,41 @@ namespace PixelTool
             }
         }
 
+        public void CreateDefaultLua()
+        {
+            string newNameOnly = PixelPromptDialog.Show(
+              "새 Lua 파일의 이름을 입력해주세요",
+              "새로운 Lua 파일 만들기",
+              "");
+
+            if (string.IsNullOrWhiteSpace(newNameOnly)) return;
+
+            string fileName = System.IO.Path.GetFileNameWithoutExtension(newNameOnly.Trim());
+            if (string.IsNullOrWhiteSpace(fileName)) return;
+
+            string fullPath = System.IO.Path.Combine(ProjectPathService.AssetPath, fileName + ".lua");
+            if (File.Exists(fullPath))
+            {
+                PixelMessageBox.Show("이미 같은 이름의 파일이 존재합니다!", "알림", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            string content = LuaFileManager.GetFileContent("Default.lua");
+            File.WriteAllText(fullPath, content, Encoding.UTF8);
+
+            var luaWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
+            if (luaWindow != null)
+            {
+                luaWindow.OpenFile(fullPath);
+            }
+
+            var findWindow = GlobalFunction.GetDockedWindow<AssetWindow>();
+            if (findWindow != null)
+            {
+                findWindow.Refresh();
+            }
+        }
+
 
         ///-----------------Create----------------------
         private void CreateMainLuaFile(object sender, RoutedEventArgs e)
@@ -188,6 +223,11 @@ namespace PixelTool
         private void CreateModuleLuaFile(object sender, RoutedEventArgs e)
         {
             CreateModule();
+        }
+
+        private void CreateDefaultLuaFile(object sender, RoutedEventArgs e)
+        {
+            CreateDefaultLua();
         }
 
         private void SceneSave(object sender, RoutedEventArgs e)

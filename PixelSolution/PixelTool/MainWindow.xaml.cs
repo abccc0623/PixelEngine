@@ -50,7 +50,14 @@ namespace PixelTool
             {
                 Interval = TimeSpan.FromMilliseconds(1000)
             };
-            _dockThemeTimer.Tick += (_, _) => ApplyAvalonDockRuntimeTheme();
+            _dockThemeTimer.Tick += (_, _) =>
+            {
+                ApplyAvalonDockRuntimeTheme();
+                float frameTimeMilliseconds =
+                    Math.Max(0.0f, PixelEngineNative.GetDeltaTime()) * 1000.0f;
+                FpsTextBlock.Text =
+                    $"FPS: {PixelEngineNative.GetFPS()}  |  Frame: {frameTimeMilliseconds:F2} ms";
+            };
             _dockThemeTimer.Start();
         }
 

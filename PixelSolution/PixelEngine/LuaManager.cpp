@@ -146,6 +146,19 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 			}
 			else { /* 에러 처리 */ }
 		}
+		else if (ext == ".lua")
+		{
+			const std::string normalizedPath =
+				std::filesystem::path(filePath).lexically_normal().generic_string();
+
+			sol::protected_function_result result = lua.script_file(normalizedPath);
+			if (!result.valid())
+			{
+				sol::error err = result;
+				PixelLog::Error("Lua file load failed: " + normalizedPath + "\n" + err.what());
+				return;
+			}
+		}
 	}
 	catch (const sol::error& e)
 	{

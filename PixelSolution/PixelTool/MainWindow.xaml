@@ -113,7 +113,27 @@
                         <dock:LayoutDocumentPane>
                             <dock:LayoutDocument Title="Scene View" ContentId="SceneView">
                                 <Border x:Name="SceneViewContent" Background="{DynamicResource PixelBackgroundBrush}">
-                                    <local:GraphicsWindow x:Name="GraphicsWindow" />
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="24"/>
+                                        </Grid.RowDefinitions>
+
+                                        <local:GraphicsWindow x:Name="GraphicsWindow" />
+
+                                        <Border Grid.Row="1"
+                                                Background="{DynamicResource PixelPanelBrush}"
+                                                BorderBrush="{DynamicResource PixelDockBorderBrush}"
+                                                BorderThickness="0,1,0,0"
+                                                Padding="8,0">
+                                            <TextBlock x:Name="FpsTextBlock"
+                                                       Text="FPS: 0  |  Frame: 0.00 ms"
+                                                       Foreground="{DynamicResource PixelMutedTextBrush}"
+                                                       FontSize="12"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Right"/>
+                                        </Border>
+                                    </Grid>
                                 </Border>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>

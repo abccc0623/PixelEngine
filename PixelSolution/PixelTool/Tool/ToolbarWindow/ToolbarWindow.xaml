@@ -116,6 +116,7 @@
                             <Button Content="Main Lua File" Style="{StaticResource EditorMenuItemButton}" Click="CreateMainLuaFile" />
                             <Button Content="Scene Lua File" Style="{StaticResource EditorMenuItemButton}" Click="CreateSceneLuaFile" />
                             <Button Content="Module Lua File" Style="{StaticResource EditorMenuItemButton}" Click="CreateModuleLuaFile" />
+                            <Button Content="Default Lua File" Style="{StaticResource EditorMenuItemButton}" Click="CreateDefaultLuaFile" />
                             <TextBlock Text="CREATE ASSET" Foreground="{StaticResource PixelAccentBrush}" FontSize="14" Margin="12,15,0,8" FontWeight="Bold"/>
                             <Button Content="Material" Style="{StaticResource EditorMenuItemButton}" Click="CreateMaterial" />
                             <Button Content="Collider" Style="{StaticResource EditorMenuItemButton}" Click="CreateCollider" />
