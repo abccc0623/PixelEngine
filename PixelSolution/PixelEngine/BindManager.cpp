@@ -151,6 +151,8 @@ static void RegisterComponentData()
 	info_Play.memberName.push_back("AnimationIndex");
 	auto info_Stop = GeGlobalMethodInfo(&Animation2D_Stop);
 	info_Stop.memberName.push_back("ID");
+	auto info_Reset = GeGlobalMethodInfo(&Animation2D_Reset);
+	info_Reset.memberName.push_back("ID");
 	auto info_Create = GeGlobalMethodInfo(&Animation2D_Create);
 	info_Create.memberName.push_back("ID");
 	info_Create.memberName.push_back("TextureName");
@@ -159,7 +161,13 @@ static void RegisterComponentData()
 	info_Create.memberName.push_back("Speed");
 	AddGlobalMethod(Static, name + "_Play", info_Play, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_Stop", info_Stop, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Reset", info_Reset, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_Create", info_Create, EngineMetaFlag::Component);
+	auto info_GetFrameIndex = GeGlobalMethodInfo(&Animation2D_GetFrameIndex);
+	info_GetFrameIndex.memberName.push_back("ID");
+	info_GetFrameIndex.memberName.push_back("AnimationIndex");
+	AddGlobalMethod(Static, "Animation2D_GetFrameIndex", info_GetFrameIndex, EngineMetaFlag::Component);
+
 
 
 	name = "Rigidbody2D";
@@ -391,24 +399,31 @@ void BindManager::Initialize()
 	auto CreateGroupAndEntity = GeGlobalMethodInfo(&Group_CreateGroupAndEntity);
 	CreateGroupAndEntity.memberName.push_back("GroupName");
 	CreateGroupAndEntity.memberName.push_back("ScriptName");
-	AddGlobalMethod(globalPool, "Group_CreateGroupAndEntity", CreateGroupAndEntity, EngineMetaFlag::Class);
+	AddGlobalMethod(globalGroup, "Group_CreateGroupAndEntity", CreateGroupAndEntity, EngineMetaFlag::Class);
 	auto GroupSet = GeGlobalMethodInfo(&Group_Set);
 	GroupSet.memberName.push_back("GroupName");
 	GroupSet.memberName.push_back("ID");
-	AddGlobalMethod(globalPool, "Group_Set", GroupSet, EngineMetaFlag::Class);
+	AddGlobalMethod(globalGroup, "Group_Set", GroupSet, EngineMetaFlag::Class);
 	auto GroupRemove = GeGlobalMethodInfo(&Group_Remove);
 	GroupRemove.memberName.push_back("GroupName");
 	GroupRemove.memberName.push_back("ID");
-	AddGlobalMethod(globalPool, "Group_Remove", GroupRemove, EngineMetaFlag::Class);
+	AddGlobalMethod(globalGroup, "Group_Remove", GroupRemove, EngineMetaFlag::Class);
 	auto GroupClear = GeGlobalMethodInfo(&Group_Clear);
 	GroupClear.memberName.push_back("GroupName");
-	AddGlobalMethod(globalPool, "Group_Clear", GroupClear, EngineMetaFlag::Class);
+	AddGlobalMethod(globalGroup, "Group_Clear", GroupClear, EngineMetaFlag::Class);
 	auto GroupCount = GeGlobalMethodInfo(&Group_Count);
 	GroupCount.memberName.push_back("GroupName");
-	AddGlobalMethod(globalPool, "Group_Count", GroupCount, EngineMetaFlag::Class);
+	AddGlobalMethod(globalGroup, "Group_Count", GroupCount, EngineMetaFlag::Class);
 	auto GroupFirst = GeGlobalMethodInfo(&Group_First);
 	GroupFirst.memberName.push_back("GroupName");
-	AddGlobalMethod(globalPool, "Group_First", GroupFirst, EngineMetaFlag::Class);
+	AddGlobalMethod(globalGroup, "Group_First", GroupFirst, EngineMetaFlag::Class);
+	auto GroupGetCount = GeGlobalMethodInfo(&Group_GetCount);
+	GroupGetCount.memberName.push_back("GroupName");
+	AddGlobalMethod(globalGroup, "Group_GetCount", GroupGetCount, EngineMetaFlag::Class);
+	auto GroupGetID = GeGlobalMethodInfo(&Group_GetID);
+	GroupGetID.memberName.push_back("GroupName");
+	GroupGetID.memberName.push_back("Index");
+	AddGlobalMethod(globalGroup, "Group_GetID", GroupGetID, EngineMetaFlag::Class);
 
 
 
