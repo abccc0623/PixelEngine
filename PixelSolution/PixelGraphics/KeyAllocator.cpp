@@ -11,14 +11,14 @@ KeyAllocator::~KeyAllocator()
 
 }
 
-Handle16 KeyAllocator::GetKey16()
+std::uint16_t KeyAllocator::GetKey16()
 {
     nowKey++;
     std::bitset<16> b(nowKey);
     std::cout << "RenderKey (Binary): " << b << std::endl;
     return nowKey;
 }
-Handle32 KeyAllocator::Sub16(Handle16 num1, Handle16 num2)
+Handle32 KeyAllocator::Sub16(std::uint16_t num1, std::uint16_t num2)
 {
     Handle32 tabel;
     tabel = num1;
@@ -29,7 +29,7 @@ Handle32 KeyAllocator::Sub16(Handle16 num1, Handle16 num2)
     return tabel;
 }
 
-Handle64 KeyAllocator::Sub16(Handle16 num1, Handle16 num2, Handle16 num3, Handle16 num4)
+Handle64 KeyAllocator::Sub16(std::uint16_t num1, std::uint16_t num2, std::uint16_t num3, std::uint16_t num4)
 {
     return Handle64();
 }

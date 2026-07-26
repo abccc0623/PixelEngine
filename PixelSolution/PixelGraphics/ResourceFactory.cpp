@@ -1,12 +1,15 @@
 #include "pch.h"
 #include "ResourceFactory.h"
 
-void* ResourceFactory::GetResource(Handle16 key)
+HMODULE PixelGraphics::ResourceFactory::GetPixelGraphicsModule()
 {
-    return nullptr;
-}
+	HMODULE module = nullptr;
+	GetModuleHandleExW(
+		GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+		GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+		reinterpret_cast<LPCWSTR>(
+			&ResourceFactory::GetPixelGraphicsModule),
+		&module);
 
-Handle16 ResourceFactory::SetResource(std::string name)
-{
-    return Handle16();
+	return module;
 }

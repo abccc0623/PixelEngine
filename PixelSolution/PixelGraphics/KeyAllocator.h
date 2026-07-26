@@ -1,5 +1,5 @@
 #pragma once
-using Handle16 = unsigned short;
+#include <cstdint>
 using Handle32 = unsigned int;
 using Handle64 = unsigned long long;
 class KeyAllocator
@@ -7,9 +7,9 @@ class KeyAllocator
 public:
     KeyAllocator();
     ~KeyAllocator();
-    Handle16 GetKey16();
-    Handle32 Sub16(Handle16 num1, Handle16 num2);
-    Handle64 Sub16(Handle16 num1, Handle16 num2, Handle16 num3, Handle16 num4);
+    std::uint16_t GetKey16();
+    Handle32 Sub16(std::uint16_t num1, std::uint16_t num2);
+    Handle64 Sub16(std::uint16_t num1, std::uint16_t num2, std::uint16_t num3, std::uint16_t num4);
 private:
-    Handle16 nowKey;
+    std::uint16_t nowKey;
 };

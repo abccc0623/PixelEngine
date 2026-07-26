@@ -1,89 +1,101 @@
 #include "pch.h"
 #include "ModelFactory.h"
-void ModelFactory::Initialize()
-{
-	defaultModelMap.insert({ "Quad",CreateQuad() });
-	defaultModelMap.insert({ "Box2D",Create2DBox() });
-}
 
-void ModelFactory::Release()
+#include "GraphicsCore.h"
+#include "ResourceManager.h"
+
+bool PixelGraphics::ModelFactory::Initialize(GraphicsCore* core)
 {
-	for (auto& k : ModelMap)
+	Clear();
+	graphicsCore = core;
+	defaultModelKey = static_cast<std::uint16_t>(ResourceDefaultKey::MODEL_QUAD);
+
+	auto quad = CreateQuad();
+	auto box2D = Create2DBox();
+	if (!quad || !box2D)
 	{
-		k.second->IndexBuffer->Release();
-		k.second->VertexBuffer->Release();
-		delete k.second;
-		k.second = nullptr;
+		return false;
 	}
-	for (auto& k : defaultModelMap)
+
+	quad->key = defaultModelKey;
+	quad->path = "Quad";
+	models.emplace(quad->key, std::move(*quad));
+
+	box2D->key = static_cast<std::uint16_t>(ResourceDefaultKey::MODEL_BOX2D);
+	box2D->path = "Box2D";
+	models.emplace(box2D->key, std::move(*box2D));
+	return true;
+}
+
+void PixelGraphics::ModelFactory::Release()
+{
+	Clear();
+	graphicsCore = nullptr;
+}
+
+void PixelGraphics::ModelFactory::Clear()
+{
+	models.clear();
+}
+
+std::uint16_t PixelGraphics::ModelFactory::Load(const std::string& name)
+{
+	for (const auto& [key, model] : models)
 	{
-		k.second->IndexBuffer->Release();
-		k.second->VertexBuffer->Release();
-		delete k.second;
-		k.second = nullptr;
+		if (model.path == name)
+		{
+			return key;
+		}
 	}
-	ModelMap.clear();
-	defaultModelMap.clear();
+	return defaultModelKey;
 }
 
-void ModelFactory::Clear()
+std::unique_ptr<DirectModel> PixelGraphics::ModelFactory::CreateQuad()
 {
+	StaticVertex vertices[4] = {};
+	const std::uint32_t indices[6] = { 0, 1, 2, 0, 2, 3 };
+
+	vertices[0].Pos = { -0.5f, 0.5f, 0.0f };
+	vertices[0].UV = { 0.0f, 0.0f };
+	vertices[1].Pos = { 0.5f, 0.5f, 0.0f };
+	vertices[1].UV = { 1.0f, 0.0f };
+	vertices[2].Pos = { 0.5f, -0.5f, 0.0f };
+	vertices[2].UV = { 1.0f, 1.0f };
+	vertices[3].Pos = { -0.5f, -0.5f, 0.0f };
+	vertices[3].UV = { 0.0f, 1.0f };
+	return CreateModelBuffer(vertices, 4, indices, 6);
 }
 
-void* ModelFactory::GetResource(std::string name)
+std::unique_ptr<DirectModel> PixelGraphics::ModelFactory::Create2DBox()
 {
-	auto k = defaultModelMap.find(name.c_str());
-	if (k == defaultModelMap.end())
+	DebugVertex vertices[4] = {};
+	const std::uint32_t indices[8] = { 0, 1, 1, 2, 2, 3, 3, 0 };
+
+	vertices[0].Pos = { -0.5f, 0.5f, 0.0f };
+	vertices[1].Pos = { 0.5f, 0.5f, 0.0f };
+	vertices[2].Pos = { 0.5f, -0.5f, 0.0f };
+	vertices[3].Pos = { -0.5f, -0.5f, 0.0f };
+	for (auto& vertex : vertices)
 	{
-		std::cout << "Not Find Shader :" + name << std::endl;
-		return nullptr;
+		vertex.Color = { 1.0f, 0.0f, 0.0f };
 	}
-	else
+
+	return CreateModelBuffer(vertices, 4, indices, 8);
+}
+
+DirectModel* PixelGraphics::ModelFactory::Get(std::uint16_t key)
+{
+	const auto found = models.find(key);
+	if (found != models.end())
 	{
-		return k->second;
+		return &found->second;
 	}
-}
 
+	const auto defaultModel = models.find(defaultModelKey);
+	if (defaultModel != models.end())
+	{
+		return &defaultModel->second;
+	}
 
-DirectModel* ModelFactory::CreateQuad()
-{
-	StaticVertex Debug[4];
-	int Index[6] = { 0, 1, 2, 0, 2, 3 };
-
-	Debug[0].Pos = { -0.5f,0.5f,0 };
-	Debug[0].UV = { 0.0f,0.0f };
-
-	Debug[1].Pos = { 0.5f,0.5f,0 };
-	Debug[1].UV = { 1.0f,0.0f };
-
-	Debug[2].Pos = { 0.5f,-0.5f,0 };
-	Debug[2].UV = { 1.0f, 1.0f };
-
-	Debug[3].Pos = { -0.5f,-0.5f,0 };
-	Debug[3].UV = { 0.0f, 1.0f };
-	auto model = CreateModelBuffer(Debug, 4, Index, 6);
-	model->key = keyAllocator.GetKey16();
-	return model;
-}
-
-DirectModel* ModelFactory::Create2DBox()
-{
-	DebugVertex Debug[4];
-	Debug[0].Pos = { -0.5f,0.5f,0 };
-	Debug[0].Color = { 1,0,0 };
-	Debug[1].Pos = { 0.5f,0.5f,0 };
-	Debug[1].Color = { 1,0,0 };
-	Debug[2].Pos = { 0.5f,-0.5f,0 };
-	Debug[2].Color = { 1,0,0 };
-	Debug[3].Pos = { -0.5f,-0.5f,0 };
-	Debug[3].Color = { 1,0,0 };
-	int Index[8] = {
-		0, 1, // 상단 변
-		1, 2, // 우측 변
-		2, 3, // 하단 변
-		3, 0  // 좌측 변
-	};
-	auto model = CreateModelBuffer(Debug, 4, Index, 8);
-	model->key = keyAllocator.GetKey16();
-	return model;
+	return nullptr;
 }

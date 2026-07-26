@@ -1,190 +1,232 @@
 #include "pch.h"
 #include "TextureFactory.h"
 #include "GraphicsCore.h"
-#include "PixelGraphicsLib.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-TextureFactory::TextureFactory()
+#include "ResourceManager.h"
+
+bool PixelGraphics::TextureFactory::Initialize(GraphicsCore* graphicsCore)
 {
-	textureMap = std::unordered_map<Handle16, TextureResources*>();
+	Clear();
+	this->graphicsCore = graphicsCore;
+	defaultTextureKey =
+		static_cast<std::uint16_t>(ResourceDefaultKey::TEXTURE);
+	return LoadDefaultTexture();
 }
 
-TextureFactory::~TextureFactory()
+void PixelGraphics::TextureFactory::Release()
 {
+	Clear();
+	graphicsCore = nullptr;
 }
 
-void TextureFactory::Initialize()
+void PixelGraphics::TextureFactory::Clear()
 {
-	defaulttextureMap.insert({"Default",DefaultTextureResource(L"DEFAULT_PNG")});
-	keyAllocator.GetKey16();
+	textures.clear();
+	nextTextureKey = 1;
 }
 
-void TextureFactory::Release()
+std::uint16_t PixelGraphics::TextureFactory::AllocateKey()
 {
-	for (auto& k : textureMap)
+	constexpr std::uint16_t invalidKey =
+		(std::numeric_limits<std::uint16_t>::max)();
+
+	for (std::uint32_t count = 0; count < invalidKey - 1; ++count)
 	{
-		k.second->Texture->Release();
-		delete k.second;
-		k.second = nullptr;
-	}
-	textureMap.clear();
+		if (nextTextureKey == defaultTextureKey ||
+			nextTextureKey == invalidKey)
+		{
+			nextTextureKey = 1;
+		}
 
-	for (auto& k : defaulttextureMap)
-	{
-		k.second->Texture->Release();
-		delete k.second;
-		k.second = nullptr;
+		const std::uint16_t key = nextTextureKey++;
+		if (textures.find(key) == textures.end())
+		{
+			return key;
+		}
 	}
-	defaulttextureMap.clear();
+
+	return invalidKey;
 }
 
-
-TextureResources* TextureFactory::CreateTextureResource(const char* filePath)
+std::uint16_t PixelGraphics::TextureFactory::Load(const std::string& path)
 {
-	int width, height, channels;
-	// 1. 이미지를 CPU 메모리로 로드 (RGBA 강제)
-	unsigned char* pixels = stbi_load(filePath, &width, &height, &channels, STBI_rgb_alpha);
+	for (const auto& [key, texture] : textures)
+	{
+		if (texture.path == path)
+		{
+			return key;
+		}
+	}
 
+	ID3D11Device* device =
+		graphicsCore ? graphicsCore->GetDevice() : nullptr;
+	if (!device)
+	{
+		return defaultTextureKey;
+	}
+
+	int width = 0;
+	int height = 0;
+	int channels = 0;
+	stbi_uc* pixels = stbi_load(
+		path.c_str(),
+		&width,
+		&height,
+		&channels,
+		STBI_rgb_alpha);
 	if (!pixels)
 	{
-		std::cout << "Not Find Texture" << std::endl;
-		return nullptr;
+		return defaultTextureKey;
 	}
 
-	// 2. Texture2D 설명 설정
-	D3D11_TEXTURE2D_DESC texDesc = {};
-	texDesc.Width = width;
-	texDesc.Height = height;
-	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 1;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // 일반적인 32비트 색상 포맷
-	texDesc.SampleDesc.Count = 1;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = static_cast<UINT>(width);
+	textureDesc.Height = static_cast<UINT>(height);
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-	// 3. 초기 데이터 설정 (CPU 픽셀 -> GPU 초기화 데이터)
-	D3D11_SUBRESOURCE_DATA initData = {};
-	initData.pSysMem = pixels;
-	initData.SysMemPitch = width * 4; // RGBA니까 너비 * 4바이트
+	D3D11_SUBRESOURCE_DATA initialData = {};
+	initialData.pSysMem = pixels;
+	initialData.SysMemPitch = static_cast<UINT>(width * 4);
 
-	ID3D11Texture2D* pTexture = nullptr;
+	ComPtr<ID3D11Texture2D> texture;
+	const HRESULT textureResult = device->CreateTexture2D(
+		&textureDesc,
+		&initialData,
+		texture.GetAddressOf());
+	stbi_image_free(pixels);
 
-	GraphicsCore::GetDevice()->CreateTexture2D(&texDesc, &initData, &pTexture);
-	// 4. Shader Resource View(SRV) 생성
-	ID3D11ShaderResourceView* pSRV = nullptr;
-	if (pTexture) {
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = texDesc.Format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = 1;
-
-		GraphicsCore::GetDevice()->CreateShaderResourceView(pTexture, &srvDesc, &pSRV);
-		pTexture->Release(); // SRV가 내부 참조를 가지므로 Texture 객체 자체는 해제 가능
+	if (FAILED(textureResult))
+	{
+		return defaultTextureKey;
 	}
 
-	stbi_image_free(pixels); // CPU 메모리 해제
-	auto  texture = new TextureResources();
-	texture->Texture = pSRV;
-	texture->key = keyAllocator.GetKey16();
-	return texture;
+	ComPtr<ID3D11ShaderResourceView> textureView;
+	const HRESULT viewResult = device->CreateShaderResourceView(
+		texture.Get(),
+		nullptr,
+		textureView.GetAddressOf());
+	if (FAILED(viewResult))
+	{
+		return defaultTextureKey;
+	}
+
+	const std::uint16_t key = AllocateKey();
+	constexpr std::uint16_t invalidKey =
+		(std::numeric_limits<std::uint16_t>::max)();
+	if (key == invalidKey)
+	{
+		return defaultTextureKey;
+	}
+
+	TextureResources textureResource = {};
+	textureResource.key = key;
+	textureResource.path = path;
+	textureResource.Texture = std::move(textureView);
+	textures.emplace(key, std::move(textureResource));
+	return key;
 }
 
-
-TextureResources* TextureFactory::DefaultTextureResource(const wchar_t* resourceName)
+bool PixelGraphics::TextureFactory::LoadDefaultTexture()
 {
-	HMODULE hModule = GetModuleHandle(L"PixelGraphics.dll");
-	HRSRC hRes = FindResource(hModule, resourceName, L"PNG");
-	if (!hRes) return nullptr;
-
-	HGLOBAL hData = LoadResource(hModule, hRes);
-	void* pData = LockResource(hData);
-	DWORD size = SizeofResource(hModule, hRes);
-
-	if (!hData) return nullptr;
-
-	int width, height, channels;
-	unsigned char* imageLogit = stbi_load_from_memory((stbi_uc*)pData, size, &width, &height, &channels, 4);
-
-	if (!imageLogit)
+	ID3D11Device* device =
+		graphicsCore ? graphicsCore->GetDevice() : nullptr;
+	if (!device)
 	{
-		std::cout << "Not Find Texture" << std::endl;
-		return nullptr;
+		return false;
 	}
 
-	// 2. Texture2D 설명 설정
-	D3D11_TEXTURE2D_DESC texDesc = {};
-	texDesc.Width = width;
-	texDesc.Height = height;
-	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 1;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // 일반적인 32비트 색상 포맷
-	texDesc.SampleDesc.Count = 1;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-	// 3. 초기 데이터 설정 (CPU 픽셀 -> GPU 초기화 데이터)
-	D3D11_SUBRESOURCE_DATA initData = {};
-	initData.pSysMem = imageLogit;
-	initData.SysMemPitch = width * 4; // RGBA니까 너비 * 4바이트
-
-	ID3D11Texture2D* pTexture = nullptr;
-
-	GraphicsCore::GetDevice()->CreateTexture2D(&texDesc, &initData, &pTexture);
-	// 4. Shader Resource View(SRV) 생성
-	ID3D11ShaderResourceView* pSRV = nullptr;
-	if (pTexture) {
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = texDesc.Format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = 1;
-
-		GraphicsCore::GetDevice()->CreateShaderResourceView(pTexture, &srvDesc, &pSRV);
-		pTexture->Release(); // SRV가 내부 참조를 가지므로 Texture 객체 자체는 해제 가능
+	const HMODULE module = GetPixelGraphicsModule();
+	const HRSRC resource =
+		FindResourceW(module, L"DEFAULT_PNG", L"PNG");
+	if (!resource)
+	{
+		return false;
 	}
 
-	stbi_image_free(imageLogit); // CPU 메모리 해제
+	const HGLOBAL resourceData = LoadResource(module, resource);
+	const void* bytes = LockResource(resourceData);
+	const DWORD byteCount = SizeofResource(module, resource);
+	if (!resourceData || !bytes || byteCount == 0)
+	{
+		return false;
+	}
 
-	auto  texture = new TextureResources();
-	texture->Texture = pSRV;
-	return texture;
+	int width = 0;
+	int height = 0;
+	int channelCount = 0;
+	stbi_uc* pixels = stbi_load_from_memory(
+		static_cast<const stbi_uc*>(bytes),
+		static_cast<int>(byteCount),
+		&width,
+		&height,
+		&channelCount,
+		STBI_rgb_alpha);
+	if (!pixels)
+	{
+		return false;
+	}
+
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = static_cast<UINT>(width);
+	textureDesc.Height = static_cast<UINT>(height);
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	D3D11_SUBRESOURCE_DATA initialData = {};
+	initialData.pSysMem = pixels;
+	initialData.SysMemPitch = static_cast<UINT>(width * 4);
+
+	ComPtr<ID3D11Texture2D> texture;
+	const HRESULT textureResult = device->CreateTexture2D(
+		&textureDesc,
+		&initialData,
+		texture.GetAddressOf());
+	stbi_image_free(pixels);
+
+	if (FAILED(textureResult))
+	{
+		return false;
+	}
+
+	ComPtr<ID3D11ShaderResourceView> textureView;
+	const HRESULT viewResult = device->CreateShaderResourceView(
+		texture.Get(),
+		nullptr,
+		textureView.GetAddressOf());
+	if (FAILED(viewResult))
+	{
+		return false;
+	}
+
+	TextureResources textureResource = {};
+	textureResource.key = defaultTextureKey;
+	textureResource.path = "DEFAULT_PNG";
+	textureResource.Texture = std::move(textureView);
+	textures.emplace(defaultTextureKey, std::move(textureResource));
+	return true;
 }
 
-void TextureFactory::Clear()
+TextureResources* PixelGraphics::TextureFactory::Get(std::uint16_t key)
 {
-	for (auto k : textureMap)
+	const auto found = textures.find(key);
+	if (found != textures.end())
 	{
-		k.second->Texture->Release();
-		delete k.second;
-		k.second = nullptr;
+		return &found->second;
 	}
-	textureMap.clear();
-}
 
-
-void* TextureFactory::GetResource(std::string name)
-{
-	auto value = defaulttextureMap.find(name);
-	if (value != defaulttextureMap.end())
+	const auto defaultTexture = textures.find(defaultTextureKey);
+	if (defaultTexture != textures.end())
 	{
-		return value->second;
+		return &defaultTexture->second;
 	}
+
 	return nullptr;
 }
-
-void* TextureFactory::GetResource(Handle16 key)
-{
-	auto value = textureMap.find(key);
-	if (value != textureMap.end())
-	{
-		return value->second;
-	}
-	return nullptr;
-}
-
-Handle16 TextureFactory::SetResource(std::string name)
-{
-	auto value = CreateTextureResource(name.c_str());
-	textureMap.insert({ value->key, value });
-	return value->key;
-}
- 

@@ -1,20 +1,28 @@
 #pragma once
+
+#include <cstdint>
+#include <string>
+#include <unordered_map>
+
+#include "PixelResources.h"
 #include "ResourceFactory.h"
-struct RasterizerStateResources;
-class RasterizerStateFactory : public ResourceFactory
+
+namespace PixelGraphics
 {
-public:
-	RasterizerStateFactory();
-	~RasterizerStateFactory();
+	class GraphicsCore;
 
-	void Initialize() override;
-	void Release() override;
-	void Clear() override;
-private:
-	RasterizerStateResources* CreateRasterizerState_Solid();
-	RasterizerStateResources* CreateRasterizerState_Wire();
-	std::unordered_map<std::string, RasterizerStateResources*> rasterizerMap;
+	class RasterizerStateFactory : public ResourceFactory
+	{
+	public:
+		bool Initialize(GraphicsCore* graphicsCore) override;
+		void Release() override;
+		void Clear() override;
+		std::uint16_t Load(const std::string& name) override;
+		RasterizerStateResources* Get(std::uint16_t key);
 
-	void* GetResource(std::string name) override;
-};
-
+	private:
+		bool CreateDefaultState(std::uint16_t key, const std::string& name, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode);
+		GraphicsCore* graphicsCore = nullptr;
+		std::unordered_map<std::uint16_t, RasterizerStateResources> rasterizerStates;
+	};
+}

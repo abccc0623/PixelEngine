@@ -9,16 +9,17 @@
 using Matrix = DirectX::SimpleMath::Matrix;
 void BindingQuad::Initialize()
 {
-	targetBuffer = engine->Get<BufferResources>("ObjectBuffer");
-	quadModel = engine->Get<DirectModel>("Quad");
-	rasterizerState = engine->Get<RasterizerStateResources>("Solid");
-	shader = engine->Get<ShaderResources>("Static");
-	texture = engine->Get<TextureResources>("Default");
-	sampler = CreateSampler();
+	//targetBuffer = engine->Get<BufferResources>("ObjectBuffer");
+	//quadModel = engine->Get<DirectModel>("Quad");
+	//rasterizerState = engine->Get<RasterizerStateResources>("Solid");
+	//shader = engine->Get<ShaderResources>("Static");
+	//texture = engine->Get<TextureResources>("Default");
+	//sampler = CreateSampler();
 }
 
 void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 {
+	/*
 	ObjectBuffer mbuffer = {};
 	DirectX::SimpleMath::Matrix mWorld = DirectX::SimpleMath::Matrix::Identity;
 	memcpy(&mWorld, mData->World, sizeof(float) * 16);
@@ -53,7 +54,8 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 		auto k = engine->Get<TextureResources>(mData->texture_key);
 		if (k != nullptr)
 		{
-			GraphicsCore::GetDeviceContext()->PSSetShaderResources(0, 1, &(k->Texture));
+			ID3D11ShaderResourceView* textureView = k->Texture.Get();
+			GraphicsCore::GetDeviceContext()->PSSetShaderResources(0, 1, &textureView);
 		}
 		else
 		{
@@ -65,15 +67,16 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 	//모델 바인딩
 	//if (ModelCheck(mData->master_key, prev) == false)
 	{
-		GraphicsCore::GetDeviceContext()->IASetVertexBuffers(0, 1, &(quadModel->VertexBuffer), &(quadModel->stride), &(quadModel->Offset));
-		GraphicsCore::GetDeviceContext()->IASetIndexBuffer(quadModel->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		ID3D11Buffer* vertexBuffer = quadModel->VertexBuffer.Get();
+		GraphicsCore::GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &(quadModel->stride), &(quadModel->Offset));
+		GraphicsCore::GetDeviceContext()->IASetIndexBuffer(quadModel->IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	}
 
 	//레스터라이저바인딩
 	//if (mData->master_key != prev)
 	{
 		GraphicsCore::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		GraphicsCore::GetDeviceContext()->RSSetState(rasterizerState->rasterizerState);
+		GraphicsCore::GetDeviceContext()->RSSetState(rasterizerState->rasterizerState.Get());
 		GraphicsCore::GetDeviceContext()->PSSetSamplers(0, 1, &sampler);
 		GraphicsCore::GetDeviceContext()->VSSetSamplers(0, 1, &sampler);
 	}
@@ -86,40 +89,42 @@ void BindingQuad::Binding(RenderingData* mData, Handle64 prev)
 	}
 
 	//float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	// 
+	//
 	//GraphicsCore::GetDeviceContext()->OMSetBlendState(pAlphaBlendState, blendFactor, 0xFFFFFFFF);
 	GraphicsCore::GetDeviceContext()->DrawIndexed(quadModel->IndexCount, 0, 0);
 	//GraphicsCore::GetDeviceContext()->OMSetDepthStencilState(pDisabledDepthState, 0);
+	*/
 }
 
 
 void BindingQuad::DefaultBind(float TilingX, float TilingY, float OffsetX, float OffsetY, ObjectBuffer* buffer)
 {
-	Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(TilingX, TilingY, 1.0f);
-	Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(OffsetX, OffsetY, 0.0f);
-	Matrix texMat = texScale * texTrans;
-	buffer->TexMatrix = texMat.Transpose();
+
+	//Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(TilingX, TilingY, 1.0f);
+	//Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(OffsetX, OffsetY, 0.0f);
+	//Matrix texMat = texScale * texTrans;
+	//buffer->TexMatrix = texMat.Transpose();
 }
 
 ID3D11SamplerState* BindingQuad::CreateSampler()
 {
-	ID3D11SamplerState* Sampler = nullptr;
-	//기본 샘플러
-	D3D11_SAMPLER_DESC samplerDesc;
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0.0f;
-	samplerDesc.BorderColor[1] = 0.0f;
-	samplerDesc.BorderColor[2] = 0.0f;
-	samplerDesc.BorderColor[3] = 0.0f;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	GraphicsCore::GetDevice()->CreateSamplerState(&samplerDesc, &Sampler);
-	return Sampler;
+	//ID3D11SamplerState* Sampler = nullptr;
+	////기본 샘플러
+	//D3D11_SAMPLER_DESC samplerDesc;
+	//samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	//samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	//samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	//samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	//samplerDesc.MipLODBias = 0.0f;
+	//samplerDesc.MaxAnisotropy = 1;
+	//samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	//samplerDesc.BorderColor[0] = 0.0f;
+	//samplerDesc.BorderColor[1] = 0.0f;
+	//samplerDesc.BorderColor[2] = 0.0f;
+	//samplerDesc.BorderColor[3] = 0.0f;
+	//samplerDesc.MinLOD = 0;
+	//samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	//
+	//GraphicsCore::GetDevice()->CreateSamplerState(&samplerDesc, &Sampler);
+	return nullptr;
 }

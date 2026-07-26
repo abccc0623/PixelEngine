@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 enum RENDER_TYPE : int
 {
 	NONE ,
@@ -16,7 +17,6 @@ enum class ProjectionType
 };
 
 using ObjectID = size_t;
-using Handle16 = unsigned short;
 using Handle32 = unsigned int;
 using Handle64 = unsigned long long;
 
@@ -50,11 +50,10 @@ struct RenderingData
 public:
 	RENDER_TYPE Type = RENDER_TYPE::NONE;
 	float World[16];
-
-	Handle64 master_key		= 0;
-	Handle16 mash_key		= 0;
-	Handle16 material_key	= 0;
-	Handle16 texture_key	= 0;
+	std::uint16_t mash_key		= 0;
+	std::uint16_t material_key	= 0;
+	std::uint16_t shader_key = 1;
+	std::uint16_t texture_key	= 0;
 	union
 	{
 		SpriteData	sprite;
@@ -63,13 +62,9 @@ public:
 	};
 	void Clear()
 	{
-		master_key = ~0ULL;
-	}
-	void Setting()
-	{
-		master_key = 0;
-		master_key |= (uint64_t)mash_key		<< 48;
-		master_key |= (uint64_t)material_key	<< 32;
-		master_key |= (uint64_t)texture_key		<< 16;
+		mash_key = 0;
+		material_key = 0;
+		shader_key = 1;
+		texture_key = 0;
 	}
 };

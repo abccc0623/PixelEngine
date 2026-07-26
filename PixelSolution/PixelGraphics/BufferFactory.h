@@ -1,16 +1,15 @@
 #pragma once
 #include "ResourceFactory.h"
-#include "ShaderLoader.h"
-class BufferFactory : public ResourceFactory
+class BufferFactory
 {
 public:
 	BufferFactory();
 	~BufferFactory();
 
-	void Initialize() override;
-	void Release() override;
-	void Clear() override;
+	void Initialize();
+	void Release();
+	void Clear();
 
-	void* GetResource(std::string name) override;
+	void* GetResource(std::string name);
 };
 

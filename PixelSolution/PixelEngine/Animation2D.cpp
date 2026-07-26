@@ -44,7 +44,7 @@ void Animation2D_Play(unsigned int id, int AnimationIndex)
 			auto render = registry->Get<GraphicsData>(id);
 			if (render != nullptr)
 			{
-				render->renderingData.sprite.isShared = true;
+				render->renderingData.sprite.isShared = false;
 			}
 			else
 			{

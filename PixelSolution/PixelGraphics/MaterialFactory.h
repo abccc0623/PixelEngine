@@ -1,17 +1,35 @@
 #pragma once
+
+#include <cstdint>
+#include <string>
+#include <unordered_map>
+
+#include "PixelResources.h"
 #include "ResourceFactory.h"
-struct MaterialResources;
-class MaterialFactory : public ResourceFactory
+
+namespace PixelGraphics
 {
-public:
-	void Initialize() override;
-	void Release() override;
-	void Clear() override;
-	void* GetResource(std::string name) override;
-	void* GetResource(Handle16 key) override;
+	class GraphicsCore;
+	class ResourceManager;
 
-	Handle16 SetResource(std::string name) override;
-private:
-	std::unordered_map<std::string, MaterialResources*> materialMap;
-};
+	class MaterialFactory : public ResourceFactory
+	{
+	public:
+		explicit MaterialFactory(ResourceManager* resourceManager);
 
+		bool Initialize(GraphicsCore* graphicsCore) override;
+		void Release() override;
+		void Clear() override;
+		std::uint16_t Load(const std::string& path) override;
+		MaterialResources* Get(std::uint16_t key);
+
+	private:
+		std::uint16_t AllocateKey();
+
+		GraphicsCore* graphicsCore = nullptr;
+		ResourceManager* resourceManager = nullptr;
+		std::uint16_t defaultMaterialKey = 0;
+		std::uint16_t nextMaterialKey = 1;
+		std::unordered_map<std::uint16_t, MaterialResources> materials;
+	};
+}

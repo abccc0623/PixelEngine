@@ -1,82 +1,81 @@
 #include "pch.h"
 #include "RasterizerStateFactory.h"
+
 #include "GraphicsCore.h"
-#include "PixelResources.h"
+#include "ResourceManager.h"
 
-RasterizerStateFactory::RasterizerStateFactory()
+bool PixelGraphics::RasterizerStateFactory::Initialize(GraphicsCore* core)
 {
-
+	Clear();
+	graphicsCore = core;
+	const bool solidCreated = CreateDefaultState(static_cast<std::uint16_t>(ResourceDefaultKey::RASTERIZER_SOLID), "Solid", D3D11_FILL_SOLID, D3D11_CULL_NONE);
+	const bool wireCreated = CreateDefaultState(static_cast<std::uint16_t>(ResourceDefaultKey::RASTERIZER_WIRE), "Wire", D3D11_FILL_WIREFRAME, D3D11_CULL_BACK);
+	return solidCreated && wireCreated;
 }
 
-RasterizerStateFactory::~RasterizerStateFactory()
+void PixelGraphics::RasterizerStateFactory::Release()
 {
-
+	Clear();
+	graphicsCore = nullptr;
 }
 
-void RasterizerStateFactory::Initialize()
+void PixelGraphics::RasterizerStateFactory::Clear()
 {
-	rasterizerMap.insert({ "Solid",CreateRasterizerState_Solid()});
-	rasterizerMap.insert({ "Wired" ,CreateRasterizerState_Wire()});
+	rasterizerStates.clear();
 }
 
-void RasterizerStateFactory::Release()
+std::uint16_t PixelGraphics::RasterizerStateFactory::Load(const std::string& name)
 {
-	for (auto k : rasterizerMap)
+	for (const auto& [key, state] : rasterizerStates)
 	{
-		auto value = k.second;
-		value->rasterizerState->Release();
-		delete value;
-		value = nullptr;
-		k.second = nullptr;
+		if (state.path == name)
+		{
+			return key;
+		}
 	}
-	rasterizerMap.clear();
-}
 
-void RasterizerStateFactory::Clear()
-{
-
-}
-
-RasterizerStateResources* RasterizerStateFactory::CreateRasterizerState_Solid()
-{
-	ID3D11RasterizerState* mSolid = nullptr;
-	D3D11_RASTERIZER_DESC solidDesc;
-	ZeroMemory(&solidDesc, sizeof(D3D11_RASTERIZER_DESC));
-	solidDesc.FillMode = D3D11_FILL_SOLID;
-	solidDesc.CullMode = D3D11_CULL_NONE;
-	solidDesc.FrontCounterClockwise = false;
-	solidDesc.DepthClipEnable = true;
-	GraphicsCore::GetDevice()->CreateRasterizerState(&solidDesc, &mSolid);
-	auto k = new RasterizerStateResources();
-	k->rasterizerState = mSolid;
-	return k;
-}
-
-RasterizerStateResources* RasterizerStateFactory::CreateRasterizerState_Wire()
-{
-	ID3D11RasterizerState* mWire = nullptr;
-	D3D11_RASTERIZER_DESC wireframeDesc;
-	ZeroMemory(&wireframeDesc, sizeof(D3D11_RASTERIZER_DESC));
-	wireframeDesc.FillMode = D3D11_FILL_WIREFRAME;
-	wireframeDesc.CullMode = D3D11_CULL_BACK;
-	wireframeDesc.FrontCounterClockwise = false;
-	wireframeDesc.DepthClipEnable = true;
-	GraphicsCore::GetDevice()->CreateRasterizerState(&wireframeDesc, &mWire);
-	auto k = new RasterizerStateResources();
-	k->rasterizerState = mWire;
-	return k;
-}
-
-void* RasterizerStateFactory::GetResource(std::string name)
-{
-	auto value =rasterizerMap.find(name);
-	if (value != rasterizerMap.end())
+	if (name == "Wired" || name == "Wireframe")
 	{
-		return value->second;
+		return static_cast<std::uint16_t>(ResourceDefaultKey::RASTERIZER_WIRE);
 	}
-	else 
+
+	return 0;
+}
+
+bool PixelGraphics::RasterizerStateFactory::CreateDefaultState(std::uint16_t key, const std::string& name, D3D11_FILL_MODE fillMode, D3D11_CULL_MODE cullMode)
+{
+	ID3D11Device* device = graphicsCore ? graphicsCore->GetDevice() : nullptr;
+	if (!device)
 	{
-		std::cout << "Not Find RasterizerState :" + name << std::endl;
-		return nullptr;
+		return false;
 	}
+
+	D3D11_RASTERIZER_DESC description = {};
+	description.FillMode = fillMode;
+	description.CullMode = cullMode;
+	description.FrontCounterClockwise = false;
+	description.DepthClipEnable = true;
+
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
+	if (FAILED(device->CreateRasterizerState(&description, rasterizerState.GetAddressOf())))
+	{
+		return false;
+	}
+
+	RasterizerStateResources resource = {};
+	resource.key = key;
+	resource.path = name;
+	resource.rasterizerState = std::move(rasterizerState);
+	rasterizerStates.emplace(key, std::move(resource));
+	return true;
+}
+
+RasterizerStateResources* PixelGraphics::RasterizerStateFactory::Get(std::uint16_t key)
+{
+	const auto found = rasterizerStates.find(key);
+	if (found != rasterizerStates.end())
+	{
+		return &found->second;
+	}
+	return nullptr;
 }

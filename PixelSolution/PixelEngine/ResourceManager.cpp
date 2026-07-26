@@ -3,6 +3,8 @@
 #include "TextureManager.h"
 #include "MaterialManager.h"
 ResourceManager::ResourceManager()
+	: textureManager(nullptr),
+	materialManager(nullptr)
 {
 
 }
@@ -25,11 +27,19 @@ void ResourceManager::Update()
 
 void ResourceManager::Release()
 {
-	delete textureManager;
-	textureManager = nullptr;
+	if (textureManager)
+	{
+		textureManager->Release();
+		delete textureManager;
+		textureManager = nullptr;
+	}
 
-	delete materialManager;
-	materialManager = nullptr;
+	if (materialManager)
+	{
+		materialManager->Release();
+		delete materialManager;
+		materialManager = nullptr;
+	}
 }
 
 void ResourceManager::Load(RESOURCE_TYPE type, const std::string& filePath)

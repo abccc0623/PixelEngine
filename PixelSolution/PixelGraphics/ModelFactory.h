@@ -1,109 +1,101 @@
 #pragma once
-#include "PixelResources.h"
+
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <unordered_map>
+
+#include "InputLayout.h"
+#include "ModelResources.h"
 #include "ResourceFactory.h"
 #include "GraphicsCore.h"
-#include "ModelResources.h"
-#include <d3d11.h>
-struct StaticModel;
-struct DirectModel;
-class ModelFactory : public ResourceFactory
+
+namespace PixelGraphics
 {
-public:
-	ModelFactory() = default;
-	virtual ~ModelFactory() = default;
+	class GraphicsCore;
 
-	virtual void Initialize();
-	virtual void Release();
-	virtual void Clear();
-protected:
-	virtual void* GetResource(std::string name);
+	class ModelFactory : public ResourceFactory
+	{
+	public:
+		bool Initialize(GraphicsCore* graphicsCore) override;
+		void Release() override;
+		void Clear() override;
+		std::uint16_t Load(const std::string& name) override;
+		DirectModel* Get(std::uint16_t key);
 
-	DirectModel* CreateQuad();
-	DirectModel* Create2DBox();
-	std::unordered_map<Handle16, DirectModel*> ModelMap;
-	std::unordered_map<std::string, DirectModel*> defaultModelMap;
+	private:
+		std::unique_ptr<DirectModel> CreateQuad();
+		std::unique_ptr<DirectModel> Create2DBox();
 
+		template<typename VertexType, typename IndexType>
+		std::unique_ptr<DirectModel> CreateModelBuffer(VertexType* vertexArray, int vertexArraySize, IndexType* indexArray, int indexArraySize);
 
-	template<typename VertextType, typename IndexType>
-	DirectModel* CreateModelBuffer(VertextType* VertexArray, int VertexArraySize, IndexType* IndexArray, int IndexArraySize);
-	template<typename T>
-	ID3D11Buffer* CreateVertexBuffer(T* VertexArray, int VertexArraySize);
-	template<typename T>
-	ID3D11Buffer* CreateIndexBuffer(T* IndexArray, int IndexArraySize);
-	template<typename T>
-	ID3D11Buffer* CreateDynamicVertexBuffer(int MaxVertexCount);
-};
+		template<typename T>
+		Microsoft::WRL::ComPtr<ID3D11Buffer> CreateVertexBuffer(T* vertexArray, int vertexArraySize);
 
-template<typename VertextType, typename IndexType>
-inline DirectModel* ModelFactory::CreateModelBuffer(VertextType* VertexArray, int VertexArraySize, IndexType* IndexArray, int IndexArraySize)
+		template<typename T>
+		Microsoft::WRL::ComPtr<ID3D11Buffer> CreateIndexBuffer(T* indexArray, int indexArraySize);
+
+		GraphicsCore* graphicsCore = nullptr;
+		std::uint16_t defaultModelKey = 0;
+		std::unordered_map<std::uint16_t, DirectModel> models;
+	};
+}
+
+template<typename VertexType, typename IndexType>
+std::unique_ptr<DirectModel> PixelGraphics::ModelFactory::CreateModelBuffer(VertexType* vertexArray, int vertexArraySize, IndexType* indexArray, int indexArraySize)
 {
-	DirectModel* mMode = new DirectModel();
-	mMode->VertexBuffer = CreateVertexBuffer(VertexArray, VertexArraySize);
-	mMode->IndexBuffer = CreateIndexBuffer(IndexArray, IndexArraySize);
-	
-	mMode->Offset = 0;
-	mMode->stride = sizeof(VertextType);
-	mMode->IndexCount = IndexArraySize;
-	mMode->VertexCount = VertexArraySize;
-	return mMode;
+	auto model = std::make_unique<DirectModel>();
+	model->VertexBuffer = CreateVertexBuffer(vertexArray, vertexArraySize);
+	model->IndexBuffer = CreateIndexBuffer(indexArray, indexArraySize);
+	if (!model->VertexBuffer || !model->IndexBuffer)
+	{
+		return nullptr;
+	}
+
+	model->Offset = 0;
+	model->stride = sizeof(VertexType);
+	model->IndexCount = indexArraySize;
+	model->VertexCount = vertexArraySize;
+	return model;
 }
 
 template<typename T>
-inline ID3D11Buffer* ModelFactory::CreateVertexBuffer(T* VertexArray, int VertexArraySize)
+Microsoft::WRL::ComPtr<ID3D11Buffer> PixelGraphics::ModelFactory::CreateVertexBuffer(T* vertexArray, int vertexArraySize)
 {
-	ID3D11Buffer* VertexBuffer = nullptr;
-	D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(T) * VertexArraySize;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
-	vbd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA vinitData;
-	vinitData.pSysMem = &VertexArray[0];
-	GraphicsCore::GetDevice()->CreateBuffer(&vbd, &vinitData, &VertexBuffer);
-	return VertexBuffer;
-}
+	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
+	if (!graphicsCore || !graphicsCore->GetDevice())
+	{
+		return vertexBuffer;
+	}
 
+	D3D11_BUFFER_DESC description = {};
+	description.Usage = D3D11_USAGE_IMMUTABLE;
+	description.ByteWidth = static_cast<UINT>(sizeof(T) * vertexArraySize);
+	description.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
-template<typename T>
-inline ID3D11Buffer* ModelFactory::CreateIndexBuffer(T* IndexArray, int IndexArraySize)
-{
-	ID3D11Buffer* IndexBuffer = nullptr;
-	D3D11_BUFFER_DESC ibd;
-	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(T) * IndexArraySize;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0;
-	ibd.MiscFlags = 0;
-	ibd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = &IndexArray[0];
-	GraphicsCore::GetDevice()->CreateBuffer(&ibd, &iinitData, &IndexBuffer);
-	return IndexBuffer;
+	D3D11_SUBRESOURCE_DATA initialData = {};
+	initialData.pSysMem = vertexArray;
+	graphicsCore->GetDevice()->CreateBuffer(&description, &initialData, vertexBuffer.GetAddressOf());
+	return vertexBuffer;
 }
 
 template<typename T>
-inline ID3D11Buffer* ModelFactory::CreateDynamicVertexBuffer(int MaxVertexCount)
+Microsoft::WRL::ComPtr<ID3D11Buffer> PixelGraphics::ModelFactory::CreateIndexBuffer(T* indexArray, int indexArraySize)
 {
-	ID3D11Buffer* VertexBuffer = nullptr;
-	D3D11_BUFFER_DESC vbd;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
+	if (!graphicsCore || !graphicsCore->GetDevice())
+	{
+		return indexBuffer;
+	}
 
-	// 1. [변경] IMMUTABLE -> D3D11_USAGE_DYNAMIC
-	vbd.Usage = D3D11_USAGE_DYNAMIC;
+	D3D11_BUFFER_DESC description = {};
+	description.Usage = D3D11_USAGE_IMMUTABLE;
+	description.ByteWidth = static_cast<UINT>(sizeof(T) * indexArraySize);
+	description.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
-	vbd.ByteWidth = sizeof(T) * MaxVertexCount;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-	// 2. [변경] 0 -> D3D11_CPU_ACCESS_WRITE (CPU가 쓸 권한 부여)
-	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	vbd.MiscFlags = 0;
-	vbd.StructureByteStride = 0;
-
-	// 3. [변경] 초기 데이터(vinitData)는 필요 없습니다. 
-	// 생성할 때는 공간만 뚫어놓고, 나중에 Map/Unmap으로 데이터를 밀어넣을 거니까요.
-	GraphicsCore::GetDevice()->CreateBuffer(&vbd, nullptr, &VertexBuffer);
-
-	return VertexBuffer;
+	D3D11_SUBRESOURCE_DATA initialData = {};
+	initialData.pSysMem = indexArray;
+	graphicsCore->GetDevice()->CreateBuffer(&description, &initialData, indexBuffer.GetAddressOf());
+	return indexBuffer;
 }

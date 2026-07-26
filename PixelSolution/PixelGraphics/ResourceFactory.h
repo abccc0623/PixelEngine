@@ -2,29 +2,24 @@
 #include "KeyAllocator.h"
 #include <type_traits>
 #include <unordered_map>
+#include <Windows.h>
 #include <string>
 
-class ResourceFactory
+namespace PixelGraphics
 {
-public:
-	ResourceFactory() = default;
-	virtual ~ResourceFactory() = default;
-
-	virtual void Initialize()	= 0;
-	virtual void Release()		= 0;
-	virtual void Clear()		= 0;
-
-	virtual void* GetResource(std::string name) = 0;
-	virtual void* GetResource(Handle16 key);
-
-	virtual Handle16 SetResource(std::string name);
-protected:
-	template <typename T>
-	size_t CreateHashCode(T* taget)
+	class GraphicsCore;
+	class ResourceFactory
 	{
-		return std::hash<T*>{}(taget);
-	}
-	KeyAllocator keyAllocator;
-};
-
+	public:
+		ResourceFactory() = default;
+		virtual ~ResourceFactory() = default;
+	public:
+		virtual bool Initialize(PixelGraphics::GraphicsCore* graphicsCore) = 0;
+		virtual void Release() = 0;
+		virtual void Clear() = 0;
+		virtual std::uint16_t Load(const std::string& path) = 0;
+	protected:
+		static HMODULE GetPixelGraphicsModule();
+	};
+}
 

@@ -90,6 +90,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(ProjectDir)Library</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;DirectXTK_x64d.lib;DirectXTex_x64d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -116,6 +117,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(ProjectDir)Library</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;DirectXTK_x64d.lib;DirectXTex_x64d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -146,6 +148,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(ProjectDir)Library</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;DirectXTK_x64r.lib;DirectXTex_x64r.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -160,13 +163,13 @@
     <ClInclude Include="DrawDebugLine.h" />
     <ClInclude Include="BindingQuad.h" />
     <ClInclude Include="BindingRect.h" />
-    <ClInclude Include="BufferFactory.h" />
-    <ClInclude Include="DefaultShaderLoader.h" />
+    <ClInclude Include="ForwardRender.h" />
     <ClInclude Include="MaterialFactory.h" />
     <ClInclude Include="ModelFactory.h" />
+    <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PixelResources.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="ShaderLoader.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Export\PixelGraphicsAPI.h" />
     <ClInclude Include="Export\PixelGraphicsDLL.h" />
     <ClInclude Include="Export\RenderringData.h" />
@@ -182,7 +185,7 @@
     <ClInclude Include="ModelResources.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelGraphicsLib.h" />
-    <ClInclude Include="Rendering.h" />
+    <ClInclude Include="RenderingManager.h" />
     <ClInclude Include="BindingCamera.h" />
     <ClInclude Include="ResourceFactory.h" />
     <ClInclude Include="SimpleMath.h" />
@@ -194,15 +197,18 @@
     <ClCompile Include="DrawDebugLine.cpp" />
     <ClCompile Include="BindingQuad.cpp" />
     <ClCompile Include="BindingRect.cpp" />
-    <ClCompile Include="BufferFactory.cpp" />
-    <ClCompile Include="DefaultShaderLoader.cpp" />
+    <ClCompile Include="ForwardRender.cpp" />
     <ClCompile Include="MaterialFactory.cpp" />
     <ClCompile Include="ModelFactory.cpp" />
+    <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="ResourceFactory.cpp" />
-    <ClCompile Include="ShaderLoader.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="KeyAllocator.cpp" />
     <ClCompile Include="RasterizerStateFactory.cpp" />
     <ClCompile Include="ShaderFactory.cpp" />
+    <ClCompile Include="stb_image.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="GraphicsCore.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
@@ -212,7 +218,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PixelGraphicsAPI.cpp" />
-    <ClCompile Include="Rendering.cpp" />
+    <ClCompile Include="RenderingManager.cpp" />
     <ClCompile Include="BindingCamera.cpp" />
     <ClCompile Include="TextureFactory.cpp" />
   </ItemGroup>
@@ -289,7 +295,7 @@
     <ResourceCompile Include="PixelGraphics.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Texture\test.png" />
+    <Image Include="Texture\DefaultTexture.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

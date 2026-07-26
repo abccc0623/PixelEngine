@@ -51,8 +51,8 @@ void ECS::Animation2DSystem::Update(Registry* registry)
 				render2->renderingData.texture_key = select.textureID;
 				render1->TilingX = 1.0f / select.maxFramesX;
 				render1->TilingY = 1.0f / select.maxFramesY;
-				render1->OffsetX = (select.framesIndex % select.maxFramesX) * render2->renderingData.sprite.TilingX;
-				render1->OffsetY = (select.framesIndex / select.maxFramesX) * render2->renderingData.sprite.TilingY;
+				render1->OffsetX = (select.framesIndex % select.maxFramesX) * render1->TilingX;
+				render1->OffsetY = (select.framesIndex / select.maxFramesX) * render1->TilingY;
 			}
 		});
 
@@ -78,8 +78,8 @@ void ECS::Animation2DSystem::EditorUpdate(Registry* registry)
 				render2->renderingData.texture_key = select.textureID;
 				render1->TilingX = 1.0f / select.maxFramesX;
 				render1->TilingY = 1.0f / select.maxFramesY;
-				render1->OffsetX = (select.framesIndex % select.maxFramesX) * render2->renderingData.sprite.TilingX;
-				render1->OffsetY = (select.framesIndex / select.maxFramesX) * render2->renderingData.sprite.TilingY;
+				render1->OffsetX = (select.framesIndex % select.maxFramesX) * render1->TilingX;
+				render1->OffsetY = (select.framesIndex / select.maxFramesX) * render1->TilingY;
 			}
 		});
 }
