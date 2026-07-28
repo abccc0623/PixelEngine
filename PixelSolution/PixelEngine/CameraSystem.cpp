@@ -3,6 +3,7 @@
 #include "Renderer2D.h"
 #include "Registry.h"
 #include "Transform.h"
+#include "Graphics.h"
 #include "Camera.h"
 #include <glm/gtc/type_ptr.hpp>
 ECS::CameraSystem::CameraSystem()
@@ -20,23 +21,19 @@ void ECS::CameraSystem::Update(Registry* registry)
 	auto& Chunked = registry->GetChunkedArray<CameraData>();
 	Chunked.ForEach([registry](CameraData* data, size_t index)
 		{
-			auto id = registry->GetEntityID<CameraData>(index);
-			auto g = registry->Get<GraphicsData>(index);
-			auto world = registry->Get<WorldData>(id);
-			if (world != nullptr)
+			auto g = registry->Get<GraphicsData>(data->thisID);
+			auto world = registry->Get<WorldData>(data->thisID);
+			if (g != nullptr && world != nullptr)
 			{
 				g->renderingData.camera.Projection = ProjectionType::Perspective;
 				g->renderingData.camera.FovY = data->FovY;
 				g->renderingData.camera.NearZ = data->NearZ;
 				g->renderingData.camera.FarZ = data->FarZ;
 				g->renderingData.camera.ZoomLevel = data->ZoomLevel;
-
-				glm::mat4 viewMatrix = glm::inverse(world->world);
-				Pixel::Matrix4x4 camMatrix = viewMatrix;
-
-				const float* sourcePtr = glm::value_ptr(camMatrix);
-				std::copy(sourcePtr, sourcePtr + 16, g->renderingData.World);
-				SetRenderingData(g->renderingData);
+				g->renderingData.camera.ViewportX = data->ViewportX;
+				g->renderingData.camera.ViewportY = data->ViewportY;
+				g->renderingData.camera.ViewportWidth = data->ViewportWidth;
+				g->renderingData.camera.ViewportHeight = data->ViewportHeight;
 			}
 		});
 }

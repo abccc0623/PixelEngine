@@ -16,7 +16,7 @@ Renderer2D::Renderer2D() :
 	textureID(-1)
 {
 	rendering = GetRenderingData();
-	rendering->Type = QUAD;
+	rendering->renderType = QUAD;
 }
 
 Renderer2D::~Renderer2D()

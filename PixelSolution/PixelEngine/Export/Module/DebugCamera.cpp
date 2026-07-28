@@ -11,17 +11,20 @@ DebugCamera::DebugCamera() :
 	mLastMousePosX(0),
 	mLastMousePosY(0)
 {
-	rendering.Type = CAMERA;
+	rendering.renderType = RENDER_TYPE::CAMERA;
 	rendering.camera.Projection = ProjectionType::Perspective;
 	rendering.camera.FovY = 0.3f * 3.1415926535f;
 	rendering.camera.NearZ = 0.1f;
 	rendering.camera.FarZ = 4000.0f;
 	rendering.camera.ZoomLevel = 1.0f;
+	rendering.camera.ViewportX = 0.0f;
+	rendering.camera.ViewportY = 0.0f;
+	rendering.camera.ViewportWidth = 0.0f;
+	rendering.camera.ViewportHeight = 0.0f;
 }
 
 DebugCamera::~DebugCamera()
-{
-}
+{}
 
 void DebugCamera::Start()
 {

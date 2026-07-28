@@ -34,8 +34,7 @@ bool PixelGraphics::GraphicsCore::Initialize(HWND targetWindowHandle)
 	clientWidth = width;
 	clientHeight = height;
 
-	if (!CreateDeviceAndSwapChain() || !CreateBackBuffer() ||
-		!CreateDepthStencil() || !CreateBlendState())
+	if (!CreateDeviceAndSwapChain() || !CreateBackBuffer() || !CreateDepthStencil() || !CreateDepthStencilStates() || !CreateBlendState())
 	{
 		Release();
 		return false;
@@ -133,6 +132,45 @@ bool PixelGraphics::GraphicsCore::CreateBackBuffer()
 	return SUCCEEDED(result);
 }
 
+bool PixelGraphics::GraphicsCore::CreateRenderTarget(int width, int height, RenderTarget& renderTarget)
+{
+	if (!device || width <= 0 || height <= 0)
+	{
+		return false;
+	}
+
+	renderTarget = {};
+
+	D3D11_TEXTURE2D_DESC description = {};
+	description.Width = static_cast<UINT>(width);
+	description.Height = static_cast<UINT>(height);
+	description.MipLevels = 1;
+	description.ArraySize = 1;
+	description.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	description.SampleDesc.Count = 1;
+	description.Usage = D3D11_USAGE_DEFAULT;
+	description.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+	if (FAILED(device->CreateTexture2D(&description, nullptr, renderTarget.texture.GetAddressOf())))
+	{
+		return false;
+	}
+	if (FAILED(device->CreateRenderTargetView(renderTarget.texture.Get(), nullptr, renderTarget.renderTargetView.GetAddressOf())))
+	{
+		renderTarget = {};
+		return false;
+	}
+	if (FAILED(device->CreateShaderResourceView(renderTarget.texture.Get(), nullptr, renderTarget.shaderResourceView.GetAddressOf())))
+	{
+		renderTarget = {};
+		return false;
+	}
+
+	renderTarget.width = width;
+	renderTarget.height = height;
+	return true;
+}
+
 bool PixelGraphics::GraphicsCore::CreateDepthStencil()
 {
 	if (!device)
@@ -167,6 +205,37 @@ bool PixelGraphics::GraphicsCore::CreateDepthStencil()
 		depthStencilView.ReleaseAndGetAddressOf());
 
 	return SUCCEEDED(result);
+}
+
+bool PixelGraphics::GraphicsCore::CreateDepthStencilStates()
+{
+	if (!device)
+	{
+		return false;
+	}
+
+	D3D11_DEPTH_STENCIL_DESC enabledDescription = {};
+	enabledDescription.DepthEnable = TRUE;
+	enabledDescription.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	enabledDescription.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	enabledDescription.StencilEnable = FALSE;
+	if (FAILED(device->CreateDepthStencilState(&enabledDescription, depthEnabledState.ReleaseAndGetAddressOf())))
+	{
+		return false;
+	}
+
+	D3D11_DEPTH_STENCIL_DESC disabledDescription = {};
+	disabledDescription.DepthEnable = FALSE;
+	disabledDescription.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	disabledDescription.DepthFunc = D3D11_COMPARISON_ALWAYS;
+	disabledDescription.StencilEnable = FALSE;
+	if (FAILED(device->CreateDepthStencilState(&disabledDescription, depthDisabledState.ReleaseAndGetAddressOf())))
+	{
+		depthEnabledState.Reset();
+		return false;
+	}
+
+	return true;
 }
 
 bool PixelGraphics::GraphicsCore::CreateBlendState()
@@ -322,6 +391,8 @@ void PixelGraphics::GraphicsCore::Release()
 	}
 
 	alphaBlendState.Reset();
+	depthDisabledState.Reset();
+	depthEnabledState.Reset();
 	ReleaseSizeDependentResources();
 	swapChain.Reset();
 	deviceContext.Reset();
@@ -360,6 +431,16 @@ ID3D11RenderTargetView* PixelGraphics::GraphicsCore::GetBackBufferRTV() const
 ID3D11DepthStencilView* PixelGraphics::GraphicsCore::GetDepthStencilView() const
 {
 	return depthStencilView.Get();
+}
+
+ID3D11DepthStencilState* PixelGraphics::GraphicsCore::GetDepthEnabledState() const
+{
+	return depthEnabledState.Get();
+}
+
+ID3D11DepthStencilState* PixelGraphics::GraphicsCore::GetDepthDisabledState() const
+{
+	return depthDisabledState.Get();
 }
 
 ID3D11BlendState* PixelGraphics::GraphicsCore::GetAlphaBlendState() const

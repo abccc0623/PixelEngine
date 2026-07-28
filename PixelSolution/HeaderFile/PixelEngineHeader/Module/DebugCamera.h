@@ -1,7 +1,6 @@
 #pragma once
 #include "Core/Module.h"
-struct RenderingData;
-class GameObject;
+#include "RenderringData.h"
 class DebugCamera : public Module
 {
 public:
@@ -12,7 +11,7 @@ public:
 	void Update() override;
 	void LastUpdate() override;
 private:
-	RenderingData* rendering;
+	RenderingData rendering;
 	float moveSpeed;
 	float RotationSpeed;
 	bool isMove;

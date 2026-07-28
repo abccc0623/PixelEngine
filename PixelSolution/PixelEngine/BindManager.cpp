@@ -13,6 +13,7 @@
 #include "Camera.h"
 #include "Animation2D.h"
 #include "Renderer2D.h"
+#include "UIImage.h"
 #include "Rigidbody2D.h"
 #include "Entity.h"
 #include "Event.h"
@@ -112,6 +113,25 @@ static void RegisterComponentData()
 	AddGlobalMethod(GlobalRenderer2D, name + "_Has", info_Has, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalRenderer2D, "Renderer2D_SetTexture", info_SetTextrue, EngineMetaFlag::Component);
 
+	name = "UIImage";
+	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
+	AddMember(Data, "thisID", LuaMember("unsigned int", offsetof(UIImageData, thisID)), EngineMetaFlag::Private);
+	AddMember(Data, "order", LuaMember("int", offsetof(UIImageData, order)), EngineMetaFlag::Public);
+	Static = CreateLuaMetaStatic(name, EngineMetaFlag::Component);
+	info_Add = GeGlobalMethodInfo(&UIImage_Add);
+	info_Add.memberName.push_back("ID");
+	info_Get = GeGlobalMethodInfo(&UIImage_Get);
+	info_Get.memberName.push_back("ID");
+	info_Has = GeGlobalMethodInfo(&UIImage_Has);
+	info_Has.memberName.push_back("ID");
+	auto info_UIImageSetTexture = GeGlobalMethodInfo(&UIImage_SetTexture);
+	info_UIImageSetTexture.memberName.push_back("ID");
+	info_UIImageSetTexture.memberName.push_back("textureName");
+	AddGlobalMethod(Static, name + "_Add", info_Add, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Get", info_Get, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Has", info_Has, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetTexture", info_UIImageSetTexture, EngineMetaFlag::Component);
+
 
 	name = "Camera";
 	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
@@ -120,6 +140,10 @@ static void RegisterComponentData()
 	AddMember(Data, "NearZ", LuaMember("float", offsetof(CameraData, NearZ)), EngineMetaFlag::Public);
 	AddMember(Data, "FarZ", LuaMember("float", offsetof(CameraData, FarZ)), EngineMetaFlag::Public);
 	AddMember(Data, "ZoomLevel", LuaMember("float", offsetof(CameraData, ZoomLevel)), EngineMetaFlag::Public);
+	AddMember(Data, "ViewportX", LuaMember("float", offsetof(CameraData, ViewportX)), EngineMetaFlag::Public);
+	AddMember(Data, "ViewportY", LuaMember("float", offsetof(CameraData, ViewportY)), EngineMetaFlag::Public);
+	AddMember(Data, "ViewportWidth", LuaMember("float", offsetof(CameraData, ViewportWidth)), EngineMetaFlag::Public);
+	AddMember(Data, "ViewportHeight", LuaMember("float", offsetof(CameraData, ViewportHeight)), EngineMetaFlag::Public);
 	PStatic* GlobalCamera = CreateLuaMetaStatic(name, EngineMetaFlag::Component);
 	info_Add = GeGlobalMethodInfo(&Camera_Add);
 	info_Add.memberName.push_back("ID");

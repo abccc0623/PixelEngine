@@ -1,17 +1,17 @@
 #pragma once
 #include "ISystem.h"
-
 namespace ECS
 {
-	class Renderer2DSystem :public ISystem
+	class UIImageSystem : public ISystem
 	{
 	public:
-		Renderer2DSystem();
-		virtual ~Renderer2DSystem();
+		UIImageSystem();
+		virtual ~UIImageSystem();
 
-		void Update(Registry* registry) override;
+		void Update(ECS::Registry* registry) override;
 		void EditorUpdate(Registry* registry) override;
 		void Release() override;
 	};
 };
+
 

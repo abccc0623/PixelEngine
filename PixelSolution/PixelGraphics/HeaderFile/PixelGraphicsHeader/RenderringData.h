@@ -2,18 +2,22 @@
 #include <cstdint>
 enum RENDER_TYPE : int
 {
-	NONE ,
+	NONE,
 	DEBUG,
 	LINE,
 	CAMERA,
 	QUAD,
-	BOX2D,
+};
+
+enum PASS_TYPE : int
+{
+	NONE,
 };
 
 enum class ProjectionType
 {
-	Perspective, // ø¯±Ÿ
-	Orthographic // ¡˜±≥
+	Perspective, // ?Î®≠Î†ê
+	Orthographic // ÔßûÍ≥¥ÌÉ≥
 };
 
 using ObjectID = size_t;
@@ -36,6 +40,10 @@ struct CameraData
 	float NearZ;
 	float FarZ;
 	float ZoomLevel;
+	float ViewportX;
+	float ViewportY;
+	float ViewportWidth;
+	float ViewportHeight;
 };
 
 struct LineData
@@ -48,7 +56,8 @@ struct LineData
 struct RenderingData
 {
 public:
-	RENDER_TYPE Type = RENDER_TYPE::NONE;
+	RENDER_TYPE renderType = RENDER_TYPE::NONE;
+	PASS_TYPE passType = PASS_TYPE::NONE;
 	float World[16];
 	std::uint16_t mash_key		= 0;
 	std::uint16_t material_key	= 0;

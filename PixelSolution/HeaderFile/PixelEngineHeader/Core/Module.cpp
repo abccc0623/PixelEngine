@@ -1,45 +1,22 @@
 #include "pch.h"
 #include "Module.h"
-#include "Core/PixelObject.h"
-#include "Core/GameObject.h"
 #include "PixelEngine.h"
 #include "LuaManager.h"
 #include "json.hpp"
 extern PixelEngine* Engine;
 Module::Module()
 {
-	targetObject = nullptr;
 }
 Module::~Module()
 {
-	targetObject = nullptr;
 }
 
-void Module::Awake(){}
-void Module::Start(){}
-void Module::Update(){}
-void Module::MatrixUpdate(){}
-void Module::PhysicsUpdate(){}
-void Module::LastUpdate(){}
-std::string Module::Save()
-{
-	nlohmann::ordered_json j;
-	return j.dump(4);
-}
-
-void Module::Load()
-{
-	
-}
-
-GameObject* Module::GetGameObject()
-{
-	if (targetObject != nullptr)
-	{
-		return targetObject;
-	}
-	return nullptr;
-}
+void Module::Awake() {}
+void Module::Start() {}
+void Module::Update() {}
+void Module::MatrixUpdate() {}
+void Module::PhysicsUpdate() {}
+void Module::LastUpdate() {}
 
 
 //void Module::OnCollisionEnter2D(WPointer<GameObject> target){}

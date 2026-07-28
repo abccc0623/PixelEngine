@@ -5,10 +5,10 @@
 
 #include "TransformSystem.h"
 #include "CameraSystem.h"
-#include "Collider2DSystem.h"
 #include "Rigidbody2DSystem.h"
 #include "Animation2DSystem.h"
-#include "Renderer2DSystem.h"
+#include "UIImageSystem.h"
+#include "GraphicsSystem.h"
 
 #include "Registry.h"
 #include "PixelEngineAPI.h"
@@ -23,7 +23,8 @@ void ECS::SystemManager::Initialize()
 	SystemList.push_back(new Animation2DSystem);
 	SystemList.push_back(new Rigidbody2DSystem);
 
-	SystemList.push_back(new Renderer2DSystem);
+	SystemList.push_back(new UIImageSystem);
+	SystemList.push_back(new GraphicsSystem);
 }
 
 void ECS::SystemManager::Update(ECS::Registry* registry)

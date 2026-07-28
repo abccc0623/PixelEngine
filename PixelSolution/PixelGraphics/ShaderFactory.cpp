@@ -103,6 +103,7 @@ void PixelGraphics::ShaderFactory::Clear()
 	}
 
 	shaders.clear();
+	constantBuffers.clear();
 	nextShaderKey = 2;
 }
 
@@ -318,9 +319,69 @@ bool PixelGraphics::ShaderFactory::CreateShaderResources(ID3DBlob* vertexShaderB
 		return false;
 	}
 
-	return CreateInputLayout(
-		vertexShaderBlob,
-		&shader->mLayout);
+	if (!CreateConstantBuffers(vertexShaderBlob))
+	{
+		return false;
+	}
+
+	return CreateInputLayout(vertexShaderBlob, &shader->mLayout);
+}
+
+bool PixelGraphics::ShaderFactory::CreateConstantBuffers(ID3DBlob* shaderBlob)
+{
+	if (!graphicsCore || !graphicsCore->GetDevice() || !shaderBlob)
+	{
+		return false;
+	}
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderReflection> reflection;
+	if (FAILED(D3DReflect(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), IID_ID3D11ShaderReflection, reinterpret_cast<void**>(reflection.GetAddressOf()))))
+	{
+		return false;
+	}
+
+	D3D11_SHADER_DESC shaderDescription = {};
+	if (FAILED(reflection->GetDesc(&shaderDescription)))
+	{
+		return false;
+	}
+
+	for (UINT index = 0; index < shaderDescription.ConstantBuffers; ++index)
+	{
+		ID3D11ShaderReflectionConstantBuffer* reflectedBuffer = reflection->GetConstantBufferByIndex(index);
+		if (!reflectedBuffer)
+		{
+			return false;
+		}
+
+		D3D11_SHADER_BUFFER_DESC bufferDescription = {};
+		if (FAILED(reflectedBuffer->GetDesc(&bufferDescription)) || !bufferDescription.Name)
+		{
+			return false;
+		}
+
+		if (constantBuffers.find(bufferDescription.Name) != constantBuffers.end())
+		{
+			continue;
+		}
+
+		D3D11_BUFFER_DESC description = {};
+		description.Usage = D3D11_USAGE_DEFAULT;
+		description.ByteWidth = (bufferDescription.Size + 15u) & ~15u;
+		description.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+		auto buffer = std::make_unique<BufferResources>();
+		buffer->name = bufferDescription.Name;
+		buffer->byteWidth = description.ByteWidth;
+		if (FAILED(graphicsCore->GetDevice()->CreateBuffer(&description, nullptr, buffer->buffer.GetAddressOf())))
+		{
+			return false;
+		}
+
+		constantBuffers.emplace(buffer->name, std::move(buffer));
+	}
+
+	return true;
 }
 
 bool PixelGraphics::ShaderFactory::CreateInputLayout(ID3DBlob* vertexShaderBlob, ID3D11InputLayout** inputLayout)
@@ -421,4 +482,10 @@ ShaderResources* PixelGraphics::ShaderFactory::Get(std::uint16_t key)
 	}
 
 	return nullptr;
+}
+
+BufferResources* PixelGraphics::ShaderFactory::GetBuffer(const std::string& name)
+{
+	const auto found = constantBuffers.find(name);
+	return found != constantBuffers.end() ? found->second.get() : nullptr;
 }

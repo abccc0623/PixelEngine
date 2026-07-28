@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Graphics.h"
 #include "Renderer2D.h"
 #include "PixelEngineAPI.h"
 #include "Registry.h"
@@ -8,18 +9,25 @@ extern PixelEngine* Engine;
 Renderer2DData* Renderer2D_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->Add<Renderer2DData>(id);
-
+	if (registry->Has<Renderer2DData>(id) == false)
+	{
+		registry->Add<Renderer2DData>(id);
+	}
 	if (registry->Has<GraphicsData>(id) == false)
 	{
 		registry->Add<GraphicsData>(id);
 	}
+	auto graphics = registry->Get<GraphicsData>(id);
+	graphics->renderingData.renderType = RENDER_TYPE::QUAD;
+	graphics->renderingData.passType = PASS_TYPE::SCENE;
+	graphics->renderingData.sprite.Order = 0;
+	graphics->renderingData.sprite.TilingX = 1.0f;
+	graphics->renderingData.sprite.TilingY = 1.0f;
+	graphics->renderingData.sprite.OffsetX = 0.0f;
+	graphics->renderingData.sprite.OffsetY = 0.0f;
 
-
-	auto data1 = registry->Get<Renderer2DData>(id);
-	auto data2 = registry->Get<GraphicsData>(id);
-	data2->renderingData.Type = QUAD;
-	return data1;
+	auto renderer2D = registry->Get<Renderer2DData>(id);
+	return renderer2D;
 }
 Renderer2DData* Renderer2D_Get(unsigned int id)
 {

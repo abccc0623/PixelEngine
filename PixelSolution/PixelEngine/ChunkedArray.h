@@ -24,7 +24,7 @@ namespace ECS
 		bool operator!=(const ChunkedID& other) const { return value != other.value; }
 	};
 
-	template <typename T, int chunksMaxSize = 1024>
+	template <typename T, int chunksMaxSize = 128>
 	class ChunkedArray
 	{
 	public:

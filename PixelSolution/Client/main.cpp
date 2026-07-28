@@ -1,4 +1,5 @@
 #include "PixelEngineAPI.h"
+#include "Asset.h"
 #include "PixelEngineDLL.h"
 #include <windows.h>
 #include <functional>
@@ -52,7 +53,8 @@ int main()
 
 	ShowWindow(hWnd, SW_SHOW);
 	EngineInitialize(hWnd, 800, 600, "");
-
+	EditorNotify((int32_t)EditorEventType::PlayMode, "");
+	Asset_Import("./Asset/main.lua");
 	//WImport("./Asset/main.lua");
 
 	MSG msg = { 0 };

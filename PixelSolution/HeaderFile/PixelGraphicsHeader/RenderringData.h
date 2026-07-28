@@ -1,19 +1,25 @@
 #pragma once
 #include <cstdint>
-enum RENDER_TYPE : int
+enum class RENDER_TYPE : int
 {
 	NONE,
 	DEBUG,
 	LINE,
 	CAMERA,
 	QUAD,
-	BOX2D,
+};
+
+enum class PASS_TYPE : int
+{
+	NONE,
+	SCENE,
+	UI,
 };
 
 enum class ProjectionType
 {
-	Perspective, // ø¯±Ÿ
-	Orthographic // ¡˜±≥
+	Perspective, // ÏõêÍ∑º
+	Orthographic // ÏßÅÍµê
 };
 
 using ObjectID = size_t;
@@ -27,6 +33,7 @@ struct SpriteData
 	float TilingY;
 	float OffsetX;
 	float OffsetY;
+	int Order;
 };
 
 struct SceneCameraData
@@ -36,6 +43,10 @@ struct SceneCameraData
 	float NearZ;
 	float FarZ;
 	float ZoomLevel;
+	float ViewportX;
+	float ViewportY;
+	float ViewportWidth;
+	float ViewportHeight;
 };
 
 struct LineData
@@ -48,7 +59,8 @@ struct LineData
 struct RenderingData
 {
 public:
-	RENDER_TYPE Type = RENDER_TYPE::NONE;
+	RENDER_TYPE renderType = RENDER_TYPE::NONE;
+	PASS_TYPE passType = PASS_TYPE::NONE;
 	float World[16];
 	std::uint16_t mash_key = 0;
 	std::uint16_t material_key = 0;

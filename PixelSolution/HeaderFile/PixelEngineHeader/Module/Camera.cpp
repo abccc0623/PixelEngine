@@ -9,7 +9,7 @@ Camera::Camera():
 	rendering(nullptr)
 {
 	rendering = GetRenderingData();
-	rendering->Type = CAMERA;
+	rendering->renderType = CAMERA;
 }
 Camera::~Camera()
 {

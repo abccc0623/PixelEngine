@@ -31,19 +31,14 @@ namespace PixelGraphics
 
 		bool Initialize(GraphicsCore* core, ResourceManager* resource);
 		void Release();
-		void Update();
-
 		void Rendering();
+
 		void SetBackgroundColor(float r, float g, float b);
 		void SetRendering(RenderingData& data);
 		void ChangePipeline(PipelineType type);
 	private:
-		std::vector<RenderingData> renderingList;
-		void EndRender();
 		GraphicsCore* core = nullptr;
 		ResourceManager* resource = nullptr;
-		float backgroundColor[4] = { 0.0f,0.0f, 0.0f, 1.0f };
-
 		Pipeline* targetPipeline = nullptr;
 		PipelineType pipelineType = PipelineType::NONE;
 	};

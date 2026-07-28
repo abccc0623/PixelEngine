@@ -39,10 +39,12 @@ struct TextureResources
 struct BufferResources
 {
 	std::uint16_t key;
-	ID3D11Buffer* buffer = nullptr;
+	std::string name;
+	UINT byteWidth = 0;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
 };
 
-struct MaterialResources 
+struct MaterialResources
 {
 	std::uint16_t key;
 	std::string path;
@@ -51,4 +53,13 @@ struct MaterialResources
 	std::uint16_t RasterizerStateKey;
 	float Offset[2] = { 1,1 };
 	float Tiling[2] = { 1,1 };
+};
+
+struct RenderTarget
+{
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shaderResourceView;
+	int width = 0;
+	int height = 0;
 };

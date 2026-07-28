@@ -15,16 +15,17 @@ PixelGraphics::Pipeline::Pipeline(GraphicsCore* graphicsCore, ResourceManager* r
 {
 	core = graphicsCore;
 	resourceManager = resources;
-	if (!resources)
-	{
-		return;
-	}
+}
 
-	textureFactory = resources->GetFactory<TextureFactory>(ResourceType::TEXTURE);
-	shaderFactory = resources->GetFactory<ShaderFactory>(ResourceType::SHADER);
-	rasterizerStateFactory = resources->GetFactory<RasterizerStateFactory>(ResourceType::RASTERIZER_STATE);
-	modelFactory = resources->GetFactory<ModelFactory>(ResourceType::MODEL);
-	materialFactory = resources->GetFactory<MaterialFactory>(ResourceType::MATERIAL);
+bool PixelGraphics::Pipeline::Initialize()
+{
+	textureFactory = resourceManager->GetFactory<TextureFactory>(ResourceType::TEXTURE);
+	shaderFactory = resourceManager->GetFactory<ShaderFactory>(ResourceType::SHADER);
+	rasterizerStateFactory = resourceManager->GetFactory<RasterizerStateFactory>(ResourceType::RASTERIZER_STATE);
+	modelFactory = resourceManager->GetFactory<ModelFactory>(ResourceType::MODEL);
+	materialFactory = resourceManager->GetFactory<MaterialFactory>(ResourceType::MATERIAL);
+	PipelineInitialize();
+	return true;
 }
 
 void PixelGraphics::Pipeline::Release()
@@ -36,9 +37,39 @@ void PixelGraphics::Pipeline::Release()
 	textureFactory = nullptr;
 	resourceManager = nullptr;
 	core = nullptr;
+	PipelineRelease();
 }
 
-void PixelGraphics::Pipeline::SetCamera(RenderingData& cameraData)
+
+void PixelGraphics::Pipeline::Sort(std::vector<RenderingData>& data)
+{
+	std::sort(data.begin(), data.end(), [](const RenderingData& left, const RenderingData& right)
+		{
+			if (left.mash_key != right.mash_key)
+			{
+				return left.mash_key < right.mash_key;
+			}
+			if (left.material_key != right.material_key)
+			{
+				return left.material_key < right.material_key;
+			}
+			if (left.shader_key != right.shader_key)
+			{
+				return left.shader_key < right.shader_key;
+			}
+			return left.texture_key < right.texture_key;
+		});
+}
+
+void PixelGraphics::Pipeline::SortUI(std::vector<RenderingData>& data)
+{
+	std::stable_sort(data.begin(), data.end(), [](const RenderingData& left, const RenderingData& right)
+		{
+			return left.sprite.Order < right.sprite.Order;
+		});
+}
+
+void PixelGraphics::Pipeline::CameraSetting(RenderingData cameraData)
 {
 	constexpr float DefaultFovY = 0.3f * 3.1415926535f;
 	constexpr float DefaultNearZ = 0.1f;
@@ -46,7 +77,7 @@ void PixelGraphics::Pipeline::SetCamera(RenderingData& cameraData)
 	constexpr float MinClipDistance = 0.00001f;
 	if (cameraData.camera.FarZ == 0.0f && cameraData.camera.FovY == 0.0f)
 	{
-		//±‚∫ª∞™¿∏∑Œ º¬∆√
+		//Í∏∞Î≥∏Í∞íÏúºÎ°ú ÏÖãÌåÖ
 		cameraData.camera.Projection = ProjectionType::Perspective;
 		cameraData.camera.FovY = DefaultFovY;
 		cameraData.camera.NearZ = DefaultNearZ;
@@ -54,19 +85,28 @@ void PixelGraphics::Pipeline::SetCamera(RenderingData& cameraData)
 		cameraData.camera.ZoomLevel = 1.0f;
 	}
 
-	// 1. πÊæÓ¿˚ «¡∑Œ±◊∑°π÷ (Zero Divide πÊ¡ˆ)
-	float width = (float)core->GetClientWidth();
-	float height = (float)core->GetClientHeight();
+	float width = cameraData.camera.ViewportWidth;
+	float height = cameraData.camera.ViewportHeight;
+	if (width <= 0.0f) width = static_cast<float>(core->GetClientWidth());
+	if (height <= 0.0f) height = static_cast<float>(core->GetClientHeight());
+	if (width <= 0.0f) width = 1.0f;
 	if (height <= 0.0f) height = 1.0f;
 
-	// 2. View «‡∑ƒ ∞ËªÍ (World «‡∑ƒ¿« ø™«‡∑ƒ ¿˚øÎ)
+	viewport.TopLeftX = cameraData.camera.ViewportX;
+	viewport.TopLeftY = cameraData.camera.ViewportY;
+	viewport.Width = width;
+	viewport.Height = height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+
+	// 2. View ÌñâÎ†¨ Í≥ÑÏÇ∞ (World ÌñâÎ†¨Ïùò Ïó≠ÌñâÎ†¨ Ï†ÅÏö©)
 	DirectX::SimpleMath::Matrix worldMatrix;
 	memcpy(&worldMatrix, cameraData.World, sizeof(float) * 16);
 	DirectX::SimpleMath::Matrix viewMatrix = worldMatrix;
 	DirectX::SimpleMath::Matrix projMatrix;
 
-	// 3. ∏≈¡˜ ≥—πˆ ¡¶∞≈ π◊ ƒ´∏ﬁ∂Û ƒƒ∆˜≥Õ∆Æ µ•¿Ã≈Õ »∞øÎ (∞°¡§)
-	// Ω«¡¶ »Ø∞Êø°º≠¥¬ mData->camera.Fov, NearZ, FarZ µÓ¿ª ∞°¡ÆøÕæﬂ «’¥œ¥Ÿ.
+	// 3. Îß§ÏßÅ ÎÑòÎ≤Ñ Ï†úÍ±∞ Î∞è Ïπ¥Î©îÎùº Ïª¥Ìè¨ÎÑåÌä∏ Îç∞Ïù¥ÌÑ∞ ÌôúÏö© (Í∞ÄÏ†ï)
+	// Ïã§Ï†ú ÌôòÍ≤ΩÏóêÏÑúÎäî mData->camera.Fov, NearZ, FarZ Îì±ÏùÑ Í∞ÄÏ†∏ÏôÄÏïº Ìï©ÎãàÎã§.
 	float fovY = cameraData.camera.FovY;
 	float aspect = width / height;
 	float nearZ = cameraData.camera.NearZ;
@@ -95,40 +135,90 @@ void PixelGraphics::Pipeline::SetCamera(RenderingData& cameraData)
 	}
 	else // Orthographic
 	{
-		float zoomLevel = cameraData.camera.ZoomLevel; // ƒ´∏ﬁ∂Û µ•¿Ã≈Õø°º≠ ∑ŒµÂ
+		float zoomLevel = cameraData.camera.ZoomLevel; // Ïπ¥Î©îÎùº Îç∞Ïù¥ÌÑ∞ÏóêÏÑú Î°úÎìú
 		if (zoomLevel <= 0.0f) zoomLevel = 1.0f;
-
 		float viewWidth = width / zoomLevel;
 		float viewHeight = height / zoomLevel;
-
 		projMatrix = DirectX::XMMatrixOrthographicLH(viewWidth, viewHeight, nearZ, farZ);
 	}
 
-	// 4. ∏÷∆ºΩ∫∑πµ˘ π◊ ±∏¡∂¿˚ æ»¿¸º∫¿ª ¿ß«ÿ ∑Œƒ√ ∫Øºˆ øÏº± »∞øÎ
-	// (√ﬂ»ƒ GraphicsCore::mView ¿«¡∏º∫¿ª øœ¿¸»˜ ∫–∏Æ«œ¥¬ ∞Õ¿ª ±«¿Â«’¥œ¥Ÿ)
-
-
-	// 5. ªÛºˆ πˆ∆€ µ•¿Ã≈Õ ∆–≈∑
+	// 5. ÏÉÅÏàò Î≤ÑÌçº Îç∞Ïù¥ÌÑ∞ Ìå®ÌÇπ
 	CameraBuffer mCamBuffer;
 	mCamBuffer.view = viewMatrix.Transpose();
 	mCamBuffer.proj = projMatrix.Transpose();
 	mCamBuffer.view_proj = (viewMatrix * projMatrix).Transpose();
 	this->view = viewMatrix;
-	this->projection = projMatrix;
+	this->proj = projMatrix;
 
-	// 6. TODO: √ﬂ»ƒ UpdateSubresource ¥ÎΩ≈ Map/Unmap (WRITE_DISCARD) πÊΩƒ¿∏∑Œ ∏Æ∆—≈‰∏µ ∞Ì∑¡
+	// 6. TODO: Ï∂îÌõÑ UpdateSubresource ÎåÄÏã† Map/Unmap (WRITE_DISCARD) Î∞©ÏãùÏúºÎ°ú Î¶¨Ìå©ÌÜ†ÎßÅ Í≥†Î†§
 	auto context = core->GetDeviceContext();
 	context->UpdateSubresource(cameraBuffer.Get(), 0, nullptr, &mCamBuffer, 0, 0);
-	ID3D11Buffer* buffer = objectBuffer.Get();
+	ID3D11Buffer* buffer = cameraBuffer.Get();
 	context->VSSetConstantBuffers(0, 1, &(buffer));
+	IsCameraSetting = true;
 }
 
-DirectX::SimpleMath::Matrix& PixelGraphics::Pipeline::GetView()
+void PixelGraphics::Pipeline::ApplyViewport()
 {
+	if (!core || !core->GetDeviceContext())
+	{
+		return;
+	}
+
+	if (viewport.Width <= 0.0f || viewport.Height <= 0.0f)
+	{
+		core->ApplyViewport();
+		return;
+	}
+
+	core->GetDeviceContext()->RSSetViewports(1, &viewport);
+}
+
+void PixelGraphics::Pipeline::SetBackgroundColor(float r, float g, float b)
+{
+	backgroundColor[0] = r;
+	backgroundColor[1] = g;
+	backgroundColor[2] = b;
+	backgroundColor[3] = b;
+}
+
+DirectX::SimpleMath::Matrix& PixelGraphics::Pipeline::GetCameraView()
+{
+	if (IsCameraSetting == true)
+	{
+		return view;
+	}
+	OutputDebugStringA("[Graphics] Camera is not Setting!.\n");
 	return view;
 }
-
-DirectX::SimpleMath::Matrix& PixelGraphics::Pipeline::GetProjection()
+DirectX::SimpleMath::Matrix& PixelGraphics::Pipeline::GetCameraProjection()
 {
-	return projection;
+	if (IsCameraSetting == true)
+	{
+		return proj;
+	}
+	OutputDebugStringA("[Graphics] Camera is not Setting!.\n");
+	return proj;
+}
+
+DirectX::SimpleMath::Matrix PixelGraphics::Pipeline::GetUIProjection() const
+{
+	float width = static_cast<float>(core->GetClientWidth());
+	float height = static_cast<float>(core->GetClientHeight());
+	if (width <= 0.0f)
+	{
+		width = 1.0f;
+	}
+	if (height <= 0.0f)
+	{
+		height = 1.0f;
+	}
+
+	return DirectX::XMMatrixOrthographicOffCenterLH(
+		0.0f,
+		width,
+		height,
+		0.0f,
+		0.0f,
+		1.0f);
 }

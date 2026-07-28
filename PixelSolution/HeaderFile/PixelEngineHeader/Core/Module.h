@@ -1,10 +1,7 @@
 #pragma once
-#include "Core/PixelObject.h"
 #include <string>
 #include <vector>
-class GameObject;
-class Transform;
-class Module : public PixelObject
+class Module
 {
 public:
 	Module();
@@ -15,15 +12,10 @@ public:
 	virtual void MatrixUpdate();
 	virtual void PhysicsUpdate();
 	virtual void LastUpdate();
-	virtual std::string Save();
-	virtual void Load();
 
-
-	PIXEL_ENGINEDLL GameObject* GetGameObject();
 protected:
-	Transform* transform;
-	GameObject* targetObject;
+	//Transform* transform;
+	//GameObject* targetObject;
 private:
-	friend GameObject;
 };
 

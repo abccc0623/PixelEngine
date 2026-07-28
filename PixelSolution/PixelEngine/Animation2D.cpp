@@ -5,6 +5,7 @@
 #include "PixelEngineAPI.h"
 #include "PixelEngine.h"
 #include "ResourceManager.h"
+#include "Graphics.h"
 
 extern PixelEngine* Engine;
 Animation2DData* Animation2D_Add(unsigned int id)

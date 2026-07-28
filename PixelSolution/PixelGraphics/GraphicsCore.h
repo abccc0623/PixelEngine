@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 #include "SimpleMath.h"
+#include "PixelResources.h"
 
 namespace PixelGraphics
 {
@@ -24,12 +25,15 @@ namespace PixelGraphics
 		void ClearBackBuffer(float red, float green, float blue, float alpha);
 		void ApplyViewport();
 		void Present();
+		bool CreateRenderTarget(int width, int height, RenderTarget& renderTarget);
 
 		ID3D11Device* GetDevice() const;
 		ID3D11DeviceContext* GetDeviceContext() const;
 		IDXGISwapChain* GetSwapChain() const;
 		ID3D11RenderTargetView* GetBackBufferRTV() const;
 		ID3D11DepthStencilView* GetDepthStencilView() const;
+		ID3D11DepthStencilState* GetDepthEnabledState() const;
+		ID3D11DepthStencilState* GetDepthDisabledState() const;
 		ID3D11BlendState* GetAlphaBlendState() const;
 
 		int GetClientWidth() const;
@@ -43,6 +47,7 @@ namespace PixelGraphics
 		bool CreateDeviceAndSwapChain();
 		bool CreateBackBuffer();
 		bool CreateDepthStencil();
+		bool CreateDepthStencilStates();
 		bool CreateBlendState();
 		void UpdateViewport();
 		void ReleaseSizeDependentResources();
@@ -62,6 +67,8 @@ namespace PixelGraphics
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> backBufferRTV;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilTexture;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthEnabledState;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthDisabledState;
 		Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBlendState;
 
 		DirectX::SimpleMath::Matrix view = DirectX::SimpleMath::Matrix::Identity;

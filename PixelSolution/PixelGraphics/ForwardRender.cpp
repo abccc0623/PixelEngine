@@ -12,40 +12,227 @@
 #include "ResourceManager.h"
 #include "ShaderFactory.h"
 #include "TextureFactory.h"
+#include"ModelResources.h"
 
+using namespace DirectX::SimpleMath;
 PixelGraphics::ForwardRender::ForwardRender(GraphicsCore* graphicsCore, ResourceManager* resources) : Pipeline(graphicsCore, resources)
-{}
-
-bool PixelGraphics::ForwardRender::Initialize()
 {
-	if (!core || !resourceManager || !textureFactory || !shaderFactory || !rasterizerStateFactory || !modelFactory || !materialFactory)
-	{
-		return false;
-	}
 
-	return CreateConstantBuffer(sizeof(CameraBuffer), cameraBuffer.GetAddressOf()) && CreateConstantBuffer(sizeof(ObjectBuffer), objectBuffer.GetAddressOf()) && CreateSampler();
+}
+void PixelGraphics::ForwardRender::PipelineInitialize()
+{
+	BufferResources* cameraBufferResource = shaderFactory->GetBuffer("CameraBuffer");
+	BufferResources* objectBufferResource = shaderFactory->GetBuffer("ObjectBuffer");
+	cameraBuffer = cameraBufferResource->buffer;
+	objectBuffer = objectBufferResource->buffer;
 }
 
-void PixelGraphics::ForwardRender::Release()
+void PixelGraphics::ForwardRender::PipelineRelease()
 {
 	samplerState.Reset();
 	objectBuffer.Reset();
 	cameraBuffer.Reset();
-	Pipeline::Release();
+	ScenePassList.clear();
+	UIPassList.clear();
 }
 
-bool PixelGraphics::ForwardRender::CreateConstantBuffer(UINT byteWidth, ID3D11Buffer** buffer)
-{
-	if (!core || !core->GetDevice() || !buffer)
-	{
-		return false;
-	}
 
-	D3D11_BUFFER_DESC description = {};
-	description.ByteWidth = (byteWidth + 15u) & ~15u;
-	description.Usage = D3D11_USAGE_DEFAULT;
-	description.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	return SUCCEEDED(core->GetDevice()->CreateBuffer(&description, nullptr, buffer));
+
+void PixelGraphics::ForwardRender::WorldPass()
+{
+	Sort(ScenePassList);
+
+	previousModelKey = UINT16_MAX;
+	previousMaterialKey = UINT16_MAX;
+	previousShaderKey = UINT16_MAX;
+	previousTextureKey = UINT16_MAX;
+	previousRasterizerKey = UINT16_MAX;
+
+	core->GetDeviceContext()->PSSetSamplers(0, 1, &samplerState);
+	core->GetDeviceContext()->VSSetSamplers(0, 1, &samplerState);
+	const float blendFactor[4] = {};
+	core->GetDeviceContext()->OMSetBlendState(core->GetAlphaBlendState(), blendFactor, UINT_MAX);
+	core->GetDeviceContext()->OMSetDepthStencilState(core->GetDepthEnabledState(), 0);
+
+	core->BindBackBuffer();
+	core->ClearBackBuffer(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
+	core->ApplyViewport();
+	core->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	for (auto& K : ScenePassList)
+	{
+		//오브젝트 정보 세팅
+		ObjectBuffer mbuffer = {};
+		Matrix mWorld = DirectX::SimpleMath::Matrix::Identity;
+		memcpy(&mWorld, K.World, sizeof(float) * 16);
+		Matrix mWVP = mWorld * GetCameraView() * GetCameraProjection();
+		Matrix texMat = Matrix::Identity;
+		if (K.renderType == RENDER_TYPE::QUAD && K.sprite.isShared == false)
+		{
+			Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(K.sprite.TilingX, K.sprite.TilingY, 1.0f);
+			Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(K.sprite.OffsetX, K.sprite.OffsetY, 0.0f);
+			texMat = texScale * texTrans;
+		}
+		else
+		{
+			Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(1, 1, 1.0f);
+			Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(0, 0, 0.0f);
+			texMat = texScale * texTrans;
+		}
+		mbuffer.wvp = mWVP.Transpose();
+		mbuffer.TexMatrix = texMat.Transpose();
+		auto targetBuffer = objectBuffer.Get();
+		core->GetDeviceContext()->UpdateSubresource(targetBuffer, 0, nullptr, &mbuffer, 0, 0);
+		core->GetDeviceContext()->VSSetConstantBuffers(1, 1, &(targetBuffer));
+
+		//텍스쳐 바인딩
+		if (previousTextureKey != K.texture_key)
+		{
+			auto textureResource = textureFactory->Get(K.texture_key);
+			ID3D11ShaderResourceView* textureView = textureResource->Texture.Get();
+			core->GetDeviceContext()->PSSetShaderResources(0, 1, &(textureView));
+			previousTextureKey = K.texture_key;
+		}
+
+		//쉐이더 바인딩
+		if (previousShaderKey != K.shader_key)
+		{
+			auto shaderResource = shaderFactory->Get(K.shader_key);
+			core->GetDeviceContext()->IASetInputLayout(shaderResource->mLayout);
+			core->GetDeviceContext()->VSSetShader(shaderResource->mVertexShader, nullptr, 0);
+			core->GetDeviceContext()->PSSetShader(shaderResource->mPixelShader, nullptr, 0);
+			previousShaderKey = K.shader_key;
+		}
+
+		if (previousMaterialKey != K.material_key || previousRasterizerKey)
+		{
+			auto materialResource = materialFactory->Get(K.material_key);
+			RasterizerStateResources* rasterizer = rasterizerStateFactory->Get(materialResource->RasterizerStateKey);
+			if (rasterizer)
+			{
+				core->GetDeviceContext()->RSSetState(rasterizer->rasterizerState.Get());
+				previousRasterizerKey = materialResource->RasterizerStateKey;
+			}
+			previousMaterialKey = K.material_key;
+		}
+
+		//모델 바인딩
+		DirectModel* targetModel = modelFactory->Get(K.mash_key);
+		if (targetModel == nullptr)
+		{
+			continue;
+		}
+		if (previousModelKey != K.mash_key)
+		{
+			ID3D11Buffer* vertexBuffer = targetModel->VertexBuffer.Get();
+			UINT stride = targetModel->stride;
+			UINT offset = targetModel->Offset;
+			core->GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+			core->GetDeviceContext()->IASetIndexBuffer(targetModel->IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+			previousModelKey = K.mash_key;
+		}
+		core->GetDeviceContext()->DrawIndexed(targetModel->IndexCount, 0, 0);
+	}
+}
+
+void PixelGraphics::ForwardRender::UIPass()
+{
+	SortUI(UIPassList);
+	const Matrix uiProjection = GetUIProjection();
+	core->GetDeviceContext()->OMSetDepthStencilState(core->GetDepthDisabledState(), 0);
+
+	previousModelKey = UINT16_MAX;
+	previousMaterialKey = UINT16_MAX;
+	previousShaderKey = UINT16_MAX;
+	previousTextureKey = UINT16_MAX;
+	previousRasterizerKey = UINT16_MAX;
+
+	//core->GetDeviceContext()->PSSetSamplers(0, 1, &samplerState);
+	//core->GetDeviceContext()->VSSetSamplers(0, 1, &samplerState);
+	//const float blendFactor[4] = {};
+	//core->GetDeviceContext()->OMSetBlendState(core->GetAlphaBlendState(), blendFactor, UINT_MAX);
+	//core->GetDeviceContext()->OMSetDepthStencilState(core->GetDepthEnabledState(), 0);
+	//
+	//core->BindBackBuffer();
+	//core->ClearBackBuffer(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
+	//core->ApplyViewport();
+	//core->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	for (auto& K : UIPassList)
+	{
+		//오브젝트 정보 세팅
+		ObjectBuffer mbuffer = {};
+		Matrix mWorld = DirectX::SimpleMath::Matrix::Identity;
+		memcpy(&mWorld, K.World, sizeof(float) * 16);
+		Matrix uiFlip = Matrix::CreateScale(1.0f, -1.0f, 1.0f);
+		Matrix mWVP = uiFlip * mWorld * uiProjection;
+		Matrix texMat = Matrix::Identity;
+		if (K.renderType == RENDER_TYPE::QUAD && K.sprite.isShared == false)
+		{
+			Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(K.sprite.TilingX, K.sprite.TilingY, 1.0f);
+			Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(K.sprite.OffsetX, K.sprite.OffsetY, 0.0f);
+			texMat = texScale * texTrans;
+		}
+		else
+		{
+			Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(1, 1, 1.0f);
+			Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(0, 0, 0.0f);
+			texMat = texScale * texTrans;
+		}
+		mbuffer.wvp = mWVP.Transpose();
+		mbuffer.TexMatrix = texMat.Transpose();
+		auto targetBuffer = objectBuffer.Get();
+		core->GetDeviceContext()->UpdateSubresource(targetBuffer, 0, nullptr, &mbuffer, 0, 0);
+		core->GetDeviceContext()->VSSetConstantBuffers(1, 1, &(targetBuffer));
+
+		//텍스쳐 바인딩
+		if (previousTextureKey != K.texture_key)
+		{
+			auto textureResource = textureFactory->Get(K.texture_key);
+			ID3D11ShaderResourceView* textureView = textureResource->Texture.Get();
+			core->GetDeviceContext()->PSSetShaderResources(0, 1, &(textureView));
+			previousTextureKey = K.texture_key;
+		}
+
+		//쉐이더 바인딩
+		if (previousShaderKey != K.shader_key)
+		{
+			auto shaderResource = shaderFactory->Get(K.shader_key);
+			core->GetDeviceContext()->IASetInputLayout(shaderResource->mLayout);
+			core->GetDeviceContext()->VSSetShader(shaderResource->mVertexShader, nullptr, 0);
+			core->GetDeviceContext()->PSSetShader(shaderResource->mPixelShader, nullptr, 0);
+			previousShaderKey = K.shader_key;
+		}
+
+		if (previousMaterialKey != K.material_key || previousRasterizerKey)
+		{
+			auto materialResource = materialFactory->Get(K.material_key);
+			RasterizerStateResources* rasterizer = rasterizerStateFactory->Get(materialResource->RasterizerStateKey);
+			if (rasterizer)
+			{
+				core->GetDeviceContext()->RSSetState(rasterizer->rasterizerState.Get());
+				previousRasterizerKey = materialResource->RasterizerStateKey;
+			}
+			previousMaterialKey = K.material_key;
+		}
+
+		//모델 바인딩
+		DirectModel* targetModel = modelFactory->Get(K.mash_key);
+		if (targetModel == nullptr)
+		{
+			continue;
+		}
+		if (previousModelKey != K.mash_key)
+		{
+			ID3D11Buffer* vertexBuffer = targetModel->VertexBuffer.Get();
+			UINT stride = targetModel->stride;
+			UINT offset = targetModel->Offset;
+			core->GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+			core->GetDeviceContext()->IASetIndexBuffer(targetModel->IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+			previousModelKey = K.mash_key;
+		}
+		core->GetDeviceContext()->DrawIndexed(targetModel->IndexCount, 0, 0);
+	}
 }
 
 bool PixelGraphics::ForwardRender::CreateSampler()
@@ -61,111 +248,32 @@ bool PixelGraphics::ForwardRender::CreateSampler()
 	return SUCCEEDED(core->GetDevice()->CreateSamplerState(&description, samplerState.GetAddressOf()));
 }
 
-void PixelGraphics::ForwardRender::Render(std::vector<RenderingData>& renderingList, const float* backgroundColor)
+void PixelGraphics::ForwardRender::SetRenderingData(RenderingData& renderingData)
 {
-	if (!core || !resourceManager || !backgroundColor)
+	if (renderingData.renderType == RENDER_TYPE::CAMERA)
 	{
-		return;
+		CameraSetting(renderingData);
 	}
-
-	core->BindBackBuffer();
-	core->ClearBackBuffer(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
-	core->ApplyViewport();
-
-	if (renderingList.empty())
+	else if (renderingData.passType == PASS_TYPE::SCENE)
 	{
-		return;
+		ScenePassList.push_back(renderingData);
 	}
-
-	ID3D11DeviceContext* context = core->GetDeviceContext();
-	ID3D11SamplerState* sampler = samplerState.Get();
-	context->PSSetSamplers(0, 1, &sampler);
-	context->VSSetSamplers(0, 1, &sampler);
-	const float blendFactor[4] = {};
-	context->OMSetBlendState(core->GetAlphaBlendState(), blendFactor, UINT_MAX);
-
-	previousModelKey = UINT16_MAX;
-	previousMaterialKey = UINT16_MAX;
-	previousShaderKey = UINT16_MAX;
-	previousTextureKey = UINT16_MAX;
-	previousRasterizerKey = UINT16_MAX;
-
-	for (const RenderingData& renderingData : renderingList)
+	else if (renderingData.passType == PASS_TYPE::UI)
 	{
-		if (renderingData.Type == RENDER_TYPE::NONE || renderingData.Type == RENDER_TYPE::CAMERA)
-		{
-			continue;
-		}
-
-		DirectModel* model = modelFactory->Get(renderingData.mash_key);
-		MaterialResources* material = materialFactory->Get(renderingData.material_key);
-		ShaderResources* shader = shaderFactory->Get(renderingData.shader_key);
-		TextureResources* texture = textureFactory->Get(renderingData.texture_key);
-		if (!model || !material || !shader || !texture)
-		{
-			continue;
-		}
-
-		if (previousModelKey != renderingData.mash_key)
-		{
-			ID3D11Buffer* vertexBuffer = model->VertexBuffer.Get();
-			context->IASetVertexBuffers(0, 1, &vertexBuffer, &model->stride, &model->Offset);
-			context->IASetIndexBuffer(model->IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-			previousModelKey = renderingData.mash_key;
-		}
-
-		if (previousShaderKey != renderingData.shader_key)
-		{
-			context->IASetInputLayout(shader->mLayout);
-			context->VSSetShader(shader->mVertexShader, nullptr, 0);
-			context->PSSetShader(shader->mPixelShader, nullptr, 0);
-			previousShaderKey = renderingData.shader_key;
-		}
-
-		if (previousTextureKey != renderingData.texture_key)
-		{
-			ID3D11ShaderResourceView* textureView = texture->Texture.Get();
-			context->PSSetShaderResources(0, 1, &textureView);
-			previousTextureKey = renderingData.texture_key;
-		}
-
-		if (previousMaterialKey != renderingData.material_key || previousRasterizerKey != material->RasterizerStateKey)
-		{
-			RasterizerStateResources* rasterizer = rasterizerStateFactory->Get(material->RasterizerStateKey);
-			if (rasterizer)
-			{
-				context->RSSetState(rasterizer->rasterizerState.Get());
-				previousRasterizerKey = material->RasterizerStateKey;
-			}
-			previousMaterialKey = renderingData.material_key;
-		}
-
-		context->IASetPrimitiveTopology(renderingData.Type == RENDER_TYPE::BOX2D || renderingData.Type == RENDER_TYPE::LINE ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		DirectX::SimpleMath::Matrix world;
-		std::memcpy(&world, renderingData.World, sizeof(renderingData.World));
-		float tilingX = material->Tiling[0];
-		float tilingY = material->Tiling[1];
-		float offsetX = material->Offset[0];
-		float offsetY = material->Offset[1];
-		if (renderingData.Type == RENDER_TYPE::QUAD && !renderingData.sprite.isShared)
-		{
-			tilingX = renderingData.sprite.TilingX;
-			tilingY = renderingData.sprite.TilingY;
-			offsetX = renderingData.sprite.OffsetX;
-			offsetY = renderingData.sprite.OffsetY;
-		}
-
-		ObjectBuffer objectData = {};
-		objectData.world = world.Transpose();
-		objectData.wvp = (world * GetView() * GetProjection()).Transpose();
-		DirectX::SimpleMath::Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(tilingX, tilingY, 1.0f);
-		DirectX::SimpleMath::Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(offsetX, offsetY, 0.0f);
-		DirectX::SimpleMath::Matrix texMat = texScale * texTrans;
-		objectData.TexMatrix = texMat.Transpose();
-		context->UpdateSubresource(objectBuffer.Get(), 0, nullptr, &objectData, 0, 0);
-		ID3D11Buffer* buffer = objectBuffer.Get();
-		context->VSSetConstantBuffers(1, 1, &buffer);
-		context->DrawIndexed(model->IndexCount, 0, 0);
+		UIPassList.push_back(renderingData);
 	}
+	else
+	{
+
+	}
+}
+
+void PixelGraphics::ForwardRender::Rendering()
+{
+	WorldPass();
+	UIPass();
+
+	core->Present();
+	ScenePassList.clear();
+	UIPassList.clear();
 }

@@ -10,11 +10,6 @@ struct Renderer2DData
 	float OffsetY = 1.0f;
 };
 
-struct GraphicsData
-{
-	RenderingData renderingData;
-};
-
 extern "C" PIXEL_ENGINEDLL Renderer2DData* Renderer2D_Add(unsigned int id);
 extern "C" PIXEL_ENGINEDLL Renderer2DData* Renderer2D_Get(unsigned int id);
 extern "C" PIXEL_ENGINEDLL bool Renderer2D_Has(unsigned int id);

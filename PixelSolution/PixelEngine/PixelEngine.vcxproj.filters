@@ -124,6 +124,9 @@
     <Filter Include="EngineAPI\Debug">
       <UniqueIdentifier>{ffa2fbc2-4db7-4a13-b602-95a0900fe123}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EngineAPI\ECS\UIComponent">
+      <UniqueIdentifier>{8657f3e6-0c68-48f8-bae2-337212c6f930}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -276,9 +279,6 @@
     <ClInclude Include="TransformSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer2DSystem.h">
-      <Filter>EngineAPI\ECS\System</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer2D.h">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClInclude>
@@ -298,9 +298,6 @@
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClInclude>
     <ClInclude Include="Animation2DSystem.h">
-      <Filter>EngineAPI\ECS\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Collider2DSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
     <ClInclude Include="Rigidbody2D.h">
@@ -351,9 +348,6 @@
     <ClInclude Include="Pool.h">
       <Filter>EngineAPI\Export</Filter>
     </ClInclude>
-    <ClInclude Include="Asset.h">
-      <Filter>EngineAPI\Export</Filter>
-    </ClInclude>
     <ClInclude Include="Debug.h">
       <Filter>EngineAPI\Export</Filter>
     </ClInclude>
@@ -374,6 +368,21 @@
     </ClInclude>
     <ClInclude Include="PhysicsFunction.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Export\Asset.h">
+      <Filter>EngineAPI\Export</Filter>
+    </ClInclude>
+    <ClInclude Include="UIImage.h">
+      <Filter>EngineAPI\ECS\UIComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="UIImageSystem.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsSystem.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>EngineAPI\ECS\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -476,9 +485,6 @@
     <ClCompile Include="TransformSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer2DSystem.cpp">
-      <Filter>EngineAPI\ECS\System</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer2D.cpp">
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
@@ -498,9 +504,6 @@
       <Filter>EngineAPI\ECS\Component</Filter>
     </ClCompile>
     <ClCompile Include="Animation2DSystem.cpp">
-      <Filter>EngineAPI\ECS\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Collider2DSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
     <ClCompile Include="Rigidbody2D.cpp">
@@ -577,6 +580,15 @@
     </ClCompile>
     <ClCompile Include="PhysicsFunction.cpp">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
+    </ClCompile>
+    <ClCompile Include="UIImage.cpp">
+      <Filter>EngineAPI\ECS\UIComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="UIImageSystem.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsSystem.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

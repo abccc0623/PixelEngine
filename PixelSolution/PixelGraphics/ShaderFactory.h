@@ -22,6 +22,7 @@ namespace PixelGraphics
 		std::uint16_t Load(const std::string& path) override;
 
 		ShaderResources* Get(std::uint16_t key);
+		BufferResources* GetBuffer(const std::string& name);
 
 	private:
 		bool LoadDefaultShader(std::uint16_t key, const wchar_t* vertexResourceName, const wchar_t* pixelResourceName);
@@ -29,6 +30,7 @@ namespace PixelGraphics
 		bool CompileResource(const wchar_t* resourceName, const char* target, ID3DBlob** shaderBlob);
 		bool CreateShaderResources(ID3DBlob* vertexShaderBlob, ID3DBlob* pixelShaderBlob, ShaderResources* shader);
 		bool CreateInputLayout(ID3DBlob* vertexShaderBlob, ID3D11InputLayout** inputLayout);
+		bool CreateConstantBuffers(ID3DBlob* shaderBlob);
 		std::uint16_t AllocateKey();
 		void ReleaseShader(ShaderResources* shader);
 
@@ -36,5 +38,6 @@ namespace PixelGraphics
 		std::uint16_t defaultShaderKey = 0;
 		std::uint16_t nextShaderKey = 2;
 		std::unordered_map<std::uint16_t, std::unique_ptr<ShaderResources>> shaders;
+		std::unordered_map<std::string, std::unique_ptr<BufferResources>> constantBuffers;
 	};
 }

@@ -9,6 +9,10 @@ struct CameraData
 	float NearZ = 0.1f;
 	float FarZ = 4000.0f;
 	float ZoomLevel = 1.0f;
+	float ViewportX = 0.0f;
+	float ViewportY = 0.0f;
+	float ViewportWidth = 0.0f;
+	float ViewportHeight = 0.0f;
 };
 
 extern "C" PIXEL_ENGINEDLL CameraData* Camera_Add(unsigned int id);
