@@ -1,4 +1,4 @@
-#include "PixelEngineAPI.h"
+Ôªø#include "PixelEngineAPI.h"
 #include "Asset.h"
 #include "PixelEngineDLL.h"
 #include <windows.h>
@@ -6,9 +6,16 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <filesystem>
 
 #define PE_NEW new(__FILE__, __LINE__)
 
+std::filesystem::path GetExecutableDirectory()
+{
+	wchar_t executablePath[MAX_PATH] = {};
+	GetModuleFileNameW(nullptr, executablePath, MAX_PATH);
+	return std::filesystem::path(executablePath).parent_path();
+}
 
 LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -38,9 +45,11 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 int main()
 {
+	std::filesystem::current_path(GetExecutableDirectory());
+
 	//_CrtSetBreakAlloc(2192);
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	// 2. ¿©µµøÏ ≈¨∑°Ω∫ µÓ∑œ π◊ √¢ ª˝º∫
+	// 2. ÏúàÎèÑÏö∞ ÌÅ¥ÎûòÏä§ Îì±Î°ù Î∞è Ï∞Ω ÏÉùÏÑ±
 	HINSTANCE hInst = GetModuleHandle(NULL);
 	WNDCLASS wc = { 0 };
 	wc.lpfnWndProc = WndProc;
@@ -52,7 +61,7 @@ int main()
 		CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, NULL, NULL, hInst, NULL);
 
 	ShowWindow(hWnd, SW_SHOW);
-	EngineInitialize(hWnd, 800, 600, "");
+	EngineInitialize(hWnd, 800, 600, ".");
 	EditorNotify((int32_t)EditorEventType::PlayMode, "");
 	Asset_Import("./Asset/main.lua");
 	//WImport("./Asset/main.lua");

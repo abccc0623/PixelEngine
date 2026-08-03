@@ -6,6 +6,7 @@
 #include "RasterizerStateFactory.h"
 #include "ModelFactory.h"
 #include "MaterialFactory.h"
+#include "FontFactory.h"
 #include "ResourceFactory.h"
 namespace PixelGraphics
 {
@@ -18,6 +19,7 @@ namespace PixelGraphics
 		RASTERIZER_STATE,
 		MODEL,
 		MATERIAL,
+		FONT,
 	};
 	enum class ResourceDefaultKey : uint16_t
 	{
@@ -29,6 +31,7 @@ namespace PixelGraphics
 		MODEL_QUAD = 0,
 		MODEL_BOX2D = 1,
 		MATERIAL_DEFAULT = 0,
+		FONT = 0
 	};
 
 	class ResourceManager

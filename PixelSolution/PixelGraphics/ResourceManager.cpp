@@ -9,6 +9,7 @@ bool PixelGraphics::ResourceManager::Initialize(GraphicsCore* graphicsCore)
 	factoryMap.emplace(ResourceType::RASTERIZER_STATE, new RasterizerStateFactory());
 	factoryMap.emplace(ResourceType::MODEL, new ModelFactory());
 	factoryMap.emplace(ResourceType::MATERIAL, new MaterialFactory(this));
+	factoryMap.emplace(ResourceType::FONT, new FontFactory());
 
 	for (auto& K : factoryMap)
 	{

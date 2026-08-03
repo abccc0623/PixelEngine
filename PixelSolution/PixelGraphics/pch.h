@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <Windows.h>
 #include <unordered_map>
+#include <fstream>
 #include "stb_image.h"
 #include <d3dcompiler.h>
 #include "WICTextureLoader.h"

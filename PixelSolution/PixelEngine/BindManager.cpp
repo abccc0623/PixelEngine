@@ -14,6 +14,7 @@
 #include "Animation2D.h"
 #include "Renderer2D.h"
 #include "UIImage.h"
+#include "UIText.h"
 #include "Rigidbody2D.h"
 #include "Entity.h"
 #include "Event.h"
@@ -132,6 +133,19 @@ static void RegisterComponentData()
 	AddGlobalMethod(Static, name + "_Has", info_Has, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetTexture", info_UIImageSetTexture, EngineMetaFlag::Component);
 
+	name = "UIText";
+	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
+	AddMember(Data, "thisID", LuaMember("unsigned int", offsetof(UITextData, thisID)), EngineMetaFlag::Private);
+	Static = CreateLuaMetaStatic(name, EngineMetaFlag::Component);
+	info_Add = GeGlobalMethodInfo(&UIText_Add);
+	info_Add.memberName.push_back("ID");
+	info_Get = GeGlobalMethodInfo(&UIText_Get);
+	info_Get.memberName.push_back("ID");
+	info_Has = GeGlobalMethodInfo(&UIText_Has);
+	info_Has.memberName.push_back("ID");
+	AddGlobalMethod(Static, name + "_Add", info_Add, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Get", info_Get, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Has", info_Has, EngineMetaFlag::Component);
 
 	name = "Camera";
 	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);

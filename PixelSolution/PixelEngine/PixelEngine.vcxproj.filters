@@ -378,6 +378,9 @@
     <ClInclude Include="UIImageSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
+    <ClInclude Include="UIText.h">
+      <Filter>EngineAPI\ECS\UIComponent</Filter>
+    </ClInclude>
     <ClInclude Include="GraphicsSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
@@ -586,6 +589,9 @@
     </ClCompile>
     <ClCompile Include="UIImageSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
+    <ClCompile Include="UIText.cpp">
+      <Filter>EngineAPI\ECS\UIComponent</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>

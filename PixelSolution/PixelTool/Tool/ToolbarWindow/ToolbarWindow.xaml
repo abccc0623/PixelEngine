@@ -151,6 +151,11 @@
                         Style="{StaticResource ToolbarActionButton}"
                         ToolTip="Engine Update"
                         Click="UpdateEngineFiles"/>
+
+                <Button Content="&#xE768;"
+                        Style="{StaticResource ToolbarActionButton}"
+                        ToolTip="Build Play"
+                        Click="BuildPlay"/>
             </StackPanel>
         </Grid>
     </Border>

@@ -49,6 +49,9 @@
     <Filter Include="PicnicGraphics\Manager\Rendering\Pipeline">
       <UniqueIdentifier>{484ad4c3-9a54-4291-8090-fc0ffa199685}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PicnicGraphics\Manager\Rendering\PASS">
+      <UniqueIdentifier>{e4ccd375-8be0-434a-9777-30a68d82998e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -138,6 +141,12 @@
     <ClInclude Include="MaterialFactory.h">
       <Filter>PicnicGraphics\Manager\ResourceFactory</Filter>
     </ClInclude>
+    <ClInclude Include="FontFactory.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_truetype.h">
+      <Filter>PicnicGraphics\Manager\ResourceFactory</Filter>
+    </ClInclude>
     <ClInclude Include="RenderingManager.h">
       <Filter>PicnicGraphics\GraphicsCore</Filter>
     </ClInclude>
@@ -146,6 +155,21 @@
     </ClInclude>
     <ClInclude Include="ForwardRender.h">
       <Filter>PicnicGraphics\Manager\Rendering\Pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="PASS.h">
+      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+    </ClInclude>
+	<ClInclude Include="ScenePass.h">
+	  <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+	</ClInclude>
+	<ClInclude Include="PostProcessPass.h">
+	  <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+	</ClInclude>
+    <ClInclude Include="CameraManager.h">
+      <Filter>PicnicGraphics\Manager\Rendering\Pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPass.h">
+      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -206,6 +230,9 @@
     <ClCompile Include="MaterialFactory.cpp">
       <Filter>PicnicGraphics\Manager\ResourceFactory</Filter>
     </ClCompile>
+    <ClCompile Include="FontFactory.cpp">
+      <Filter>PicnicGraphics\Manager\ResourceFactory</Filter>
+    </ClCompile>
     <ClCompile Include="RenderingManager.cpp">
       <Filter>PicnicGraphics\GraphicsCore</Filter>
     </ClCompile>
@@ -215,8 +242,26 @@
     <ClCompile Include="ForwardRender.cpp">
       <Filter>PicnicGraphics\Manager\Rendering\Pipeline</Filter>
     </ClCompile>
+    <ClCompile Include="PASS.cpp">
+      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+    </ClCompile>
+	<ClCompile Include="ScenePass.cpp">
+	  <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+	</ClCompile>
+	<ClCompile Include="PostProcessPass.cpp">
+	  <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+	</ClCompile>
+    <ClCompile Include="CameraManager.cpp">
+      <Filter>PicnicGraphics\Manager\Rendering\Pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="UIPass.cpp">
+      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Font\NotoSansKR-VariableFont_wght.ttf">
+      <Filter>리소스 파일</Filter>
+    </None>
     <None Include="SimpleMath.inl">
       <Filter>PicnicGraphics\Resources</Filter>
     </None>

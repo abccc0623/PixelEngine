@@ -252,6 +252,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="UIImage.h" />
     <ClInclude Include="UIImageSystem.h" />
+    <ClInclude Include="UIText.h" />
     <ClInclude Include="UPointer.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="WPointer.h" />
@@ -329,6 +330,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="TransformSystem.cpp" />
     <ClCompile Include="UIImage.cpp" />
     <ClCompile Include="UIImageSystem.cpp" />
+    <ClCompile Include="UIText.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

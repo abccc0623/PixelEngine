@@ -7,6 +7,7 @@ enum class RENDER_TYPE : int
 	LINE,
 	CAMERA,
 	QUAD,
+	TEXT,
 };
 
 enum class PASS_TYPE : int
@@ -21,10 +22,6 @@ enum class ProjectionType
 	Perspective, // 원근
 	Orthographic // 직교
 };
-
-using ObjectID = size_t;
-using Handle32 = unsigned int;
-using Handle64 = unsigned long long;
 
 struct SpriteData
 {
@@ -55,6 +52,19 @@ struct LineData
 	int end[3];
 };
 
+struct TextData
+{
+	float uvX;
+	float uvY;
+	float uvWidth;
+	float uvHeight;
+	float width;
+	float height;
+	float bearingX;
+	float bearingY;
+	float advance;
+};
+
 
 struct RenderingData
 {
@@ -68,9 +78,10 @@ public:
 	std::uint16_t texture_key = 0;
 	union
 	{
-		SpriteData	sprite;
+		SpriteData sprite;
 		SceneCameraData	camera;
-		LineData	line;
+		LineData line;
+		TextData text;
 	};
 	void Clear()
 	{

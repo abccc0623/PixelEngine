@@ -11,6 +11,7 @@ namespace PixelTool
 
         private static readonly string LastProjectPathFile = Path.Combine(SettingsDirectory, "LastProjectPath.txt");
         private static readonly string LegacyLastAssetPathFile = Path.Combine(SettingsDirectory, "LastAssetPath.txt");
+        private static readonly string BuildPlayPathFile = Path.Combine(SettingsDirectory, "BuildPlayPath.txt");
 
         public static string ProjectRootPath { get; private set; } = string.Empty;
 
@@ -72,6 +73,26 @@ namespace PixelTool
 
             Directory.CreateDirectory(SettingsDirectory);
             File.WriteAllText(LastProjectPathFile, ProjectRootPath);
+        }
+
+        public static string LoadBuildPlayPath()
+        {
+            try
+            {
+                if (!File.Exists(BuildPlayPathFile)) return string.Empty;
+                string path = File.ReadAllText(BuildPlayPathFile).Trim();
+                return Directory.Exists(path) ? Path.GetFullPath(path) : string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public static void SaveBuildPlayPath(string path)
+        {
+            Directory.CreateDirectory(SettingsDirectory);
+            File.WriteAllText(BuildPlayPathFile, Path.GetFullPath(path));
         }
 
         public static string GetAssetFilePath(params string[] relativeParts) =>

@@ -1,0 +1,109 @@
+#include "pch.h"
+#include "UIPass.h"
+#include "RenderringData.h"
+#include "GraphicsCore.h"
+#include "ShaderFactory.h"
+#include "ResourceManager.h"
+#include "CameraManager.h"
+#include "CBufferResources.h"
+using namespace DirectX::SimpleMath;
+PixelGraphics::UIPass::UIPass(GraphicsCore* core, ResourceManager* resourceManager, CameraManager* cameraManager) : PASS(core, resourceManager, cameraManager)
+{}
+
+PixelGraphics::UIPass::~UIPass()
+{}
+
+void PixelGraphics::UIPass::SetRenderingData(RenderingData& renderingData)
+{
+	renderingList.push_back(renderingData);
+}
+
+void PixelGraphics::UIPass::Rendering(RenderTarget& renderTarget)
+{
+	Sort(renderingList);
+	PreviousKeyReset();
+
+	ID3D11SamplerState* sampler = samplerState.Get();
+	core->GetDeviceContext()->PSSetSamplers(0, 1, &sampler);
+	core->GetDeviceContext()->VSSetSamplers(0, 1, &sampler);
+
+	core->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	const float blendFactor[4] = {};
+	core->GetDeviceContext()->OMSetBlendState(core->GetAlphaBlendState(), blendFactor, UINT_MAX);
+	core->GetDeviceContext()->OMSetDepthStencilState(core->GetDepthDisabledState(), 0);
+
+
+	int count = renderingList.size();
+	for (int i = 0; i < count; i++)
+	{
+		//위치 동기화
+		BindObjectBuffer(renderingList[i]);
+
+		//매쉬 동기화
+		if (previousMeshKey != renderingList[i].mash_key)
+		{
+			meshIndexCount = BindMesh(renderingList[i]);
+			previousMeshKey = renderingList[i].mash_key;
+		}
+
+		//메터리얼 바인드
+		if (previousMaterialKey != renderingList[i].material_key)
+		{
+			//내부 쉐이더 바인더
+			if (previousTextureKey != renderingList[i].texture_key)
+			{
+				BindTexture(renderingList[i]);
+				previousTextureKey = renderingList[i].texture_key;
+			}
+
+			//내부 쉐이더 바인드
+			if (previousShaderKey != renderingList[i].shader_key)
+			{
+				BindShader(renderingList[i]);
+				previousShaderKey = renderingList[i].shader_key;
+			}
+
+			//Rasterizer 동기화
+			BindRasterizer(renderingList[i]);
+		}
+
+		core->GetDeviceContext()->DrawIndexed(meshIndexCount, 0, 0);
+	}
+	renderingList.clear();
+}
+
+void PixelGraphics::UIPass::Sort(std::vector<RenderingData>& data)
+{
+	std::stable_sort(data.begin(), data.end(), [](const RenderingData& left, const RenderingData& right)
+		{
+			return left.sprite.Order < right.sprite.Order;
+		});
+}
+
+void PixelGraphics::UIPass::BindObjectBuffer(RenderingData& r)
+{
+	ObjectBuffer mbuffer = {};
+	Matrix mWorld = DirectX::SimpleMath::Matrix::Identity;
+	memcpy(&mWorld, r.World, sizeof(float) * 16);
+	Matrix uiFlip = Matrix::CreateScale(1.0f, -1.0f, 1.0f);
+	Matrix mWVP = uiFlip * mWorld * cameraManager->GetProjUI();
+	Matrix texMat = Matrix::Identity;
+	if (r.renderType == RENDER_TYPE::QUAD && r.sprite.isShared == false)
+	{
+		Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(r.sprite.TilingX, r.sprite.TilingY, 1.0f);
+		Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(r.sprite.OffsetX, r.sprite.OffsetY, 0.0f);
+		texMat = texScale * texTrans;
+	}
+	else
+	{
+		Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(1, 1, 1.0f);
+		Matrix texTrans = DirectX::SimpleMath::Matrix::CreateTranslation(0, 0, 0.0f);
+		texMat = texScale * texTrans;
+	}
+	mbuffer.wvp = mWVP.Transpose();
+	mbuffer.TexMatrix = texMat.Transpose();
+	auto targetBuffer = contextObjectBuffer->buffer.Get();
+	core->GetDeviceContext()->UpdateSubresource(targetBuffer, 0, nullptr, &mbuffer, 0, 0);
+	core->GetDeviceContext()->VSSetConstantBuffers(1, 1, &(targetBuffer));
+}

@@ -1,18 +1,19 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++¿¡¼­ »ı¼ºÇÑ Æ÷ÇÔ ÆÄÀÏÀÔ´Ï´Ù.
-// PixelGraphics.rc¿¡¼­ »ç¿ëµÇ°í ÀÖ½À´Ï´Ù.
+// Microsoft Visual C++ì—ì„œ ìƒì„±í•œ í¬í•¨ íŒŒì¼ì…ë‹ˆë‹¤.
+// PixelGraphics.rcì—ì„œ ì‚¬ìš©ë˜ê³  ìˆìŠµë‹ˆë‹¤.
 //
 #define IDR_HLSL1                       101
 #define IDR_HLSL2                       102
 #define IDB_PNG1                        103
 #define IDR_HLSL3                       104
 #define IDR_HLSL4                       105
+#define IDR_FONT1                       106
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        106
+#define _APS_NEXT_RESOURCE_VALUE        107
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101

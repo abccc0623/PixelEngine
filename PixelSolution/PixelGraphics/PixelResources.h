@@ -2,6 +2,7 @@
 #include <cstdint>
 #include "InputLayout.h"
 #include <string>
+#include <unordered_map>
 #include <d3d11.h>
 #include <wrl/client.h>
 struct ID3D11PixelShader;
@@ -53,6 +54,32 @@ struct MaterialResources
 	std::uint16_t RasterizerStateKey;
 	float Offset[2] = { 1,1 };
 	float Tiling[2] = { 1,1 };
+};
+
+struct GlyphData
+{
+	float u0 = 0.0f;
+	float v0 = 0.0f;
+	float u1 = 0.0f;
+	float v1 = 0.0f;
+	float width = 0.0f;
+	float height = 0.0f;
+	float offsetX = 0.0f;
+	float offsetY = 0.0f;
+	float advance = 0.0f;
+};
+
+struct FontResources
+{
+	std::uint16_t key = 0;
+	std::string path;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> atlasTexture;
+	float fontSize = 0.0f;
+	float ascent = 0.0f;
+	float descent = 0.0f;
+	float lineGap = 0.0f;
+	float lineHeight = 0.0f;
+	std::unordered_map<char32_t, GlyphData> glyphs;
 };
 
 struct RenderTarget

@@ -160,12 +160,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BindingClass.h" />
+    <ClInclude Include="CameraManager.h" />
     <ClInclude Include="DrawDebugLine.h" />
     <ClInclude Include="BindingQuad.h" />
     <ClInclude Include="BindingRect.h" />
     <ClInclude Include="ForwardRender.h" />
+    <ClInclude Include="FontFactory.h" />
     <ClInclude Include="MaterialFactory.h" />
     <ClInclude Include="ModelFactory.h" />
+    <ClInclude Include="PASS.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PixelResources.h" />
     <ClInclude Include="resource.h" />
@@ -177,6 +180,8 @@
     <ClInclude Include="KeyAllocator.h" />
     <ClInclude Include="RasterizerStateFactory.h" />
     <ClInclude Include="CBufferResources.h" />
+	<ClInclude Include="ScenePass.h" />
+	<ClInclude Include="PostProcessPass.h" />
     <ClInclude Include="ShaderFactory.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GraphicsCore.h" />
@@ -190,21 +195,28 @@
     <ClInclude Include="ResourceFactory.h" />
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="stb_truetype.h" />
     <ClInclude Include="TextureFactory.h" />
+    <ClInclude Include="UIPass.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BindingClass.cpp" />
+    <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="DrawDebugLine.cpp" />
     <ClCompile Include="BindingQuad.cpp" />
     <ClCompile Include="BindingRect.cpp" />
     <ClCompile Include="ForwardRender.cpp" />
+    <ClCompile Include="FontFactory.cpp" />
     <ClCompile Include="MaterialFactory.cpp" />
     <ClCompile Include="ModelFactory.cpp" />
+    <ClCompile Include="PASS.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="ResourceFactory.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="KeyAllocator.cpp" />
     <ClCompile Include="RasterizerStateFactory.cpp" />
+	<ClCompile Include="ScenePass.cpp" />
+	<ClCompile Include="PostProcessPass.cpp" />
     <ClCompile Include="ShaderFactory.cpp" />
     <ClCompile Include="stb_image.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -221,9 +233,11 @@
     <ClCompile Include="RenderingManager.cpp" />
     <ClCompile Include="BindingCamera.cpp" />
     <ClCompile Include="TextureFactory.cpp" />
+    <ClCompile Include="UIPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="Font\NotoSansKR-VariableFont_wght.ttf" />
     <None Include="Shaders\MainHeader.hlsli">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Editor_d|x64'">true</DeploymentContent>

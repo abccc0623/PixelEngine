@@ -17,6 +17,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Media.Animation;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace PixelTool
 {
@@ -335,6 +337,101 @@ namespace PixelTool
                 UseShellExecute = true
             });
             Application.Current.Shutdown();
+        }
+
+        private void BuildPlay(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var buildPlayWindow = new BuildPlayWindow
+                {
+                    Owner = Window.GetWindow(this)
+                };
+                if (buildPlayWindow.ShowDialog() != true) return;
+
+                string outputRoot = buildPlayWindow.OutputRootPath;
+                string projectName = new DirectoryInfo(ProjectPathService.ProjectRootPath).Name;
+                string outputPath = GetUniqueOutputPath(outputRoot, projectName);
+                string runtimePath = AppContext.BaseDirectory;
+                string clientSourcePath = System.IO.Path.Combine(runtimePath, "Client.exe");
+
+                if (!File.Exists(clientSourcePath))
+                {
+                    PixelMessageBox.Show("Client.exe was not found.", "Build Play", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                Directory.CreateDirectory(outputPath);
+                File.Copy(clientSourcePath, System.IO.Path.Combine(outputPath, "Client.exe"), true);
+
+                foreach (string dllPath in Directory.GetFiles(runtimePath, "*.dll", SearchOption.TopDirectoryOnly))
+                {
+                    if (IsManagedAssembly(dllPath)) continue;
+                    File.Copy(dllPath, System.IO.Path.Combine(outputPath, System.IO.Path.GetFileName(dllPath)), true);
+                }
+
+                CopyDirectory(ProjectPathService.AssetPath, System.IO.Path.Combine(outputPath, "Asset"));
+                CopyDirectory(ProjectPathService.EnginePath, System.IO.Path.Combine(outputPath, "Engine"));
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = System.IO.Path.Combine(outputPath, "Client.exe"),
+                    WorkingDirectory = outputPath,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception exception)
+            {
+                PixelMessageBox.Show(exception.Message, "Build Play", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static bool IsManagedAssembly(string filePath)
+        {
+            try
+            {
+                AssemblyName.GetAssemblyName(filePath);
+                return true;
+            }
+            catch (BadImageFormatException)
+            {
+                return false;
+            }
+            catch (FileLoadException)
+            {
+                return false;
+            }
+        }
+
+        private static string GetUniqueOutputPath(string outputRoot, string projectName)
+        {
+            string outputPath = System.IO.Path.Combine(outputRoot, projectName);
+            if (!Directory.Exists(outputPath)) return outputPath;
+
+            int index = 1;
+            while (Directory.Exists(System.IO.Path.Combine(outputRoot, $"{projectName}_{index}")))
+            {
+                index++;
+            }
+
+            return System.IO.Path.Combine(outputRoot, $"{projectName}_{index}");
+        }
+
+        private static void CopyDirectory(string sourcePath, string destinationPath)
+        {
+            Directory.CreateDirectory(destinationPath);
+
+            foreach (string filePath in Directory.GetFiles(sourcePath))
+            {
+                string destinationFilePath = System.IO.Path.Combine(destinationPath, System.IO.Path.GetFileName(filePath));
+                File.Copy(filePath, destinationFilePath, true);
+            }
+
+            foreach (string directoryPath in Directory.GetDirectories(sourcePath))
+            {
+                string destinationDirectoryPath = System.IO.Path.Combine(destinationPath, System.IO.Path.GetFileName(directoryPath));
+                CopyDirectory(directoryPath, destinationDirectoryPath);
+            }
         }
     }
 }
