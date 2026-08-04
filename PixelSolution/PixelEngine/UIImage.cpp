@@ -25,10 +25,10 @@ UIImageData* UIImage_Add(unsigned int id)
 	graphicsData->renderingData.sprite.OffsetX = 0.0f;
 	graphicsData->renderingData.sprite.OffsetY = 0.0f;
 	graphicsData->renderingData.sprite.Order = 0;
-	graphicsData->renderingData.sprite.Color[0] = 1.0f;
-	graphicsData->renderingData.sprite.Color[1] = 1.0f;
-	graphicsData->renderingData.sprite.Color[2] = 1.0f;
-	graphicsData->renderingData.sprite.Color[3] = 1.0f;
+	graphicsData->renderingData.sprite.color[0] = 1.0f;
+	graphicsData->renderingData.sprite.color[1] = 1.0f;
+	graphicsData->renderingData.sprite.color[2] = 1.0f;
+	graphicsData->renderingData.sprite.color[3] = 1.0f;
 	return data;
 }
 
@@ -71,5 +71,43 @@ void UIImage_SetTexture(unsigned int id, const char* name)
 	else
 	{
 		PixelLog::Error("[Renderer2D][SetTexture] Not Find Component");
+	}
+}
+
+void UIImage_SetOrder(unsigned int id, int order)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<UIImageData>(id);
+	auto data2 = registry->Get<GraphicsData>(id);
+	if (data1 != nullptr)
+	{
+		data2->renderingData.sprite.Order = order;
+	}
+	else
+	{
+		PixelLog::Error("[Renderer2D][SetOrder] Not Find Component");
+	}
+}
+
+void UIImage_SetColor(unsigned int id, float r, float g, float b, float a)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<UIImageData>(id);
+	auto data2 = registry->Get<GraphicsData>(id);
+	if (data1 != nullptr)
+	{
+		auto normalizeColor = [](float value)
+			{
+				return (std::clamp)(value, 0.0f, 255.0f) / 255.0f;
+			};
+
+		data2->renderingData.sprite.color[0] = normalizeColor(r);
+		data2->renderingData.sprite.color[1] = normalizeColor(g);
+		data2->renderingData.sprite.color[2] = normalizeColor(b);
+		data2->renderingData.sprite.color[3] = normalizeColor(a);
+	}
+	else
+	{
+		PixelLog::Error("[Renderer2D][SetColor] Not Find Component");
 	}
 }

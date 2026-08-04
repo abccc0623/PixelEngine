@@ -124,7 +124,6 @@ static void RegisterComponentData()
 	name = "UIImage";
 	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
 	AddMember(Data, "thisID", LuaMember("unsigned int", offsetof(UIImageData, thisID)), EngineMetaFlag::Private);
-	AddMember(Data, "order", LuaMember("int", offsetof(UIImageData, order)), EngineMetaFlag::Public);
 	Static = CreateLuaMetaStatic(name, EngineMetaFlag::Component);
 	info_Add = GeGlobalMethodInfo(&UIImage_Add);
 	info_Add.memberName.push_back("ID");
@@ -135,10 +134,21 @@ static void RegisterComponentData()
 	auto info_UIImageSetTexture = GeGlobalMethodInfo(&UIImage_SetTexture);
 	info_UIImageSetTexture.memberName.push_back("ID");
 	info_UIImageSetTexture.memberName.push_back("textureName");
+	auto info_UIImageSetOrder = GeGlobalMethodInfo(&UIImage_SetOrder);
+	info_UIImageSetOrder.memberName.push_back("ID");
+	info_UIImageSetOrder.memberName.push_back("Order");
+	auto info_UIImageSetColor = GeGlobalMethodInfo(&UIImage_SetColor);
+	info_UIImageSetColor.memberName.push_back("ID");
+	info_UIImageSetColor.memberName.push_back("R");
+	info_UIImageSetColor.memberName.push_back("G");
+	info_UIImageSetColor.memberName.push_back("B");
+	info_UIImageSetColor.memberName.push_back("A");
 	AddGlobalMethod(Static, name + "_Add", info_Add, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_Get", info_Get, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_Has", info_Has, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetTexture", info_UIImageSetTexture, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetOrder", info_UIImageSetOrder, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetColor", info_UIImageSetColor, EngineMetaFlag::Component);
 
 	name = "UIText";
 	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);

@@ -27,7 +27,6 @@ void ECS::UIImageSystem::Update(ECS::Registry* registry)
 			auto graphic = registry->Get<GraphicsData>(data->thisID);
 			if (graphic != nullptr)
 			{
-				graphic->renderingData.sprite.Order = data->order;
 			}
 		});
 }

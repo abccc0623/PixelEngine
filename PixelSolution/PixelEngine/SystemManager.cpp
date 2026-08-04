@@ -24,7 +24,7 @@ void ECS::SystemManager::Initialize()
 	SystemList.push_back(new Animation2DSystem);
 	SystemList.push_back(new Rigidbody2DSystem);
 
-	SystemList.push_back(new UIImageSystem);
+	//SystemList.push_back(new UIImageSystem);
 	//SystemList.push_back(new UITextSystem);
 	SystemList.push_back(new GraphicsSystem);
 }
