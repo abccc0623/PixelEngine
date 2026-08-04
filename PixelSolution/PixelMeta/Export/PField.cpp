@@ -33,11 +33,11 @@ void PField::SetValue(void* target, void* value)
 	void* member = reinterpret_cast<char*>(target) + memberOffset;
 	if (memberType->GetHash() == RSystem::string_Type)
 	{
-		auto k =  *static_cast<std::string*>(member);
+		auto k = *static_cast<std::string*>(member);
 	}
 	else
 	{
-		std::memcpy(member, value,memberType->GetSize());
+		std::memcpy(member, value, memberType->GetSize());
 	}
 }
 

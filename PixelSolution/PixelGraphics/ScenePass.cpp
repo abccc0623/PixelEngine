@@ -28,7 +28,7 @@ void PixelGraphics::ScenePass::Rendering(RenderTarget& renderTarget)
 	core->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	const float blendFactor[4] = {};
 	core->GetDeviceContext()->OMSetBlendState(core->GetAlphaBlendState(), blendFactor, UINT_MAX);
-	core->GetDeviceContext()->OMSetDepthStencilState(core->GetDepthDisabledState(), 0);
+	core->GetDeviceContext()->OMSetDepthStencilState(core->GetDepthEnabledState(), 0);
 
 
 	int count = renderingList.size();

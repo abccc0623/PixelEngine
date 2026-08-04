@@ -19,7 +19,7 @@ PixelGraphics::ForwardRender::ForwardRender(GraphicsCore* graphicsCore, Resource
 }
 void PixelGraphics::ForwardRender::PipelineInitialize()
 {
-	core->CreateRenderTarget(core->GetClientWidth(), core->GetClientHeight(), mainRenderTarget);
+	core->CreateRenderTarget(1920, 1080, mainRenderTarget);
 }
 
 void PixelGraphics::ForwardRender::PipelineRelease()
@@ -43,10 +43,6 @@ void PixelGraphics::ForwardRender::SetRenderingData(RenderingData& renderingData
 	{
 		cameraManager->Setting(renderingData);
 	}
-	else if (renderingData.renderType == RENDER_TYPE::TEXT)
-	{
-
-	}
 	else if (renderingData.passType == PASS_TYPE::SCENE)
 	{
 		passList[0]->SetRenderingData(renderingData);
@@ -67,8 +63,10 @@ void PixelGraphics::ForwardRender::Rendering()
 {
 	ID3D11DeviceContext* context = core->GetDeviceContext();
 	ID3D11RenderTargetView* sceneRTV = mainRenderTarget.renderTargetView.Get();
+	ID3D11DepthStencilView* sceneDSV = mainRenderTarget.depthStencilView.Get();
 
-	context->OMSetRenderTargets(1, &sceneRTV, nullptr);
+	context->ClearDepthStencilView(sceneDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->OMSetRenderTargets(1, &sceneRTV, sceneDSV);
 	//D3D11_VIEWPORT viewport{};
 	//viewport.Width = static_cast<float>(mainRenderTarget.width);
 	//viewport.Height = static_cast<float>(mainRenderTarget.height);

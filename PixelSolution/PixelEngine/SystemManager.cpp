@@ -8,6 +8,7 @@
 #include "Rigidbody2DSystem.h"
 #include "Animation2DSystem.h"
 #include "UIImageSystem.h"
+#include "UITextSystem.h"
 #include "GraphicsSystem.h"
 
 #include "Registry.h"
@@ -24,6 +25,7 @@ void ECS::SystemManager::Initialize()
 	SystemList.push_back(new Rigidbody2DSystem);
 
 	SystemList.push_back(new UIImageSystem);
+	//SystemList.push_back(new UITextSystem);
 	SystemList.push_back(new GraphicsSystem);
 }
 

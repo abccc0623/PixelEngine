@@ -166,6 +166,27 @@ bool PixelGraphics::GraphicsCore::CreateRenderTarget(int width, int height, Rend
 		return false;
 	}
 
+	D3D11_TEXTURE2D_DESC depthDescription = {};
+	depthDescription.Width = static_cast<UINT>(width);
+	depthDescription.Height = static_cast<UINT>(height);
+	depthDescription.MipLevels = 1;
+	depthDescription.ArraySize = 1;
+	depthDescription.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthDescription.SampleDesc.Count = 1;
+	depthDescription.Usage = D3D11_USAGE_DEFAULT;
+	depthDescription.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+	if (FAILED(device->CreateTexture2D(&depthDescription, nullptr, renderTarget.depthStencilTexture.GetAddressOf())))
+	{
+		renderTarget = {};
+		return false;
+	}
+	if (FAILED(device->CreateDepthStencilView(renderTarget.depthStencilTexture.Get(), nullptr, renderTarget.depthStencilView.GetAddressOf())))
+	{
+		renderTarget = {};
+		return false;
+	}
+
 	renderTarget.width = width;
 	renderTarget.height = height;
 	return true;
@@ -256,7 +277,7 @@ bool PixelGraphics::GraphicsCore::CreateBlendState()
 	targetBlend.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	targetBlend.BlendOp = D3D11_BLEND_OP_ADD;
 	targetBlend.SrcBlendAlpha = D3D11_BLEND_ONE;
-	targetBlend.DestBlendAlpha = D3D11_BLEND_ZERO;
+	targetBlend.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	targetBlend.BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	targetBlend.RenderTargetWriteMask =
 		D3D11_COLOR_WRITE_ENABLE_ALL;

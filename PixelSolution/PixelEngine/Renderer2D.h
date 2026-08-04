@@ -14,5 +14,6 @@ extern "C" PIXEL_ENGINEDLL Renderer2DData* Renderer2D_Add(unsigned int id);
 extern "C" PIXEL_ENGINEDLL Renderer2DData* Renderer2D_Get(unsigned int id);
 extern "C" PIXEL_ENGINEDLL bool Renderer2D_Has(unsigned int id);
 extern "C" PIXEL_ENGINEDLL void Renderer2D_SetTexture(unsigned int id, const char* name);
+extern "C" PIXEL_ENGINEDLL void Renderer2D_SetColor(unsigned int id, float r, float g, float b, float a);
 
 

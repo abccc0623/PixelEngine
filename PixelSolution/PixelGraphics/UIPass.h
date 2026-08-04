@@ -2,6 +2,7 @@
 #include "PASS.h"
 namespace PixelGraphics
 {
+	class TextRenderer;
 	class UIPass : public PASS
 	{
 	public:
@@ -15,6 +16,7 @@ namespace PixelGraphics
 		void BindObjectBuffer(RenderingData& renderingData) override;
 	private:
 		std::vector<RenderingData> renderingList;
+		TextRenderer* textRenderer = nullptr;
 	};
 }
 

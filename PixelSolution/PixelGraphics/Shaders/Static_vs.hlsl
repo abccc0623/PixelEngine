@@ -9,43 +9,33 @@ cbuffer CameraBuffer : register(b0)
 //오브젝트 관련 버퍼
 cbuffer ObjectBuffer : register(b1)
 {
-    float4x4    world;
-    float4x4    wvp;
-    float4x4    TexMatrix;
+    float4x4 world;
+    float4x4 wvp;
+    float4x4 TexMatrix;
+    float4 Color;
 };
 
-Texture2D MainTexture   : register(t0);
+Texture2D MainTexture : register(t0);
 SamplerState SampleType : register(s0);
 
 struct VertexInputType
 {
-    float3 position		: POSITION;
-    float2 UV			: TEXCOORD;
-    float3 NormalL		: NORMAL;
-    float3 TangentL		: TANGENT;
+    float3 pos : POSITION;
+    float2 uv : TEXCOORD;
+    float4 color : COLOR;
 };
 
 struct PixelInputType
 {
-    float4 posH			: SV_POSITION;
-    float2 UV           : TEXCOORD;
-    float3 NormalW		: NORMAL;
-    float3 TangentW		: TANGENT;
+    float4 pos : SV_POSITION;
+    float2 uv : TEXCOORD;
+    float4 color : COLOR;
 };
 
 PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
-    //월드변환
-    //float4 worldPos = mul(float4(input.position, 1.0f), wvp);
-    output.posH = mul(float4(input.position, 1.0f), wvp);
-    //uv값
-    //output.UV = mul(TexMatrix,float4(input.UV, 0.0f, 1.0f)).xy;
-    output.UV = mul(float4(input.UV, 0.0f, 1.0f), TexMatrix).xy;
-    //노말
-    //output.NormalW = mul(input.NormalL, (float3x3) view_proj);
-    //탄젠트
-    //output.TangentW = mul(input.TangentL, (float3x3) world);
- 
+    output.pos = mul(float4(input.pos, 1.0f), wvp);
+    output.uv = mul(float4(input.uv, 0.0f, 1.0f), TexMatrix).xy;
     return output;
 }

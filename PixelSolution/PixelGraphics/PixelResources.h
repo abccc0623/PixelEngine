@@ -87,6 +87,8 @@ struct RenderTarget
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shaderResourceView;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilTexture;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	int width = 0;
 	int height = 0;
 };

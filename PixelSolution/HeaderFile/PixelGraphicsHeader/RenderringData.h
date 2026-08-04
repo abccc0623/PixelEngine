@@ -31,6 +31,7 @@ struct SpriteData
 	float OffsetX;
 	float OffsetY;
 	int Order;
+	float Color[4];
 };
 
 struct SceneCameraData
@@ -54,15 +55,10 @@ struct LineData
 
 struct TextData
 {
-	float uvX;
-	float uvY;
-	float uvWidth;
-	float uvHeight;
-	float width;
-	float height;
-	float bearingX;
-	float bearingY;
-	float advance;
+	char content[256];
+	std::uint16_t fontKey;
+	float scale;
+	float color[4];
 };
 
 

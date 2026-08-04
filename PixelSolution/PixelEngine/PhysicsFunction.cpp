@@ -72,7 +72,7 @@ void PhysicsFunction::SetActive(JPH::BodyID id, bool active)
 
 void PhysicsFunction::SetVelocity(JPH::BodyID id, float x, float y, float z)
 {
-	JPH::Vec3 targetVelocity(x, y, z);
+	JPH::Vec3 targetVelocity(x, y, 0.0f);
 	PhysManager::mBodyInterface->SetLinearVelocity(id, targetVelocity);
 }
 

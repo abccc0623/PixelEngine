@@ -25,6 +25,10 @@ Renderer2DData* Renderer2D_Add(unsigned int id)
 	graphics->renderingData.sprite.TilingY = 1.0f;
 	graphics->renderingData.sprite.OffsetX = 0.0f;
 	graphics->renderingData.sprite.OffsetY = 0.0f;
+	graphics->renderingData.sprite.Color[0] = 1.0f;
+	graphics->renderingData.sprite.Color[1] = 1.0f;
+	graphics->renderingData.sprite.Color[2] = 1.0f;
+	graphics->renderingData.sprite.Color[3] = 1.0f;
 
 	auto renderer2D = registry->Get<Renderer2DData>(id);
 	return renderer2D;
@@ -70,3 +74,24 @@ void Renderer2D_SetTexture(unsigned int id, const char* name)
 	}
 }
 
+void Renderer2D_SetColor(unsigned int id, float r, float g, float b, float a)
+{
+	auto registry = GetRegistry();
+	auto renderer = registry->Get<Renderer2DData>(id);
+	auto graphics = registry->Get<GraphicsData>(id);
+	if (renderer == nullptr || graphics == nullptr)
+	{
+		PixelLog::Error("[Renderer2D][SetColor] Not Find Component");
+		return;
+	}
+
+	auto normalizeColor = [](float value)
+		{
+			return (std::clamp)(value, 0.0f, 255.0f) / 255.0f;
+		};
+
+	graphics->renderingData.sprite.Color[0] = normalizeColor(r);
+	graphics->renderingData.sprite.Color[1] = normalizeColor(g);
+	graphics->renderingData.sprite.Color[2] = normalizeColor(b);
+	graphics->renderingData.sprite.Color[3] = normalizeColor(a);
+}

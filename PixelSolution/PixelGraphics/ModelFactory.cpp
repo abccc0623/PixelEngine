@@ -57,12 +57,19 @@ std::unique_ptr<DirectModel> PixelGraphics::ModelFactory::CreateQuad()
 
 	vertices[0].Pos = { -0.5f, 0.5f, 0.0f };
 	vertices[0].UV = { 0.0f, 0.0f };
+	vertices[0].Color = { 1.0f,1.0f, 1.0f, 1.0f };
+
 	vertices[1].Pos = { 0.5f, 0.5f, 0.0f };
 	vertices[1].UV = { 1.0f, 0.0f };
+	vertices[1].Color = { 1.0f,1.0f, 1.0f, 1.0f };
+
 	vertices[2].Pos = { 0.5f, -0.5f, 0.0f };
 	vertices[2].UV = { 1.0f, 1.0f };
+	vertices[2].Color = { 1.0f,1.0f, 1.0f, 1.0f };
+
 	vertices[3].Pos = { -0.5f, -0.5f, 0.0f };
 	vertices[3].UV = { 0.0f, 1.0f };
+	vertices[3].Color = { 1.0f,1.0f, 1.0f, 1.0f };
 	return CreateModelBuffer(vertices, 4, indices, 6);
 }
 

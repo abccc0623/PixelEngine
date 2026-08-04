@@ -59,9 +59,11 @@ void PixelGraphics::PASS::BindObjectBuffer(RenderingData& r)
 	}
 	mbuffer.wvp = mWVP.Transpose();
 	mbuffer.TexMatrix = texMat.Transpose();
+	mbuffer.Color = Vector4(r.sprite.Color[0], r.sprite.Color[1], r.sprite.Color[2], r.sprite.Color[3]);
 	auto objectBuffer = contextObjectBuffer->buffer.Get();
 	core->GetDeviceContext()->UpdateSubresource(objectBuffer, 0, nullptr, &mbuffer, 0, 0);
 	core->GetDeviceContext()->VSSetConstantBuffers(1, 1, &(objectBuffer));
+	core->GetDeviceContext()->PSSetConstantBuffers(1, 1, &(objectBuffer));
 }
 
 void PixelGraphics::PASS::BindTexture(RenderingData& r)

@@ -25,6 +25,10 @@ UIImageData* UIImage_Add(unsigned int id)
 	graphicsData->renderingData.sprite.OffsetX = 0.0f;
 	graphicsData->renderingData.sprite.OffsetY = 0.0f;
 	graphicsData->renderingData.sprite.Order = 0;
+	graphicsData->renderingData.sprite.Color[0] = 1.0f;
+	graphicsData->renderingData.sprite.Color[1] = 1.0f;
+	graphicsData->renderingData.sprite.Color[2] = 1.0f;
+	graphicsData->renderingData.sprite.Color[3] = 1.0f;
 	return data;
 }
 

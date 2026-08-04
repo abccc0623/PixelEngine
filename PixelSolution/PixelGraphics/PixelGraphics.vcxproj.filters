@@ -159,16 +159,19 @@
     <ClInclude Include="PASS.h">
       <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
     </ClInclude>
-	<ClInclude Include="ScenePass.h">
-	  <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
-	</ClInclude>
-	<ClInclude Include="PostProcessPass.h">
-	  <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
-	</ClInclude>
+    <ClInclude Include="ScenePass.h">
+      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcessPass.h">
+      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+    </ClInclude>
     <ClInclude Include="CameraManager.h">
       <Filter>PicnicGraphics\Manager\Rendering\Pipeline</Filter>
     </ClInclude>
     <ClInclude Include="UIPass.h">
+      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+    </ClInclude>
+    <ClInclude Include="TextRenderer.h">
       <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
     </ClInclude>
   </ItemGroup>
@@ -245,16 +248,19 @@
     <ClCompile Include="PASS.cpp">
       <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
     </ClCompile>
-	<ClCompile Include="ScenePass.cpp">
-	  <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
-	</ClCompile>
-	<ClCompile Include="PostProcessPass.cpp">
-	  <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
-	</ClCompile>
+    <ClCompile Include="ScenePass.cpp">
+      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcessPass.cpp">
+      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+    </ClCompile>
     <ClCompile Include="CameraManager.cpp">
       <Filter>PicnicGraphics\Manager\Rendering\Pipeline</Filter>
     </ClCompile>
     <ClCompile Include="UIPass.cpp">
+      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+    </ClCompile>
+    <ClCompile Include="TextRenderer.cpp">
       <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
     </ClCompile>
   </ItemGroup>
@@ -287,6 +293,12 @@
       <Filter>리소스 파일</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\Static_vs.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Font_ps.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Font_vs.hlsl">
       <Filter>리소스 파일</Filter>
     </FxCompile>
   </ItemGroup>

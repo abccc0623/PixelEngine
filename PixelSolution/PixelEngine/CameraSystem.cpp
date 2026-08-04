@@ -25,7 +25,7 @@ void ECS::CameraSystem::Update(Registry* registry)
 			auto world = registry->Get<WorldData>(data->thisID);
 			if (g != nullptr && world != nullptr)
 			{
-				g->renderingData.camera.Projection = ProjectionType::Perspective;
+				g->renderingData.camera.Projection = data->Projection;
 				g->renderingData.camera.FovY = data->FovY;
 				g->renderingData.camera.NearZ = data->NearZ;
 				g->renderingData.camera.FarZ = data->FarZ;

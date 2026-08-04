@@ -109,10 +109,17 @@ static void RegisterComponentData()
 	auto info_SetTextrue = GeGlobalMethodInfo(&Renderer2D_SetTexture);
 	info_SetTextrue.memberName.push_back("ID");
 	info_SetTextrue.memberName.push_back("textureName");
+	auto info_SetColor = GeGlobalMethodInfo(&Renderer2D_SetColor);
+	info_SetColor.memberName.push_back("ID");
+	info_SetColor.memberName.push_back("R");
+	info_SetColor.memberName.push_back("G");
+	info_SetColor.memberName.push_back("B");
+	info_SetColor.memberName.push_back("A");
 	AddGlobalMethod(GlobalRenderer2D, name + "_Add", info_Add, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalRenderer2D, name + "_Get", info_Get, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalRenderer2D, name + "_Has", info_Has, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalRenderer2D, "Renderer2D_SetTexture", info_SetTextrue, EngineMetaFlag::Component);
+	AddGlobalMethod(GlobalRenderer2D, "Renderer2D_SetColor", info_SetColor, EngineMetaFlag::Component);
 
 	name = "UIImage";
 	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
@@ -143,13 +150,33 @@ static void RegisterComponentData()
 	info_Get.memberName.push_back("ID");
 	info_Has = GeGlobalMethodInfo(&UIText_Has);
 	info_Has.memberName.push_back("ID");
+	auto info_SetText = GeGlobalMethodInfo(&UIText_SetText);
+	info_SetText.memberName.push_back("ID");
+	info_SetText.memberName.push_back("Text");
+	auto info_SetTextSize = GeGlobalMethodInfo(&UIText_SetTextSize);
+	info_SetTextSize.memberName.push_back("ID");
+	info_SetTextSize.memberName.push_back("Scale");
+	auto info_SetFont = GeGlobalMethodInfo(&UIText_SetFont);
+	info_SetFont.memberName.push_back("ID");
+	info_SetFont.memberName.push_back("FontName");
+	auto info_UITextSetColor = GeGlobalMethodInfo(&UIText_SetColor);
+	info_UITextSetColor.memberName.push_back("ID");
+	info_UITextSetColor.memberName.push_back("R");
+	info_UITextSetColor.memberName.push_back("G");
+	info_UITextSetColor.memberName.push_back("B");
+	info_UITextSetColor.memberName.push_back("A");
 	AddGlobalMethod(Static, name + "_Add", info_Add, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_Get", info_Get, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_Has", info_Has, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetText", info_SetText, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetTextSize", info_SetTextSize, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetFont", info_SetFont, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetColor", info_UITextSetColor, EngineMetaFlag::Component);
 
 	name = "Camera";
 	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
 	AddMember(Data, "thisID", LuaMember("unsigned int", offsetof(CameraData, thisID)), EngineMetaFlag::Private);
+	AddMember(Data, "Projection", LuaMember("ProjectionType", offsetof(CameraData, Projection)), EngineMetaFlag::Public);
 	AddMember(Data, "FovY", LuaMember("float", offsetof(CameraData, FovY)), EngineMetaFlag::Public);
 	AddMember(Data, "NearZ", LuaMember("float", offsetof(CameraData, NearZ)), EngineMetaFlag::Public);
 	AddMember(Data, "FarZ", LuaMember("float", offsetof(CameraData, FarZ)), EngineMetaFlag::Public);
@@ -277,6 +304,9 @@ BindManager::~BindManager()
 
 void BindManager::Initialize()
 {
+	BindEnum();
+
+
 	PClass* GlobalVector2Data = CreateLuaMetaClass("PVector2", EngineMetaFlag::TypeClassData);
 	AddMember(GlobalVector2Data, "x", LuaMember("float", offsetof(PVector2, x)), EngineMetaFlag::TypeClassData);
 	AddMember(GlobalVector2Data, "y", LuaMember("float", offsetof(PVector2, y)), EngineMetaFlag::TypeClassData);
@@ -466,7 +496,6 @@ void BindManager::Initialize()
 
 
 	RegisterComponentData();
-	BindEnum();
 }
 
 void BindManager::Update()
@@ -496,6 +525,10 @@ void BindManager::BindEnum()
 	AddEnum(globalEnum, "Static");
 	AddEnum(globalEnum, "Kinematic");
 	AddEnum(globalEnum, "Dynamic");
+
+	globalEnum = CreateNewEnum("ProjectionType");
+	AddEnum(globalEnum, "Perspective");
+	AddEnum(globalEnum, "Orthographic");
 
 	//globalEnum = CreateNewEnum("ColliderType");
 	//AddEnum(globalEnum, "Box2D");

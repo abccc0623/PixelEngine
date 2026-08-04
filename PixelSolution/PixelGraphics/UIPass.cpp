@@ -6,12 +6,18 @@
 #include "ResourceManager.h"
 #include "CameraManager.h"
 #include "CBufferResources.h"
+#include "TextRenderer.h"
 using namespace DirectX::SimpleMath;
 PixelGraphics::UIPass::UIPass(GraphicsCore* core, ResourceManager* resourceManager, CameraManager* cameraManager) : PASS(core, resourceManager, cameraManager)
-{}
+{
+	textRenderer = new TextRenderer(core, resourceManager, cameraManager);
+}
 
 PixelGraphics::UIPass::~UIPass()
-{}
+{
+	delete textRenderer;
+	textRenderer = nullptr;
+}
 
 void PixelGraphics::UIPass::SetRenderingData(RenderingData& renderingData)
 {
@@ -37,6 +43,12 @@ void PixelGraphics::UIPass::Rendering(RenderTarget& renderTarget)
 	int count = renderingList.size();
 	for (int i = 0; i < count; i++)
 	{
+		if (renderingList[i].renderType == RENDER_TYPE::TEXT)
+		{
+			textRenderer->Draw(renderingList[i]);
+			PreviousKeyReset();
+			continue;
+		}
 		//위치 동기화
 		BindObjectBuffer(renderingList[i]);
 
@@ -77,7 +89,9 @@ void PixelGraphics::UIPass::Sort(std::vector<RenderingData>& data)
 {
 	std::stable_sort(data.begin(), data.end(), [](const RenderingData& left, const RenderingData& right)
 		{
-			return left.sprite.Order < right.sprite.Order;
+			const int leftOrder = left.renderType == RENDER_TYPE::TEXT ? 0 : left.sprite.Order;
+			const int rightOrder = right.renderType == RENDER_TYPE::TEXT ? 0 : right.sprite.Order;
+			return leftOrder < rightOrder;
 		});
 }
 
@@ -89,6 +103,7 @@ void PixelGraphics::UIPass::BindObjectBuffer(RenderingData& r)
 	Matrix uiFlip = Matrix::CreateScale(1.0f, -1.0f, 1.0f);
 	Matrix mWVP = uiFlip * mWorld * cameraManager->GetProjUI();
 	Matrix texMat = Matrix::Identity;
+
 	if (r.renderType == RENDER_TYPE::QUAD && r.sprite.isShared == false)
 	{
 		Matrix texScale = DirectX::SimpleMath::Matrix::CreateScale(r.sprite.TilingX, r.sprite.TilingY, 1.0f);
@@ -103,7 +118,9 @@ void PixelGraphics::UIPass::BindObjectBuffer(RenderingData& r)
 	}
 	mbuffer.wvp = mWVP.Transpose();
 	mbuffer.TexMatrix = texMat.Transpose();
+	mbuffer.Color = Vector4(r.sprite.Color[0], r.sprite.Color[1], r.sprite.Color[2], r.sprite.Color[3]);
 	auto targetBuffer = contextObjectBuffer->buffer.Get();
 	core->GetDeviceContext()->UpdateSubresource(targetBuffer, 0, nullptr, &mbuffer, 0, 0);
 	core->GetDeviceContext()->VSSetConstantBuffers(1, 1, &(targetBuffer));
+	core->GetDeviceContext()->PSSetConstantBuffers(1, 1, &(targetBuffer));
 }

@@ -193,13 +193,13 @@ Pixel::Vector3 PhysManager::GetVelocity(JPH::BodyID id)
 
 void PhysManager::SetVelocity(JPH::BodyID id, float x, float y, float z)
 {
-	JPH::Vec3 targetVelocity(x, y, z);
+	JPH::Vec3 targetVelocity(x, y, 0.0f);
 	physicsSystem->GetBodyInterface().SetLinearVelocity(id, targetVelocity);
 }
 
 void PhysManager::SetPosition(JPH::BodyID id, float x, float y, float z, bool active)
 {
-	JPH::Vec3 targetPosition(x, y, z);
+	JPH::Vec3 targetPosition(x, y, 0.0f);
 	physicsSystem->GetBodyInterface().SetPosition(id, targetPosition, (active) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
 }
 
@@ -231,7 +231,7 @@ void PhysManager::SetActive(JPH::BodyID id, bool active)
 		auto data = reinterpret_cast<TransformData*>(Transform_Get(userData));
 
 
-		JPH::RVec3 RPos(data->position.x, data->position.y, data->position.z);
+		JPH::RVec3 RPos(data->position.x, data->position.y, 0.0f);
 		constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
 		JPH::Vec3 eulerRadians(data->rotation.x * DEG_TO_RAD, data->rotation.y * DEG_TO_RAD, data->rotation.z * DEG_TO_RAD);
 		JPH::Quat RRot = JPH::Quat::sEulerAngles(eulerRadians);
@@ -330,7 +330,7 @@ JPH::BodyID PhysManager::CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DDa
 	JPH::BodyCreationSettings bodySettings
 	(
 		physics->colliderRefC,
-		JPH::Vec3(transformData->position.x, transformData->position.y, transformData->position.z),
+		JPH::Vec3(transformData->position.x, transformData->position.y, 0.0f),
 		JPH::Quat::sEulerAngles(eulerRadians), // 초기 회전값
 		eMotionType,
 		objectLayer
@@ -428,7 +428,6 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
 	auto transformData = r->Get<TransformData>(EntityID);
 	transformData->position.x = pos.GetX();
 	transformData->position.y = pos.GetY();
-	transformData->position.z = pos.GetZ();
 	//DebugDraw(id);
 }
 

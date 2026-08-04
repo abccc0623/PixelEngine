@@ -5,6 +5,7 @@ enum RESOURCE_TYPE
 {
 	TEXTURE = 0,
 	MATERIAL = 1,
+	FONT = 2,
 };
 using ObjectID = size_t;
 class TextureManager;

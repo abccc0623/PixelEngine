@@ -4,8 +4,9 @@ struct StaticVertex
 {
 	DirectX::XMFLOAT3 Pos;
 	DirectX::XMFLOAT2 UV;
-	DirectX::XMFLOAT3 Nomal;
-	DirectX::XMFLOAT3 Tanget;
+	DirectX::XMFLOAT4 Color;
+	//DirectX::XMFLOAT3 Nomal;
+	//DirectX::XMFLOAT3 Tanget;
 };
 
 struct SkinningVertex

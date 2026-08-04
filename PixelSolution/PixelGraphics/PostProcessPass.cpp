@@ -79,8 +79,10 @@ void PixelGraphics::PostProcessPass::BindObjectBuffer(RenderingData& targetRende
 	objectBuffer.world = world;
 	objectBuffer.wvp = world.Transpose();
 	objectBuffer.TexMatrix = Matrix::Identity.Transpose();
+	objectBuffer.Color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	ID3D11Buffer* constantBuffer = contextObjectBuffer->buffer.Get();
 	core->GetDeviceContext()->UpdateSubresource(constantBuffer, 0, nullptr, &objectBuffer, 0, 0);
 	core->GetDeviceContext()->VSSetConstantBuffers(1, 1, &constantBuffer);
+	core->GetDeviceContext()->PSSetConstantBuffers(1, 1, &constantBuffer);
 }
