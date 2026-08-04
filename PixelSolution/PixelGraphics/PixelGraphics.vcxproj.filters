@@ -295,12 +295,6 @@
     <FxCompile Include="Shaders\Static_vs.hlsl">
       <Filter>리소스 파일</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Font_ps.hlsl">
-      <Filter>리소스 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\Font_vs.hlsl">
-      <Filter>리소스 파일</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PixelGraphics.rc">
