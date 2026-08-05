@@ -37,5 +37,6 @@ PixelInputType main(VertexInputType input)
     PixelInputType output;
     output.pos = mul(float4(input.pos, 1.0f), wvp);
     output.uv = mul(float4(input.uv, 0.0f, 1.0f), TexMatrix).xy;
+    output.color = input.color;
     return output;
 }

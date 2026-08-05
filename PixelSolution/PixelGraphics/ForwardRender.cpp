@@ -67,12 +67,6 @@ void PixelGraphics::ForwardRender::Rendering()
 
 	context->ClearDepthStencilView(sceneDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &sceneRTV, sceneDSV);
-	//D3D11_VIEWPORT viewport{};
-	//viewport.Width = static_cast<float>(mainRenderTarget.width);
-	//viewport.Height = static_cast<float>(mainRenderTarget.height);
-	//viewport.MinDepth = 0.0f;
-	//viewport.MaxDepth = 1.0f;
-	//context->RSSetViewports(1, &viewport);
 	cameraManager->BindViewPort();
 
 	context->ClearRenderTargetView(sceneRTV, backgroundColor);
@@ -82,7 +76,6 @@ void PixelGraphics::ForwardRender::Rendering()
 	}
 
 	//렌더 타깃 출력 연결 해제
-	//context->OMSetRenderTargets(0, nullptr, nullptr);
 	core->BindBackBuffer();
 	core->ClearBackBuffer(1.0f, 0.0f, 1.0f, 1.0f);
 	core->ApplyViewport();

@@ -113,6 +113,15 @@ uint16_t LoadGraphicsTexture(const char* filePath)
 	return 0;
 }
 
+uint16_t LoadGraphicsFont(const char* filePath)
+{
+	if (mEngine != nullptr)
+	{
+		return mEngine->GetResourceManager()->Load(PixelGraphics::ResourceType::FONT, filePath);
+	}
+	return 0;
+}
+
 uint16_t LoadGraphicsMaterial(const char* filePath)
 {
 	//return mEngine->LoadMaterial(filePath);

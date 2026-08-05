@@ -10,6 +10,7 @@ enum RESOURCE_TYPE
 using ObjectID = size_t;
 class TextureManager;
 class MaterialManager;
+class FontManager;
 class ResourceManager :public EngineManager
 {
 public:
@@ -26,5 +27,6 @@ public:
 private:
 	TextureManager* textureManager;
 	MaterialManager* materialManager;
+	FontManager* fontManager;
 };
 

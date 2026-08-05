@@ -19,6 +19,11 @@ namespace ECS
 		bool GetActive();
 		void SetActive(bool isActive);
 
+		void SetChild(unsigned int ID);
+		void SetParent(unsigned int ID);
+		unsigned int GetParentID();
+		std::vector<unsigned int>& GetChild();
+
 		sol::object GetValue(const char* memberName);
 		void SetValue(const char* memberName, sol::object);
 	private:
@@ -27,7 +32,10 @@ namespace ECS
 		sol::table instance;
 		sol::protected_function OnCollisionEnterFunc;
 		sol::protected_function OnCollisionExitFunc;
+
+		std::vector<unsigned int> children;
 		unsigned int ID;
+		unsigned int ParentID = -1;
 	private:
 		static LuaManager* lua;
 	};

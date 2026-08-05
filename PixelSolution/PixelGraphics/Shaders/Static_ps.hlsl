@@ -23,6 +23,7 @@ struct PixelInputType
 {
     float4 posH : SV_POSITION;
     float2 UV : TEXCOORD;
+    float4 color : COLOR;
     //float3 NormalW	    : NORMAL;
     //float3 TangentW     : TANGENT;
 };
@@ -34,7 +35,7 @@ float4 main(PixelInputType input) : SV_TARGET
     //input.NormalW = normalize(input.NormalW);
    
     float4 textureColor = MainTexture.Sample(SampleType, input.UV);
-    float4 finalColor = textureColor * Color;
+    float4 finalColor = textureColor * input.color * Color;
     
     if (finalColor.a < 0.1f)
         discard;

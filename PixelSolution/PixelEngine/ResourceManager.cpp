@@ -2,9 +2,11 @@
 #include "ResourceManager.h"
 #include "TextureManager.h"
 #include "MaterialManager.h"
+#include "FontManager.h"
 ResourceManager::ResourceManager()
 	: textureManager(nullptr),
-	materialManager(nullptr)
+	materialManager(nullptr),
+	fontManager(nullptr)
 {
 
 }
@@ -18,6 +20,7 @@ void ResourceManager::Initialize()
 {
 	textureManager = new TextureManager();
 	materialManager = new MaterialManager();
+	fontManager = new FontManager();
 }
 
 void ResourceManager::Update()
@@ -40,6 +43,13 @@ void ResourceManager::Release()
 		delete materialManager;
 		materialManager = nullptr;
 	}
+
+	if (fontManager)
+	{
+		fontManager->Release();
+		delete fontManager;
+		fontManager = nullptr;
+	}
 }
 
 void ResourceManager::Load(RESOURCE_TYPE type, const std::string& filePath)
@@ -52,6 +62,9 @@ void ResourceManager::Load(RESOURCE_TYPE type, const std::string& filePath)
 	case RESOURCE_TYPE::MATERIAL:
 		materialManager->Load(filePath);
 		break;
+	case RESOURCE_TYPE::FONT:
+		fontManager->Load(filePath);
+		break;
 	}
 }
 
@@ -63,6 +76,8 @@ ObjectID ResourceManager::Get(RESOURCE_TYPE type, const std::string& name)
 		return textureManager->Get(name);
 	case RESOURCE_TYPE::MATERIAL:
 		return materialManager->Get(name);
+	case RESOURCE_TYPE::FONT:
+		return fontManager->Get(name);
 	}
 	return ObjectID();
 }
@@ -71,4 +86,5 @@ void ResourceManager::Clear()
 {
 	textureManager->Clear();
 	materialManager->Clear();
+	fontManager->Clear();
 }

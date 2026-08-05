@@ -31,6 +31,11 @@ static void ImportFile(const std::filesystem::path& path)
 		auto resource = Engine->GetFactory<ResourceManager>();
 		resource->Load(MATERIAL, targetPath);
 	}
+	else if (ext == ".ttf" || ext == ".otf")
+	{
+		auto resource = Engine->GetFactory<ResourceManager>();
+		resource->Load(FONT, targetPath);
+	}
 	else if (ext == ".json")
 	{
 		auto jsonFile = Engine->GetFactory<JsonManager>();

@@ -5,6 +5,7 @@
 #include <array>
 #include <cstdint>
 #include <cstring>
+#include <string_view>
 #include "CameraManager.h"
 #include "CBufferResources.h"
 #include "FontFactory.h"
@@ -14,14 +15,44 @@
 #include "ShaderFactory.h"
 #include "SimpleMath.h"
 
-namespace
+namespace PixelGraphics
 {
 	constexpr size_t MaxGlyphCount = 256;
+	int HexValue(char32_t character)
+	{
+		if (character >= U'0' && character <= U'9') return static_cast<int>(character - U'0');
+		if (character >= U'a' && character <= U'f') return static_cast<int>(character - U'a') + 10;
+		if (character >= U'A' && character <= U'F') return static_cast<int>(character - U'A') + 10;
+		return -1;
+	}
+
+	bool ParseColorTag(const std::u32string& text, size_t position, DirectX::XMFLOAT4& color)
+	{
+		constexpr std::u32string_view Prefix = U"<color=#";
+		constexpr size_t TagLength = 15;
+		if (position + TagLength > text.size() || text.compare(position, Prefix.size(), Prefix) != 0 || text[position + 14] != U'>')
+		{
+			return false;
+		}
+
+		int values[6] = {};
+		for (size_t index = 0; index < 6; ++index)
+		{
+			values[index] = HexValue(text[position + Prefix.size() + index]);
+			if (values[index] < 0) return false;
+		}
+
+		color.x = static_cast<float>(values[0] * 16 + values[1]) / 255.0f;
+		color.y = static_cast<float>(values[2] * 16 + values[3]) / 255.0f;
+		color.z = static_cast<float>(values[4] * 16 + values[5]) / 255.0f;
+		return true;
+	}
+
 	std::u32string DecodeUtf8(const char* text)
 	{
 		std::u32string result;
 		const auto* cursor = reinterpret_cast<const unsigned char*>(text);
-		while (*cursor != 0 && result.size() < MaxGlyphCount)
+		while (*cursor != 0)
 		{
 			char32_t codepoint = 0;
 			int trailing = 0;
@@ -113,8 +144,29 @@ void PixelGraphics::TextRenderer::DrawText(const RenderingData& data)
 	std::vector<StaticVertex> vertices;
 	vertices.reserve(MaxGlyphCount * 4);
 	float cursorX = 0.0f, cursorY = font->ascent * scale;
-	for (char32_t codepoint : DecodeUtf8(data.text.content))
+	const std::u32string text = DecodeUtf8(data.text.content);
+	const DirectX::XMFLOAT4 defaultColor(data.text.color[0], data.text.color[1], data.text.color[2], data.text.color[3]);
+	DirectX::XMFLOAT4 currentColor = defaultColor;
+	std::vector<DirectX::XMFLOAT4> colorStack;
+	for (size_t textIndex = 0; textIndex < text.size(); ++textIndex)
 	{
+		DirectX::XMFLOAT4 tagColor = currentColor;
+		if (ParseColorTag(text, textIndex, tagColor))
+		{
+			colorStack.push_back(currentColor);
+			currentColor = tagColor;
+			textIndex += 14;
+			continue;
+		}
+		if (text.compare(textIndex, 8, U"</color>") == 0)
+		{
+			currentColor = colorStack.empty() ? defaultColor : colorStack.back();
+			if (!colorStack.empty()) colorStack.pop_back();
+			textIndex += 7;
+			continue;
+		}
+
+		const char32_t codepoint = text[textIndex];
 		if (codepoint == U'\n') { cursorX = 0.0f; cursorY += font->lineHeight * scale; continue; }
 		auto found = font->glyphs.find(codepoint);
 		if (found == font->glyphs.end()) found = font->glyphs.find(U'?');
@@ -122,9 +174,8 @@ void PixelGraphics::TextRenderer::DrawText(const RenderingData& data)
 		const auto& glyph = found->second;
 		const float x0 = cursorX + glyph.offsetX * scale, y0 = cursorY + glyph.offsetY * scale;
 		const float x1 = x0 + glyph.width * scale, y1 = y0 + glyph.height * scale;
-		const DirectX::XMFLOAT4 color(data.text.color[0], data.text.color[1], data.text.color[2], data.text.color[3]);
-		vertices.push_back({ {x0,y0,0},{glyph.u0,glyph.v0},color }); vertices.push_back({ {x1,y0,0},{glyph.u1,glyph.v0},color });
-		vertices.push_back({ {x1,y1,0},{glyph.u1,glyph.v1},color }); vertices.push_back({ {x0,y1,0},{glyph.u0,glyph.v1},color });
+		vertices.push_back({ {x0,y0,0},{glyph.u0,glyph.v0},currentColor }); vertices.push_back({ {x1,y0,0},{glyph.u1,glyph.v0},currentColor });
+		vertices.push_back({ {x1,y1,0},{glyph.u1,glyph.v1},currentColor }); vertices.push_back({ {x0,y1,0},{glyph.u0,glyph.v1},currentColor });
 		cursorX += glyph.advance * scale;
 	}
 	if (vertices.empty()) return;
@@ -143,7 +194,7 @@ void PixelGraphics::TextRenderer::DrawText(const RenderingData& data)
 	objectData.world = world.Transpose();
 	objectData.wvp = (world * cameraManager->GetProjUI()).Transpose();
 	objectData.TexMatrix = DirectX::SimpleMath::Matrix::Identity.Transpose();
-	objectData.Color = DirectX::SimpleMath::Vector4(data.text.color[0], data.text.color[1], data.text.color[2], data.text.color[3]);
+	objectData.Color = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	ID3D11Buffer* cb = objectBufferResource->buffer.Get();
 	context->UpdateSubresource(cb, 0, nullptr, &objectData, 0, 0);
 	UINT stride = sizeof(StaticVertex), offset = 0; ID3D11Buffer* vb = vertexBuffer.Get();

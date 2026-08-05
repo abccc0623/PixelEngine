@@ -83,9 +83,17 @@ static void RegisterComponentData()
 	info_Get.memberName.push_back("ID");
 	auto info_Has = GeGlobalMethodInfo(&Transform_Has);
 	info_Has.memberName.push_back("ID");
+	auto info_TransformSetParent = GeGlobalMethodInfo(&Transform_SetParent);
+	info_TransformSetParent.memberName.push_back("ID");
+	info_TransformSetParent.memberName.push_back("ParentID");
+	auto info_TransformSetChild = GeGlobalMethodInfo(&Transform_SetChild);
+	info_TransformSetChild.memberName.push_back("ID");
+	info_TransformSetChild.memberName.push_back("ChildID");
 	AddGlobalMethod(GlobalTransform, name + "_Add", info_Add, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalTransform, name + "_Get", info_Get, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalTransform, name + "_Has", info_Has, EngineMetaFlag::Component);
+	AddGlobalMethod(GlobalTransform, name + "_SetParent", info_TransformSetParent, EngineMetaFlag::Component);
+	AddGlobalMethod(GlobalTransform, name + "_SetChild", info_TransformSetChild, EngineMetaFlag::Component);
 
 	PEnum* GlobalMotionType = CreateNewEnum("MotionType");
 	AddEnum(GlobalMotionType, "Static");

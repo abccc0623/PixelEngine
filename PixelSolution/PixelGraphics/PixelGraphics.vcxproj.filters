@@ -52,6 +52,9 @@
     <Filter Include="PicnicGraphics\Manager\Rendering\PASS">
       <UniqueIdentifier>{e4ccd375-8be0-434a-9777-30a68d82998e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PicnicGraphics\Manager\Rendering\PASS\Renderer">
+      <UniqueIdentifier>{513f3fe7-1a49-41d4-aefb-9592f7202bc4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -172,7 +175,7 @@
       <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
     </ClInclude>
     <ClInclude Include="TextRenderer.h">
-      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+      <Filter>PicnicGraphics\Manager\Rendering\PASS\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -261,7 +264,7 @@
       <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
     </ClCompile>
     <ClCompile Include="TextRenderer.cpp">
-      <Filter>PicnicGraphics\Manager\Rendering\PASS</Filter>
+      <Filter>PicnicGraphics\Manager\Rendering\PASS\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

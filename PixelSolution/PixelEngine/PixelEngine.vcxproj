@@ -241,21 +241,18 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Registry.h" />
-    <ClInclude Include="SPointer.h" />
-    <ClInclude Include="PtrControlBlock.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SystemManager.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="FontManager.h" />
     <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="UIImage.h" />
     <ClInclude Include="UIImageSystem.h" />
     <ClInclude Include="UIText.h" />
-    <ClInclude Include="UPointer.h" />
     <ClInclude Include="TimeManager.h" />
-    <ClInclude Include="WPointer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animation2D.cpp" />
@@ -319,13 +316,13 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="PtrControlBlock.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SystemManager.cpp" />
     <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="FontManager.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="TransformSystem.cpp" />
     <ClCompile Include="UIImage.cpp" />

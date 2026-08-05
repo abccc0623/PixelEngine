@@ -16,7 +16,6 @@
 #include "BindManager.h"
 #include "JsonManager.h"
 #include "GenerateManager.h"
-#include "SPointer.h"
 #include "PixelMetaAPI.h"
 #include "EventManager.h"
 #include "SystemManager.h"
@@ -114,7 +113,7 @@ void PixelEngine::ReleaseShared()
 	}
 	factoryMap.clear();
 	PixelGraphicsRelease();
-	MemoryTracker::Get().ReportLeaks();
+	//MemoryTracker::Get().ReportLeaks();
 }
 
 void PixelEngine::Resize(int width, int height)

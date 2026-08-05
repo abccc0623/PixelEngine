@@ -8,7 +8,6 @@
 #include "BindManager.h"
 #include "KeyInputManager.h"
 #include "SceneManager.h"
-#include "SPointer.h"
 
 #include "LuaModuleInfo.h"
 #include "LuaSceneInfo.h"

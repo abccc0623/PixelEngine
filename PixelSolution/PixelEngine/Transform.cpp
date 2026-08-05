@@ -2,6 +2,7 @@
 #include "Transform.h"
 #include "PixelEngineAPI.h"
 #include "Registry.h"
+#include "EntityObject.h"
 TransformData* Transform_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
@@ -36,4 +37,43 @@ bool Transform_Has(unsigned int id)
 	{
 		return true;
 	}
+}
+
+void Transform_SetParent(unsigned int id, unsigned int ParentID)
+{
+	auto thisEntity = FindEntity(id);
+	if (thisEntity == nullptr)
+	{
+		PixelLog::Error("[Transform][SetParent] Not Find This EntityID :" + id);
+		return;
+	}
+	thisEntity->SetParent(ParentID);
+}
+
+void Transform_SetChild(unsigned int id, unsigned int ChildID)
+{
+	auto thisEntity = FindEntity(id);
+	if (thisEntity == nullptr)
+	{
+		PixelLog::Error("[Transform][SetParent] Not Find This EntityID :" + id);
+		return;
+	}
+	thisEntity->SetChild(ChildID);
+
+}
+
+void Transform_SetLocalPosition(unsigned int id, PVector3 position)
+{
+
+
+}
+
+void Transform_SetLocalRotation(unsigned int id, PVector3 rotation)
+{
+
+}
+
+void Transform_SetLocalScale(unsigned int id, PVector3 scale)
+{
+
 }

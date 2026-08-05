@@ -55,9 +55,6 @@
     <Filter Include="EngineAPI\Manager\BindManager">
       <UniqueIdentifier>{3bdc39e6-20c2-4ee3-bb49-4ae3d6cd2564}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\SmartPointer">
-      <UniqueIdentifier>{2c28ed61-3fef-4644-a1f0-5afc614173e2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EngineAPI\Types\Enum">
       <UniqueIdentifier>{45623185-d5f3-41eb-90a1-6af096f462a4}</UniqueIdentifier>
     </Filter>
@@ -124,7 +121,7 @@
     <Filter Include="EngineAPI\Debug">
       <UniqueIdentifier>{ffa2fbc2-4db7-4a13-b602-95a0900fe123}</UniqueIdentifier>
     </Filter>
-    <Filter Include="EngineAPI\ECS\UIComponent">
+    <Filter Include="EngineAPI\ECS\ComponentUI">
       <UniqueIdentifier>{8657f3e6-0c68-48f8-bae2-337212c6f930}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -170,18 +167,6 @@
     </ClInclude>
     <ClInclude Include="PhysManager.h">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
-    </ClInclude>
-    <ClInclude Include="WPointer.h">
-      <Filter>EngineAPI\SmartPointer</Filter>
-    </ClInclude>
-    <ClInclude Include="PtrControlBlock.h">
-      <Filter>EngineAPI\SmartPointer</Filter>
-    </ClInclude>
-    <ClInclude Include="SPointer.h">
-      <Filter>EngineAPI\SmartPointer</Filter>
-    </ClInclude>
-    <ClInclude Include="UPointer.h">
-      <Filter>EngineAPI\SmartPointer</Filter>
     </ClInclude>
     <ClInclude Include="Export\PixelEngineDLL.h">
       <Filter>헤더 파일</Filter>
@@ -232,6 +217,9 @@
       <Filter>EngineAPI\Manager\EventManager</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
+      <Filter>EngineAPI\Manager\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="FontManager.h">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
     </ClInclude>
     <ClInclude Include="MaterialManager.h">
@@ -373,13 +361,13 @@
       <Filter>EngineAPI\Export</Filter>
     </ClInclude>
     <ClInclude Include="UIImage.h">
-      <Filter>EngineAPI\ECS\UIComponent</Filter>
+      <Filter>EngineAPI\ECS\ComponentUI</Filter>
     </ClInclude>
     <ClInclude Include="UIImageSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
     <ClInclude Include="UIText.h">
-      <Filter>EngineAPI\ECS\UIComponent</Filter>
+      <Filter>EngineAPI\ECS\ComponentUI</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
@@ -427,9 +415,6 @@
     </ClCompile>
     <ClCompile Include="PhysManager.cpp">
       <Filter>EngineAPI\Manager\PhysManager</Filter>
-    </ClCompile>
-    <ClCompile Include="PtrControlBlock.cpp">
-      <Filter>EngineAPI\SmartPointer</Filter>
     </ClCompile>
     <ClCompile Include="Export\Core\Module.cpp">
       <Filter>EngineAPI\Module\Module</Filter>
@@ -585,16 +570,19 @@
       <Filter>EngineAPI\Manager\PhysManager</Filter>
     </ClCompile>
     <ClCompile Include="UIImage.cpp">
-      <Filter>EngineAPI\ECS\UIComponent</Filter>
+      <Filter>EngineAPI\ECS\ComponentUI</Filter>
     </ClCompile>
     <ClCompile Include="UIImageSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
     <ClCompile Include="UIText.cpp">
-      <Filter>EngineAPI\ECS\UIComponent</Filter>
+      <Filter>EngineAPI\ECS\ComponentUI</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
+    <ClCompile Include="FontManager.cpp">
+      <Filter>EngineAPI\Manager\ResourceManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

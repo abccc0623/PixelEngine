@@ -97,6 +97,44 @@ void ECS::EntityObject::SetActive(bool isActive)
 	ActiveEntity(ID, isActive);
 }
 
+void ECS::EntityObject::SetChild(unsigned int TargetID)
+{
+	//이미 자식으로 들어있는지 확인
+	auto found = std::find(children.begin(), children.end(), TargetID);
+	if (found != children.end())
+	{
+		PixelLog::Error("[SetChild]The child already exists.");
+		return;
+	}
+
+	//자식으로 넣기
+	children.push_back(TargetID);
+
+	//해당 자식의 부모 설정
+	auto child = FindEntity(TargetID);
+	child->ParentID = ID;
+}
+
+void ECS::EntityObject::SetParent(unsigned int TargetID)
+{
+	this->ParentID = TargetID;
+	auto parent = FindEntity(TargetID);
+	if (parent != nullptr)
+	{
+		parent->SetChild(ID);
+	}
+}
+
+unsigned int ECS::EntityObject::GetParentID()
+{
+	return ParentID;
+}
+
+std::vector<unsigned int>& ECS::EntityObject::GetChild()
+{
+	return children;
+}
+
 
 
 

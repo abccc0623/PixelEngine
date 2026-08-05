@@ -3,8 +3,6 @@
 #include "PixelEngine.h"
 #include "LuaManager.h"
 #include "sol.hpp"
-#include "SPointer.h"
-#include "WPointer.h"
 #include "Log.h"
 #include "Export/PixelEngineAPI.h"
 #include "LuaSceneInfo.h"

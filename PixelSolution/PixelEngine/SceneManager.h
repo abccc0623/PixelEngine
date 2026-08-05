@@ -1,8 +1,6 @@
 #pragma once
 #include "PixelEngineAPI.h"
 #include "EngineManager.h"
-#include "SPointer.h"
-#include "WPointer.h"
 #include <unordered_map>
 #include <string>
 class SceneObject;

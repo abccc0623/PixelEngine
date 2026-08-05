@@ -18,7 +18,6 @@ namespace PixelGraphics
 		~TextRenderer();
 
 		void Draw(const RenderingData& data);
-
 	private:
 		bool Initialize();
 		bool BuildBuffers();

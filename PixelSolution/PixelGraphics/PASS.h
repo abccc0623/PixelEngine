@@ -27,7 +27,6 @@ namespace PixelGraphics
 		virtual void Sort(std::vector<RenderingData>& data);
 	public:
 		void CreateSampler();
-
 		void PreviousKeyReset();
 	protected:
 		GraphicsCore* core = nullptr;
