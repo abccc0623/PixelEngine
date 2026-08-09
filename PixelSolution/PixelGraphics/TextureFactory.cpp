@@ -126,6 +126,8 @@ std::uint16_t PixelGraphics::TextureFactory::Load(const std::string& path)
 	textureResource.key = key;
 	textureResource.path = path;
 	textureResource.Texture = std::move(textureView);
+	textureResource.width = textureDesc.Width;
+	textureResource.height = textureDesc.Height;
 	textures.emplace(key, std::move(textureResource));
 	return key;
 }
@@ -210,6 +212,8 @@ bool PixelGraphics::TextureFactory::LoadDefaultTexture()
 	textureResource.key = defaultTextureKey;
 	textureResource.path = "DEFAULT_PNG";
 	textureResource.Texture = std::move(textureView);
+	textureResource.width = textureDesc.Width;
+	textureResource.height = textureDesc.Height;
 	textures.emplace(defaultTextureKey, std::move(textureResource));
 	return true;
 }

@@ -24,6 +24,7 @@ namespace PixelGraphics
 		void BindBackBuffer();
 		void ClearBackBuffer(float red, float green, float blue, float alpha);
 		void ApplyViewport();
+		void ApplyViewport(int contentWidth, int contentHeight);
 		void Present();
 		bool CreateRenderTarget(int width, int height, RenderTarget& renderTarget);
 
@@ -43,6 +44,9 @@ namespace PixelGraphics
 		const DirectX::SimpleMath::Matrix& GetProjection() const;
 		void SetView(const DirectX::SimpleMath::Matrix& view);
 		void SetProjection(const DirectX::SimpleMath::Matrix& projection);
+
+		static constexpr int VirtualWidth = 1920;
+		static constexpr int VirtualHeight = 1080;
 	private:
 		bool CreateDeviceAndSwapChain();
 		bool CreateBackBuffer();

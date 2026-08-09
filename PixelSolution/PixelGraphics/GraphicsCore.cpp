@@ -395,6 +395,33 @@ void PixelGraphics::GraphicsCore::ApplyViewport()
 	deviceContext->RSSetViewports(1, &screenViewport);
 }
 
+void PixelGraphics::GraphicsCore::ApplyViewport(int contentWidth, int contentHeight)
+{
+	if (!deviceContext || clientWidth <= 0 || clientHeight <= 0 || contentWidth <= 0 || contentHeight <= 0)
+	{
+		return;
+	}
+
+	const float clientAspect = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
+	const float contentAspect = static_cast<float>(contentWidth) / static_cast<float>(contentHeight);
+	D3D11_VIEWPORT viewport = {};
+	if (clientAspect > contentAspect)
+	{
+		viewport.Height = static_cast<float>(clientHeight);
+		viewport.Width = viewport.Height * contentAspect;
+		viewport.TopLeftX = (static_cast<float>(clientWidth) - viewport.Width) * 0.5f;
+	}
+	else
+	{
+		viewport.Width = static_cast<float>(clientWidth);
+		viewport.Height = viewport.Width / contentAspect;
+		viewport.TopLeftY = (static_cast<float>(clientHeight) - viewport.Height) * 0.5f;
+	}
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	deviceContext->RSSetViewports(1, &viewport);
+}
+
 void PixelGraphics::GraphicsCore::Present()
 {
 	if (swapChain)

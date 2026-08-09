@@ -20,6 +20,7 @@ namespace PixelGraphics
 		void PipelineRelease() override;
 		void Rendering() override;
 		void SetRenderingData(RenderingData& renderingData) override;
+		bool Resize(int width, int height) override;
 
 	private:
 		CameraManager* cameraManager;

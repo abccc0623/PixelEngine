@@ -32,6 +32,7 @@ namespace PixelGraphics
 		bool Initialize(GraphicsCore* core, ResourceManager* resource);
 		void Release();
 		void Rendering();
+		bool Resize(int width, int height);
 
 		void SetBackgroundColor(float r, float g, float b);
 		void SetRendering(RenderingData& data);

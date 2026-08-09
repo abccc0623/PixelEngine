@@ -20,6 +20,7 @@ UIImageData* UIImage_Add(unsigned int id)
 	data->thisID = id;
 	graphicsData->renderingData.renderType = RENDER_TYPE::QUAD;
 	graphicsData->renderingData.passType = PASS_TYPE::UI;
+	graphicsData->renderingData.sprite.isShared = false;
 	graphicsData->renderingData.sprite.TilingX = 1.0f;
 	graphicsData->renderingData.sprite.TilingY = 1.0f;
 	graphicsData->renderingData.sprite.OffsetX = 0.0f;
@@ -29,6 +30,10 @@ UIImageData* UIImage_Add(unsigned int id)
 	graphicsData->renderingData.sprite.color[1] = 1.0f;
 	graphicsData->renderingData.sprite.color[2] = 1.0f;
 	graphicsData->renderingData.sprite.color[3] = 1.0f;
+	graphicsData->renderingData.sprite.width = 0;
+	graphicsData->renderingData.sprite.height = 0;
+	graphicsData->renderingData.sprite.pivotX = 0.5f;
+	graphicsData->renderingData.sprite.pivotY = 0.5f;
 	return data;
 }
 
@@ -72,6 +77,67 @@ void UIImage_SetTexture(unsigned int id, const char* name)
 	{
 		PixelLog::Error("[Renderer2D][SetTexture] Not Find Component");
 	}
+}
+
+void UIImage_SetTextureSize(unsigned int id, float width, float height)
+{
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<UIImageData>(id);
+	auto data2 = registry->Get<GraphicsData>(id);
+	if (data1 != nullptr)
+	{
+		data2->renderingData.sprite.width = width;
+		data2->renderingData.sprite.height = height;
+	}
+	else
+	{
+		PixelLog::Error("[Renderer2D][SetTextureSize] Not Find Component");
+	}
+}
+
+void UIImage_SetPivot(unsigned int id, float x, float y)
+{
+	auto registry = GetRegistry();
+	auto image = registry->Get<UIImageData>(id);
+	auto graphics = registry->Get<GraphicsData>(id);
+	if (image == nullptr || graphics == nullptr)
+	{
+		PixelLog::Error("[UIImage][SetPivot] Not Find Component");
+		return;
+	}
+
+	graphics->renderingData.sprite.pivotX = (std::clamp)(x, 0.0f, 1.0f);
+	graphics->renderingData.sprite.pivotY = (std::clamp)(y, 0.0f, 1.0f);
+}
+
+void UIImage_SetTiling(unsigned int id, float x, float y)
+{
+	auto registry = GetRegistry();
+	auto image = registry->Get<UIImageData>(id);
+	auto graphics = registry->Get<GraphicsData>(id);
+	if (image == nullptr || graphics == nullptr)
+	{
+		PixelLog::Error("[UIImage][SetTiling] Not Find Component");
+		return;
+	}
+
+	graphics->renderingData.sprite.TilingX = x;
+	graphics->renderingData.sprite.TilingY = y;
+}
+
+void UIImage_SetOffset(unsigned int id, float x, float y)
+{
+	auto registry = GetRegistry();
+	auto image = registry->Get<UIImageData>(id);
+	auto graphics = registry->Get<GraphicsData>(id);
+	if (image == nullptr || graphics == nullptr)
+	{
+		PixelLog::Error("[UIImage][SetOffset] Not Find Component");
+		return;
+	}
+
+	graphics->renderingData.sprite.OffsetX = x;
+	graphics->renderingData.sprite.OffsetY = y;
 }
 
 void UIImage_SetOrder(unsigned int id, int order)

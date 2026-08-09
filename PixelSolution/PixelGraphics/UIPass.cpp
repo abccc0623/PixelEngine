@@ -3,6 +3,7 @@
 #include "RenderringData.h"
 #include "GraphicsCore.h"
 #include "ShaderFactory.h"
+#include "TextureFactory.h"
 #include "ResourceManager.h"
 #include "CameraManager.h"
 #include "CBufferResources.h"
@@ -100,8 +101,24 @@ void PixelGraphics::UIPass::BindObjectBuffer(RenderingData& r)
 	ObjectBuffer mbuffer = {};
 	Matrix mWorld = DirectX::SimpleMath::Matrix::Identity;
 	memcpy(&mWorld, r.World, sizeof(float) * 16);
-	Matrix uiFlip = Matrix::CreateScale(1.0f, -1.0f, 1.0f);
-	Matrix mWVP = uiFlip * mWorld * cameraManager->GetProjUI();
+
+	float width = r.sprite.width;
+	float height = r.sprite.height;
+	if (r.renderType == RENDER_TYPE::QUAD && (width <= 0.0f || height <= 0.0f))
+	{
+		auto texture = textureFactory ? textureFactory->Get(r.texture_key) : nullptr;
+		if (texture != nullptr)
+		{
+			if (width <= 0.0f) width = static_cast<float>(texture->width);
+			if (height <= 0.0f) height = static_cast<float>(texture->height);
+		}
+	}
+
+	const float pivotOffsetX = (r.sprite.pivotX - 0.5f) * width;
+	const float pivotOffsetY = (r.sprite.pivotY - 0.5f) * height;
+	Matrix uiFlip = Matrix::CreateScale(width, -height, 1.0f);
+	Matrix pivotTranslation = Matrix::CreateTranslation(-pivotOffsetX, -pivotOffsetY, 0.0f);
+	Matrix mWVP = uiFlip * pivotTranslation * mWorld * cameraManager->GetProjUI();
 	Matrix texMat = Matrix::Identity;
 
 	if (r.renderType == RENDER_TYPE::QUAD && r.sprite.isShared == false)
@@ -118,7 +135,7 @@ void PixelGraphics::UIPass::BindObjectBuffer(RenderingData& r)
 	}
 	mbuffer.wvp = mWVP.Transpose();
 	mbuffer.TexMatrix = texMat.Transpose();
-	mbuffer.Color = Vector4(r.sprite.Color[0], r.sprite.Color[1], r.sprite.Color[2], r.sprite.Color[3]);
+	mbuffer.Color = Vector4(r.sprite.color[0], r.sprite.color[1], r.sprite.color[2], r.sprite.color[3]);
 	auto targetBuffer = contextObjectBuffer->buffer.Get();
 	core->GetDeviceContext()->UpdateSubresource(targetBuffer, 0, nullptr, &mbuffer, 0, 0);
 	core->GetDeviceContext()->VSSetConstantBuffers(1, 1, &(targetBuffer));

@@ -95,6 +95,11 @@ void ECS::EntityObject::SetActive(bool isActive)
 		Rigidbody2D_SetActive(ID, isActive);
 	}
 	ActiveEntity(ID, isActive);
+
+	for (auto& K : children)
+	{
+		ActiveEntity(K, isActive);
+	}
 }
 
 void ECS::EntityObject::SetChild(unsigned int TargetID)

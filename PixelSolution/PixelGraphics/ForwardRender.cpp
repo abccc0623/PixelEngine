@@ -19,7 +19,17 @@ PixelGraphics::ForwardRender::ForwardRender(GraphicsCore* graphicsCore, Resource
 }
 void PixelGraphics::ForwardRender::PipelineInitialize()
 {
-	core->CreateRenderTarget(1920, 1080, mainRenderTarget);
+	core->CreateRenderTarget(GraphicsCore::VirtualWidth, GraphicsCore::VirtualHeight, mainRenderTarget);
+}
+
+bool PixelGraphics::ForwardRender::Resize(int width, int height)
+{
+	if (width <= 0 || height <= 0)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void PixelGraphics::ForwardRender::PipelineRelease()
@@ -77,8 +87,8 @@ void PixelGraphics::ForwardRender::Rendering()
 
 	//렌더 타깃 출력 연결 해제
 	core->BindBackBuffer();
-	core->ClearBackBuffer(1.0f, 0.0f, 1.0f, 1.0f);
-	core->ApplyViewport();
+	core->ClearBackBuffer(0.0f, 0.0f, 0.0f, 1.0f);
+	core->ApplyViewport(GraphicsCore::VirtualWidth, GraphicsCore::VirtualHeight);
 
 	postProcessPass->Rendering(mainRenderTarget);
 	core->Present();

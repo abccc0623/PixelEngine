@@ -142,6 +142,22 @@ static void RegisterComponentData()
 	auto info_UIImageSetTexture = GeGlobalMethodInfo(&UIImage_SetTexture);
 	info_UIImageSetTexture.memberName.push_back("ID");
 	info_UIImageSetTexture.memberName.push_back("textureName");
+	auto info_UIImageSetTextureSize = GeGlobalMethodInfo(&UIImage_SetTextureSize);
+	info_UIImageSetTextureSize.memberName.push_back("ID");
+	info_UIImageSetTextureSize.memberName.push_back("Width");
+	info_UIImageSetTextureSize.memberName.push_back("Height");
+	auto info_UIImageSetPivot = GeGlobalMethodInfo(&UIImage_SetPivot);
+	info_UIImageSetPivot.memberName.push_back("ID");
+	info_UIImageSetPivot.memberName.push_back("X");
+	info_UIImageSetPivot.memberName.push_back("Y");
+	auto info_UIImageSetTiling = GeGlobalMethodInfo(&UIImage_SetTiling);
+	info_UIImageSetTiling.memberName.push_back("ID");
+	info_UIImageSetTiling.memberName.push_back("X");
+	info_UIImageSetTiling.memberName.push_back("Y");
+	auto info_UIImageSetOffset = GeGlobalMethodInfo(&UIImage_SetOffset);
+	info_UIImageSetOffset.memberName.push_back("ID");
+	info_UIImageSetOffset.memberName.push_back("X");
+	info_UIImageSetOffset.memberName.push_back("Y");
 	auto info_UIImageSetOrder = GeGlobalMethodInfo(&UIImage_SetOrder);
 	info_UIImageSetOrder.memberName.push_back("ID");
 	info_UIImageSetOrder.memberName.push_back("Order");
@@ -155,6 +171,10 @@ static void RegisterComponentData()
 	AddGlobalMethod(Static, name + "_Get", info_Get, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_Has", info_Has, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetTexture", info_UIImageSetTexture, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetTextureSize", info_UIImageSetTextureSize, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetPivot", info_UIImageSetPivot, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetTiling", info_UIImageSetTiling, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetOffset", info_UIImageSetOffset, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetOrder", info_UIImageSetOrder, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetColor", info_UIImageSetColor, EngineMetaFlag::Component);
 

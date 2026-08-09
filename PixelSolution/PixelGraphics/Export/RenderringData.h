@@ -31,7 +31,11 @@ struct SpriteData
 	float OffsetX;
 	float OffsetY;
 	int Order;
-	float Color[4];
+	float color[4];
+	float width;
+	float height;
+	float pivotX;
+	float pivotY;
 };
 
 struct SceneCameraData

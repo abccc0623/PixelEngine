@@ -35,6 +35,8 @@ struct TextureResources
 	std::uint16_t key;
 	std::string path;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Texture;
+	UINT width = 0;
+	UINT height = 0;
 };
 
 struct BufferResources

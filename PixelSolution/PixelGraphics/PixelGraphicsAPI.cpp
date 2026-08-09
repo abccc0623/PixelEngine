@@ -35,7 +35,10 @@ void PixelGraphicsResize(int Width, int Height)
 {
 	if (mEngine != nullptr)
 	{
-		mEngine->GetGraphicsCore()->Resize(Width, Height);
+		if (mEngine->GetGraphicsCore()->Resize(Width, Height))
+		{
+			mEngine->GetRenderingManager()->Resize(Width, Height);
+		}
 	}
 }
 

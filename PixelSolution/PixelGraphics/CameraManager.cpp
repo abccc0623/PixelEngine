@@ -53,11 +53,11 @@ void PixelGraphics::CameraManager::Setting(RenderingData& r)
 	float viewportHeight = r.camera.ViewportHeight;
 	if (!std::isfinite(viewportWidth) || viewportWidth <= 0.0f)
 	{
-		viewportWidth = static_cast<float>(core->GetClientWidth());
+		viewportWidth = static_cast<float>(GraphicsCore::VirtualWidth);
 	}
 	if (!std::isfinite(viewportHeight) || viewportHeight <= 0.0f)
 	{
-		viewportHeight = static_cast<float>(core->GetClientHeight());
+		viewportHeight = static_cast<float>(GraphicsCore::VirtualHeight);
 	}
 	if (viewportWidth <= 0.0f)
 	{
@@ -131,8 +131,8 @@ DirectX::SimpleMath::Matrix PixelGraphics::CameraManager::GetProj()
 
 DirectX::SimpleMath::Matrix PixelGraphics::CameraManager::GetProjUI()
 {
-	float width = static_cast<float>(core->GetClientWidth());
-	float height = static_cast<float>(core->GetClientHeight());
+	float width = static_cast<float>(GraphicsCore::VirtualWidth);
+	float height = static_cast<float>(GraphicsCore::VirtualHeight);
 	if (width <= 0.0f)
 	{
 		width = 1.0f;
@@ -162,10 +162,10 @@ void PixelGraphics::CameraManager::ViewPortSetting(RenderingData& r)
 	float targetHeight = r.camera.ViewportHeight;
 
 	if (targetWidth <= 0.0f)
-		targetWidth = static_cast<float>(core->GetClientWidth());
+		targetWidth = static_cast<float>(GraphicsCore::VirtualWidth);
 
 	if (targetHeight <= 0.0f)
-		targetHeight = static_cast<float>(core->GetClientHeight());
+		targetHeight = static_cast<float>(GraphicsCore::VirtualHeight);
 
 	const float viewportX = std::max(0.0f, r.camera.ViewportX);
 	const float viewportY = std::max(0.0f, r.camera.ViewportY);

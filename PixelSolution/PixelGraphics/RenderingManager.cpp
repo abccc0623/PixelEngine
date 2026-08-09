@@ -49,6 +49,11 @@ void PixelGraphics::RenderingManager::Rendering()
 	}
 }
 
+bool PixelGraphics::RenderingManager::Resize(int width, int height)
+{
+	return targetPipeline != nullptr && targetPipeline->Resize(width, height);
+}
+
 void PixelGraphics::RenderingManager::SetBackgroundColor(float r, float g, float b)
 {
 	if (targetPipeline != nullptr)

@@ -15,6 +15,7 @@ namespace PixelGraphics
 		virtual void PipelineRelease() = 0;
 		virtual void Rendering() = 0;
 		virtual void SetRenderingData(RenderingData& renderingData) = 0;
+		virtual bool Resize(int width, int height) = 0;
 
 		void SetBackgroundColor(float r, float g, float b);
 	protected:

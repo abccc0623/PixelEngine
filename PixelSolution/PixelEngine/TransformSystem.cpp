@@ -15,7 +15,7 @@ namespace
 		const glm::vec3 scale(transform.scale.x, transform.scale.y, transform.scale.z);
 
 		const glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), position);
-		const glm::mat4 rotationMatrix = glm::mat4_cast(glm::quat(eulerAngles));
+		const glm::mat4 rotationMatrix = glm::mat4_cast(glm::quat(glm::radians(eulerAngles)));
 		const glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
 		return translationMatrix * rotationMatrix * scaleMatrix;
 	}

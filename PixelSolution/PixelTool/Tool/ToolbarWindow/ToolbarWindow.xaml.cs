@@ -158,7 +158,7 @@ namespace PixelTool
                 return;
             }
 
-            string content = LuaFileManager.GetFileContent("Module");
+            string content = LuaFileManager.GetFileContent("Module.lua");
 
             fullPath += ".pxm";
             File.WriteAllText(fullPath, content, Encoding.UTF8);
