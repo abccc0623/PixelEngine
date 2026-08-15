@@ -9,6 +9,7 @@
 #include "Animation2DSystem.h"
 #include "UIImageSystem.h"
 #include "UITextSystem.h"
+#include "UISilderSystem.h"
 #include "GraphicsSystem.h"
 
 #include "Registry.h"
@@ -26,6 +27,7 @@ void ECS::SystemManager::Initialize()
 
 	//SystemList.push_back(new UIImageSystem);
 	//SystemList.push_back(new UITextSystem);
+	SystemList.push_back(new UISilderSystem);
 	SystemList.push_back(new GraphicsSystem);
 }
 

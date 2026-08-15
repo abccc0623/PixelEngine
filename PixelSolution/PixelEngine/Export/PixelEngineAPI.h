@@ -22,7 +22,7 @@ namespace ECS
 }
 ECS::Registry* GetRegistry();
 
-//Engine ½ÃÀÛ ÄÚµå
+//Engine ì‹œì‘ ì½”ë“œ
 extern "C" PIXEL_ENGINEDLL bool EngineInitialize(PixelWindowHandle hWnd, int width, int height, const char* assetPath);
 extern "C" PIXEL_ENGINEDLL void UpdateEngine();
 extern "C" PIXEL_ENGINEDLL void ReleaseEngine();
@@ -31,7 +31,7 @@ extern "C" PIXEL_ENGINEDLL bool ResizeEngine(int width, int height);
 extern "C" PIXEL_ENGINEDLL void SetWindowFocus(bool focus);
 extern "C" PIXEL_ENGINEDLL void Reload();
 
-//¿¡µğÅÍ ÄÚµå
+//ì—ë””í„° ì½”ë“œ
 extern "C" PIXEL_ENGINEDLL void EditorNotify(std::int32_t eventType, const char* content);
 extern "C" PIXEL_ENGINEDLL bool IsPlayMode();
 

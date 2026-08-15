@@ -10,150 +10,6 @@
 #include "PixelMetaAPI.h"
 
 extern PixelEngine* Engine;
-/*
-
-void* ECS::Rigidbody2D::AddComponent(unsigned int id)
-{
-	auto registry = GetRegistry();
-	registry->Add<Rigidbody2DData>(id);
-	auto data = registry->Get<Rigidbody2DData>(id);
-	return data;
-}
-void* ECS::Rigidbody2D::GetComponent(unsigned int id)
-{
-	auto registry = GetRegistry();
-	Rigidbody2DData* data = registry->Get<Rigidbody2DData>(id);
-	if (data == nullptr)
-	{
-		PixelLog::Error("[Rigidbody2D][GetComponent] Not Find Component");
-	}
-	return data;
-}
-bool ECS::Rigidbody2D::HasComponent(unsigned int id)
-{
-	auto registry = GetRegistry();
-	Rigidbody2DData* data = registry->Get<Rigidbody2DData>(id);
-	if (data == nullptr)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
-void ECS::Rigidbody2D::SetLayer(unsigned int id, const char* name)
-{
-	auto registry = GetRegistry();
-	if (registry->Has<Rigidbody2DData>(id))
-	{
-		auto data = registry->Get<Rigidbody2DData>(id);
-		data->layer = name;
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][SetLayer] Not Find Component");
-	}
-}
-
-void ECS::Rigidbody2D::SetPosition(unsigned int id, float x, float y, float z)
-{
-	auto registry = GetRegistry();
-	if (registry->Has<Rigidbody2DData>(id) == false)
-	{
-		registry->Add<Rigidbody2DData>(id);
-	}
-	if (registry->Has<TransformData>(id))
-	{
-		registry->Add<TransformData>(id);
-	}
-
-	auto transformData = registry->Get<TransformData>(id);
-	auto rigidbodyData = registry->Get<Rigidbody2DData>(id);
-	if (transformData != nullptr)
-	{
-		transformData->position.x = x;
-		transformData->position.y = y;
-		transformData->position.z = z;
-	}
-
-	if (rigidbodyData != nullptr)
-	{
-		auto phys = Engine->GetFactory<PhysManager>();
-		phys->SetPosition(JPH::BodyID(rigidbodyData->bodyID), x, y, z, true);
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][SetPosition] Not Find Component");
-	}
-}
-
-void ECS::Rigidbody2D::SetRotation(unsigned int id, float x, float y, float z)
-{
-	auto registry = GetRegistry();
-	if (registry->Has<Rigidbody2DData>(id) == false)
-	{
-		registry->Add<Rigidbody2DData>(id);
-	}
-	auto data = registry->Get<Rigidbody2DData>(id);
-	if (data != nullptr)
-	{
-		auto phys = Engine->GetFactory<PhysManager>();
-		phys->SetRotation(JPH::BodyID(data->bodyID), x, y, z, true);
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][SetRotation] Not Find Component");
-	}
-}
-
-
-void ECS::Rigidbody2D::LockPosition(unsigned int id, bool x, bool y, bool z)
-{
-	auto registry = GetRegistry();
-	registry->Add<Rigidbody2DData>(id);
-	auto data = registry->Get<Rigidbody2DData>(id);
-	if (data != nullptr)
-	{
-		if (data->IsCreate)
-		{
-
-		}
-		else
-		{
-
-		}
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][LockPosition] Not Find Component");
-	}
-}
-
-void ECS::Rigidbody2D::LockRotation(unsigned int id, bool x, bool y, bool z)
-{
-	auto registry = GetRegistry();
-	registry->Add<Rigidbody2DData>(id);
-	auto data = registry->Get<Rigidbody2DData>(id);
-	if (data != nullptr)
-	{
-		if (data->IsCreate)
-		{
-
-		}
-		else
-		{
-
-		}
-	}
-	else
-	{
-		PixelLog::Error("[Rigidbody2D][LockRotation] Not Find Component");
-	}
-}
-*/
-
 Rigidbody2DData* Rigidbody2D_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
@@ -272,9 +128,14 @@ void Rigidbody2D_SetGravity(unsigned int id, float gravity)
 {
 	auto registry = GetRegistry();
 	auto data1 = registry->Get<Physics2DData>(id);
-	if (data1->bodyID.IsInvalid())
+	if (data1->bodyID.IsInvalid() == false)
 	{
-
+		auto phys = Engine->GetFactory<PhysicsFunction>();
+		phys->SetGravity(data1->bodyID, gravity);
+	}
+	else
+	{
+		data1->gravity = gravity;
 	}
 }
 
@@ -290,7 +151,18 @@ void Rigidbody2D_SetFriction(unsigned int id, float restitution)
 
 void Rigidbody2D_SetLinearDamping(unsigned int id, float linearDamping)
 {
+	auto registry = GetRegistry();
+	auto data1 = registry->Get<Physics2DData>(id);
 
+	if (data1->bodyID.IsInvalid() == false)
+	{
+		auto phys = Engine->GetFactory<PhysicsFunction>();
+		phys->SetLinearDamping(data1->bodyID, linearDamping);
+	}
+	else
+	{
+		data1->linearDamping = linearDamping;
+	}
 }
 
 void Rigidbody2D_SetSensor(unsigned int id, bool sensor)
@@ -321,6 +193,11 @@ void Rigidbody2D_SetLayer(unsigned int id, const char* layerName)
 {
 	auto registry = GetRegistry();
 	auto data1 = registry->Get<Physics2DData>(id);
+	if (data1 == nullptr || layerName == nullptr)
+	{
+		PixelLog::Error("[Rigidbody2D][SetLayer] Invalid Component Or LayerName");
+		return;
+	}
 	if (data1->bodyID.IsInvalid() == false)
 	{
 		auto phys = Engine->GetFactory<PhysicsFunction>();
@@ -329,3 +206,13 @@ void Rigidbody2D_SetLayer(unsigned int id, const char* layerName)
 	data1->layer = layerName;
 }
 
+const char* Rigidbody2D_GetLayer(unsigned int id)
+{
+	auto data = GetRegistry()->Get<Physics2DData>(id);
+	if (data == nullptr)
+	{
+		PixelLog::Error("[Rigidbody2D][GetLayer] Not Find Component");
+		return "";
+	}
+	return data->layer.c_str();
+}

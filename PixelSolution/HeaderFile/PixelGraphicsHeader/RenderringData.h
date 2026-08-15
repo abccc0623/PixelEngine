@@ -53,8 +53,9 @@ struct SceneCameraData
 
 struct LineData
 {
-	int start[3];
-	int end[3];
+	float start[3];
+	float end[3];
+	float color[3];
 };
 
 struct TextData

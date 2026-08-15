@@ -126,6 +126,9 @@
     <ClInclude Include="DrawDebugLine.h">
       <Filter>PicnicGraphics\Manager\Rendering\BindingLine</Filter>
     </ClInclude>
+	<ClInclude Include="DebugLinePass.h">
+	  <Filter>PicnicGraphics\Manager\Rendering\BindingLine</Filter>
+	</ClInclude>
     <ClInclude Include="ResourceManager.h">
       <Filter>PicnicGraphics\GraphicsCore</Filter>
     </ClInclude>
@@ -215,6 +218,9 @@
     <ClCompile Include="DrawDebugLine.cpp">
       <Filter>PicnicGraphics\Manager\Rendering\BindingLine</Filter>
     </ClCompile>
+	<ClCompile Include="DebugLinePass.cpp">
+	  <Filter>PicnicGraphics\Manager\Rendering\BindingLine</Filter>
+	</ClCompile>
     <ClCompile Include="ResourceManager.cpp">
       <Filter>PicnicGraphics\GraphicsCore</Filter>
     </ClCompile>

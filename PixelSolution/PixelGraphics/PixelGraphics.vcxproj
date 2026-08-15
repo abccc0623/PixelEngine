@@ -162,6 +162,7 @@
     <ClInclude Include="BindingClass.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="DrawDebugLine.h" />
+	<ClInclude Include="DebugLinePass.h" />
     <ClInclude Include="BindingQuad.h" />
     <ClInclude Include="BindingRect.h" />
     <ClInclude Include="ForwardRender.h" />
@@ -204,6 +205,7 @@
     <ClCompile Include="BindingClass.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="DrawDebugLine.cpp" />
+	<ClCompile Include="DebugLinePass.cpp" />
     <ClCompile Include="BindingQuad.cpp" />
     <ClCompile Include="BindingRect.cpp" />
     <ClCompile Include="ForwardRender.cpp" />

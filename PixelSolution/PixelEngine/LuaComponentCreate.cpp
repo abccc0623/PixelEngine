@@ -120,7 +120,16 @@ std::string LuaComponentCreate::CreateFunction(const PixelClassMeta& PClass)
 		{
 			content += "return ";
 		}
-		content += "dll." + method.name + "(" + nativeParameters + ")\n";
+		if (IsCStringType(method.returnType))
+		{
+			content += "ffi.string(";
+		}
+		content += "dll." + method.name + "(" + nativeParameters + ")";
+		if (IsCStringType(method.returnType))
+		{
+			content += ")";
+		}
+		content += "\n";
 		content += "end\n\n";
 	}
 

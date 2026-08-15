@@ -25,6 +25,13 @@ void ECS::EntityObject::Create(const std::string& scriptName, unsigned int ID)
 {
 	this->scriptName = scriptName;
 	Active = true;
+	this->ID = ID;
+
+	if (scriptName.empty())
+	{
+		return;
+	}
+
 	if (lua == nullptr) lua = Engine->GetFactory<LuaManager>();
 
 	auto luaInfo = lua->GetModuleLua(scriptName);
@@ -34,7 +41,6 @@ void ECS::EntityObject::Create(const std::string& scriptName, unsigned int ID)
 		return;
 	}
 	instance = luaInfo->Create();
-	this->ID = ID;
 	instance["ID"] = ID;
 	instance["Active"] = Active;
 	lua->AddEntityID(ID, instance);
@@ -88,7 +94,10 @@ bool ECS::EntityObject::GetActive()
 void ECS::EntityObject::SetActive(bool isActive)
 {
 	Active = isActive;
-	instance["Active"] = Active;
+	if (instance.valid())
+	{
+		instance["Active"] = Active;
+	}
 
 	if (Rigidbody2D_Has(ID))
 	{
@@ -149,6 +158,10 @@ sol::object ECS::EntityObject::GetValue(const char* memberName)
 	{
 		return sol::nil;
 	}
+	if (!instance.valid())
+	{
+		return sol::nil;
+	}
 	sol::object value = instance[memberName];
 	return (value.valid()) ? value : sol::nil;
 }
@@ -157,6 +170,10 @@ sol::object ECS::EntityObject::GetValue(const char* memberName)
 void ECS::EntityObject::SetValue(const char* memberName, sol::object value)
 {
 	if (memberName == nullptr)
+	{
+		return;
+	}
+	if (!instance.valid())
 	{
 		return;
 	}

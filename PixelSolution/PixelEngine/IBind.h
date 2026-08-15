@@ -45,7 +45,7 @@ protected:
 		while ((pos = result.find(token, pos)) != std::string::npos)
 		{
 			result.replace(pos, token.length(), value);
-			pos += value.length(); // ¹«ÇÑ·çÇÁ ¹æÁö
+			pos += value.length(); // ë¬´í•œë£¨í”„ ë°©ì§€
 		}
 
 		return result;
@@ -102,6 +102,14 @@ protected:
 		std::erase(normalized, '*');
 		std::erase(normalized, '&');
 		return normalized;
+	}
+
+	bool IsCStringType(const std::string& type)
+	{
+		const std::string normalized = NormalizeType(type);
+		return normalized == "constchar*" ||
+			normalized == "charconst*" ||
+			normalized == "char*";
 	}
 
 	std::string CreateArgumentName(const std::string& type, int index)

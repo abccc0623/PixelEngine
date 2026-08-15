@@ -97,7 +97,16 @@ std::string IBind::CreateMethod(const PixelMethodMeta& meta)
 	{
 		function += "return ";
 	}
-	function += "dll." + meta.name + "(" + CreateMethodParameter(meta) + ")\n";
+	if (IsCStringType(meta.returnType))
+	{
+		function += "ffi.string(";
+	}
+	function += "dll." + meta.name + "(" + CreateMethodParameter(meta) + ")";
+	if (IsCStringType(meta.returnType))
+	{
+		function += ")";
+	}
+	function += "\n";
 	return function;
 }
 

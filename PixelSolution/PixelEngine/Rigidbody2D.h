@@ -30,6 +30,7 @@ extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetLinearDamping(unsigned int id, fl
 extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetSensor(unsigned int id, bool sensor);
 extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetActive(unsigned int id, bool active);
 extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetLayer(unsigned int id, const char* layerName);
+extern "C" PIXEL_ENGINEDLL const char* Rigidbody2D_GetLayer(unsigned int id);
 
 //extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetAutoSleep(unsigned int id, bool sleep);
 //extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetVelocity(unsigned int id, PVector3 velocity);
@@ -45,14 +46,14 @@ namespace ECS::Rigidbody2D
 	struct Rigidbody2DData
 	{
 		MotionType type = MotionType::Dynamic;
-		bool Active = true;			//È°¼ºÈ­ ¿©ºÎ
-		bool Kinematic = false;		//¹°¸® ¹ıÄ¢(Áß·Â, ¸¶Âû)Àº ¾È µû¸£Áö¸¸, ³»°¡ Á÷Á¢ ÄÚµå·Î À§Ä¡¸¦ ¿Å±â´Â ¹°Ã¼
-		bool AutoSleep = true;		//¹°Ã¼°¡ ¿òÁ÷ÀÌÁö ¾ÊÀ» ¶§ °è»êÀ» ¸ØÃâÁö °áÁ¤(ÃÖÀûÈ­)
-		bool Sensor = false;		//À¯·ÉÃ³·³ Åë°úÇÒ °ÍÀÎ°¡, ¾Æ´Ï¸é ¹°¸®ÀûÀÎ Á¢ÃË ½ÅÈ£¸¦ º¸³¾ °ÍÀÎ°¡ Ãæµ¹Àº °¨Áö
-		float Gravity = 1.0f;		//Áß·Â (0.0 ~ 1.0)
-		float Restitution = 0.5f;	//Åº¼º °è¼ö(0.0 ~ 1.0)
-		float Friction = 1.0f;		//¸¶Âû °è¼ö(0.0 ~ 1.0)
-		float LinearDamping = 0.0f;	//°ø±â ÀúÇ×. ¹°Ã¼°¡ ÀÌµ¿ÇÒ ¶§ ¸Å ¼ø°£ ¼Óµµ¸¦ ÀÏÁ¤ ºñÀ²·Î ±ğ½À´Ï´Ù.
+		bool Active = true;			//í™œì„±í™” ì—¬ë¶€
+		bool Kinematic = false;		//ë¬¼ë¦¬ ë²•ì¹™(ì¤‘ë ¥, ë§ˆì°°)ì€ ì•ˆ ë”°ë¥´ì§€ë§Œ, ë‚´ê°€ ì§ì ‘ ì½”ë“œë¡œ ìœ„ì¹˜ë¥¼ ì˜®ê¸°ëŠ” ë¬¼ì²´
+		bool AutoSleep = true;		//ë¬¼ì²´ê°€ ì›€ì§ì´ì§€ ì•Šì„ ë•Œ ê³„ì‚°ì„ ë©ˆì¶œì§€ ê²°ì •(ìµœì í™”)
+		bool Sensor = false;		//ìœ ë ¹ì²˜ëŸ¼ í†µê³¼í•  ê²ƒì¸ê°€, ì•„ë‹ˆë©´ ë¬¼ë¦¬ì ì¸ ì ‘ì´‰ ì‹ í˜¸ë¥¼ ë³´ë‚¼ ê²ƒì¸ê°€ ì¶©ëŒì€ ê°ì§€
+		float Gravity = 1.0f;		//ì¤‘ë ¥ (0.0 ~ 1.0)
+		float Restitution = 0.5f;	//íƒ„ì„± ê³„ìˆ˜(0.0 ~ 1.0)
+		float Friction = 1.0f;		//ë§ˆì°° ê³„ìˆ˜(0.0 ~ 1.0)
+		float LinearDamping = 0.0f;	//ê³µê¸° ì €í•­. ë¬¼ì²´ê°€ ì´ë™í•  ë•Œ ë§¤ ìˆœê°„ ì†ë„ë¥¼ ì¼ì • ë¹„ìœ¨ë¡œ ê¹ìŠµë‹ˆë‹¤.
 
 		Pixel::Vector3 velocity = { 0,0,0 };
 		Pixel::Vector3 impulse = { 0,0,0 };

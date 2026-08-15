@@ -6,6 +6,7 @@
 #include "ResourceManager.h"
 #include "CameraManager.h"
 #include "ScenePass.h"
+#include "DebugLinePass.h"
 #include "UIPass.h"
 #include "PostProcessPass.h"
 
@@ -14,6 +15,7 @@ PixelGraphics::ForwardRender::ForwardRender(GraphicsCore* graphicsCore, Resource
 {
 	cameraManager = new CameraManager(graphicsCore, resources);
 	passList.push_back(new ScenePass(graphicsCore, resources, cameraManager));
+	passList.push_back(new DebugLinePass(graphicsCore, resources, cameraManager));
 	passList.push_back(new UIPass(graphicsCore, resources, cameraManager));
 	postProcessPass = new PostProcessPass(graphicsCore, resources, cameraManager);
 }
@@ -53,6 +55,10 @@ void PixelGraphics::ForwardRender::SetRenderingData(RenderingData& renderingData
 	{
 		cameraManager->Setting(renderingData);
 	}
+	else if (renderingData.renderType == RENDER_TYPE::LINE)
+	{
+		passList[1]->SetRenderingData(renderingData);
+	}
 	else if (renderingData.passType == PASS_TYPE::SCENE)
 	{
 		passList[0]->SetRenderingData(renderingData);
@@ -60,7 +66,7 @@ void PixelGraphics::ForwardRender::SetRenderingData(RenderingData& renderingData
 	}
 	else if (renderingData.passType == PASS_TYPE::UI)
 	{
-		passList[1]->SetRenderingData(renderingData);
+		passList[2]->SetRenderingData(renderingData);
 	}
 	else
 	{

@@ -1,5 +1,6 @@
 #pragma once
 #include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <string>
 struct Physics2DData
 {
 	enum Physics2DType
@@ -15,7 +16,7 @@ struct Physics2DData
 	bool sensor = true;
 	bool active = true;
 
-	const char* layer = "Default";
+	std::string layer = "Default";
 
 	float gravity = 1.0f;		//중력 (0.0 ~ 1.0)
 	float restitution = 0.5f;	//탄성 계수(0.0 ~ 1.0)

@@ -17,6 +17,12 @@ unsigned int Entity_Create(const char* scriptName)
 	return id;
 }
 
+unsigned int Entity_CreateEmpty()
+{
+	auto sceneManager = Engine->GetFactory<SceneManager>();
+	return sceneManager->CreateEntity("");
+}
+
 void Entity_Destroy(unsigned int id)
 {
 	auto sceneManager = Engine->GetFactory<SceneManager>();

@@ -15,12 +15,14 @@
 #include "Renderer2D.h"
 #include "UIImage.h"
 #include "UIText.h"
+#include "UISilder.h"
 #include "Rigidbody2D.h"
 #include "Entity.h"
 #include "Event.h"
 #include "Group.h"
 #include "Pool.h"
 #include "Debug.h"
+#include "TimeAPI.h"
 #include "Asset.h"
 #include "Input.h"
 #include "Engine.h"
@@ -211,6 +213,49 @@ static void RegisterComponentData()
 	AddGlobalMethod(Static, name + "_SetFont", info_SetFont, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetColor", info_UITextSetColor, EngineMetaFlag::Component);
 
+	name = "UISilder";
+	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
+	AddMember(Data, "thisID", LuaMember("unsigned int", offsetof(UISilderData, thisID)), EngineMetaFlag::Private);
+	AddMember(Data, "minValue", LuaMember("float", offsetof(UISilderData, minValue)), EngineMetaFlag::Public);
+	AddMember(Data, "maxValue", LuaMember("float", offsetof(UISilderData, maxValue)), EngineMetaFlag::Public);
+	AddMember(Data, "value", LuaMember("float", offsetof(UISilderData, value)), EngineMetaFlag::Public);
+	AddMember(Data, "width", LuaMember("float", offsetof(UISilderData, width)), EngineMetaFlag::Public);
+	AddMember(Data, "height", LuaMember("float", offsetof(UISilderData, height)), EngineMetaFlag::Public);
+	Static = CreateLuaMetaStatic(name, EngineMetaFlag::Component);
+	info_Add = GeGlobalMethodInfo(&UISilder_Add);
+	info_Add.memberName.push_back("ID");
+	info_Get = GeGlobalMethodInfo(&UISilder_Get);
+	info_Get.memberName.push_back("ID");
+	info_Has = GeGlobalMethodInfo(&UISilder_Has);
+	info_Has.memberName.push_back("ID");
+	auto info_UISilderSetRange = GeGlobalMethodInfo(&UISilder_SetRange);
+	info_UISilderSetRange.memberName = { "ID", "MinValue", "MaxValue" };
+	auto info_UISilderSetValue = GeGlobalMethodInfo(&UISilder_SetValue);
+	info_UISilderSetValue.memberName = { "ID", "Value" };
+	auto info_UISilderSetSize = GeGlobalMethodInfo(&UISilder_SetSize);
+	info_UISilderSetSize.memberName = { "ID", "Width", "Height" };
+	auto info_UISilderSetBackgroundColor = GeGlobalMethodInfo(&UISilder_SetBackgroundColor);
+	info_UISilderSetBackgroundColor.memberName = { "ID", "R", "G", "B", "A" };
+	auto info_UISilderSetFillColor = GeGlobalMethodInfo(&UISilder_SetFillColor);
+	info_UISilderSetFillColor.memberName = { "ID", "R", "G", "B", "A" };
+	auto info_UISilderSetBackgroundTexture = GeGlobalMethodInfo(&UISilder_SetBackgroundTexture);
+	info_UISilderSetBackgroundTexture.memberName = { "ID", "TextureName" };
+	auto info_UISilderSetFillTexture = GeGlobalMethodInfo(&UISilder_SetFillTexture);
+	info_UISilderSetFillTexture.memberName = { "ID", "TextureName" };
+	auto info_UISilderSetOrder = GeGlobalMethodInfo(&UISilder_SetOrder);
+	info_UISilderSetOrder.memberName = { "ID", "Order" };
+	AddGlobalMethod(Static, name + "_Add", info_Add, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Get", info_Get, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_Has", info_Has, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetRange", info_UISilderSetRange, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetValue", info_UISilderSetValue, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetSize", info_UISilderSetSize, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetBackgroundColor", info_UISilderSetBackgroundColor, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetFillColor", info_UISilderSetFillColor, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetBackgroundTexture", info_UISilderSetBackgroundTexture, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetFillTexture", info_UISilderSetFillTexture, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetOrder", info_UISilderSetOrder, EngineMetaFlag::Component);
+
 	name = "Camera";
 	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
 	AddMember(Data, "thisID", LuaMember("unsigned int", offsetof(CameraData, thisID)), EngineMetaFlag::Private);
@@ -316,6 +361,22 @@ static void RegisterComponentData()
 	info_SetVelocity.memberName.push_back("ID");
 	info_SetVelocity.memberName.push_back("velocity");
 	AddGlobalMethod(Static, "Rigidbody2D_SetVelocity", info_SetVelocity, EngineMetaFlag::Component);
+	auto info_SetGravity = GeGlobalMethodInfo(&Rigidbody2D_SetGravity);
+	info_SetGravity.memberName.push_back("ID");
+	info_SetGravity.memberName.push_back("Gravity");
+	AddGlobalMethod(Static, "Rigidbody2D_SetGravity", info_SetGravity, EngineMetaFlag::Component);
+	auto info_SetRestitution = GeGlobalMethodInfo(&Rigidbody2D_SetRestitution);
+	info_SetRestitution.memberName.push_back("ID");
+	info_SetRestitution.memberName.push_back("Restitution");
+	AddGlobalMethod(Static, "Rigidbody2D_SetRestitution", info_SetRestitution, EngineMetaFlag::Component);
+	auto info_SetFriction = GeGlobalMethodInfo(&Rigidbody2D_SetFriction);
+	info_SetFriction.memberName.push_back("ID");
+	info_SetFriction.memberName.push_back("Friction");
+	AddGlobalMethod(Static, "Rigidbody2D_SetFriction", info_SetFriction, EngineMetaFlag::Component);
+	auto info_SetLinearDamping = GeGlobalMethodInfo(&Rigidbody2D_SetLinearDamping);
+	info_SetLinearDamping.memberName.push_back("ID");
+	info_SetLinearDamping.memberName.push_back("LinearDamping");
+	AddGlobalMethod(Static, "Rigidbody2D_SetLinearDamping", info_SetLinearDamping, EngineMetaFlag::Component);
 	auto info_SetSensor = GeGlobalMethodInfo(&Rigidbody2D_SetSensor);
 	info_SetSensor.memberName.push_back("ID");
 	info_SetSensor.memberName.push_back("Sensor");
@@ -328,6 +389,9 @@ static void RegisterComponentData()
 	info_SetLayer.memberName.push_back("ID");
 	info_SetLayer.memberName.push_back("LayerName");
 	AddGlobalMethod(Static, "Rigidbody2D_SetLayer", info_SetLayer, EngineMetaFlag::Component);
+	auto info_GetLayer = GeGlobalMethodInfo(&Rigidbody2D_GetLayer);
+	info_GetLayer.memberName.push_back("ID");
+	AddGlobalMethod(Static, "Rigidbody2D_GetLayer", info_GetLayer, EngineMetaFlag::Component);
 
 }
 BindManager::BindManager()
@@ -441,6 +505,17 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalInput, "Input_GetMousePositionX", GeGlobalMethodInfo(&Input_GetMousePositionX), EngineMetaFlag::Class);
 	AddGlobalMethod(globalInput, "Input_GetMousePositionY", GeGlobalMethodInfo(&Input_GetMousePositionY), EngineMetaFlag::Class);
 
+	//Time
+	PStatic* globalTime = CreateLuaMetaStatic("Time", EngineMetaFlag::Class);
+	AddGlobalMethod(globalTime, "Time_GetDeltaTime", GeGlobalMethodInfo(&Time_GetDeltaTime), EngineMetaFlag::Class);
+	AddGlobalMethod(globalTime, "Time_GetUnscaledDeltaTime", GeGlobalMethodInfo(&Time_GetUnscaledDeltaTime), EngineMetaFlag::Class);
+	AddGlobalMethod(globalTime, "Time_GetTotalTime", GeGlobalMethodInfo(&Time_GetTotalTime), EngineMetaFlag::Class);
+	AddGlobalMethod(globalTime, "Time_GetFPS", GeGlobalMethodInfo(&Time_GetFPS), EngineMetaFlag::Class);
+	auto timeSetPaused = GeGlobalMethodInfo(&Time_SetPaused);
+	timeSetPaused.memberName.push_back("paused");
+	AddGlobalMethod(globalTime, "Time_SetPaused", timeSetPaused, EngineMetaFlag::Class);
+	AddGlobalMethod(globalTime, "Time_IsPaused", GeGlobalMethodInfo(&Time_IsPaused), EngineMetaFlag::Class);
+
 	//Debug
 	PStatic* globaDebug = CreateLuaMetaStatic("Debug", EngineMetaFlag::Class);
 	auto Debuginfo = GeGlobalMethodInfo(&Debug_Log);
@@ -462,6 +537,7 @@ void BindManager::Initialize()
 	PStatic* globalEntity = CreateLuaMetaStatic("Entity", EngineMetaFlag::Class);
 	auto EntityCreate = GeGlobalMethodInfo(&Entity_Create);
 	EntityCreate.memberName.push_back("ScriptName");
+	auto EntityCreateEmpty = GeGlobalMethodInfo(&Entity_CreateEmpty);
 	auto EntityDestroy = GeGlobalMethodInfo(&Entity_Destroy);
 	EntityDestroy.memberName.push_back("ID");
 	auto EntityGetActive = GeGlobalMethodInfo(&Entity_GetActive);
@@ -471,6 +547,7 @@ void BindManager::Initialize()
 	EntitySetActive.memberName.push_back("IsActive");
 
 	AddGlobalMethod(globalEntity, "Entity_Create", EntityCreate, EngineMetaFlag::Class);
+	AddGlobalMethod(globalEntity, "Entity_CreateEmpty", EntityCreateEmpty, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_Destroy", EntityDestroy, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_GetActive", EntityGetActive, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_SetActive", EntitySetActive, EngineMetaFlag::Class);

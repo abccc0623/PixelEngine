@@ -72,24 +72,24 @@ void PhysManager::Initialize()
 	std::string layerPath = Engine->GetEngineRootFolderPath() + "/Engine/LayerMatrix.json";
 	Asset_Import(layerPath.c_str());
 
-	// 2. Joltø°∞‘ "«“ ∏ª ¿÷¿∏∏È ø©±‚¥Ÿ ∏ª«ÿ"∂Û∞Ì µÓ∑œ
+	// 2. JoltÏóêÍ≤å "Ìï† Îßê ÏûàÏúºÎ©¥ Ïó¨Í∏∞Îã§ ÎßêÌï¥"ÎùºÍ≥† Îì±Î°ù
 	JPH::Trace = MyTrace;
 
 	RegisterDefaultAllocator();
 	Factory::sInstance = new Factory();
 	RegisterTypes();
 
-	// 2. Ω««‡ »Ø∞Ê ∏ﬁ∏∏Æ/Ω∫∑πµÂ º≥¡§
+	// 2. Ïã§Ìñâ ÌôòÍ≤Ω Î©îÎ™®Î¶¨/Ïä§Î†àÎìú ÏÑ§Ï†ï
 	tempAllocator = new TempAllocatorImpl(10 * 1024 * 1024);
 	jobSystem = new JobSystemThreadPool(cMaxPhysicsJobs, cMaxPhysicsBarriers, thread::hardware_concurrency() - 1);
 
 
-	// 3. « ≈Õ ¿ŒΩ∫≈œΩ∫ ª˝º∫ (≥™¡ﬂø° «ÿ¡¶ « ø‰)
+	// 3. ÌïÑÌÑ∞ Ïù∏Ïä§ÌÑ¥Ïä§ ÏÉùÏÑ± (ÎÇòÏ§ëÏóê Ìï¥Ï†ú ÌïÑÏöî)
 	mBpInterface = new PixelBroadPhaseLayerInterface();
 	mObjVsBpFilter = new PixelBroadPhaseLayerFilter();
 	mObjVsObjFilter = new PixelObjectLayerPairFilter();
 
-	// 4. π∞∏Æ Ω√Ω∫≈€ ª˝º∫
+	// 4. Î¨ºÎ¶¨ ÏãúÏä§ÌÖú ÏÉùÏÑ±
 	physicsSystem = new PhysicsSystem();
 	physicsSystem->Init(
 		10240, 0, 1024, 1024,
@@ -108,7 +108,12 @@ void PhysManager::Initialize()
 
 void PhysManager::Update()
 {
-	physicsSystem->Update(GetDeltaTime(), 1, tempAllocator, jobSystem);
+	const float deltaTime = GetDeltaTime();
+	if (deltaTime <= 0.0f)
+	{
+		return;
+	}
+	physicsSystem->Update(deltaTime, 1, tempAllocator, jobSystem);
 
 	mFrameCollisionEvents.clear();
 	eventListener->FlushEvents(mFrameCollisionEvents);
@@ -161,7 +166,7 @@ void PhysManager::Clear()
 		}
 		else
 		{
-			// ¿ÃπÃ Removeµ» ªÛ≈¬¿« ∞¥√º (ø¿∫Í¡ß∆Æ «Æ ¥Î±‚ø≠ µÓ)
+			// Ïù¥ÎØ∏ RemoveÎêú ÏÉÅÌÉúÏùò Í∞ùÏ≤¥ (Ïò§Î∏åÏ†ùÌä∏ ÌíÄ ÎåÄÍ∏∞Ïó¥ Îì±)
 			removedBodies.push_back(id);
 		}
 	}
@@ -290,7 +295,7 @@ void PhysManager::AddForce(JPH::BodyID id, float x, float y, float z)
 	//(
 	//	shapeRef,
 	//	JPH::Vec3(transformData->position.x, transformData->position.y, transformData->position.z),
-	//	JPH::Quat::sEulerAngles(eulerRadians), // √ ±‚ »∏¿¸∞™
+	//	JPH::Quat::sEulerAngles(eulerRadians), // Ï¥àÍ∏∞ ÌöåÏ†ÑÍ∞í
 	//	eMotionType,
 	//	objectLayer
 	//);
@@ -331,13 +336,14 @@ JPH::BodyID PhysManager::CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DDa
 	(
 		physics->colliderRefC,
 		JPH::Vec3(transformData->position.x, transformData->position.y, 0.0f),
-		JPH::Quat::sEulerAngles(eulerRadians), // √ ±‚ »∏¿¸∞™
+		JPH::Quat::sEulerAngles(eulerRadians), // Ï¥àÍ∏∞ ÌöåÏ†ÑÍ∞í
 		eMotionType,
 		objectLayer
 	);
 
 	bodySettings.mIsSensor = physics->sensor;
 	bodySettings.mLinearDamping = physics->linearDamping;
+	bodySettings.mGravityFactor = physics->gravity;
 
 	if (physics->active == true)
 	{
@@ -364,7 +370,7 @@ void PhysManager::DebugDraw(JPH::BodyID id)
 	JPH::RVec3 pos = mBodyInterface->GetPosition(id);
 	JPH::Quat rot = mBodyInterface->GetRotation(id);
 
-	// 1. µ•ƒ⁄∑π¿Ã≈Õ(≤Æµ•±‚) «ÿ¡¶ π◊ ∑Œƒ√ ø¿«¡º¬ √ﬂ√‚
+	// 1. Îç∞ÏΩîÎ†àÏù¥ÌÑ∞(ÍªçÎç∞Í∏∞) Ìï¥Ï†ú Î∞è Î°úÏª¨ Ïò§ÌîÑÏÖã Ï∂îÏ∂ú
 	JPH::Vec3 localOffset = JPH::Vec3::sZero();
 	const JPH::Shape* actualShape = rootShape.GetPtr();
 
@@ -376,13 +382,13 @@ void PhysManager::DebugDraw(JPH::BodyID id)
 		actualShape = rtShape->GetInnerShape();
 	}
 
-	// 2. Ω«¡¶ Shape ≈∏¿‘ø° µ˚∏• ∑ª¥ı∏µ ∫–±‚
+	// 2. Ïã§Ï†ú Shape ÌÉÄÏûÖÏóê Îî∞Î•∏ Î†åÎçîÎßÅ Î∂ÑÍ∏∞
 	switch (actualShape->GetSubType())
 	{
 	case JPH::EShapeSubType::Box:
 	{
 		auto boxShape = static_cast<const JPH::BoxShape*>(actualShape);
-		JPH::Vec3 extent = boxShape->GetHalfExtent(); // AABox ¥ÎΩ≈ Ω«¡¶ π⁄Ω∫¿« ¿˝π› ≈©±‚∏¶ ∞°¡Æø»
+		JPH::Vec3 extent = boxShape->GetHalfExtent(); // AABox ÎåÄÏã† Ïã§Ï†ú Î∞ïÏä§Ïùò Ï†àÎ∞ò ÌÅ¨Í∏∞Î•º Í∞ÄÏ†∏Ïò¥
 
 		JPH::Vec3 p[4] = {
 			JPH::Vec3(localOffset.GetX() - extent.GetX(), localOffset.GetY() - extent.GetY(), 0),
@@ -395,10 +401,10 @@ void PhysManager::DebugDraw(JPH::BodyID id)
 		{
 			w[i] = pos + rot * p[i];
 		}
-		DrawLine(w[0].GetX(), w[0].GetY(), 0, w[1].GetX(), w[1].GetY(), 0, 1.0f, 0.0f, 0.0f);
-		DrawLine(w[1].GetX(), w[1].GetY(), 0, w[2].GetX(), w[2].GetY(), 0, 1.0f, 0.0f, 0.0f);
-		DrawLine(w[2].GetX(), w[2].GetY(), 0, w[3].GetX(), w[3].GetY(), 0, 1.0f, 0.0f, 0.0f);
-		DrawLine(w[3].GetX(), w[3].GetY(), 0, w[0].GetX(), w[0].GetY(), 0, 1.0f, 0.0f, 0.0f);
+		DrawLine(w[0].GetX(), w[0].GetY(), 0, w[1].GetX(), w[1].GetY(), 1, 1.0f, 0.0f, 0.0f);
+		DrawLine(w[1].GetX(), w[1].GetY(), 0, w[2].GetX(), w[2].GetY(), 1, 1.0f, 0.0f, 0.0f);
+		DrawLine(w[2].GetX(), w[2].GetY(), 0, w[3].GetX(), w[3].GetY(), 1, 1.0f, 0.0f, 0.0f);
+		DrawLine(w[3].GetX(), w[3].GetY(), 0, w[0].GetX(), w[0].GetY(), 1, 1.0f, 0.0f, 0.0f);
 		break;
 	}
 	case JPH::EShapeSubType::Sphere:
@@ -406,7 +412,7 @@ void PhysManager::DebugDraw(JPH::BodyID id)
 		auto sphereShape = static_cast<const JPH::SphereShape*>(actualShape);
 		float radius = sphereShape->GetRadius();
 		JPH::Vec3 worldCenter = pos + rot * localOffset;
-		DrawCircle2D(worldCenter.GetX(), worldCenter.GetY(), 0, radius, 0.0f, 1.0f, 0.0f);
+		DrawCircle2D(worldCenter.GetX(), worldCenter.GetY(), worldCenter.GetZ(), radius, 0.0f, 1.0f, 0.0f);
 		break;
 	}
 	default:
@@ -428,7 +434,7 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
 	auto transformData = r->Get<TransformData>(EntityID);
 	transformData->position.x = pos.GetX();
 	transformData->position.y = pos.GetY();
-	//DebugDraw(id);
+	DebugDraw(id);
 }
 
 JPH::ObjectLayer PhysManager::FindLayer(std::string key)

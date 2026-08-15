@@ -10,8 +10,11 @@ public:
 
 
 	float GetDeltaTime();
+	float GetUnscaledDeltaTime();
 	double GetTotalTime();
 	int GetFPS();
+	void SetPaused(bool value);
+	bool IsPaused() const;
 
 	void Update() override;
 	void Initialize() override;
@@ -25,8 +28,11 @@ private:
 	TimePoint _prevTime;
 
 	float deltaTime = 0.0f;
+	float unscaledDeltaTime = 0.0f;
+	float timeScale = 1.0f;
+	bool paused = false;
 
-	// FPS °è»ê¿ë
+	// FPS ê³„ì‚°ìš©
 	float frameTime = 0.0f;
 	unsigned int frameCount = 0;
 	unsigned int fps = 0;

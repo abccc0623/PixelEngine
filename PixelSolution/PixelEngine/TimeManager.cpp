@@ -23,18 +23,39 @@ float TimeManager::GetDeltaTime()
 	return deltaTime;
 }
 
+float TimeManager::GetUnscaledDeltaTime()
+{
+	return unscaledDeltaTime;
+}
+
+void TimeManager::SetPaused(bool value)
+{
+	paused = value;
+	timeScale = paused ? 0.0f : 1.0f;
+	if (paused)
+	{
+		deltaTime = 0.0f;
+	}
+}
+
+bool TimeManager::IsPaused() const
+{
+	return paused;
+}
+
 void TimeManager::Update()
 {
 	TimePoint currentTime = Clock::now();
 
 	std::chrono::duration<float> duration = currentTime - _prevTime;
-	deltaTime = duration.count();
+	unscaledDeltaTime = duration.count();
+	deltaTime = unscaledDeltaTime * timeScale;
 
 	_prevTime = currentTime;
 
-	// --- FPS °è»ê (1ÃÊ¸¶´Ù °»½Å) ---
+	// --- FPS ê³„ì‚° (1ì´ˆë§ˆë‹¤ ê°±ì‹ ) ---
 	frameCount++;
-	frameTime += deltaTime;
+	frameTime += unscaledDeltaTime;
 
 	if (frameTime >= 1.0f) {
 		fps = frameCount;
@@ -51,4 +72,10 @@ void TimeManager::Release()
 
 void TimeManager::Clear()
 {
+	paused = false;
+	timeScale = 1.0f;
+	deltaTime = 0.0f;
+	unscaledDeltaTime = 0.0f;
+	_startTime = Clock::now();
+	_prevTime = _startTime;
 }

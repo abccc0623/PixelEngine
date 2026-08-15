@@ -67,7 +67,17 @@ std::string LuaStaticCreate::CreateFunction(const PixelClassMeta& PClass)
 			}
 			else
 			{
-				content += "\treturn dll." + PClass.methods[i].name + "(" + CreateMethodParameter(PClass.methods[i]) + ")\n";
+				content += "\treturn ";
+				if (IsCStringType(returnType))
+				{
+					content += "ffi.string(";
+				}
+				content += "dll." + PClass.methods[i].name + "(" + CreateMethodParameter(PClass.methods[i]) + ")";
+				if (IsCStringType(returnType))
+				{
+					content += ")";
+				}
+				content += "\n";
 			}
 			content += "end\n";
 		}

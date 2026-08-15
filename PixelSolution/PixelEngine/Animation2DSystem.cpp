@@ -23,9 +23,13 @@ void ECS::Animation2DSystem::Update(Registry* registry)
 	Chunked.ForEach([registry, dTime](Animation2DData* data, size_t index)
 		{
 			auto animationlist = registry->Get<Animation2DDList>(data->thisID);
+			if (animationlist == nullptr) return;
+
 			int playindex = animationlist->selectIndex;
-			if (animationlist->animationArray.size() < playindex) return;
+			if (playindex < 0 || playindex >= static_cast<int>(animationlist->animationArray.size())) return;
+
 			auto& select = animationlist->selectAnimation;
+			if (select.maxFramesX <= 0 || select.maxFramesY <= 0) return;
 
 			if (animationlist->play == true)
 			{

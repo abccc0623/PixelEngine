@@ -179,6 +179,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="ComponentArray.h" />
     <ClInclude Include="ComponentID.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="TimeAPI.h" />
     <ClInclude Include="EditorManager.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="EntityObject.h" />
@@ -252,6 +253,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClInclude Include="UIImage.h" />
     <ClInclude Include="UIImageSystem.h" />
     <ClInclude Include="UIText.h" />
+	<ClInclude Include="UISilder.h" />
+	<ClInclude Include="UISilderSystem.h" />
     <ClInclude Include="TimeManager.h" />
   </ItemGroup>
   <ItemGroup>
@@ -263,6 +266,7 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="CameraSystem.cpp" />
     <ClCompile Include="ColliderFactory.cpp" />
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="TimeAPI.cpp" />
     <ClCompile Include="EditorManager.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EntityObject.cpp" />
@@ -328,6 +332,8 @@ copy /Y "$(ProjectDir)Library\lua51.dll" "$(OutDir)lua51.dll"</Command>
     <ClCompile Include="UIImage.cpp" />
     <ClCompile Include="UIImageSystem.cpp" />
     <ClCompile Include="UIText.cpp" />
+	<ClCompile Include="UISilder.cpp" />
+	<ClCompile Include="UISilderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

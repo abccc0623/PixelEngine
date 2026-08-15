@@ -1,6 +1,6 @@
-#define TEXTURE_MASK_MAIN   0x00000001 //¸ŞÀÎÅØ½ºÃÄ ¿©ºÎ
-#define TEXTURE_MASK_SUB    0x00000010 //¼­ºêÅØ½ºÃÄ ¿©ºÎ
-#define TEXTURE_MASK_NOMAL  0x00000100 //³ë¸»ÅØ½ºÃÄ ¿©ºÎ
+#define TEXTURE_MASK_MAIN   0x00000001 //ë©”ì¸í…ìŠ¤ì³ ì—¬ë¶€
+#define TEXTURE_MASK_SUB    0x00000010 //ì„œë¸Œí…ìŠ¤ì³ ì—¬ë¶€
+#define TEXTURE_MASK_NOMAL  0x00000100 //ë…¸ë§í…ìŠ¤ì³ ì—¬ë¶€
 
 struct PixelInputType
 {
@@ -8,7 +8,7 @@ struct PixelInputType
     float3 COLOR : COLOR;
 };
 
-float3 main(PixelInputType input) : SV_TARGET
+float4 main(PixelInputType input) : SV_TARGET
 { 
-    return input.COLOR;
+    return float4(input.COLOR, 1.0f);
 }

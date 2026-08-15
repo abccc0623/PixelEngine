@@ -339,6 +339,9 @@
     <ClInclude Include="Debug.h">
       <Filter>EngineAPI\Export</Filter>
     </ClInclude>
+    <ClInclude Include="TimeAPI.h">
+      <Filter>EngineAPI\Export</Filter>
+    </ClInclude>
     <ClInclude Include="PVector2.h">
       <Filter>EngineAPI\Types\Vector3</Filter>
     </ClInclude>
@@ -366,6 +369,12 @@
     <ClInclude Include="UIImageSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
+	<ClInclude Include="UISilder.h">
+	  <Filter>EngineAPI\ECS\ComponentUI</Filter>
+	</ClInclude>
+	<ClInclude Include="UISilderSystem.h">
+	  <Filter>EngineAPI\ECS\System</Filter>
+	</ClInclude>
     <ClInclude Include="UIText.h">
       <Filter>EngineAPI\ECS\ComponentUI</Filter>
     </ClInclude>
@@ -545,6 +554,9 @@
     <ClCompile Include="Debug.cpp">
       <Filter>EngineAPI\Export</Filter>
     </ClCompile>
+    <ClCompile Include="TimeAPI.cpp">
+      <Filter>EngineAPI\Export</Filter>
+    </ClCompile>
     <ClCompile Include="PVector3.cpp">
       <Filter>EngineAPI\Types\Vector3</Filter>
     </ClCompile>
@@ -575,6 +587,12 @@
     <ClCompile Include="UIImageSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
+	<ClCompile Include="UISilder.cpp">
+	  <Filter>EngineAPI\ECS\ComponentUI</Filter>
+	</ClCompile>
+	<ClCompile Include="UISilderSystem.cpp">
+	  <Filter>EngineAPI\ECS\System</Filter>
+	</ClCompile>
     <ClCompile Include="UIText.cpp">
       <Filter>EngineAPI\ECS\ComponentUI</Filter>
     </ClCompile>
