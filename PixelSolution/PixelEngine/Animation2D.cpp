@@ -63,16 +63,71 @@ int Animation2D_GetFrameIndex(unsigned int id, int AnimationIndex)
 {
 	auto registry = GetRegistry();
 	auto data = registry->Get<Animation2DDList>(id);
-	if (data != nullptr)
-	{
-		auto animation2d = data->selectAnimation;
-		return animation2d.framesIndex;
-	}
-	else
+	if (data == nullptr)
 	{
 		PixelLog::Error("[Animation2D][GetFrameIndex] Not Find");
 		return -1;
 	}
+
+	if (AnimationIndex < 0 || AnimationIndex >= static_cast<int>(data->animationArray.size()))
+	{
+		PixelLog::Error("[Animation2D][GetFrameIndex] Invalid AnimationIndex");
+		return -1;
+	}
+
+	if (data->selectIndex == AnimationIndex)
+	{
+		return data->selectAnimation.framesIndex;
+	}
+
+	return data->animationArray[AnimationIndex].framesIndex;
+}
+
+void Animation2D_SetFrameIndex(unsigned int id, int AnimationIndex, int FrameIndex)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<Animation2DDList>(id);
+	if (data == nullptr)
+	{
+		PixelLog::Error("[Animation2D][SetFrameIndex] Not Find");
+		return;
+	}
+
+	if (AnimationIndex < 0 || AnimationIndex >= static_cast<int>(data->animationArray.size()))
+	{
+		PixelLog::Error("[Animation2D][SetFrameIndex] Invalid AnimationIndex");
+		return;
+	}
+
+	auto& animation = data->animationArray[AnimationIndex];
+	const int totalFrames = animation.maxFramesX * animation.maxFramesY;
+	if (FrameIndex < 0 || FrameIndex >= totalFrames)
+	{
+		PixelLog::Error("[Animation2D][SetFrameIndex] Invalid FrameIndex");
+		return;
+	}
+
+	animation.framesIndex = FrameIndex;
+	animation.nowFrameTime = 0.0f;
+
+	if (data->selectIndex == AnimationIndex)
+	{
+		data->selectAnimation.framesIndex = FrameIndex;
+		data->selectAnimation.nowFrameTime = 0.0f;
+	}
+}
+
+void Animation2D_SetUseUnscaledTime(unsigned int id, bool UseUnscaledTime)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<Animation2DDList>(id);
+	if (data == nullptr)
+	{
+		PixelLog::Error("[Animation2D][SetUseUnscaledTime] Not Find");
+		return;
+	}
+
+	data->useUnscaledTime = UseUnscaledTime;
 }
 
 void Animation2D_Stop(unsigned int id)

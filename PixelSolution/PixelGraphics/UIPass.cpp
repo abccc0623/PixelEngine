@@ -11,6 +11,7 @@
 using namespace DirectX::SimpleMath;
 PixelGraphics::UIPass::UIPass(GraphicsCore* core, ResourceManager* resourceManager, CameraManager* cameraManager) : PASS(core, resourceManager, cameraManager)
 {
+	CreateSampler(D3D11_FILTER_MIN_MAG_MIP_POINT);
 	textRenderer = new TextRenderer(core, resourceManager, cameraManager);
 }
 

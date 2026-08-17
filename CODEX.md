@@ -62,6 +62,21 @@ This file is for Codex-specific project notes and working rules.
 - The current priority is writing Lua APIs needed for games.
 - The engine uses an ECS pattern, and Lua-facing components are being created around that design.
 
+## Current Game Concept
+
+- Tile artwork source images must be created at `1254 x 1254`. The in-game cell size may still be `64 x 64`; downscaling/export is a separate step.
+
+- 현재 제작 중인 게임은 뱀파이어 서바이버류 전투와 공장 자동화 퍼즐을 결합한 다크 판타지 도트 게임이다.
+- 플레이어가 레벨업하면 물질을 가공하는 장치 카드 3개 중 하나를 선택한다.
+- 선택 카드 UI는 앞서 제작한 어두운 중세 판타지 픽셀 카드 스타일을 기준으로 한다.
+- 선택한 장치는 `N x N` 보드의 64 x 64 칸에 설치한다.
+- 보드에는 항상 시작 지점과 끝 지점이 존재한다.
+- 시작 지점에서 물질이 생성되고, 컨베이어 벨트 또는 전자 회로와 비슷한 운반 칸을 통해 끝 지점까지 이동한다.
+- 운반 과정에서 설치 장치가 물질을 분할해 수량을 늘리거나 파워를 강화하는 등 물질의 속성을 변경한다.
+- 칸 하나에는 장치 또는 운반 요소 하나만 설치할 수 있으며 서로 겹치지 않는다.
+- 보드와 설치 칸의 시각 방향은 마법과 기계가 결합된 룬 회로 스타일이다.
+- 이후 제작하는 64 x 64 보드 타일, 시작·끝 지점, 운반 회로, 가공 장치는 같은 룬 회로 아트 방향을 유지한다.
+
 ## Project Roles
 
 - `Client` is the engine runtime entry point.

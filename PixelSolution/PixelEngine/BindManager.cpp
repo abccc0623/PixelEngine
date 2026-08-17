@@ -315,6 +315,15 @@ static void RegisterComponentData()
 	info_GetFrameIndex.memberName.push_back("ID");
 	info_GetFrameIndex.memberName.push_back("AnimationIndex");
 	AddGlobalMethod(Static, "Animation2D_GetFrameIndex", info_GetFrameIndex, EngineMetaFlag::Component);
+	auto info_SetFrameIndex = GeGlobalMethodInfo(&Animation2D_SetFrameIndex);
+	info_SetFrameIndex.memberName.push_back("ID");
+	info_SetFrameIndex.memberName.push_back("AnimationIndex");
+	info_SetFrameIndex.memberName.push_back("FrameIndex");
+	AddGlobalMethod(Static, "Animation2D_SetFrameIndex", info_SetFrameIndex, EngineMetaFlag::Component);
+	auto info_SetUseUnscaledTime = GeGlobalMethodInfo(&Animation2D_SetUseUnscaledTime);
+	info_SetUseUnscaledTime.memberName.push_back("ID");
+	info_SetUseUnscaledTime.memberName.push_back("UseUnscaledTime");
+	AddGlobalMethod(Static, "Animation2D_SetUseUnscaledTime", info_SetUseUnscaledTime, EngineMetaFlag::Component);
 
 
 
@@ -644,6 +653,48 @@ void BindManager::BindEnum()
 	globalEnum = CreateNewEnum("ProjectionType");
 	AddEnum(globalEnum, "Perspective");
 	AddEnum(globalEnum, "Orthographic");
+
+	globalEnum = CreateNewEnum("Keycode");
+	AddEnum(globalEnum, "None");
+	AddEnum(globalEnum, "MouseLeft");
+	AddEnum(globalEnum, "MouseRight");
+	AddEnum(globalEnum, "MouseMiddle");
+	AddEnum(globalEnum, "Backspace");
+	AddEnum(globalEnum, "Tab");
+	AddEnum(globalEnum, "Enter");
+	AddEnum(globalEnum, "Shift");
+	AddEnum(globalEnum, "Control");
+	AddEnum(globalEnum, "Alt");
+	AddEnum(globalEnum, "Pause");
+	AddEnum(globalEnum, "CapsLock");
+	AddEnum(globalEnum, "Escape");
+	AddEnum(globalEnum, "Space");
+	AddEnum(globalEnum, "PageUp");
+	AddEnum(globalEnum, "PageDown");
+	AddEnum(globalEnum, "End");
+	AddEnum(globalEnum, "Home");
+	AddEnum(globalEnum, "Left");
+	AddEnum(globalEnum, "Up");
+	AddEnum(globalEnum, "Right");
+	AddEnum(globalEnum, "Down");
+	AddEnum(globalEnum, "Insert");
+	AddEnum(globalEnum, "Delete");
+	AddEnum(globalEnum, "D0"); AddEnum(globalEnum, "D1"); AddEnum(globalEnum, "D2"); AddEnum(globalEnum, "D3"); AddEnum(globalEnum, "D4");
+	AddEnum(globalEnum, "D5"); AddEnum(globalEnum, "D6"); AddEnum(globalEnum, "D7"); AddEnum(globalEnum, "D8"); AddEnum(globalEnum, "D9");
+	AddEnum(globalEnum, "A"); AddEnum(globalEnum, "B"); AddEnum(globalEnum, "C"); AddEnum(globalEnum, "D"); AddEnum(globalEnum, "E");
+	AddEnum(globalEnum, "F"); AddEnum(globalEnum, "G"); AddEnum(globalEnum, "H"); AddEnum(globalEnum, "I"); AddEnum(globalEnum, "J");
+	AddEnum(globalEnum, "K"); AddEnum(globalEnum, "L"); AddEnum(globalEnum, "M"); AddEnum(globalEnum, "N"); AddEnum(globalEnum, "O");
+	AddEnum(globalEnum, "P"); AddEnum(globalEnum, "Q"); AddEnum(globalEnum, "R"); AddEnum(globalEnum, "S"); AddEnum(globalEnum, "T");
+	AddEnum(globalEnum, "U"); AddEnum(globalEnum, "V"); AddEnum(globalEnum, "W"); AddEnum(globalEnum, "X"); AddEnum(globalEnum, "Y"); AddEnum(globalEnum, "Z");
+	AddEnum(globalEnum, "Numpad0"); AddEnum(globalEnum, "Numpad1"); AddEnum(globalEnum, "Numpad2"); AddEnum(globalEnum, "Numpad3"); AddEnum(globalEnum, "Numpad4");
+	AddEnum(globalEnum, "Numpad5"); AddEnum(globalEnum, "Numpad6"); AddEnum(globalEnum, "Numpad7"); AddEnum(globalEnum, "Numpad8"); AddEnum(globalEnum, "Numpad9");
+	AddEnum(globalEnum, "Multiply"); AddEnum(globalEnum, "Add"); AddEnum(globalEnum, "Subtract"); AddEnum(globalEnum, "Decimal"); AddEnum(globalEnum, "Divide");
+	AddEnum(globalEnum, "F1"); AddEnum(globalEnum, "F2"); AddEnum(globalEnum, "F3"); AddEnum(globalEnum, "F4"); AddEnum(globalEnum, "F5"); AddEnum(globalEnum, "F6");
+	AddEnum(globalEnum, "F7"); AddEnum(globalEnum, "F8"); AddEnum(globalEnum, "F9"); AddEnum(globalEnum, "F10"); AddEnum(globalEnum, "F11"); AddEnum(globalEnum, "F12");
+	AddEnum(globalEnum, "NumLock"); AddEnum(globalEnum, "ScrollLock");
+	AddEnum(globalEnum, "LeftShift"); AddEnum(globalEnum, "RightShift");
+	AddEnum(globalEnum, "LeftControl"); AddEnum(globalEnum, "RightControl");
+	AddEnum(globalEnum, "LeftAlt"); AddEnum(globalEnum, "RightAlt");
 
 	//globalEnum = CreateNewEnum("ColliderType");
 	//AddEnum(globalEnum, "Box2D");

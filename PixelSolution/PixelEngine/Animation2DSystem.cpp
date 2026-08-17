@@ -3,6 +3,7 @@
 #include "Animation2DSystem.h"
 #include "Registry.h"
 #include "PixelEngineAPI.h"
+#include "TimeAPI.h"
 #include "Renderer2D.h"
 #include "Graphics.h"
 ECS::Animation2DSystem::Animation2DSystem()
@@ -17,13 +18,15 @@ ECS::Animation2DSystem::~Animation2DSystem()
 
 void ECS::Animation2DSystem::Update(Registry* registry)
 {
-	float dTime = GetDeltaTime();
+	const float scaledDeltaTime = GetDeltaTime();
+	const float unscaledDeltaTime = Time_GetUnscaledDeltaTime();
 
 	auto& Chunked = registry->GetChunkedArray<Animation2DData>();
-	Chunked.ForEach([registry, dTime](Animation2DData* data, size_t index)
+	Chunked.ForEach([registry, scaledDeltaTime, unscaledDeltaTime](Animation2DData* data, size_t index)
 		{
 			auto animationlist = registry->Get<Animation2DDList>(data->thisID);
 			if (animationlist == nullptr) return;
+			const float dTime = animationlist->useUnscaledTime ? unscaledDeltaTime : scaledDeltaTime;
 
 			int playindex = animationlist->selectIndex;
 			if (playindex < 0 || playindex >= static_cast<int>(animationlist->animationArray.size())) return;

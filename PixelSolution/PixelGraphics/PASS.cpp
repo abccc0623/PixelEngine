@@ -123,10 +123,11 @@ void PixelGraphics::PASS::Sort(std::vector<RenderingData>& data)
 		});
 }
 
-void PixelGraphics::PASS::CreateSampler()
+void PixelGraphics::PASS::CreateSampler(D3D11_FILTER filter)
 {
+	samplerState.Reset();
 	D3D11_SAMPLER_DESC description = {};
-	description.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	description.Filter = filter;
 	description.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	description.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	description.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;

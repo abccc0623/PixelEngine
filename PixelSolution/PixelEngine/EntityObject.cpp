@@ -105,9 +105,13 @@ void ECS::EntityObject::SetActive(bool isActive)
 	}
 	ActiveEntity(ID, isActive);
 
-	for (auto& K : children)
+	for (auto childID : children)
 	{
-		ActiveEntity(K, isActive);
+		auto child = FindEntity(childID);
+		if (child != nullptr)
+		{
+			child->SetActive(isActive);
+		}
 	}
 }
 

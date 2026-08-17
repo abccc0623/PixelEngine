@@ -26,7 +26,7 @@ namespace PixelGraphics
 		virtual void BindRasterizer(RenderingData& r);
 		virtual void Sort(std::vector<RenderingData>& data);
 	public:
-		void CreateSampler();
+		void CreateSampler(D3D11_FILTER filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR);
 		void PreviousKeyReset();
 	protected:
 		GraphicsCore* core = nullptr;
