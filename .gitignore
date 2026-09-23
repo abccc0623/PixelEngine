@@ -15,7 +15,6 @@ Release/
 __pycache__/
 *.pyc
 *.log
-Tools/FeedbackDashboard/
 
 # Local AI/build experiments, preview copies, screenshots, and recovery backups.
 # Keep permanent source, tests, and documentation outside this folder.
