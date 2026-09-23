@@ -7,6 +7,11 @@
 #ifndef PCH_H
 #define PCH_H
 
+// sol.hpp보다 먼저 정의해야 변환 검사와 protected call 안전장치가 실제로 적용된다.
+#ifndef SOL_ALL_SAFETIES_ON
+#define SOL_ALL_SAFETIES_ON 1
+#endif
+
 
 // 2. 링커 에러와 버전 미스매치를 일으키는 모든 범인들을 강제로 잠급니다.
 #ifndef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED

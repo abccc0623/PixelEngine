@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Interop;
 using System.Windows;
+using System.Collections.Concurrent;
 // System.Windows.Media 제거됨 (CompositionTarget 사용 안 함)
 
 namespace PixelTool
@@ -33,6 +34,7 @@ namespace PixelTool
         private Thread _renderThread;
         private volatile bool _isRunning; // 스레드 가시성 보장
         private readonly object _engineLock = new object(); // C++ Native 호출 동기화 락
+        private readonly ConcurrentQueue<Action> _pendingUiChanges = new ConcurrentQueue<Action>();
 
         public GraphicsWindow()
         {
@@ -82,6 +84,7 @@ namespace PixelTool
                 // UI 스레드에서 Resize나 Focus 변경 시 C++ 엔진에 동시 접근하는 것을 방지
                 lock (_engineLock)
                 {
+                    while (_pendingUiChanges.TryDequeue(out var change)) change();
                     PixelEngineNative.UpdateEngine();
                 }
             }
@@ -93,24 +96,21 @@ namespace PixelTool
             if (sizeInfo.NewSize.Width > 0 && sizeInfo.NewSize.Height > 0)
             {
                 // UI 스레드에서 호출됨 -> 렌더 스레드와 충돌 방지를 위해 Lock
-                lock (_engineLock)
-                {
-                    PixelEngineNative.ResizeEngine((int)sizeInfo.NewSize.Width, (int)sizeInfo.NewSize.Height);
-                }
+                int width = (int)sizeInfo.NewSize.Width;
+                int height = (int)sizeInfo.NewSize.Height;
+                _pendingUiChanges.Enqueue(() => PixelEngineNative.ResizeEngine(width, height));
             }
         }
 
         protected override void OnLostKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
-            lock (_engineLock)
-            {
-                PixelEngineNative.SetWindowFocus(false);
-            }
+            _pendingUiChanges.Enqueue(() => PixelEngineNative.SetWindowFocus(false));
             base.OnLostKeyboardFocus(e);
         }
 
         private void OnThreadFilterMessage(ref MSG msg, ref bool handled)
         {
+            if (LuaDebugSession.IsInspecting) return;
             const int WM_LBUTTONDOWN = 0x0201;
             const int WM_RBUTTONDOWN = 0x0204;
             const int WM_MBUTTONDOWN = 0x0207;
@@ -130,10 +130,7 @@ namespace PixelTool
 
                 this.Focus();
 
-                lock (_engineLock)
-                {
-                    PixelEngineNative.SetWindowFocus(true);
-                }
+                _pendingUiChanges.Enqueue(() => PixelEngineNative.SetWindowFocus(true));
             }
         }
 
@@ -143,6 +140,7 @@ namespace PixelTool
 
             // 1. 렌더 스레드 우아한 종료 (Graceful Shutdown)
             _isRunning = false;
+            LuaDebugSession.Shutdown();
 
             // 스레드가 현재 프레임을 마칠 때까지 최대 1초 대기 (좀비 스레드 방지)
             if (_renderThread != null && _renderThread.IsAlive)

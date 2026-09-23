@@ -17,6 +17,21 @@
 #include "PixelMetaAPI.h"
 #include "EditorManager.h"
 #include "Log.h"
+#include "LuaDebugger.h"
+
+// Kept separate from the generated gameplay bindings: these functions never access Lua from the UI.
+extern "C" __declspec(dllexport) void __cdecl LuaDebug_SetCallback(LuaDebugger::Callback callback)
+{
+	LuaDebugger::Register(callback);
+}
+extern "C" __declspec(dllexport) void __cdecl LuaDebug_SetEnabled(int enabled)
+{
+	LuaDebugger::enabled = enabled != 0;
+}
+extern "C" __declspec(dllexport) void __cdecl LuaDebug_SetBreakpoint(const char* path, int line, int enabled)
+{
+	LuaDebugger::SetBreakpoint(path, line, enabled != 0);
+}
 
 
 PixelEngine* Engine = nullptr;
@@ -40,6 +55,10 @@ void UpdateEngine()
 {
 	if (Engine != nullptr)
 	{
+		LuaDebugger::FrameScope debugFrame(Engine->IsPlayMode, [](double seconds)
+		{
+			Engine->GetFactory<TimeManager>()->ResetAfterDebugPause(seconds);
+		});
 		Engine->Update();
 	}
 }

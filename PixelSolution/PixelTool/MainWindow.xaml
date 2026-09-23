@@ -159,7 +159,7 @@
                         <dock:LayoutDocumentPane DockWidth="0.30*" DockHeight="1.0*">
                             <dock:LayoutDocument Title="Log" ContentId="Log">
                                 <Border x:Name="LogContent" Background="{DynamicResource PixelBackgroundBrush}">
-                                    <local:ConsoleWindow/>
+                                    <local:ConsoleWindow x:Name="ConsolePanel"/>
                                 </Border>
                             </dock:LayoutDocument>
                         </dock:LayoutDocumentPane>

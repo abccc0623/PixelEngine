@@ -6,6 +6,9 @@
 #include "PixelEngine.h"
 #include "ResourceManager.h"
 #include "Graphics.h"
+#include "Scene.h"
+#include "SceneManager.h"
+#include "EntityObject.h"
 
 extern PixelEngine* Engine;
 Animation2DData* Animation2D_Add(unsigned int id)
@@ -117,6 +120,28 @@ void Animation2D_SetFrameIndex(unsigned int id, int AnimationIndex, int FrameInd
 	}
 }
 
+void Animation2D_SetLoop(unsigned int id, int animationIndex, bool loop)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<Animation2DDList>(id);
+	if (data == nullptr)
+	{
+		PixelLog::Error("[Animation2D][SetLoop] Not Find");
+		return;
+	}
+
+	if (animationIndex < 0 || animationIndex >= static_cast<int>(data->animationArray.size()))
+	{
+		PixelLog::Error("[Animation2D][SetLoop] Invalid AnimationIndex");
+		return;
+	}
+	data->animationArray[animationIndex].loop = loop;
+	if (data->selectIndex == animationIndex)
+	{
+		data->selectAnimation.loop = loop;
+	}
+}
+
 void Animation2D_SetUseUnscaledTime(unsigned int id, bool UseUnscaledTime)
 {
 	auto registry = GetRegistry();
@@ -152,10 +177,47 @@ void Animation2D_Reset(unsigned int id)
 	{
 		data->selectAnimation.framesIndex = 0;
 		data->selectAnimation.nowFrameTime = 0.0f;
+		data->selectAnimation.callbackCalled = false;
 	}
 	else
 	{
 		PixelLog::Error("[Animation2D][Reset] Not Find");
+	}
+}
+
+
+void Animation2D_SetFrameCallback(unsigned int id, int animationIndex, int frameIndex, bool repeat)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<Animation2DDList>(id);
+	if (data == nullptr)
+	{
+		PixelLog::Error("[Animation2D][SetFrameCallback] Not Find");
+		return;
+	}
+
+	if (animationIndex < 0 || animationIndex >= static_cast<int>(data->animationArray.size()))
+	{
+		PixelLog::Error("[Animation2D][SetFrameCallback] Invalid AnimationIndex");
+		return;
+	}
+
+	auto& animation = data->animationArray[animationIndex];
+	const int totalFrames = animation.maxFramesX * animation.maxFramesY;
+	if (frameIndex < 0 || frameIndex >= totalFrames)
+	{
+		PixelLog::Error("[Animation2D][SetFrameCallback] Invalid FrameIndex");
+		return;
+	}
+
+	animation.callbackFrame = frameIndex;
+	animation.callbackRepeat = repeat;
+	animation.callbackCalled = false;
+	if (data->selectIndex == animationIndex)
+	{
+		data->selectAnimation.callbackFrame = frameIndex;
+		data->selectAnimation.callbackRepeat = repeat;
+		data->selectAnimation.callbackCalled = false;
 	}
 }
 

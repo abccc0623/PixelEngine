@@ -6,24 +6,28 @@
 #include "SceneObject.h"
 #include "SceneManager.h"
 extern PixelEngine* Engine;
-void ECS::Event::BindEvent(unsigned int id, const char* eventKey, const char* eventName)
+bool Event_Bind(unsigned int id, const char* EventName, const char* bindFunctionName)
 {
-	std::string key(eventKey);
-	std::string name(eventName);
+	if (EventName == nullptr || bindFunctionName == nullptr || EventName[0] == '\0' || bindFunctionName[0] == '\0') return false;
 
 	auto sceneManager = Engine->GetFactory<SceneManager>();
-	sceneManager->GetNowScene()->GetEventManager()->BindLuaEvent(id, key, name);
+	if (sceneManager == nullptr) return false;
+
+	auto scene = sceneManager->GetNowScene();
+	if (scene == nullptr || scene->GetEventManager() == nullptr) return false;
+
+	return scene->GetEventManager()->BindLuaEvent(id, EventName, bindFunctionName);
 }
 
-
-void ECS::Event::CallEvent(const char* eventKey, sol::object luaTableObj)
+bool Event_Call(const char* EventName)
 {
-	std::string key(eventKey);
+	if (EventName == nullptr || EventName[0] == '\0') return false;
 
-	if (!luaTableObj.valid() || luaTableObj == sol::nil)
-	{
-		luaTableObj = sol::make_object(luaTableObj.lua_state(), sol::table::create(luaTableObj.lua_state()));
-	}
 	auto sceneManager = Engine->GetFactory<SceneManager>();
-	sceneManager->GetNowScene()->GetEventManager()->CallLuaEvent(key, luaTableObj);
+	if (sceneManager == nullptr) return false;
+
+	auto scene = sceneManager->GetNowScene();
+	if (scene == nullptr || scene->GetEventManager() == nullptr) return false;
+
+	return scene->GetEventManager()->CallLuaEvent(EventName);
 }

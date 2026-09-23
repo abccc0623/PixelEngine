@@ -148,6 +148,10 @@ static void RegisterComponentData()
 	info_UIImageSetTextureSize.memberName.push_back("ID");
 	info_UIImageSetTextureSize.memberName.push_back("Width");
 	info_UIImageSetTextureSize.memberName.push_back("Height");
+	auto info_UIImageSetAspectFit = GeGlobalMethodInfo(&UIImage_SetAspectFit);
+	info_UIImageSetAspectFit.memberName.push_back("ID");
+	info_UIImageSetAspectFit.memberName.push_back("SlotWidth");
+	info_UIImageSetAspectFit.memberName.push_back("SlotHeight");
 	auto info_UIImageSetPivot = GeGlobalMethodInfo(&UIImage_SetPivot);
 	info_UIImageSetPivot.memberName.push_back("ID");
 	info_UIImageSetPivot.memberName.push_back("X");
@@ -174,6 +178,7 @@ static void RegisterComponentData()
 	AddGlobalMethod(Static, name + "_Has", info_Has, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetTexture", info_UIImageSetTexture, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetTextureSize", info_UIImageSetTextureSize, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetAspectFit", info_UIImageSetAspectFit, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetPivot", info_UIImageSetPivot, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetTiling", info_UIImageSetTiling, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetOffset", info_UIImageSetOffset, EngineMetaFlag::Component);
@@ -324,6 +329,17 @@ static void RegisterComponentData()
 	info_SetUseUnscaledTime.memberName.push_back("ID");
 	info_SetUseUnscaledTime.memberName.push_back("UseUnscaledTime");
 	AddGlobalMethod(Static, "Animation2D_SetUseUnscaledTime", info_SetUseUnscaledTime, EngineMetaFlag::Component);
+	auto info_SetLoop = GeGlobalMethodInfo(&Animation2D_SetLoop);
+	info_SetLoop.memberName.push_back("ID");
+	info_SetLoop.memberName.push_back("AnimationIndex");
+	info_SetLoop.memberName.push_back("Loop");
+	AddGlobalMethod(Static, "Animation2D_SetLoop", info_SetLoop, EngineMetaFlag::Component);
+	auto info_SetFrameCallback = GeGlobalMethodInfo(&Animation2D_SetFrameCallback);
+	info_SetFrameCallback.memberName.push_back("ID");
+	info_SetFrameCallback.memberName.push_back("AnimationIndex");
+	info_SetFrameCallback.memberName.push_back("FrameIndex");
+	info_SetFrameCallback.memberName.push_back("Repeat");
+	AddGlobalMethod(Static, "Animation2D_SetFrameCallback", info_SetFrameCallback, EngineMetaFlag::Component);
 
 
 
@@ -560,6 +576,17 @@ void BindManager::Initialize()
 	AddGlobalMethod(globalEntity, "Entity_Destroy", EntityDestroy, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_GetActive", EntityGetActive, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_SetActive", EntitySetActive, EngineMetaFlag::Class);
+
+	//Event
+	PStatic* globalEvent = CreateLuaMetaStatic("Event", EngineMetaFlag::Class);
+	auto EventBind = GeGlobalMethodInfo(&Event_Bind);
+	EventBind.memberName.push_back("ID");
+	EventBind.memberName.push_back("EventName");
+	EventBind.memberName.push_back("BindFunctionName");
+	AddGlobalMethod(globalEvent, "Event_Bind", EventBind, EngineMetaFlag::Class);
+	auto EventCall = GeGlobalMethodInfo(&Event_Call);
+	EventCall.memberName.push_back("EventName");
+	AddGlobalMethod(globalEvent, "Event_Call", EventCall, EngineMetaFlag::Class);
 
 
 	//Pool

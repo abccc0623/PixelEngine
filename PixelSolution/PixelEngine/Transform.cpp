@@ -44,7 +44,7 @@ void Transform_SetParent(unsigned int id, unsigned int ParentID)
 	auto thisEntity = FindEntity(id);
 	if (thisEntity == nullptr)
 	{
-		PixelLog::Error("[Transform][SetParent] Not Find This EntityID :" + id);
+		PixelLog::Error("[Transform][SetParent] Not Find This EntityID: " + std::to_string(id));
 		return;
 	}
 	thisEntity->SetParent(ParentID);
@@ -55,7 +55,7 @@ void Transform_SetChild(unsigned int id, unsigned int ChildID)
 	auto thisEntity = FindEntity(id);
 	if (thisEntity == nullptr)
 	{
-		PixelLog::Error("[Transform][SetParent] Not Find This EntityID :" + id);
+		PixelLog::Error("[Transform][SetChild] Not Find This EntityID: " + std::to_string(id));
 		return;
 	}
 	thisEntity->SetChild(ChildID);

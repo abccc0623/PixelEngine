@@ -5,6 +5,26 @@
 #include <vector>
 #include <sol/forward.hpp>
 
+struct KeyEvent
+{
+	int keyCode;
+	bool Pressed;
+};
+
+struct PhysEvent
+{
+	bool targetIn;
+};
+
+struct EventMessage
+{
+	union
+	{
+		KeyEvent key;
+		PhysEvent Collision;
+	};
+};
+
 struct CustomDelayEvent
 {
 	double eventEndTime;
@@ -32,8 +52,9 @@ namespace ECS
 		void Initialize();
 		void Release();
 
-		void BindLuaEvent(unsigned int id, std::string key, std::string func);
-		void CallLuaEvent(std::string eventName, sol::object event);
+		bool BindLuaEvent(unsigned int id, const std::string& key, const std::string& func);
+		bool CallLuaEvent(const std::string& eventName);
+		bool CallLuaEvent(const std::string& eventName, sol::object event);
 	private:
 		std::vector<CustomDelayEvent> customDelayEvents;
 		std::unordered_map<std::string, std::vector<UserEvent>> eventList;

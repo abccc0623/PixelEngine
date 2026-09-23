@@ -8,47 +8,76 @@
 #include "BindManager.h"
 #include "KeyInputManager.h"
 #include "SceneManager.h"
+#include "Entity.h"
 
 #include "LuaModuleInfo.h"
 #include "LuaSceneInfo.h"
 #include "PixelMetaAPI.h"
 #include "CoroutineManager.h"
+#include "LuaDebugger.h"
 
 #include <filesystem>
 #include "Debug.h"
 
-#define SOL_ALL_SAFETIES_ON 1 // ¾ÈÀüÀåÄ¡ È°¼ºÈ­ (±ÇÀå)
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define GET_CURRENT_MODULE() ((HMODULE)&__ImageBase)
 
 extern PixelEngine* Engine;
+
+namespace
+{
+	int LuaEntityCreate(lua_State* state)
+	{
+		const char* scriptName = luaL_checkstring(state, 1);
+		const unsigned int id = Entity_Create(scriptName);
+		lua_pushinteger(state, static_cast<lua_Integer>(id));
+		return 1;
+	}
+
+	bool RegisterLuaEntityCreate(lua_State* state)
+	{
+		lua_getglobal(state, "Entity");
+		if (!lua_istable(state, -1))
+		{
+			lua_pop(state, 1);
+			return false;
+		}
+
+		lua_pushcfunction(state, LuaEntityCreate);
+		lua_setfield(state, -2, "Create");
+		lua_pop(state, 1);
+		return true;
+	}
+}
+
 LuaManager::LuaManager()
 {
 	luaModuleTableMap = std::unordered_map<std::string, LuaModuleInfo*>();
 
 #ifdef LUAJIT_VERSION
-	std::cout << "ÄÄÆÄÀÏ ½ÃÁ¡ È®ÀÎ: LuaJIT¿ëÀ¸·Î ºôµåµÊ!" << std::endl;
+	std::cout << "ì»´íŒŒì¼ ì‹œì  í™•ì¸: LuaJITìš©ìœ¼ë¡œ ë¹Œë“œë¨!" << std::endl;
 #else
-	std::cout << "ÄÄÆÄÀÏ ½ÃÁ¡ È®ÀÎ: ÀÏ¹İ Lua¿ëÀ¸·Î ºôµåµÊ!" << std::endl;
+	std::cout << "ì»´íŒŒì¼ ì‹œì  í™•ì¸: ì¼ë°˜ Luaìš©ìœ¼ë¡œ ë¹Œë“œë¨!" << std::endl;
 #endif
 }
 
 LuaManager::~LuaManager()
 {
-
+	LuaDebugger::Attach(nullptr);
 }
 void LuaManager::Initialize()
 {
 	lua = sol::state();
+	LuaDebugger::Attach(lua.lua_state());
 	lua.open_libraries(
-		sol::lib::base,    // print, assert, type µî ±âº» ÇÔ¼ö
-		sol::lib::package, // require, package.path µî (Ã¹ ¹øÂ° ¿¡·¯ ÇØ°á)
-		sol::lib::table,   // table.insert, table.remove µî (µÎ ¹øÂ° ¿¡·¯ ÇØ°á)
-		sol::lib::string,  // ¹®ÀÚ¿­ Ã³¸®
-		sol::lib::math,    // ¼öÇĞ ¿¬»ê
-		sol::lib::os,      // ½Ã°£(os.time) µî ½Ã½ºÅÛ ÇÔ¼ö
-		sol::lib::debug,    // µğ¹ö±ë Åø
-		sol::lib::jit,     // [Ãß°¡µÊ] LuaJIT ÄÁÆ®·Ñ (jit.on, jit.off, ÃÖÀûÈ­ ¿É¼Ç µî)
+		sol::lib::base,    // print, assert, type ë“± ê¸°ë³¸ í•¨ìˆ˜
+		sol::lib::package, // require, package.path ë“± (ì²« ë²ˆì§¸ ì—ëŸ¬ í•´ê²°)
+		sol::lib::table,   // table.insert, table.remove ë“± (ë‘ ë²ˆì§¸ ì—ëŸ¬ í•´ê²°)
+		sol::lib::string,  // ë¬¸ìì—´ ì²˜ë¦¬
+		sol::lib::math,    // ìˆ˜í•™ ì—°ì‚°
+		sol::lib::os,      // ì‹œê°„(os.time) ë“± ì‹œìŠ¤í…œ í•¨ìˆ˜
+		sol::lib::debug,    // ë””ë²„ê¹… íˆ´
+		sol::lib::jit,     // [ì¶”ê°€ë¨] LuaJIT ì»¨íŠ¸ë¡¤ (jit.on, jit.off, ìµœì í™” ì˜µì…˜ ë“±)
 		sol::lib::ffi
 	);
 	bind = Engine->GetFactory<BindManager>();
@@ -66,6 +95,10 @@ void LuaManager::Initialize()
 
 	//BindAll_GeneratedLuaModules(lua);
 	ReadEngineGenerateFile();
+	if (!RegisterLuaEntityCreate(lua.lua_state()))
+	{
+		PixelLog::Error("Failed to register Entity.Create as a Lua C function.");
+	}
 	CreateLuaManager();
 }
 
@@ -96,6 +129,12 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 		if (filename == "main")
 		{
 			sol::protected_function_result result = lua.script_file(filePath);
+			if (!result.valid())
+			{
+				sol::error err = result;
+				PixelLog::Error("Lua main file load failed: " + filePath + "\n" + err.what());
+				return;
+			}
 			sol::protected_function mainFunc = lua["Main"];
 			if (mainFunc.valid())
 			{
@@ -104,13 +143,19 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 				{
 					sol::error err = result;
 					std::string what = err.what();
-					PixelLog::Error("mina ½ºÅ©¸³Æ® ·Îµå ½ÇÆĞ: " + what);
+					PixelLog::Error("mina ìŠ¤í¬ë¦½íŠ¸ ë¡œë“œ ì‹¤íŒ¨: " + what);
 				}
 			}
 		}
 		else if (ext == ".scene")
 		{
 			sol::protected_function_result result = lua.script_file(filePath);
+			if (!result.valid())
+			{
+				sol::error err = result;
+				PixelLog::Error("Lua scene load failed: " + filePath + "\n" + err.what());
+				return;
+			}
 			if (result.return_count() > 0 && result[0].is<sol::table>())
 			{
 				if (result.valid())
@@ -124,10 +169,10 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 		}
 		else if (ext == ".pxm")
 		{
-			// È¯°æÀ» ¸ÕÀú ¸¸µé°í
+			// í™˜ê²½ì„ ë¨¼ì € ë§Œë“¤ê³ 
 			sol::environment prototypeEnv(lua, sol::create, lua.globals());
 
-			// ÇØ´ç È¯°æ¿¡ Wait¸¦ Á÷Á¢ µî·Ï (ÀÌ·¡¾ß ·ç¾Æ°¡ ¸ØÃä´Ï´Ù)
+			// í•´ë‹¹ í™˜ê²½ì— Waitë¥¼ ì§ì ‘ ë“±ë¡ (ì´ë˜ì•¼ ë£¨ì•„ê°€ ë©ˆì¶¥ë‹ˆë‹¤)
 			prototypeEnv.set_function("WaitForSeconds", sol::yielding([this](float seconds, sol::this_state s)
 				{
 					CoroutineManager* cm = Engine->GetFactory<CoroutineManager>();
@@ -143,7 +188,7 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 				sol::table blueprint = result;
 				luaModuleTableMap.insert({ filename, new LuaModuleInfo(blueprint) });
 			}
-			else { /* ¿¡·¯ Ã³¸® */ }
+			else { /* ì—ëŸ¬ ì²˜ë¦¬ */ }
 		}
 		else if (ext == ".lua")
 		{
@@ -179,22 +224,24 @@ void LuaManager::CreateLuaManager()
 	std::string_view luaScript(static_cast<const char*>(pData), dataSize);
 	auto result = lua.safe_script(luaScript);
 
+	// ì‹¤íŒ¨í•œ resultì˜ result[0]ì„ ë¨¼ì € ì½ìœ¼ë©´ Lua ìŠ¤íƒ ë‚´ë¶€ì—ì„œ ì ‘ê·¼ ìœ„ë°˜ì´ ë‚  ìˆ˜ ìˆë‹¤.
+	if (!result.valid())
+	{
+		sol::error err = result;
+		PixelLog::Error("Embedded LuaManager load failed: " + std::string(err.what()));
+		return;
+	}
 
 	if (result.return_count() > 0 && result[0].is<sol::table>())
 	{
-		if (!result.valid())
-		{
-			sol::error err = result;
-			PixelLog::Error(err.what());
-		}
-		else
-		{
-			luaManager = result[0];
-			UpdateFunction = luaManager["Update"];
-			AddFunction = luaManager["Add"];
-			RemoveFunction = luaManager["Remove"];
-
-		}
+		luaManager = result[0];
+		UpdateFunction = luaManager["Update"];
+		AddFunction = luaManager["Add"];
+		RemoveFunction = luaManager["Remove"];
+	}
+	else
+	{
+		PixelLog::Error("Embedded LuaManager did not return a table.");
 	}
 }
 
@@ -261,35 +308,35 @@ void LuaManager::RemoveEntityID(unsigned int id)
 std::string LuaManager::SettingKeyEnum()
 {
 	std::string main = "";
-	main += "---@enum KeyCode\n"; // EmmyLua ÀÚµ¿¿Ï¼ºÀ» À§ÇÑ ¾î³ëÅ×ÀÌ¼Ç
+	main += "---@enum KeyCode\n"; // EmmyLua ìë™ì™„ì„±ì„ ìœ„í•œ ì–´ë…¸í…Œì´ì…˜
 	main += "KeyCode = {\n";
 
-	// ¸¶¿ì½º ¹× Æ¯¼öÅ°
+	// ë§ˆìš°ìŠ¤ ë° íŠ¹ìˆ˜í‚¤
 	main += "    LButton = 0x01, RButton = 0x02, Cancel = 0x03, MButton = 0x04, \n";
 	main += "    Backspace = 0x08, Tab = 0x09, Clear = 0x0C, Enter = 0x0D, \n";
 	main += "    Shift = 0x10, Control = 0x11, Alt = 0x12, Pause = 0x13, CapsLock = 0x14, \n";
 	main += "    Escape = 0x1B, Space = 0x20, PageUp = 0x21, PageDown = 0x22, End = 0x23, Home = 0x24, \n";
 
-	// ¹æÇâÅ°
+	// ë°©í–¥í‚¤
 	main += "    Left = 0x25, Up = 0x26, Right = 0x27, Down = 0x28, \n";
 	main += "    Select = 0x29, Print = 0x2A, Execute = 0x2B, PrintScreen = 0x2C, Insert = 0x2D, Delete = 0x2E, \n";
 
-	// ¼ıÀÚÅ° (0-9)
+	// ìˆ«ìí‚¤ (0-9)
 	main += "    Alpha0 = 0x30, Alpha1 = 0x31, Alpha2 = 0x32, Alpha3 = 0x33, Alpha4 = 0x34, \n";
 	main += "    Alpha5 = 0x35, Alpha6 = 0x36, Alpha7 = 0x37, Alpha8 = 0x38, Alpha9 = 0x39, \n";
 
-	// ¾ËÆÄºª (A-Z)
+	// ì•ŒíŒŒë²³ (A-Z)
 	main += "    A = 0x41, B = 0x42, C = 0x43, D = 0x44, E = 0x45, F = 0x46, G = 0x47, H = 0x48, \n";
 	main += "    I = 0x49, J = 0x4A, K = 0x4B, L = 0x4C, M = 0x4D, N = 0x4E, O = 0x4F, P = 0x50, \n";
 	main += "    Q = 0x51, R = 0x52, S = 0x53, T = 0x54, U = 0x55, V = 0x56, W = 0x57, X = 0x58, \n";
 	main += "    Y = 0x59, Z = 0x5A, \n";
 
-	// ³ÑÆĞµå
+	// ë„˜íŒ¨ë“œ
 	main += "    Numpad0 = 0x60, Numpad1 = 0x61, Numpad2 = 0x62, Numpad3 = 0x63, Numpad4 = 0x64, \n";
 	main += "    Numpad5 = 0x65, Numpad6 = 0x66, Numpad7 = 0x67, Numpad8 = 0x68, Numpad9 = 0x69, \n";
 	main += "    Multiply = 0x6A, Add = 0x6B, Separator = 0x6C, Subtract = 0x6D, Decimal = 0x6E, Divide = 0x6F, \n";
 
-	// ±â´ÉÅ° (F1-F12)
+	// ê¸°ëŠ¥í‚¤ (F1-F12)
 	main += "    F1 = 0x70, F2 = 0x71, F3 = 0x72, F4 = 0x73, F5 = 0x74, F6 = 0x75, \n";
 	main += "    F7 = 0x76, F8 = 0x77, F9 = 0x78, F10 = 0x79, F11 = 0x7A, F12 = 0x7B, \n";
 

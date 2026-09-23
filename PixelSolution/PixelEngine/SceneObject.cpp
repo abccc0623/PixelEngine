@@ -84,6 +84,12 @@ uint32_t SceneObject::CreateEntity(const std::string& scriptName)
 	PixelLog::Info("[" + sceneName + "] CreateEntity :" + scriptName);
 	ECS::ChunkedID id = Chunked.Add();
 	ECS::EntityObject* entity = Chunked.Get(id);
+	// Chunk 등록에 실패한 상태에서 EntityObject를 역참조하면 프로세스가 종료된다.
+	if (entity == nullptr)
+	{
+		PixelLog::Error("[SceneObject][CreateEntity] Invalid entity slot. ID: " + std::to_string(id.value));
+		return UINT32_MAX;
+	}
 	entity->Create(scriptName, id.value);
 	return id.value;
 }
@@ -110,7 +116,7 @@ ECS::EntityObject* SceneObject::FindEntity(uint32_t id)
 	{
 		return entity;
 	}
-	PixelLog::Error("Not Find Entity" + std::to_string(id));
+	PixelLog::Error("[SceneObject][FindEntity] Invalid or stale Entity ID: " + std::to_string(id));
 	return nullptr;
 }
 
@@ -127,6 +133,48 @@ void SceneObject::ActiveEntity(uint32_t id, bool active)
 
 void SceneObject::DestroyEntity(uint32_t id)
 {
+	if (Chunked.Get(ECS::ChunkedID(id)) == nullptr)
+	{
+		PixelLog::Error("[SceneObject][DestroyEntity] Invalid or stale Entity ID: " + std::to_string(id));
+		return;
+	}
+
+	std::unordered_set<uint32_t> destroyingIDs;
+	DestroyEntityHierarchy(id, destroyingIDs);
+}
+
+void SceneObject::DestroyEntityHierarchy(uint32_t id, std::unordered_set<uint32_t>& destroyingIDs)
+{
+	if (!destroyingIDs.insert(id).second)
+	{
+		return;
+	}
+
+	ECS::EntityObject* entity = Chunked.Get(ECS::ChunkedID(id));
+	if (entity == nullptr)
+	{
+		return;
+	}
+
+	const uint32_t parentID = entity->GetParentID();
+	if (parentID != UINT32_MAX)
+	{
+		ECS::EntityObject* parent = Chunked.Get(ECS::ChunkedID(parentID));
+		if (parent != nullptr)
+		{
+			auto& parentChildren = parent->GetChild();
+			parentChildren.erase(
+				std::remove(parentChildren.begin(), parentChildren.end(), id),
+				parentChildren.end());
+		}
+	}
+
+	const std::vector<unsigned int> children = entity->GetChild();
+	for (const unsigned int childID : children)
+	{
+		DestroyEntityHierarchy(childID, destroyingIDs);
+	}
+
 	PixelLog::Info("[" + sceneName + "] DeleteEntity");
 	auto lua = Engine->GetFactory<LuaManager>();
 	if (lua != nullptr)

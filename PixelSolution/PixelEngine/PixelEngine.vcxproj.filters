@@ -213,9 +213,6 @@
     <ClInclude Include="EventManager.h">
       <Filter>EngineAPI\Manager\EventManager</Filter>
     </ClInclude>
-    <ClInclude Include="Event.h">
-      <Filter>EngineAPI\Manager\EventManager</Filter>
-    </ClInclude>
     <ClInclude Include="TextureManager.h">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
     </ClInclude>
@@ -369,12 +366,12 @@
     <ClInclude Include="UIImageSystem.h">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClInclude>
-	<ClInclude Include="UISilder.h">
-	  <Filter>EngineAPI\ECS\ComponentUI</Filter>
-	</ClInclude>
-	<ClInclude Include="UISilderSystem.h">
-	  <Filter>EngineAPI\ECS\System</Filter>
-	</ClInclude>
+    <ClInclude Include="UISilder.h">
+      <Filter>EngineAPI\ECS\ComponentUI</Filter>
+    </ClInclude>
+    <ClInclude Include="UISilderSystem.h">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClInclude>
     <ClInclude Include="UIText.h">
       <Filter>EngineAPI\ECS\ComponentUI</Filter>
     </ClInclude>
@@ -383,6 +380,9 @@
     </ClInclude>
     <ClInclude Include="Graphics.h">
       <Filter>EngineAPI\ECS\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>EngineAPI\Export</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -536,9 +536,6 @@
     <ClCompile Include="PoolManager.cpp">
       <Filter>EngineAPI\Manager\SceneManager\Pool</Filter>
     </ClCompile>
-    <ClCompile Include="Event.cpp">
-      <Filter>EngineAPI\Manager\EventManager</Filter>
-    </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>EngineAPI\ECS\Entity</Filter>
     </ClCompile>
@@ -587,12 +584,12 @@
     <ClCompile Include="UIImageSystem.cpp">
       <Filter>EngineAPI\ECS\System</Filter>
     </ClCompile>
-	<ClCompile Include="UISilder.cpp">
-	  <Filter>EngineAPI\ECS\ComponentUI</Filter>
-	</ClCompile>
-	<ClCompile Include="UISilderSystem.cpp">
-	  <Filter>EngineAPI\ECS\System</Filter>
-	</ClCompile>
+    <ClCompile Include="UISilder.cpp">
+      <Filter>EngineAPI\ECS\ComponentUI</Filter>
+    </ClCompile>
+    <ClCompile Include="UISilderSystem.cpp">
+      <Filter>EngineAPI\ECS\System</Filter>
+    </ClCompile>
     <ClCompile Include="UIText.cpp">
       <Filter>EngineAPI\ECS\ComponentUI</Filter>
     </ClCompile>
@@ -601,6 +598,9 @@
     </ClCompile>
     <ClCompile Include="FontManager.cpp">
       <Filter>EngineAPI\Manager\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Event.cpp">
+      <Filter>EngineAPI\Export</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

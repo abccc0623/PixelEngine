@@ -14,6 +14,8 @@ namespace ECS
 		void Create(const std::string& scriptName, unsigned int ID);
 		void OnCollisionEnter(unsigned int TargetID);
 		void OnCollisionExit(unsigned int TargetID);
+		void OnAnimationCallBack(unsigned int TargetID, int nowAnimationID, int nowAnimationFrame);
+		void OnEvent(const std::string& functionName);
 		void OnEvent(std::string functionName, sol::object event);
 		unsigned int GetID();
 		bool GetActive();
@@ -32,6 +34,7 @@ namespace ECS
 		sol::table instance;
 		sol::protected_function OnCollisionEnterFunc;
 		sol::protected_function OnCollisionExitFunc;
+		sol::protected_function OnAnimationCallBackFunc;
 
 		std::vector<unsigned int> children;
 		unsigned int ID;

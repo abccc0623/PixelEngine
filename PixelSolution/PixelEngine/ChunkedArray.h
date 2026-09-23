@@ -33,9 +33,23 @@ namespace ECS
 			unsigned int index = id.Index();
 			unsigned int version = id.Version();
 
+			// ì˜ëª»ë˜ì—ˆê±°ë‚˜ ì´ë¯¸ ì‚­ì œëœ IDë¡œ Chunk ë©”ëª¨ë¦¬ì— ì ‘ê·¼í•˜ì§€ ì•Šë„ë¡ ê²€ì‚¬í•œë‹¤.
+			if (index >= static_cast<unsigned int>(currentSize) ||
+				index >= versions.size() ||
+				versions[index] != version)
+			{
+				return nullptr;
+			}
+
 			size_t chunkIndex = index / chunksMaxSize;
 			size_t localIndex = index % chunksMaxSize;
-			return &(*chunks[chunkIndex])[localIndex]; // Æ÷ÀÎÅÍ 100% ¾ÈÀü º¸Àå!
+			// ë‘ ë²ˆì§¸ Chunkë¡œ ë„˜ì–´ê°ˆ ë•Œ í• ë‹¹ ì—¬ë¶€ë¥¼ í™•ì¸í•˜ì§€ ì•Šìœ¼ë©´ ì¦‰ì‹œ í¬ë˜ì‹œê°€ ë‚œë‹¤.
+			if (chunkIndex >= chunks.size() || !chunks[chunkIndex])
+			{
+				return nullptr;
+			}
+
+			return &(*chunks[chunkIndex])[localIndex];
 		}
 
 		ChunkedID Add()
@@ -43,14 +57,14 @@ namespace ECS
 			ChunkedID id;
 			if (freeSlots.size() != 0)
 			{
-				//ºó°÷ÀÌ ÀÖ´Ù¸é ±×°÷¿¡ µ¥ÀÌÅÍ ³Ö±â
+				//ë¹ˆê³³ì´ ìˆë‹¤ë©´ ê·¸ê³³ì— ë°ì´í„° ë„£ê¸°
 				int outIndex = freeSlots.front();
 				freeSlots.pop();
 				SetLife(outIndex, true);
 				return ChunkedID(outIndex, versions[outIndex]);
 			}
 
-			//ºó°÷ÀÌ ¾ø´Ù¸é µÚºÎÅÍ ¼ø¼­´ë·Î
+			//ë¹ˆê³³ì´ ì—†ë‹¤ë©´ ë’¤ë¶€í„° ìˆœì„œëŒ€ë¡œ
 			if (currentSize >= chunks.size() * chunksMaxSize)
 			{
 				chunks.push_back(std::make_unique<std::array<T, chunksMaxSize>>());
@@ -74,13 +88,15 @@ namespace ECS
 		void Remove(ECS::ChunkedID id)
 		{
 			unsigned int index = id.Index();
-			unsigned int version = id.Version();
 
 			auto slot = Get(id);
-			if (slot)
+			// ì¤‘ë³µ ì‚­ì œ ë˜ëŠ” ì˜ëª»ëœ IDë¼ë©´ freeSlotsì— ë‹¤ì‹œ ë“±ë¡í•˜ì§€ ì•ŠëŠ”ë‹¤.
+			if (slot == nullptr)
 			{
-				*slot = T();
+				return;
 			}
+
+			*slot = T();
 			freeSlots.push(index);
 			versions[index]++;
 			SetLife(index, false);
@@ -108,7 +124,7 @@ namespace ECS
 			std::string name = typeid(T).name();
 			for (size_t i = 0; i < currentSize; ++i)
 			{
-				// ºó ¹æ(±¸¸Û)ÀÌ¸é ºûÀÇ ¼Óµµ·Î ´ÙÀ½ ¹æÀ¸·Î °Ç³Ê¶Ü!
+				// ë¹ˆ ë°©(êµ¬ë©)ì´ë©´ ë¹›ì˜ ì†ë„ë¡œ ë‹¤ìŒ ë°©ìœ¼ë¡œ ê±´ë„ˆëœ€!
 				if (activeSlots[i] == false)
 				{
 					continue;
@@ -117,7 +133,7 @@ namespace ECS
 				size_t chunkIndex = i / chunksMaxSize;
 				size_t localIndex = i % chunksMaxSize;
 
-				// »ì¾ÆÀÖ´Â ÁøÂ¥ µ¥ÀÌÅÍ¸¸ Äİ¹é ÇÔ¼ö¿¡ ¹Ğ¾î ³Ö½À´Ï´Ù.
+				// ì‚´ì•„ìˆëŠ” ì§„ì§œ ë°ì´í„°ë§Œ ì½œë°± í•¨ìˆ˜ì— ë°€ì–´ ë„£ìŠµë‹ˆë‹¤.
 				callback(&(*chunks[chunkIndex])[localIndex], i);
 			}
 		}

@@ -1,6 +1,7 @@
 #pragma once
 #include "sol.hpp"
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include "ChunkedArray.h"
 #include "EntityObject.h"
@@ -46,6 +47,8 @@ public:
 	ECS::PoolManager* GetPoolManager();
 	ECS::EventManager* GetEventManager();
 private:
+	void DestroyEntityHierarchy(uint32_t id, std::unordered_set<uint32_t>& destroyingIDs);
+
 	std::string sceneName;
 	std::string path;
 	LuaSceneInfo* info;

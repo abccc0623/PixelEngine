@@ -95,6 +95,38 @@ void UIImage_SetTextureSize(unsigned int id, float width, float height)
 	}
 }
 
+bool UIImage_SetAspectFit(unsigned int id, float slotWidth, float slotHeight)
+{
+	auto registry = GetRegistry();
+	auto image = registry->Get<UIImageData>(id);
+	auto graphics = registry->Get<GraphicsData>(id);
+	if (image == nullptr || graphics == nullptr)
+	{
+		PixelLog::Error("[UIImage][SetAspectFit] Not Find Component");
+		return false;
+	}
+
+	if (slotWidth <= 0.0f || slotHeight <= 0.0f)
+	{
+		PixelLog::Error("[UIImage][SetAspectFit] Slot size must be greater than zero");
+		return false;
+	}
+
+	uint32_t textureWidth = 0;
+	uint32_t textureHeight = 0;
+	if (!GetGraphicsTextureSize(static_cast<uint16_t>(graphics->renderingData.texture_key), &textureWidth, &textureHeight))
+	{
+		PixelLog::Error("[UIImage][SetAspectFit] Cannot get texture size");
+		return false;
+	}
+
+	const float fitScale = (std::min)(slotWidth / static_cast<float>(textureWidth),
+		slotHeight / static_cast<float>(textureHeight));
+	graphics->renderingData.sprite.width = static_cast<float>(textureWidth) * fitScale;
+	graphics->renderingData.sprite.height = static_cast<float>(textureHeight) * fitScale;
+	return true;
+}
+
 void UIImage_SetPivot(unsigned int id, float x, float y)
 {
 	auto registry = GetRegistry();

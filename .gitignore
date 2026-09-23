@@ -17,7 +17,13 @@ __pycache__/
 *.log
 Tools/FeedbackDashboard/
 
-**/swigwin-*/Doc/         # 수백 개의 HTML 문서 파일 (매우 많음)
-**/swigwin-*/Examples/    # 언어별 예제 코드 (불필요)
-**/swigwin-*/Lib/test/    # 내부 테스트용 파일
-**/swigwin-*/Source/      # SWIG 자체의 소스 코드 (exe가 있다면 불필요)
+# Local AI/build experiments, preview copies, screenshots, and recovery backups.
+# Keep permanent source, tests, and documentation outside this folder.
+/.tmp/
+
+# SWIG bundled documentation, examples, tests, and source.
+# Comments must be on separate lines: Git treats inline comments as pattern text.
+**/swigwin-*/Doc/
+**/swigwin-*/Examples/
+**/swigwin-*/Lib/test/
+**/swigwin-*/Source/

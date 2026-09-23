@@ -15,6 +15,7 @@ public:
 	int GetFPS();
 	void SetPaused(bool value);
 	bool IsPaused() const;
+	void ResetAfterDebugPause(double seconds);
 
 	void Update() override;
 	void Initialize() override;

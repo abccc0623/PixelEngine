@@ -30,6 +30,14 @@ end
 --#END_TABLE OnCollisionExit
 
 
+--#BEGIN_TABLE OnAnimationCallBack
+function Script:OnAnimationCallBack(targetID,nowAnimationID,nowAnimationFrame)
+	--Debug.LogInfo(tostring(targetID))
+end
+--#END_TABLE OnAnimationCallBack
+
+
+
 --#BEGIN_TABLE WaitForSeconds
 WaitForSeconds(1.0)
 --#END_TABLE WaitForSeconds

@@ -23,6 +23,7 @@ namespace PixelTool
         private Process _luaServerProcess;
         private JsonRpc _rpc;
         private string _targetFilePath;
+        private readonly HashSet<string> openDocuments = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private int _currentLine;
         private int _currentColumn;
 
@@ -159,6 +160,13 @@ namespace PixelTool
             string uri = new Uri(absolutePath.Replace("\\", "/")).AbsoluteUri;
 
             _targetFilePath = uri;
+            if (_rpc == null) return;
+            if (openDocuments.Contains(uri))
+            {
+                await SyncTextAsync(fileText, 0, 0, absolutePath);
+                return;
+            }
+            openDocuments.Add(uri);
 
             var didOpenParams = new DidOpenTextDocumentParams
             {
@@ -183,9 +191,23 @@ namespace PixelTool
         }
 
         // 텍스트 동기화만 담당 (자동완성 요청 없음)
-        public async Task SyncTextAsync(string content, int currentLine, int currentColumn)
+        public async Task NotifyFileCloseAsync(string path)
+        {
+            string uri = new Uri(Path.GetFullPath(path)).AbsoluteUri;
+            if (!openDocuments.Remove(uri) || _rpc == null) return;
+            try
+            {
+                await _rpc.NotifyWithParameterObjectAsync(Methods.TextDocumentDidCloseName,
+                    new DidCloseTextDocumentParams { TextDocument = new TextDocumentIdentifier { Uri = new Uri(uri) } });
+            }
+            catch (Exception ex) { ConsoleWindow.LogMessage(ex.Message, 2); }
+        }
+
+        public async Task SyncTextAsync(string content, int currentLine, int currentColumn, string path = null)
         {
             if (_rpc == null || _targetFilePath == null) return;
+            string uri = path == null ? _targetFilePath : new Uri(Path.GetFullPath(path)).AbsoluteUri;
+            if (!openDocuments.Contains(uri)) return;
 
             int version = Interlocked.Increment(ref _documentVersion);
 
@@ -193,7 +215,7 @@ namespace PixelTool
             {
                 TextDocument = new VersionedTextDocumentIdentifier
                 {
-                    Uri = new Uri(_targetFilePath),
+                    Uri = new Uri(uri),
                     Version = version
                 },
                 ContentChanges = new[]
@@ -219,6 +241,7 @@ namespace PixelTool
         {
             if (_rpc == null || _targetFilePath == null) return;
             if (!await _completionLock.WaitAsync(0)) return;
+            string requestUri = _targetFilePath;
 
             try
             {
@@ -233,7 +256,7 @@ namespace PixelTool
 
                 var completionParams = new CompletionParams
                 {
-                    TextDocument = new TextDocumentIdentifier { Uri = new Uri(_targetFilePath) },
+                    TextDocument = new TextDocumentIdentifier { Uri = new Uri(requestUri) },
                     Position = new Position { Line = currentLine, Character = currentColumn },
                     Context = context
                 };
@@ -256,6 +279,11 @@ namespace PixelTool
                 {
                     var luaEditor = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
                     if (luaEditor == null) return;
+                    if (string.IsNullOrEmpty(luaEditor.CurrentFilePath) ||
+                        !string.Equals(new Uri(Path.GetFullPath(luaEditor.CurrentFilePath)).AbsoluteUri, requestUri, StringComparison.OrdinalIgnoreCase)) return;
+                    if (!luaEditor.GetLuaEditorTextArea().IsKeyboardFocusWithin) return;
+                    if (luaEditor.GetLuaEditorTextArea().Caret.Line - 1 != currentLine ||
+                        luaEditor.GetLuaEditorTextArea().Caret.Column - 1 != currentColumn) return;
 
                     luaEditor.completionWindow?.Close();
 

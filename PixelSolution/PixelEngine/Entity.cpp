@@ -10,6 +10,12 @@
 extern PixelEngine* Engine;
 unsigned int Entity_Create(const char* scriptName)
 {
+	// Lua에서 nil을 넘겼을 때 std::string(nullptr)가 네이티브 예외를 일으키지 않게 막는다.
+	if (scriptName == nullptr)
+	{
+		PixelLog::Error("[Entity][Create] scriptName is nil.");
+		return UINT32_MAX;
+	}
 	std::string scriptNameSTR(scriptName);
 	auto sceneManager = Engine->GetFactory<SceneManager>();
 	auto luaManager = Engine->GetFactory<LuaManager>();
@@ -33,12 +39,22 @@ void Entity_Destroy(unsigned int id)
 void Entity_SetActive(unsigned int id, bool active)
 {
 	auto find = FindEntity(id);
+	if (find == nullptr)
+	{
+		PixelLog::Error("[Entity][SetActive] Invalid Entity ID: " + std::to_string(id));
+		return;
+	}
 	find->SetActive(active);
 }
 
 bool Entity_GetActive(unsigned int id)
 {
 	auto find = FindEntity(id);
+	if (find == nullptr)
+	{
+		PixelLog::Error("[Entity][GetActive] Invalid Entity ID: " + std::to_string(id));
+		return false;
+	}
 	return find->GetActive();
 }
 

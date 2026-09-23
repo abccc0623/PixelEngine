@@ -26,6 +26,23 @@ namespace PixelTool
     {
         private string targetPath = "";
         private bool IsDirty = false;
+        private sealed class FileState
+        {
+            public string Path;
+            public TextDocument Document;
+            public TabItem Tab;
+            public TextBlock Label;
+            public int Caret;
+            public int SelectionStart;
+            public int SelectionLength;
+            public double VerticalOffset;
+            public double HorizontalOffset;
+        }
+        private readonly Dictionary<string, FileState> files = new Dictionary<string, FileState>(StringComparer.OrdinalIgnoreCase);
+        private FileState activeFile;
+        private bool switchingFile;
+        private readonly Task lspReady;
+        public string CurrentFilePath => targetPath;
 
         public CompletionWindow completionWindow;
         private CancellationTokenSource _debounceTokenSource;
@@ -39,15 +56,17 @@ namespace PixelTool
             InitializeComponent();
             luaLspService = new LuaLspService();
             luaLspService.DiagnosticsPublished += LuaLspService_DiagnosticsPublished;
-            luaLspService.Initialize();
+            lspReady = luaLspService.Initialize();
 
             ConfigureEditorOptions();
+            InitializeDebugger();
             diagnosticRenderer = new LuaDiagnosticRenderer(LuaEditor.TextArea.TextView);
             LuaEditor.TextArea.TextView.BackgroundRenderers.Add(diagnosticRenderer);
             LuaEditor.TextChanged += LuaEditor_TextChanged;
             LuaEditor.TextArea.TextEntered += TextArea_TextEntered;
             LuaEditor.PreviewMouseWheel += LuaEditor_PreviewMouseWheel;
             ApplyLuaSyntaxHighlighting();
+            LuaEditor.IsReadOnly = true;
         }
 
         private void LuaLspService_DiagnosticsPublished(PublishDiagnosticParams parameters)
@@ -119,35 +138,125 @@ namespace PixelTool
             }
         }
 
-        public async void OpenFile(string path)
+        public void OpenFile(string path)
         {
-            if (System.IO.File.Exists(path))
+            try
             {
-                if (IsDirty)
+                path = Path.GetFullPath(path);
+                if (!File.Exists(path)) return;
+                if (!files.TryGetValue(path, out var file))
                 {
-                    var result = PixelMessageBox.Show("파일을 변경전 저장이 필요합니다.\n", "저장", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (result == MessageBoxResult.Yes)
+                    file = new FileState { Path = path, Document = new TextDocument(File.ReadAllText(path)) };
+                    file.Document.UndoStack.MarkAsOriginalFile();
+                    file.Document.UndoStack.PropertyChanged += (_, args) =>
                     {
-                        LuaEditor.Save(targetPath);
-                    }
+                        if (args.PropertyName == nameof(UndoStack.IsOriginalFile)) Dispatcher.InvokeAsync(UpdateFileStatus);
+                    };
+                    file.Label = new TextBlock { Text = Path.GetFileName(path), VerticalAlignment = VerticalAlignment.Center };
+                    var header = new StackPanel { Orientation = Orientation.Horizontal };
+                    header.Children.Add(file.Label);
+                    var close = new Button { Content = "×", Margin = new Thickness(8, 0, 0, 0), Padding = new Thickness(4, 0, 4, 0), ToolTip = "Close file" };
+                    var captured = file;
+                    close.Click += (_, e) => { e.Handled = true; CloseFile(captured); };
+                    header.Children.Add(close);
+                    file.Tab = new TabItem { Header = header, Tag = file, ToolTip = path };
+                    files.Add(path, file);
+                    FileTabs.Items.Add(file.Tab);
                 }
-
-                LuaEditor.Load(path);
-                targetPath = path;
-                if (luaLspService != null)
-                {
-                    await luaLspService.NotifyFileOpenAsync(path, LuaEditor.Text);
-                }
-                LuaEditor.Document.UndoStack.MarkAsOriginalFile();
-                IsDirty = false;
-                EditorChange.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(99, 193, 116));
-                EditorChange.Text = "● Saved";
+                FileTabs.SelectedItem = file.Tab;
+                LuaEditor.Focus();
             }
+            catch (Exception ex) { PixelMessageBox.Show(ex.Message, "파일 열기 실패", MessageBoxButton.OK, MessageBoxImage.Error); }
+        }
+
+        private async void FileTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.Source != FileTabs) return;
+            completionWindow?.Close();
+            if (activeFile != null)
+            {
+                activeFile.Caret = LuaEditor.CaretOffset;
+                activeFile.SelectionStart = LuaEditor.SelectionStart;
+                activeFile.SelectionLength = LuaEditor.SelectionLength;
+                activeFile.VerticalOffset = LuaEditor.VerticalOffset;
+                activeFile.HorizontalOffset = LuaEditor.HorizontalOffset;
+            }
+            switchingFile = true;
+            activeFile = (FileTabs.SelectedItem as TabItem)?.Tag as FileState;
+            targetPath = activeFile?.Path ?? "";
+            LuaEditor.Document = activeFile?.Document ?? new TextDocument();
+            LuaEditor.IsReadOnly = activeFile == null;
+            LuaEditor.CaretOffset = Math.Min(activeFile?.Caret ?? 0, LuaEditor.Document.TextLength);
+            if (activeFile != null) LuaEditor.Select(activeFile.SelectionStart, activeFile.SelectionLength);
+            LuaEditor.ScrollToVerticalOffset(activeFile?.VerticalOffset ?? 0);
+            LuaEditor.ScrollToHorizontalOffset(activeFile?.HorizontalOffset ?? 0);
+            diagnosticRenderer.SetErrors(new List<ISegment>());
+            switchingFile = false;
+            UpdateFileStatus();
+            var selected = activeFile;
+            await lspReady;
+            if (selected != null && selected == activeFile)
+                await luaLspService.NotifyFileOpenAsync(selected.Path, selected.Document.Text);
+        }
+
+        private void UpdateFileStatus()
+        {
+            IsDirty = activeFile != null && !activeFile.Document.UndoStack.IsOriginalFile;
+            if (activeFile != null) activeFile.Label.Text = Path.GetFileName(targetPath) + (IsDirty ? "*" : "");
+            EditorChange.Text = IsDirty ? "● Modified" : "● Saved";
+            EditorChange.Foreground = new SolidColorBrush(IsDirty ? System.Windows.Media.Color.FromRgb(244, 190, 74) : System.Windows.Media.Color.FromRgb(99, 193, 116));
+        }
+
+        private bool SaveFile(FileState file)
+        {
+            if (file == null) return false;
+            try
+            {
+                File.WriteAllText(file.Path, file.Document.Text);
+                file.Document.UndoStack.MarkAsOriginalFile();
+                file.Label.Text = Path.GetFileName(file.Path);
+                UpdateFileStatus();
+                return true;
+            }
+            catch (Exception ex) { PixelMessageBox.Show(ex.Message, "저장 실패", MessageBoxButton.OK, MessageBoxImage.Error); return false; }
+        }
+
+        private bool ConfirmClose(FileState file)
+        {
+            if (file.Document.UndoStack.IsOriginalFile) return true;
+            var answer = PixelMessageBox.Show(Path.GetFileName(file.Path) + " 변경 사항을 저장할까요?", "저장", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+            return answer == MessageBoxResult.No || (answer == MessageBoxResult.Yes && SaveFile(file));
+        }
+
+        private async void CloseFile(FileState file)
+        {
+            if (!ConfirmClose(file)) return;
+            files.Remove(file.Path);
+            FileTabs.Items.Remove(file.Tab);
+            await lspReady;
+            await luaLspService.NotifyFileCloseAsync(file.Path);
+        }
+
+        public bool ConfirmCloseAll()
+        {
+            foreach (var file in files.Values) if (!ConfirmClose(file)) return false;
+            return true;
+        }
+
+        public void DisposeLanguageService()
+        {
+            LuaDebugSession.StateChanged -= UpdateDebugStatus;
+            completionWindow?.Close();
+            luaLspService.DiagnosticsPublished -= LuaLspService_DiagnosticsPublished;
+            luaLspService.Dispose();
         }
 
         // 텍스트 동기화만 담당
         private void LuaEditor_TextChanged(object sender, EventArgs e)
         {
+            if (switchingFile || activeFile == null) return;
+            ClearEditedBreakpoints();
+            Dispatcher.InvokeAsync(UpdateFileStatus);
             if (!string.IsNullOrEmpty(targetPath))
             {
                 IsDirty = true;
@@ -159,14 +268,15 @@ namespace PixelTool
             int currentLine = LuaEditor.TextArea.Caret.Line - 1;
             int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
 
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await luaLspService.SyncTextAsync(currentText, currentLine, currentColumn);
-                }
-                catch (Exception) { }
-            });
+            string changedPath = targetPath;
+            _ = SyncDocumentAsync(changedPath, currentText, currentLine, currentColumn);
+        }
+
+        private async Task SyncDocumentAsync(string path, string text, int line, int column)
+        {
+            await lspReady;
+            try { await luaLspService.SyncTextAsync(text, line, column, path); }
+            catch (Exception) { }
         }
 
         // 자동완성 요청만 담당
@@ -187,6 +297,12 @@ namespace PixelTool
 
         private void luaEditor_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.F9)
+            {
+                ToggleBreakpoint(LuaEditor.TextArea.Caret.Line);
+                e.Handled = true;
+                return;
+            }
             if (!LuaEditor.IsKeyboardFocusWithin) { e.Handled = true; }
 
             bool isCtrlPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
@@ -222,16 +338,12 @@ namespace PixelTool
                 else if (e.Key == Key.S)
                 {
                     e.Handled = true;
-                    LuaEditor.Save(targetPath);
-                    EditorChange.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(99, 193, 116));
-                    EditorChange.Text = "● Saved";
-                    IsDirty = false;
+                    SaveFile(activeFile);
                 }
                 else if (e.Key == Key.R)
                 {
                     e.Handled = true;
-                    LuaEditor.Save(targetPath);
-                    PixelEngineNative.Reload();
+                    if (SaveFile(activeFile)) PixelEngineNative.Reload();
                 }
                 else if (e.Key == Key.Space)
                 {
@@ -396,15 +508,12 @@ namespace PixelTool
 
         private void SaveLuaFile(object sender, RoutedEventArgs e)
         {
-            LuaEditor.Save(targetPath);
-            EditorChange.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(99, 193, 116));
-            EditorChange.Text = "● Saved";
-            IsDirty = false;
+            SaveFile(activeFile);
         }
 
         private void ReimportLuaFile(object sender, RoutedEventArgs e)
         {
-            PixelEngineNative.Reload();
+            if (SaveFile(activeFile)) PixelEngineNative.Reload();
         }
 
         public TextArea GetLuaEditorTextArea()
@@ -457,6 +566,12 @@ namespace PixelTool
         private void Create_CollisionExit(object sender, RoutedEventArgs e)
         {
             string content = LuaFileManager.GetBlockByMarker("EventFunction", "OnCollisionExit");
+            LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
+        }
+
+        private void Create_AnimationCallBack(object sender, RoutedEventArgs e)
+        {
+            string content = LuaFileManager.GetBlockByMarker("EventFunction", "OnAnimationCallBack");
             LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
         }
 

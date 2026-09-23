@@ -79,3 +79,9 @@ void TimeManager::Clear()
 	_startTime = Clock::now();
 	_prevTime = _startTime;
 }
+
+void TimeManager::ResetAfterDebugPause(double seconds)
+{
+	_prevTime = Clock::now();
+	_startTime += std::chrono::duration_cast<Clock::duration>(std::chrono::duration<double>(seconds));
+}

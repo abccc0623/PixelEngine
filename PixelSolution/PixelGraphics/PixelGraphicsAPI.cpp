@@ -132,6 +132,36 @@ uint16_t LoadGraphicsTexture(const char* filePath)
 	return 0;
 }
 
+bool GetGraphicsTextureSize(uint16_t textureID, uint32_t* width, uint32_t* height)
+{
+	if (mEngine == nullptr || width == nullptr || height == nullptr)
+	{
+		return false;
+	}
+
+	auto resourceManager = mEngine->GetResourceManager();
+	if (resourceManager == nullptr)
+	{
+		return false;
+	}
+
+	auto textureFactory = resourceManager->GetFactory<PixelGraphics::TextureFactory>(PixelGraphics::ResourceType::TEXTURE);
+	if (textureFactory == nullptr)
+	{
+		return false;
+	}
+
+	auto texture = textureFactory->Get(textureID);
+	if (texture == nullptr || texture->width == 0 || texture->height == 0)
+	{
+		return false;
+	}
+
+	*width = texture->width;
+	*height = texture->height;
+	return true;
+}
+
 uint16_t LoadGraphicsFont(const char* filePath)
 {
 	if (mEngine != nullptr)

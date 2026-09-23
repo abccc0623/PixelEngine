@@ -103,13 +103,57 @@
         </Style>
     </UserControl.Resources>
 
+    <Border BorderThickness="2">
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="BorderBrush" Value="#394354"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                        <Setter Property="BorderBrush" Value="#65B9FF"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="34" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Background="{StaticResource PixelPanelBrush}">
+        <TabControl x:Name="FileTabs" Grid.Row="0" SelectionChanged="FileTabs_SelectionChanged"
+                    Background="#202630" BorderThickness="0">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Foreground" Value="#A8B3C5"/>
+                    <Setter Property="Background" Value="#1B2029"/>
+                    <Setter Property="Padding" Value="12,8"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="TabBorder" Background="{TemplateBinding Background}"
+                                        BorderBrush="Transparent" BorderThickness="0,3,0,0" Margin="0,0,2,0">
+                                    <ContentPresenter ContentSource="Header" Margin="{TemplateBinding Padding}"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="TabBorder" Property="Background" Value="#303C4E"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="TabBorder" Property="Background" Value="#254A70"/>
+                                        <Setter TargetName="TabBorder" Property="BorderBrush" Value="#65B9FF"/>
+                                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+            <TabControl.ContentTemplate><DataTemplate><Border Height="0"/></DataTemplate></TabControl.ContentTemplate>
+        </TabControl>
+        <Grid Grid.Row="1" Background="{StaticResource PixelPanelBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -119,8 +163,9 @@
 
             <TextBlock x:Name="EditorChange" Grid.Column="0" Margin="10,0,8,0" VerticalAlignment="Center"
                        Foreground="#63C174" FontSize="11" Text="● Saved"/>
-            <TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{StaticResource PixelMutedTextBrush}"
-                       FontSize="11" Text="Lua 5.1  •  Ctrl+K, D to format"/>
+            <Button x:Name="DebugToggle" Grid.Column="1" HorizontalAlignment="Left" Margin="0,3,6,3"
+                    Padding="8,0" Click="ToggleDebugging" FontSize="11"
+                    ToolTip="줄 번호 왼쪽 클릭 또는 F9로 중단점 설정. Play 중 실행되는 Lua에서 멈춥니다. F5: 계속, F11: 다음 줄 진입."/>
             <Button Grid.Column="2" Margin="0,3,4,3" Style="{StaticResource PixelIconButton}"
                     Content="" ToolTip="Save changes (Ctrl+S)" Click="SaveLuaFile"/>
             <Button Grid.Column="3" Margin="0,3,6,3" Style="{StaticResource PixelIconButton}"
@@ -135,12 +180,13 @@
             Background="#202630"
             Foreground="#D8DCE8"
             PreviewKeyDown="luaEditor_PreviewKeyDown"
-            Grid.Row="1">
+            Grid.Row="2">
             <avalonedit:TextEditor.ContextMenu>
                 <ContextMenu Style="{StaticResource LuaEditorContextMenuStyle}">
                     <MenuItem Header="Create Event" Style="{StaticResource LuaEditorMenuItemStyle}">
                         <MenuItem Header="OnCollisionEnter" Style="{StaticResource LuaEditorMenuItemStyle}" Click="Create_CollisionEnter"/>
                         <MenuItem Header="OnCollisionExit" Style="{StaticResource LuaEditorMenuItemStyle}" Click="Create_CollisionExit"/>
+                        <MenuItem Header="OnAnimationCallBack" Style="{StaticResource LuaEditorMenuItemStyle}" Click="Create_AnimationCallBack"/>
                     </MenuItem>
 
                     <MenuItem Header="Create Coroutine" Style="{StaticResource LuaEditorMenuItemStyle}">
@@ -157,4 +203,5 @@
 
         </avalonEdit:TextEditor>
     </Grid>
+    </Border>
 </UserControl>

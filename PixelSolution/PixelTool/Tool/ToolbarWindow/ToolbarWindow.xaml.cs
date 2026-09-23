@@ -310,6 +310,15 @@ namespace PixelTool
             }
         }
 
+        private void OpenLuaDataTable(object sender, RoutedEventArgs e)
+        {
+            var window = new LuaDataTableWindow
+            {
+                Owner = Window.GetWindow(this)
+            };
+            window.Show();
+        }
+
         private void UpdateEngineFiles(object sender, RoutedEventArgs e)
         {
             string EnginePath = ProjectPathService.EnginePath;

@@ -24,33 +24,60 @@ void ECS::EventManager::Release()
 	eventList.clear();
 }
 
-void ECS::EventManager::BindLuaEvent(unsigned int id, std::string key, std::string func)
+bool ECS::EventManager::BindLuaEvent(unsigned int id, const std::string& key, const std::string& func)
 {
-	if (eventList.find(key) == eventList.end())
+	if (key.empty() || func.empty() || FindEntity(id) == nullptr)
 	{
-		eventList.insert({ key,std::vector<UserEvent>() });
+		return false;
 	}
-	UserEvent event;
-	event.entityID = id;
-	event.functionName = func;
-	eventList[key].push_back(event);
+
+	auto& events = eventList[key];
+	auto duplicate = std::find_if(events.begin(), events.end(), [id, &func](const UserEvent& event)
+		{
+			return event.entityID == id && event.functionName == func;
+		});
+	if (duplicate == events.end())
+	{
+		events.push_back({ id, func });
+	}
+	return true;
 }
 
-void ECS::EventManager::CallLuaEvent(std::string eventName, sol::object event)
+bool ECS::EventManager::CallLuaEvent(const std::string& eventName)
 {
-	if (eventList.find(eventName) != eventList.end())
+	auto found = eventList.find(eventName);
+	if (found == eventList.end()) return false;
+
+	bool called = false;
+	const auto events = found->second;
+	for (const auto& event : events)
 	{
-		for (auto& K : eventList[eventName])
+		auto entity = FindEntity(event.entityID);
+		if (entity != nullptr)
 		{
-			auto entity = FindEntity(K.entityID);
-			if (entity != nullptr)
-			{
-				entity->OnEvent(K.functionName, event);
-			}
+			entity->OnEvent(event.functionName);
+			called = true;
 		}
 	}
-	else
-	{
+	return called;
+}
 
+bool ECS::EventManager::CallLuaEvent(const std::string& eventName, sol::object eventData)
+
+{
+	auto found = eventList.find(eventName);
+	if (found == eventList.end()) return false;
+
+	bool called = false;
+	const auto events = found->second;
+	for (const auto& event : events)
+	{
+		auto entity = FindEntity(event.entityID);
+		if (entity != nullptr)
+		{
+			entity->OnEvent(event.functionName, eventData);
+			called = true;
+		}
 	}
+	return called;
 }

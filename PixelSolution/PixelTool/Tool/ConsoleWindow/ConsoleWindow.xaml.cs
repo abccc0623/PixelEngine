@@ -143,6 +143,11 @@ namespace PixelTool
         }
 
         private void Clear(object sender, RoutedEventArgs e)
+		{
+			ClearLogs();
+		}
+
+		public void ClearLogs()
         {
             _logItems.Clear();
             _logIndex.Clear();

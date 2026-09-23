@@ -11,7 +11,7 @@ function LuaManager:Add(ID,scriptInstance)
         Update = scriptInstance.Update,
     }
 
-	--·ç¾ÆÀÇ ±âº» ÇÔ¼ö Spawn È£Ãâ
+	--ë£¨ì•„ì˜ ê¸°ë³¸ í•¨ìˆ˜ Spawn í˜¸ì¶œ
 	if self.entities[ID].Spawn then
 		self.entities[ID].EntityTable:Spawn()
 	end
@@ -25,7 +25,7 @@ function LuaManager:Update(DTime)
 	
 	if not self.entities then return end
 
-	--·ç¾ÆÀÇ ±âº» ÇÔ¼ö ¾÷µ¥ÀÌÆ® È£Ãâ
+	--ë£¨ì•„ì˜ ê¸°ë³¸ í•¨ìˆ˜ ì—…ë°ì´íŠ¸ í˜¸ì¶œ
 	for id, entityData in pairs(self.entities) do
 		if entityData.Update then
 			if entityData.EntityTable.Active == true then

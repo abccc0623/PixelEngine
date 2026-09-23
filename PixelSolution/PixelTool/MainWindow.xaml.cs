@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -24,6 +25,7 @@ namespace PixelTool
         public MainWindow()
         {
             InitializeComponent();
+			InputManager.Current.PreProcessInput += MainWindow_PreProcessInput;
 
             _layoutContents = new Dictionary<string, object>
             {
@@ -45,6 +47,7 @@ namespace PixelTool
                 ApplyAvalonDockRuntimeTheme();
             };
             Closing += MainWindow_Closing;
+            Closed += (_, _) => (LuaEditorContent.Child as LuaEditorWindow)?.DisposeLanguageService();
 
             _dockThemeTimer = new DispatcherTimer(DispatcherPriority.Background)
             {
@@ -61,8 +64,19 @@ namespace PixelTool
             _dockThemeTimer.Start();
         }
 
+		private void MainWindow_PreProcessInput(object sender, PreProcessInputEventArgs e)
+		{
+			if (e.StagingItem.Input is not KeyEventArgs keyEvent) return;
+			if (keyEvent.RoutedEvent != Keyboard.PreviewKeyDownEvent) return;
+			if (keyEvent.Key != Key.R || (Keyboard.Modifiers & ModifierKeys.Control) == 0) return;
+			ConsolePanel.ClearLogs();
+		}
+
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
+            var editor = LuaEditorContent.Child as LuaEditorWindow;
+            if (editor != null && !editor.ConfirmCloseAll()) { e.Cancel = true; return; }
+			InputManager.Current.PreProcessInput -= MainWindow_PreProcessInput;
             SaveCurrentLayout();
         }
 
@@ -151,6 +165,8 @@ namespace PixelTool
 
         private void ApplyDockVisualTree(DependencyObject target, bool forceDockScope)
         {
+            // Embedded editors own their tab/focus colors. Do not overwrite their styles.
+            if (target is UserControl) return;
             bool isDockScope = forceDockScope || IsAvalonDockVisual(target);
 
             if (isDockScope)
@@ -164,7 +180,13 @@ namespace PixelTool
                 {
                     if (IsLightBrush(control.BorderBrush)) control.BorderBrush = _dockBorderBrush;
                     if (IsLightBrush(control.Background)) control.Background = _dockBackgroundBrush;
-                    if (IsAvalonDockTab(control)) control.Foreground = _dockTextBrush;
+                    if (control is AvalonDock.Controls.LayoutDocumentTabItem documentTab)
+                    {
+                        bool active = documentTab.Model?.IsActive == true;
+                        control.SetCurrentValue(Control.BackgroundProperty, active ? new SolidColorBrush(Color.FromRgb(37, 74, 112)) : _dockBackgroundBrush);
+                        control.SetCurrentValue(Control.ForegroundProperty, active ? Brushes.White : _dockTextBrush);
+                        control.SetCurrentValue(Control.BorderBrushProperty, active ? new SolidColorBrush(Color.FromRgb(101, 185, 255)) : _dockBorderBrush);
+                    }
                 }
                 else if (target is Panel panel)
                 {

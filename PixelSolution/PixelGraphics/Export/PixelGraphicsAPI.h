@@ -17,6 +17,7 @@ PICNIC_GRAPHICS_DLL void DrawCircle2D(float x, float y, float z, float radius, f
 
 
 PICNIC_GRAPHICS_DLL uint16_t LoadGraphicsTexture(const char* filePath);
+PICNIC_GRAPHICS_DLL bool GetGraphicsTextureSize(uint16_t textureID, uint32_t* width, uint32_t* height);
 PICNIC_GRAPHICS_DLL uint16_t LoadGraphicsFont(const char* filePath);
 PICNIC_GRAPHICS_DLL uint16_t LoadGraphicsMaterial(const char* filePath);
 PICNIC_GRAPHICS_DLL void GraphicsClear();

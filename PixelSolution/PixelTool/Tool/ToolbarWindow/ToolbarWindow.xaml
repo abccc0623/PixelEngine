@@ -147,6 +147,11 @@
                     </local:ToolbarButton.PopupContent>
                 </local:ToolbarButton>
 
+                <Button Content="&#xE8A5;"
+                        Style="{StaticResource ToolbarActionButton}"
+                        ToolTip="Lua Data Table"
+                        Click="OpenLuaDataTable"/>
+
                 <Button Content=""
                         Style="{StaticResource ToolbarActionButton}"
                         ToolTip="Engine Update"

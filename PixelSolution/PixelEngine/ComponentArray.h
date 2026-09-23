@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "IComponentArray.h"
 #include "ChunkedArray.h"
+#include <limits>
 #include <vector>
 namespace ECS
 {
@@ -53,7 +54,13 @@ namespace ECS
 		}
 		unsigned int GetEntityID(int index) override
 		{
-			return indexToEntityMap[index];
+			// operator[]는 없는 인덱스에 Entity 0을 자동 등록하므로 사용하지 않는다.
+			auto found = indexToEntityMap.find(index);
+			if (found == indexToEntityMap.end())
+			{
+				return (std::numeric_limits<unsigned int>::max)();
+			}
+			return found->second;
 		}
 
 		std::vector<T>& GetArray()
