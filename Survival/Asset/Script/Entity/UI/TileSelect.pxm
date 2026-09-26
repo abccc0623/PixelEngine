@@ -1,0 +1,33 @@
+﻿local Script = {}
+
+function  Script:Spawn()  
+    self.transform = Transform.Add(self.ID)
+    self.image = UIImage.Add(self.ID)
+    self.image:SetTexture("start")
+    self.image:SetOrder(3)
+    self.transform.scale = PVector3(0.05,0.05,1)
+
+    self.scaleValue = 0.05
+    self.scaleDirection = 1
+    self.scaleSpeed = 0.01
+    self.transform.scale = PVector3(self.scaleValue, self.scaleValue, 1)
+end  
+
+function Script:Update(DTime)
+    self.scaleValue = self.scaleValue + self.scaleDirection * self.scaleSpeed * Time.GetUnscaledDeltaTime()
+
+    if self.scaleValue >= 0.055 then
+        self.scaleValue = 0.055
+        self.scaleDirection = -1
+    elseif self.scaleValue <= 0.045 then
+        self.scaleValue = 0.045
+        self.scaleDirection = 1
+    end
+    self.transform.scale = PVector3(self.scaleValue, self.scaleValue, 1)
+end
+
+function Script:Move(w,h)  
+    self.transform.position = PVector3(w * 64,h * 64,1)
+end 
+
+return Script

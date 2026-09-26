@@ -1,0 +1,174 @@
+﻿local Script = {}
+
+function Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.animation = Animation2D.Add(self.ID)
+    self.image = UIImage.Add(self.ID)
+    self.image:SetTextureSize(32, 32)
+    local index = self.animation:Create("startPoint", 8, 1, 1)
+    self.animation:Play(index)
+
+    self.map = {}
+    self.x = 0
+    self.y = 0
+
+    -- 완성된 라인 경로가 들어갈 배열
+    self.line = {}
+
+    self.movePoint = {pos = PVector2(0, 0),Number = 0,}
+end
+
+function Script:FindStartLine()
+    self.x = math.floor(self.transform.position.x / 32)
+    self.y = math.floor(self.transform.position.y / 32)
+    -- 왼쪽
+    if self:IsLine(self.x - 1, self.y) then
+        return self.x - 1, self.y
+    end
+    -- 오른쪽
+    if self:IsLine(self.x + 1, self.y) then
+        return self.x + 1, self.y
+    end
+    -- 위
+    if self:IsLine(self.x, self.y - 1) then
+        return self.x, self.y - 1
+    end
+    -- 아래
+    if self:IsLine(self.x, self.y + 1) then
+        return self.x, self.y + 1
+    end
+    return nil, nil
+end
+
+function Script:IsLine(x, y)
+    local row = self.map[y]
+
+    if row == nil then
+        return false
+    end
+
+    local value = row[x]
+
+    if value == nil then
+        return false
+    end
+
+    return value >= 4 and value <= 7
+end
+
+function Script:FindLine(x, y)
+    self.line = {}
+
+    local visited = {}
+
+    while true do
+        local row = self.map[y]
+        -- Y가 맵 범위를 벗어남
+        if row == nil then
+            Debug.Log("Line Y가 맵을 벗어났습니다")
+            self.line = {}
+            return false
+        end
+
+        local value = row[x]
+
+        -- X가 맵 범위를 벗어남
+        if value == nil then
+            Debug.Log("Line X가 맵을 벗어났습니다")
+            self.line = {}
+            return false
+        end
+
+        local key =
+            tostring(x) .. ":" .. tostring(y)
+
+        -- 같은 위치를 다시 방문하면 무한 순환
+        if visited[key] then
+            Debug.Log("Line이 순환하고 있습니다")
+            self.line = {}
+            return false
+        end
+
+        visited[key] = true
+
+        -- 현재 칸을 경로에 저장
+        table.insert(self.line, {
+            x = x,
+            y = y,
+            value = value,
+        })
+
+        -- End 타일 발견
+        if value == 3 then
+            Debug.Log(
+                "Line 찾기 완료: " ..
+                tostring(#self.line)
+            )
+
+            return true
+        end
+
+        -- 위
+        if value == 4 then
+            y = y - 1
+        -- 아래
+        elseif value == 5 then
+            y = y + 1
+        -- 오른쪽
+        elseif value == 6 then
+            x = x + 1
+        -- 왼쪽
+        elseif value == 7 then
+            x = x - 1
+        -- Line이 아닌 타일
+        else
+            Debug.Log(
+                "잘못된 Line 값: " ..
+                tostring(value)
+            )
+            self.line = {}
+            return false
+        end
+    end
+end
+
+
+function Script:Setting(newMap)
+    Debug.Log("Start Setting Map")
+    self.map = newMap
+
+    --시작하기전 4방향 line 타일부터 찾는다
+    local lineX, lineY = self:FindStartLine()
+    if lineX == nil then
+        Debug.Log("주변에 Line이 없습니다")
+    else
+        self:FindLine(lineX,lineY)
+        self:PrintLineOneLine()
+    end
+end
+
+
+function Script:PrintLineOneLine()
+    if self.line == nil or #self.line == 0 then
+        Debug.Log("출력할 Line이 없습니다")
+        return
+    end
+
+    local result = ""
+
+    for index, point in ipairs(self.line) do
+        if index > 1 then
+            result = result .. " -> "
+        end
+
+        result = result ..
+            "(" .. tostring(point.x) ..
+            ", " .. tostring(point.y) ..
+            ", " .. tostring(point.value) .. ")"
+    end
+
+    Debug.Log(result)
+end
+
+
+return Script

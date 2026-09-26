@@ -1,0 +1,216 @@
+﻿local Script = {}
+function Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.transform.position = PVector3(-425, -100, 0)
+    self.transform.scale = PVector3(0.6,0.6,1)
+
+    self.SelectTr = -1
+    self.SelectW = 1
+    self.SelectH = 1
+    self.KeyRepeatStates = {}
+
+    self:CreateGrid()
+    self:CreateGridSelect()
+    Event.Bind(self.ID,"ShowGrid", "Show")
+    Entity.SetActive(self.ID, false)
+end
+
+function Script:Show()
+    Entity.SetActive(self.ID, true)
+    self.SelectW = 1
+    self.SelectH = 1
+end
+
+
+function Script:Setting()
+    self.SelectW = 1
+    self.SelectH = 1
+end
+
+function Script:CreateGrid()
+    for x = 1, 14 do
+        for y = 1, 14 do
+            local targetID = Entity.CreateEmpty()
+            local targetTr = Transform.Add(targetID)
+            local image = UIImage.Add(targetID)
+            image:SetTexture("tile") 
+            image:SetTextureSize(64, 64)
+            image:SetColor(137, 108, 71,255)
+            targetTr.position = PVector3((x-1) * 48,(y-1)*48,0)
+            self.transform:SetChild(targetID)
+            GridUI[x][y] =  self:CreateGridImage(x,y)
+        end
+    end
+end
+
+function Script:CreateGridImage(x,y)
+    local targetID = Entity.CreateEmpty()
+    local targetTr = Transform.Add(targetID)
+    local image = UIImage.Add(targetID)
+    image:SetTexture("tile") 
+    image:SetTextureSize(48, 48)
+    
+    image:SetColor(137, 108, 71,255)
+    targetTr.position = PVector3((x-1) * 48,(y-1)*48,0)
+    self.transform:SetChild(targetID)
+    GridTransform[x][y] = targetTr
+    return image
+end
+
+function Script:CreateGridSelect()
+    local targetID = Entity.CreateEmpty()
+    self.SelectTr = Transform.Add(targetID)
+    local image = UIImage.Add(targetID)
+    image:SetTexture("tile") 
+    image:SetTextureSize(64, 64)
+    image:SetColor(26, 113, 142, 255)
+
+    self.SelectTr.position = PVector3(self.SelectW,self.SelectH,0)
+    self.SelectTr.scale = PVector3(1.2,1.2,1)
+    self.transform:SetChild(targetID)
+    --Entity.CallFunction(self.ContentTextID,"Setting",TileMap.grid[self.SelectH][self.SelectW].Value)
+end
+
+function Script:Update(DTime)
+    if self.SelectTr == -1 then
+        return
+    end
+
+    if Input.Key(Keycode.X) then return end
+
+
+    local RTime = Time.GetUnscaledDeltaTime()
+    self:HandleMoveKey(Keycode.Up, 0, -1, RTime)
+    self:HandleMoveKey(Keycode.Down, 0, 1, RTime)
+    self:HandleMoveKey(Keycode.Left, -1, 0, RTime)
+    self:HandleMoveKey(Keycode.Right, 1, 0, RTime)
+
+	if Input.KeyDown(Keycode.Escape) then
+		ChoiceManager.BookClose()
+		Entity.SetActive(self.ID, false)
+	end
+
+    if Input.KeyDown(Keycode.Z) then
+        local selectType = User.Selection.Type
+        local selectIndex = User.Selection.Index
+
+        if selectType == InventoryType.Tool then
+            local tool = User.Tools[selectIndex]
+            if tool ~= nil and tool.Action ~= nil then tool.Action(self.SelectW,self.SelectH) end
+        elseif selectType == InventoryType.Inventory then
+            local inventory = User.Inventory[selectIndex]
+            if inventory == nil or inventory.ItemIndex <= 0 or inventory.ItemCount <= 0 then return end
+
+            local itemIndex = inventory.ItemIndex
+            if GridFunction.Add(self.SelectW,self.SelectH,itemIndex) then
+                InventoryFunction.Place(selectIndex)
+            end
+        end
+    end
+end
+
+
+function Script:GridCheck(x, y)
+    if x < 1 or x > 14 then
+        return 
+    end
+    if y < 1 or y > 14 then
+        return
+    end
+
+    self.SelectW = x
+    self.SelectH = y
+    self.SelectTr.position = PVector3((x - 1) * 48, (y - 1) * 48, 0)
+end
+
+function Script:HandleMoveKey(keycode, moveW, moveH, DTime)
+    local state = self.KeyRepeatStates[keycode]
+
+    if state == nil then
+        state = { HoldTime = 0, RepeatTime = 0 }
+        self.KeyRepeatStates[keycode] = state
+    end
+
+    if Input.KeyDown(keycode) then
+        state.HoldTime = 0
+        state.RepeatTime = 0
+        self:GridCheck(self.SelectW + moveW, self.SelectH + moveH)
+        return
+    end
+
+    if Input.Key(keycode) then
+        state.HoldTime = state.HoldTime + DTime
+
+        if state.HoldTime >= 0.5 then
+            state.RepeatTime = state.RepeatTime + DTime
+
+            if state.RepeatTime >= 0.08 then
+                state.RepeatTime = state.RepeatTime - 0.08
+                self:GridCheck(self.SelectW + moveW, self.SelectH + moveH)
+            end
+        end
+    else
+        state.HoldTime = 0
+        state.RepeatTime = 0
+    end
+end
+
+
+function Script:KeyDescription()
+    local contentID = Entity.CreateEmpty()
+    local transform = Transform.Add(contentID)
+    local text = UIText.Add(contentID)
+
+    transform.position = PVector3(800,0,0)
+    local contentText = 
+    "스페이스 :    회전\n"
+
+    text:SetText(contentText)
+    text:SetColor(26, 113, 142, 255)
+    text:SetFont("Jalnan2TTF")
+    text:SetTextSize(1)
+    self.transform:SetChild(contentID)
+end
+
+function Script:CompleteText()
+    local contentID = Entity.CreateEmpty()
+    local transform = Transform.Add(contentID)
+    local text = UIText.Add(contentID)
+    transform.position = PVector3(800,450,0)
+    local STR = "키 설명\n\n"..
+    "키보드 방향키 : 이동\n"..
+    "스페이스바 : 회전\n"..
+    "ESC : 완료"
+
+
+    text:SetText(STR)
+    text:SetColor(72, 48, 42, 255)
+    text:SetFont("Jalnan2TTF")
+    text:SetTextSize(1)
+    self.transform:SetChild(contentID)
+    return text
+end
+
+function Script:CreateSelectContent()
+    local targetID = Entity.CreateEmpty()
+    local transform = Transform.Add(targetID)
+    local image = UIImage.Add(targetID)
+    image:SetTexture("panel")
+    image:SetTextureSize(128,96)
+
+    transform.position = PVector3(1125,200,0)
+    transform.scale = PVector3(6,6,1)
+    self.transform:SetChild(targetID)
+end
+
+
+
+function Script:CreateInventory()
+    local targetID = Entity.Create("Inventory")
+    self.transform:SetChild(targetID)
+    return targetID
+end
+
+
+
+return Script

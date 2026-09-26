@@ -1,0 +1,50 @@
+﻿local Script = {}
+
+function Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.rigidbody = Rigidbody2D.Add(self.ID)
+    self.animation = Animation2D.Add(self.ID)
+    self.renderer =  Renderer2D.Add(self.ID)
+
+    self.rigidbody:CreateCircleCollider(0.25, PVector2(0,0))
+    self.rigidbody:SetMotionType(MotionType.Kinematic)
+    self.rigidbody:SetLayer("Bullet")
+
+    --Animation
+    self.Idle = self.animation:Create("EnergyBall", 12, 1, 2)
+    self.animation:Play(self.Idle)
+
+
+    self.lifeTime = 0
+    self.speed = 10
+    self.dir = PVector3(0, 0, 0)
+    self.targetDir = PVector3(0, 0, 0)
+end
+
+function Script:Update(DTime)
+    self.lifeTime = self.lifeTime + DTime
+    local targetDirection = PVector3(0,0,0)
+    targetDirection.x = self.dir.x * self.speed
+    targetDirection.y = self.dir.y * self.speed
+    targetDirection.z = self.dir.z * self.speed
+    self.rigidbody:SetVelocity(targetDirection)
+
+    if self.lifeTime > self.lifeTImeMax  then 
+        Pool.Disable("Bullet", self.ID)
+    end
+end
+
+function Script:ActiveSetting(Direction)
+    self.dir = Direction
+    self.lifeTime = 0
+    self.lifeTImeMax = 5
+end
+
+function Script:OnCollisionEnter(targetID)
+    Pool.Disable("Bullet", self.ID)
+    local targetTr = Transform.Get(targetID)
+    local effectID = Pool.Active("HitEffect")
+    Entity.CallFunction(effectID,"ActiveSetting",targetTr.position)
+end
+
+return Script

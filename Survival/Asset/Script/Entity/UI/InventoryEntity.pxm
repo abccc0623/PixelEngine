@@ -1,0 +1,189 @@
+﻿local Script = {}
+
+function  Script:Spawn()  
+    self.transform = Transform.Add(self.ID)
+    self.transform.scale = PVector3(0.6,0.6,1)
+     self.transform.position = PVector3(50,75,0)
+    self.InventoryCount = 7
+    self.SelectTr = nil
+
+    self.ToolsX = 0
+    self.ToolsY = 0
+    self.InventoryX = 0
+    self.InventoryY = 150
+    User.ToolsComponent = {}
+    User.InventoryComponent = {}
+    
+    self:CreateInventory()
+    self:CreateTileSelect(self.ToolsX,self.ToolsY)
+    User.SelectTransform = self.SelectTr
+    self:CreateDescription()
+    self:InventoryText(0,-75,"ㅁ -- 도구 -- ㅁ")
+    self:InventoryText(0,75,"ㅁ -- 생성 -- ㅁ")
+    InventoryFunction.Move(InventoryType.Tool,1)
+    
+    Event.Bind(self.ID,"ShowInventory", "Show")
+    Entity.SetActive(self.ID, false)
+end
+
+function Script:Show()
+    Entity.SetActive(self.ID, true)
+end
+
+function Script:Update()
+    if Input.Key(Keycode.X) == false then return end
+
+    local selectType = User.Selection.Type
+    local index = User.Selection.Index
+
+    if Input.KeyDown(Keycode.Right) then
+        local maxIndex = #User.Inventory
+        if selectType == InventoryType.Tool then maxIndex = #User.Tools end
+        index = math.min(index + 1, maxIndex)
+    elseif Input.KeyDown(Keycode.Left) then
+        index = math.max(index - 1, 1)
+    elseif Input.KeyDown(Keycode.Up) then
+        if selectType == InventoryType.Inventory and index > 7 then
+            index = index - 7
+        elseif selectType == InventoryType.Inventory then
+            selectType = InventoryType.Tool
+            index = math.min(index, #User.Tools)
+        end
+    elseif Input.KeyDown(Keycode.Down) then
+        if selectType == InventoryType.Tool then
+            selectType = InventoryType.Inventory
+            index = math.min(index, #User.Inventory)
+        else
+            local nextIndex = index + 7
+            if nextIndex <= #User.Inventory then index = nextIndex end
+        end
+    else
+        return
+    end
+
+    InventoryFunction.Move(selectType,index)
+end
+
+
+
+
+function Script:CreateTile(x,y,value)
+    local targetID = Entity.CreateEmpty()
+    local targetTr = Transform.Add(targetID)
+    local image = UIImage.Add(targetID)
+    image:SetTexture("tile") 
+    image:SetTextureSize(64, 64)
+
+    image:SetColor(137, 108, 71,255)
+    targetTr.position = PVector3(x,y,0)
+    targetTr.scale = PVector3(2,2,1)
+    self.transform:SetChild(targetID)
+    return targetTr
+end
+
+function Script:CreateIcon(x,y,value)
+    local targetID = Entity.CreateEmpty()
+    local targetTr = Transform.Add(targetID)
+    local image = UIImage.Add(targetID)
+    if value == 0 then
+        image:SetColor(137, 108, 71,0)
+    else
+        image:SetColor(137, 108, 71,255)
+    end
+    image:SetTextureSize(64, 64)
+    targetTr.position = PVector3(x,y,0)
+    targetTr.scale = PVector3(1,1,1)
+    self.transform:SetChild(targetID)
+    return image
+end
+
+function Script:CreateTileText(x,y,value)
+    Debug.LogWarning("생성")
+    local targetID = Entity.CreateEmpty()
+    local targetTr = Transform.Add(targetID)
+    local text = UIText.Add(targetID)
+    text:SetFont("Jalnan2TTF")
+    text:SetColor(255, 0, 0,255)
+
+    targetTr.position = PVector3(x+20,y+20,0)
+    targetTr.scale = PVector3(0.75,0.75,1)
+    self.transform:SetChild(targetID)
+    return text
+end
+
+
+function Script:CreateTileSelect(x,y)
+    local targetID = Entity.CreateEmpty()
+    self.SelectTr = Transform.Add(targetID)
+    local image = UIImage.Add(targetID)
+    image:SetTexture("tile") 
+    image:SetTextureSize(64, 64)
+    image:SetColor(26, 113, 142, 255)
+
+    self.SelectTr.position = PVector3(x,y,0)
+    self.SelectTr.scale = PVector3(2.25,2.25,1)
+    self.transform:SetChild(targetID)
+end
+
+function Script:InventoryText(x,y,str)
+    local targetID = Entity.CreateEmpty()
+    local targetTr = Transform.Add(targetID)
+    local text = UIText.Add(targetID)
+    text:SetText(str)
+    text:SetTextSize(0.65)
+    text:SetFont("Jalnan2TTF")
+    text:SetColor(137, 108, 71,255)
+    targetTr.position = PVector3(x,y,0)
+    targetTr.scale = PVector3(1,1,1)
+    self.transform:SetChild(targetID)
+end
+
+function Script:CreateInventory()
+    User.ToolsComponent = {}
+    User.InventoryComponent = {}
+
+    for toolsIndex = 1, #User.Tools do
+        local item = User.Tools[toolsIndex]
+        User.ToolsComponent[toolsIndex] = {TransformComponent = nil, ImageComponent = nil}
+
+        if item ~= nil then
+            User.ToolsComponent[toolsIndex].TransformComponent = self:CreateTile(self.ToolsX, self.ToolsY, item.ItemIndex)
+            local img = self:CreateIcon(self.ToolsX, self.ToolsY, item.ItemIndex)
+            img:SetTexture(item.Texture)
+            User.ToolsComponent[toolsIndex].ImageComponent = img
+        end
+        if toolsIndex % 7 == 0 then
+            self.ToolsX = 0
+            self.ToolsY = self.ToolsY + 100
+        else
+            self.ToolsX = self.ToolsX + 100
+        end
+    end
+
+    for inventoryIndex = 1, #User.Inventory do
+        local item = User.Inventory[inventoryIndex]
+        User.InventoryComponent[inventoryIndex] = {TransformComponent = nil, ImageComponent = nil, TextComponent = nil}
+        if item ~= nil then
+            User.InventoryComponent[inventoryIndex].TransformComponent = self:CreateTile(self.InventoryX, self.InventoryY, item.ItemIndex)
+            User.InventoryComponent[inventoryIndex].ImageComponent = self:CreateIcon(self.InventoryX, self.InventoryY, item.ItemIndex)
+            User.InventoryComponent[inventoryIndex].TextComponent = self:CreateTileText(self.InventoryX, self.InventoryY, item.ItemIndex)
+        end
+        if inventoryIndex % 7 == 0 then
+            self.InventoryX = 0
+            self.InventoryY = self.InventoryY + 100
+        else
+            self.InventoryX = self.InventoryX + 100
+        end
+    end
+
+    InventoryFunction.RefreshAll()
+end
+
+function Script:CreateDescription()
+    local targetID = Entity.Create("TileDescription")
+    self.transform:SetChild(targetID)
+    User.InventoryDescriptionID = targetID
+end
+
+
+return Script

@@ -1,0 +1,29 @@
+﻿local Script = {}
+
+function Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.renderer = Renderer2D.Add(self.ID)
+    self.animation = Animation2D.Add(self.ID)
+    self.hit = self.animation:Create("hit_1",6 ,1,2)
+    self.animation:Play(self.hit)
+end
+
+function Script:Update(DTime)
+    local index = self.animation:GetFrameIndex(self.hit)
+    if index == 5 then 
+        Pool.Disable("HitEffect", self.ID)
+    end
+end
+
+
+function Script:ActiveSetting(TargetPosition)
+    self.transform.position = TargetPosition
+    self.transform.position.z = -10
+    self.transform.rotation.z = math.random(0, 360)
+    self.transform.scale.x = 1.5
+    self.transform.scale.y = 1.5
+    self.animation:Reset()
+end
+
+
+return Script

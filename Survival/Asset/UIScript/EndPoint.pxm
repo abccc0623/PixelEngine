@@ -1,0 +1,30 @@
+﻿local Script = {}
+
+function Script:Spawn()  
+    self.transform = Transform.Add(self.ID)
+    self.animation = Animation2D.Add(self.ID)
+    self.image = UIImage.Add(self.ID)
+    self.image:SetTextureSize(32, 32)
+    local index = self.animation:Create("endPoint", 8, 1, 1)
+    self.animation:Play(index)
+	self.map = {}
+end  
+
+
+function Script:Update(DTime)
+
+
+end
+
+function Script:Setting(newMap)
+    self.map = newMap
+end
+
+
+function Script:FindEndPoint()
+
+
+end
+
+
+return Script

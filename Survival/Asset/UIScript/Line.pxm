@@ -1,0 +1,28 @@
+﻿local Script = {}
+function Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.animation = Animation2D.Add(self.ID)
+    self.image = UIImage.Add(self.ID)
+    self.image:SetTextureSize(32, 32)
+
+    self.animation_Up = self.animation:Create("line_up", 8, 1, 1)
+    self.animation:Play(self.animation_Up)
+end
+
+function Script:Setting(DirectionNumber)
+    if DirectionNumber == 4 then 
+        self.animation:Play(self.animation_Up)
+        self.transform.rotation.z = 0
+    elseif DirectionNumber == 5 then
+        self.animation:Play(self.animation_Up)
+        self.transform.rotation.z = 180
+    elseif DirectionNumber == 6 then
+        self.animation:Play(self.animation_Up)
+        self.transform.rotation.z = 90
+    elseif DirectionNumber == 7 then
+        self.animation:Play(self.animation_Up)
+        self.transform.rotation.z = 270
+    end
+end
+
+return Script

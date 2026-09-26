@@ -6,6 +6,7 @@ obj/
 x64/
 Debug/
 Release/
+*.dll
 *.pch
 *.pdb
 *.ipch

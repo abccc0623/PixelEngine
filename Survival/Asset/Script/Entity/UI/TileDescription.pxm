@@ -1,0 +1,82 @@
+﻿local Script = {}
+
+function Script:Spawn()  
+    self.transform = Transform.Add(self.ID)
+    self.Image = UIImage.Add(self.ID)
+    self.Image:SetTexture("tile_panel")
+    self.Image:SetTextureSize(307, 89)
+    self.transform.position.x = 300
+    self.transform.position.y = -200
+    self.transform.scale = PVector3(2.25,2.25,1)
+
+    self.contentTitle = self:CreateDescriptionTitleText()
+    self.contentText = self:CreateDescriptionText()
+    self.contentImage = self:CreateDescriptionTitleImage()
+end  
+
+
+function Script:CreateDescriptionText()  
+    local targetID = Entity.CreateEmpty()
+    local targetTr  = Transform.Add(targetID)
+    local targetText = UIText.Add(targetID)
+    targetTr.position = PVector3(-50,0,0)
+    targetText:SetText("이것은 현재 select된 설명")
+    targetText:SetTextSize(0.25)
+    targetText:SetColor(137, 108, 71,255)
+    targetText:SetFont("Jalnan2TTF")
+    self.transform:SetChild(targetID)
+    return targetText
+end 
+
+function Script:CreateDescriptionTitleText()  
+    local targetID = Entity.CreateEmpty()
+    local targetTr  = Transform.Add(targetID)
+    local targetText = UIText.Add(targetID)
+    targetTr.position = PVector3(-50,-20,0)
+    targetText:SetText("Title")
+    targetText:SetTextSize(0.4)
+    targetText:SetColor(137, 108, 71,255)
+    targetText:SetFont("Jalnan2TTF")
+    self.transform:SetChild(targetID)
+    return targetText
+end
+
+function Script:CreateDescriptionTitleImage()  
+    local targetID = Entity.CreateEmpty()
+    local targetTr  = Transform.Add(targetID)
+    local targetImage = UIImage.Add(targetID)
+    targetTr.position = PVector3(-100,0,0)
+    targetTr.scale = PVector3(1,1,1)
+    self.transform:SetChild(targetID)
+    return targetImage
+end
+
+function Script:CreateDescription()
+    local targetID = Entity.Create("TileDescription")
+    self.transform:SetChild(targetID)
+    return targetID
+end
+
+function Script:Setting(x,y)
+    if y == 1 then
+        self.contentTitle:SetText(User.Tools[x].Name)
+        self.contentText:SetText(User.Tools[x].Content)
+        self.contentImage:SetTexture(User.Tools[x].Texture)
+        self.contentImage:SetColor(137, 108, 71,255)
+        self.contentImage:SetTextureSize(64, 64)
+    elseif y == 2 then
+        local index = User.Inventory[x].ItemIndex
+        if index == 0 then
+             self.contentImage:SetColor(255, 255, 255,0)
+             self.contentTitle:SetText("")
+            self.contentText:SetText("")
+        else
+            self.contentTitle:SetText(ItemList[index].Name)
+            self.contentText:SetText(ItemList[index].InventoryContent)
+            self.contentImage:SetTexture(ItemList[index].Texture)
+            self.contentImage:SetColor(255, 255, 255,255)
+            self.contentImage:SetTextureSize(64, 64)
+        end
+    end
+end
+return Script

@@ -1,0 +1,29 @@
+﻿local Script = {}
+
+function Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.image = UIImage.Add(self.ID)
+
+    self.transform.scale.x = 66 * 3  
+    self.transform.scale.y = 34 * 3
+    
+    self.transform.position = PVector3(125,75,0)
+    self.transform:SetChild(self:CreateHeart(PVector3(0.15,0,0)))
+    self.transform:SetChild(self:CreateHeart(PVector3(-0.01,0,0)))
+    self.transform:SetChild(self:CreateHeart(PVector3(-0.2,0,0)))
+    self.image:SetTexture("LiveBar")
+    
+    Entity.SetActive(self.ID, false)
+end
+
+
+function Script:CreateHeart(Position)
+    local id = Entity.Create("HPHeart")
+    local transform = Transform.Get(id)
+    local Image = UIImage.Get(id)
+    transform.position = Position
+    return id
+end
+
+
+return Script

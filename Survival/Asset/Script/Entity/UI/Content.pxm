@@ -1,0 +1,157 @@
+local Script = {}
+
+-- Book-local coordinates: two entries on each page, with a clear center gutter.
+local Layout = {
+    Column = 232, Top = 20, Bottom = 210,
+    CardWidth = 368, CardHeight = 160,
+    Ink = {76, 53, 42}, Muted = {117, 93, 62}, Accent = {23, 105, 118},
+}
+
+local function Color(component, color)
+    component:SetColor(color[1], color[2], color[3], 255)
+end
+
+-- LuaJIT strings are byte-based. Wrap whole UTF-8 characters, never byte slices.
+local function WrapDescription(value)
+    local output = {}
+    for paragraph in string.gmatch((value or "") .. "\n", "(.-)\n") do
+        local line, width = "", 0
+        for word in string.gmatch(paragraph, "%S+") do
+            local wordWidth = 0
+            for character in string.gmatch(word, "[%z\1-\127\194-\244][\128-\191]*") do
+                wordWidth = wordWidth + (#character > 1 and 1 or 0.55)
+            end
+            if width > 0 and width + 0.55 + wordWidth > 15 then
+                output[#output + 1], line, width = line, "", 0
+            end
+            if width > 0 then line, width = line .. " ", width + 0.55 end
+            line, width = line .. word, width + wordWidth
+        end
+        output[#output + 1] = line
+    end
+    return table.concat(output, "\n")
+end
+
+function Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.pos = {
+        PVector3(-Layout.Column, Layout.Top, 0),
+        PVector3(-Layout.Column, Layout.Bottom, 0),
+        PVector3(Layout.Column, Layout.Top, 0),
+        PVector3(Layout.Column, Layout.Bottom, 0),
+    }
+    self.cards = {}
+    self.selectIndex = 1
+    self:CreateText(self.ID, -412, -116, "아이템 선택", 0.8, Layout.Ink)
+    self:CreateText(self.ID, -410, -78, "네 가지 아이템 중 하나를 골라주세요", 0.39, Layout.Muted)
+    for index = 1, 4 do self:CreatePanel(self.pos[index], index) end
+    self:CreateText(self.ID, -410, 306, "방향키  이동     Z  선택", 0.47, Layout.Ink)
+    self:RefreshSelection()
+    Event.Bind(self.ID, "ShowRandomCard", "Show")
+    Entity.SetActive(self.ID, false)
+end
+
+function Script:Show()
+    Entity.SetActive(self.ID, true)
+    UpgradeListFunction.Shuffle()
+    for index = 1, 4 do
+        local item = ItemList[UpgradeList[index].ItemIndex]
+        -- Fit after Shuffle assigns the actual texture (wide paths and square runes).
+        UpgradeUIList[index].ImageComponent:SetAspectFit(72, 72)
+        UpgradeUIList[index].ContentComponent:SetText(WrapDescription(item.UpgradeContent))
+    end
+    self.selectIndex = 1
+    self:RefreshSelection()
+end
+
+function Script:Update()
+    local previous = self.selectIndex
+    if Input.KeyDown(Keycode.Left) and self.selectIndex > 2 then
+        self.selectIndex = self.selectIndex - 2
+    elseif Input.KeyDown(Keycode.Right) and self.selectIndex <= 2 then
+        self.selectIndex = self.selectIndex + 2
+    elseif Input.KeyDown(Keycode.Up) and self.selectIndex % 2 == 0 then
+        self.selectIndex = self.selectIndex - 1
+    elseif Input.KeyDown(Keycode.Down) and self.selectIndex % 2 == 1 then
+        self.selectIndex = self.selectIndex + 1
+    end
+    if previous ~= self.selectIndex then self:RefreshSelection() end
+    if Input.KeyDown(Keycode.Z) then
+        UpgradeListFunction.Choice(self.selectIndex)
+        Entity.SetActive(self.ID, false)
+        Event.Call("BookNext")
+    end
+end
+
+function Script:RefreshSelection()
+    for index, card in ipairs(self.cards) do
+        local selected = index == self.selectIndex
+        -- Tint only the white selection border; keep the panel's original colors.
+        if selected then card.Frame:SetColor(255, 255, 255, 255)
+        else card.Frame:SetColor(185, 166, 136, 210) end
+        card.Border:SetColor(Layout.Accent[1], Layout.Accent[2], Layout.Accent[3], selected and 255 or 0)
+        Color(UpgradeUIList[index].TitleComponent, selected and Layout.Accent or Layout.Ink)
+        card.Hint:SetText(selected and "Z  선택하기" or "선택 대기")
+        Color(card.Hint, selected and Layout.Accent or Layout.Muted)
+        Color(card.Number, selected and Layout.Accent or Layout.Muted)
+    end
+end
+
+function Script:CreateText(parentID, x, y, value, size, color)
+    local id = Entity.CreateEmpty()
+    local transform = Transform.Add(id)
+    local text = UIText.Add(id)
+    transform.position = PVector3(x, y, 0)
+    transform.scale = PVector3(1, 1, 1)
+    transform:SetParent(parentID)
+    text:SetFont("Jalnan2TTF")
+    text:SetTextSize(size)
+    text:SetText(value)
+    Color(text, color)
+    return text
+end
+
+function Script:CreatePanel(position, index)
+    local id = Entity.CreateEmpty()
+    local transform = Transform.Add(id)
+    transform.position = position
+    -- Uniform scale keeps Korean text and icons undistorted.
+    transform.scale = PVector3(1, 1, 1)
+    self.transform:SetChild(id)
+    local image = UIImage.Add(id)
+    image:SetPivot(0.5, 0.5)
+    image:SetTexture("tile_panel")
+    image:SetTextureSize(Layout.CardWidth, Layout.CardHeight)
+    image:SetOrder(-80)
+    local borderID = Entity.CreateEmpty()
+    local borderTransform = Transform.Add(borderID)
+    borderTransform.position = PVector3(0, 0, 0)
+    borderTransform.scale = PVector3(1, 1, 1)
+    borderTransform:SetParent(id)
+    local border = UIImage.Add(borderID)
+    border:SetPivot(0.5, 0.5)
+    border:SetTexture("selection_border")
+    border:SetTextureSize(Layout.CardWidth, Layout.CardHeight)
+    border:SetOrder(-70)
+    border:SetColor(255, 255, 255, 0)
+    local iconID = Entity.CreateEmpty()
+    local iconTransform = Transform.Add(iconID)
+    iconTransform.position = PVector3(-129, 4, 0)
+    iconTransform:SetParent(id)
+    local icon = UIImage.Add(iconID)
+    icon:SetPivot(0.5, 0.5)
+    icon:SetTexture("rune_gold103")
+    icon:SetAspectFit(72, 72)
+    icon:SetOrder(-60)
+    UpgradeUIList[index].ImageComponent = icon
+    UpgradeUIList[index].TitleComponent = self:CreateText(id, -68, -49, "", 0.68, Layout.Ink)
+    UpgradeUIList[index].ContentComponent = self:CreateText(id, -68, -9, "", 0.46, Layout.Muted)
+    self.cards[index] = {
+        Frame = image,
+        Border = border,
+        Number = self:CreateText(id, -158, -57, string.format("%02d", index), 0.43, Layout.Muted),
+        Hint = self:CreateText(id, -68, 51, "선택 대기", 0.37, Layout.Muted),
+    }
+end
+
+return Script

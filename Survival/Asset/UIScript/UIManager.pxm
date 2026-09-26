@@ -1,0 +1,6 @@
+﻿local Script = {}
+function Script:Spawn()
+    local FactoryMapID = Entity.Create("FactoryMap")
+    local ExpSliderID = Entity.Create("EXPSlider")
+end
+return Script

@@ -1,0 +1,14 @@
+﻿local Script = {}
+
+function Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.image = UIImage.Add(self.ID)
+    
+    self.image:SetTexture("LevelUPBack")
+    self.image:SetOrder(-1)
+    self.transform.scale.x = 1024 / 3  
+    self.transform.scale.y = 1536 / 3
+    self.transform.position = PVector3(125,400,0)
+end
+
+return Script

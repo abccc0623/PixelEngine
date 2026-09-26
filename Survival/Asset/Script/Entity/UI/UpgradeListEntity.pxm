@@ -1,0 +1,118 @@
+﻿local Script = {}
+
+function  Script:Spawn()  
+    self.transform = Transform.Add(self.ID)
+    self.animation = Animation2D.Add(self.ID)
+
+    self.transform.position = PVector3(1920*0.5,1080*0.5,0)
+    self.transform.scale = PVector3(0.5,0.5,1)
+    self.open = self.animation:Create("Open_book", 4, 3, 4)
+
+    self.cards = {}
+    self.cards[1] = self:CreateCard(PVector3(-850,-450,0))
+    self.cards[2] = self:CreateCard(PVector3(-850,350,0))
+    self.cards[3] = self:CreateCard(PVector3(850,-450,0))
+    self.cards[4] = self:CreateCard(PVector3(850,350,0))
+
+    self.selectTr = nil
+    self.selectNumber = 1
+    self.cards["select"] = self:CreateCardSelect(PVector3(-850,-450,0))
+
+    self.transform:SetChild(self.cards[1])
+    self.transform:SetChild(self.cards[2])
+    self.transform:SetChild(self.cards[3])
+    self.transform:SetChild(self.cards[4])
+
+    self.transform:SetChild(self.cards["select"])
+
+    Entity.SetActive(self.ID, false)
+end  
+
+function Script:Setting()  
+    --아이템 테이블기준으로 섞는다.
+    UpgradeListFunction.Shuffle()
+    -- 최대 4개 선택
+    Entity.CallFunction(self.cards[1],"Setting",UpgradeList[1].ItemIndex)
+    Entity.CallFunction(self.cards[2],"Setting",UpgradeList[2].ItemIndex)
+    Entity.CallFunction(self.cards[3],"Setting",UpgradeList[3].ItemIndex)
+    Entity.CallFunction(self.cards[4],"Setting",UpgradeList[4].ItemIndex)
+end
+
+
+function Script:Update(DTime)
+    if self.selectNumber == 1 then
+        if Input.KeyDown(Keycode.Right) then self.selectNumber = 3 end
+        if Input.KeyDown(Keycode.Down) then self.selectNumber = 2 end
+        self:Select(self.selectNumber)
+    elseif self.selectNumber == 2 then
+        if Input.KeyDown(Keycode.Up) then self.selectNumber = 1 end
+        if Input.KeyDown(Keycode.Right) then self.selectNumber = 4 end
+        self:Select(self.selectNumber)
+    elseif self.selectNumber == 3 then
+        if Input.KeyDown(Keycode.Left) then self.selectNumber = 1 end
+        if Input.KeyDown(Keycode.Down) then self.selectNumber = 4 end
+        self:Select(self.selectNumber)
+    elseif self.selectNumber == 4 then
+        if Input.KeyDown(Keycode.Left) then self.selectNumber = 2 end
+        if Input.KeyDown(Keycode.Up) then self.selectNumber = 3 end
+        self:Select(self.selectNumber)
+    end
+    
+    --업그레이드 버튼을 클릭했을 떄
+    if Input.KeyDown(Keycode.Z) then
+        UpgradeListFunction.Choice(self.selectNumber)
+        Entity.SetActive(self.ID, false)
+        ChoiceManager.BookNext()
+    end
+end
+
+function Script:CreateCard(position)  
+    local targetID = Entity.Create("Content")
+    local transform = Transform.Get(targetID)
+    transform.position = position
+    transform.scale = PVector3(10,10,1)
+    local image = UIImage.Get(targetID)
+    image:SetTexture("panel")
+    image:SetTextureSize(128, 96)
+    image:SetPivot(0.5, 0.5)
+    return targetID
+end
+
+function Script:CreateCardSelect(position)  
+    local targetID = Entity.CreateEmpty()
+    self.selectTr = Transform.Add(targetID)
+    self.selectTr.position = position
+    self.selectTr.scale = PVector3(10,10,1)
+    local image = UIImage.Add(targetID)
+    image:SetTexture("panel_select")
+    image:SetTextureSize(128, 96)
+    image:SetPivot(0.5, 0.5)
+    return targetID
+end
+
+function Script:CreateCardSelect(position)  
+    local targetID = Entity.CreateEmpty()
+    self.selectTr = Transform.Add(targetID)
+    self.selectTr.position = position
+    self.selectTr.scale = PVector3(10,10,1)
+    local image = UIImage.Add(targetID)
+    image:SetTexture("panel_select")
+    image:SetTextureSize(128, 96)
+    image:SetPivot(0.5, 0.5)
+    return targetID
+end
+
+function Script:Select(selectNumber)
+    self.selectNumber = selectNumber
+    if self.selectNumber == 1 then
+        self.selectTr.position = PVector3(-850,-450,0)
+    elseif self.selectNumber == 2 then
+        self.selectTr.position = PVector3(-850,350,0)
+    elseif self.selectNumber == 3 then
+        self.selectTr.position = PVector3(850,-450,0)
+    elseif self.selectNumber == 4 then
+        self.selectTr.position = PVector3(850,350,0)
+    end
+end
+
+return Script

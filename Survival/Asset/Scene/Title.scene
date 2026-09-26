@@ -1,0 +1,34 @@
+﻿local Scene = {} 
+
+function Scene:Start() 
+    Engine.BackgroundColor(20, 27, 38)
+    
+    local cameraEntityID = Entity.CreateEmpty()
+    local camera = Camera.Add(cameraEntityID)
+    local transform = Transform.Add(cameraEntityID)
+    transform.position = PVector3(0,0,-20)
+    
+    
+    local bookID = Entity.Create("Book")
+    local contentID = Entity.Create("Content")
+    local gridID = Entity.Create("GridEntity")
+    local inventoryID = Entity.Create("InventoryEntity")
+
+    -- 테스트용 시작 아이템 지급
+    for itemIndex = 1, #ItemList do InventoryFunction.Add(itemIndex,20) end
+
+    local bookTr = Transform.Get(bookID)
+    bookTr:SetChild(contentID)
+    bookTr:SetChild(gridID) 
+    bookTr:SetChild(inventoryID)
+    --Entity.Create("GameLogic")
+    --ChoiceManager.Init()
+    --ChoiceManager.BookOpen()
+end
+
+
+function Scene:Release()
+
+end
+
+return Scene

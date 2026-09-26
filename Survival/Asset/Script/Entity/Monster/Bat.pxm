@@ -1,0 +1,113 @@
+﻿---@type LuaInstance
+local Script = {}
+
+function  Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.renderer = Renderer2D.Add(self.ID)
+    self.animation = Animation2D.Add(self.ID)
+    self.rigidbody = Rigidbody2D.Add(self.ID)
+
+    --rigidbody
+    self.rigidbody:CreateCircleCollider(0.5, PVector2(0,0))
+    self.rigidbody:SetMotionType(MotionType.Dynamic)
+    self.rigidbody:SetSensor(false)
+    self.rigidbody:SetGravity(0)
+    self.rigidbody:SetLayer("Enemy")
+    self.rigidbody:SetLinearDamping(1)
+
+    --animation
+    self.animationTabel= {}
+    self.animationTabel["move"] = self.animation:Create("Bat_Move", 6, 1, 1.5)
+    self.animationTabel["death"] = self.animation:Create("Bat_Death", 4, 1, 1.5)
+    self.animationTabel["hit"] = self.animation:Create("Bat_Hit", 4, 1, 2)
+    self.animation:Play(self.animationTabel["move"])
+
+    self.transform.scale = PVector3(5,5,1) 
+
+    --몬스터 상태 설정
+    self.MonsterState = {}
+    self.MonsterState.Move = 0
+    self.MonsterState.Death = 1
+    self.MonsterState.Hit = 2
+
+    self:ActiveSetting()
+end
+
+function Script:Update(DTime)
+    if PlayerManager.transform == nil then 
+        return
+    end
+
+    if self.State == self.MonsterState.Move then
+        self:Move()
+    elseif self.State == self.MonsterState.Hit then
+        self:Hit()
+    elseif self.State == self.MonsterState.Death then
+        self:Death()
+    end
+
+end
+
+function Script:Move()
+    local myPos = self.transform.position
+    local playerPos = PlayerManager.transform.position
+    local direction = myPos:Direction(playerPos)
+    direction.x = direction.x * self.Speed
+    direction.y = direction.y * self.Speed
+    if direction.x > 0 then
+        self.transform.scale.x = 5
+    else 
+        self.transform.scale.x = -5
+    end
+    self.rigidbody:SetVelocity(direction)
+end
+
+function Script:Hit()
+    self.animation:Play(self.animationTabel["hit"])
+    local index = self.animation:GetFrameIndex(self.animationTabel["hit"])
+    self:Move()
+    if index == 3 then 
+        self.State = self.MonsterState.Move
+        self.animation:Play(self.animationTabel["move"])
+    end
+end
+
+function Script:Death()
+    if self.HP <= 0 then
+        local index = self.animation:GetFrameIndex(self.animationTabel["death"])
+        self.rigidbody:SetVelocity(PVector3(0,0,0))
+
+        if index == 3 then 
+            Pool.Disable("Bat",self.ID)    
+        end
+    end
+end
+
+
+function Script:ActiveSetting()
+    self.HP = 3
+    self.Speed = 3
+    self.EXP = 1
+    
+    self.animation:Play(self.animationTabel["move"])
+    self.State = self.MonsterState.Move
+end
+
+function Script:OnCollisionEnter(targetID)
+    local targetRigidbody = Rigidbody2D.Get(targetID)
+    if targetRigidbody ~= nil then 
+        if ffi.string(targetRigidbody:GetLayer()) == "Bullet" then
+            self.State = self.MonsterState.Hit
+            self.HP = self.HP - PlayerState.Power
+            if self.HP <= 0 then
+                self.State = self.MonsterState.Death
+                self.animation:Play(self.animationTabel["death"])
+                Group.Remove("MonsterList", self.ID)
+                local id = Pool.Active("EXP")
+                Transform.Get(id).position = self.transform.position
+            end
+        end
+    end
+end
+
+return Script

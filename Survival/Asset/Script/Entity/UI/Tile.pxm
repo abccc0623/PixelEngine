@@ -1,0 +1,13 @@
+﻿local Script = {}
+function Script:Spawn()
+    local transform = Transform.Add(self.ID)
+    self.image = UIImage.Add(self.ID)
+    self.image:SetTexture("tile")
+    self.image:SetTextureSize(64, 64)
+    self.image:SetColor(137, 108, 71,255)
+end
+
+
+
+
+return Script

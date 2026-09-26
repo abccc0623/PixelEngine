@@ -1,0 +1,31 @@
+﻿local Script = {}
+
+function  Script:Spawn()  
+	self.transform = Transform.Add(self.ID)
+	self.renderer = Renderer2D.Add(self.ID)
+	self.rigidbody = Rigidbody2D.Add(self.ID)
+	self.animation = Animation2D.Add(self.ID)
+	
+	self.rigidbody:CreateCircleCollider(0.5, PVector2(0,0))
+    self.rigidbody:SetMotionType(MotionType.Kinematic)
+    self.rigidbody:SetLayer("EXP")
+	
+	local index = self.animation:Create("ExpItem", 8, 1, 1)
+	self.animation:Play(index)
+end  
+
+function  Script:Update(DTime)  
+	
+end  
+
+function Script:Setting()
+
+
+end
+
+function Script:OnCollisionEnter(targetID)
+	Pool.Disable("EXP", self.ID)
+	PlayerManager.AddExp(1)
+end
+
+return Script

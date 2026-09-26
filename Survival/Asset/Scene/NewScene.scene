@@ -1,0 +1,30 @@
+﻿--게임 씬 파일입니다. 
+local Scene = {} 
+function Scene:Start()
+	--Asset.Import("./Asset/Apple.png")
+	--Asset.Import("./Asset/Bullet.pxm")
+	--Asset.Import("./Asset/box.png")
+	--Asset.Import("./Asset/Player.pxm")
+	--Asset.Import("./Asset/Monster.pxm")
+	--Asset.Import("./Asset/BulletManager.pxm")
+	--Asset.Import("./Asset/FollowCamera.pxm")
+	--Asset.Import("./Asset/Player")
+	--Asset.Import("./Asset/Monster")
+
+	--Engine.BackgroundColor(140, 170, 145)
+	--Engine.CreateEntity("Player")
+	--Engine.CreateEntity("Monster")
+	--Engine.CreateEntity("Bullet")
+	--Engine.CreateEntity("BulletManager")
+	--Engine.CreateEntity("FollowCamera")
+	
+    Engine.CreateEntity("FollowCamera")
+    Engine.BackgroundColor(140, 170, 145)
+    Engine.CreateEntity("Player")
+end
+
+function Scene:Release()
+
+end
+
+return Scene

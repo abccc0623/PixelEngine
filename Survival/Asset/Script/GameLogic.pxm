@@ -1,0 +1,35 @@
+﻿---@type LuaInstance
+
+local Script = {}
+
+function Script:Spawn()
+    PlayerManager.Init()
+    MonsterManager.Init()
+    BulletManager.Init()
+    GameTimeManager.Init()
+    ChoiceManager.Init()
+    
+    self.AttackTime = 0
+    self.AttackTimeMax = 1
+    --[[
+    ]]--
+    --PlayerManager.LevelUp()
+    --FactoryManager.SetActive(true)
+end
+
+function Script:Update(DTime)
+    GameTimeManager.Update(DTime)
+    MonsterManager.Update(DTime)
+    
+    
+    self.AttackTime = self.AttackTime + DTime
+    if self.AttackTime > self.AttackTimeMax then
+        self.AttackTime = self.AttackTime - self.AttackTimeMax
+        BulletManager.Create()
+    end
+    --[[
+    ]]--
+end
+
+
+return Script

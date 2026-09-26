@@ -1,0 +1,73 @@
+﻿local Script = {}
+
+function  Script:Spawn()  
+    self.transform = Transform.Add(self.ID)
+    self.animation = Animation2D.Add(self.ID)
+    self.image = UIImage.Add(self.ID)
+    self.image:SetPivot(0.5, 0.5)
+    self.image:SetTexture("Open_book")
+    self.image:SetTextureSize(1088, 816)
+    -- Keep the book beneath card frames/icons; text is drawn at order 0.
+    self.image:SetOrder(-100)
+
+    self.transform.position = PVector3(1920 * 0.5,1080 *0.5 -200,1)
+    self.transform.scale = PVector3(1.75,1.75,1)
+    
+    --애니메이션 SystemTime으로 변경
+    self.animation:SetUseUnscaledTime(true)
+    
+    --사용할 애니메이션 생성
+    self.animationList = {}
+    self.animationList["open"] = self.animation:Create("Open_book", 4, 3, 5)
+    self.animationList["close"] = self.animation:Create("Close_book", 4, 3, 5)
+    self.animationList["next"] = self.animation:Create("Next_book", 4, 4, 5)
+    
+    --loop설정
+    self.animation:SetLoop(self.animationList["open"], false)
+    self.animation:SetLoop(self.animationList["close"], false)
+    self.animation:SetLoop(self.animationList["next"], false)
+    
+    self.animation:SetFrameCallback(self.animationList["open"], 11, false)
+    self.animation:SetFrameCallback(self.animationList["next"], 14, false)
+    self.animation:SetFrameCallback(self.animationList["close"], 11, false)
+    self.animation:Play(self.animationList["open"])
+    
+    Event.Bind(self.ID,"BookOpen","BookOpen")
+    Event.Bind(self.ID,"BookNext","BookNext")
+    Event.Bind(self.ID,"BookClose","BookClose")
+end  
+
+
+
+function Script:OnAnimationCallBack(targetID,nowAnimationID,nowAnimationFrame)
+	if nowAnimationID == self.animationList["open"] then
+	   Event.Call("ShowRandomCard")
+	elseif nowAnimationID == self.animationList["close"] then
+	   Entity.SetActive(self.ID,false)
+	elseif nowAnimationID == self.animationList["next"] then
+	   self.animation:Stop(self.animationList["next"])
+	   self.animation:SetFrameIndex(self.animationList["next"], 0)
+	   Event.Call("ShowGrid")
+	   Event.Call("ShowInventory")
+	end
+end
+
+function Script:BookOpen()
+    Entity.SetActive(self.ID,true)
+    nowAnimationID = self.animationList["open"]
+    self.animation:Play(self.animationList["open"])
+end
+
+function Script:BookNext()
+    nowAnimationID = self.animationList["next"]
+    self.animation:Play(self.animationList["next"])
+end
+
+function Script:BookClose()
+     nowAnimationID = self.animationList["close"]
+    self.animation:Play(self.animationList["close"])
+end
+
+
+
+return Script
