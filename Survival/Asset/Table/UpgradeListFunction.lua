@@ -5,8 +5,12 @@ function UpgradeListFunction.Shuffle()
     local indices = {}
 
     for i = 1, #ItemList do
-        indices[i] = i
+        if ItemList[i].Activeupgrade == true then
+            indices[#indices + 1] = i
+        end
     end
+
+    assert(#indices > 0, "업그레이드 후보가 없습니다")
 
     for i = #indices, 2, -1 do
         local randomIndex = math.random(1, i)
@@ -14,7 +18,7 @@ function UpgradeListFunction.Shuffle()
     end
     
     for i = 1, 4 do
-       UpgradeList[i].ItemIndex = indices[i]
+       UpgradeList[i].ItemIndex = indices[(i - 1) % #indices + 1]
     end
     
     for i = 1, 4 do

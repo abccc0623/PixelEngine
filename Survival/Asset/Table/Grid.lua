@@ -1,4 +1,4 @@
-﻿Grid = {}
+Grid = {}
 GridUI = {}
 GridTransform = {}
 
@@ -20,3 +20,4 @@ function Grid.Create()
 end
 
 Grid.Create()
+GridFunction.Add(1,1,1)
