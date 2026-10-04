@@ -144,6 +144,8 @@ void PixelGraphics::TextRenderer::DrawText(const RenderingData& data)
 	std::vector<StaticVertex> vertices;
 	vertices.reserve(MaxGlyphCount * 4);
 	float cursorX = 0.0f, cursorY = font->ascent * scale;
+	float textWidth = 0.0f;
+	float textHeight = font->lineHeight * scale;
 	const std::u32string text = DecodeUtf8(data.text.content);
 	const DirectX::XMFLOAT4 defaultColor(data.text.color[0], data.text.color[1], data.text.color[2], data.text.color[3]);
 	DirectX::XMFLOAT4 currentColor = defaultColor;
@@ -167,7 +169,7 @@ void PixelGraphics::TextRenderer::DrawText(const RenderingData& data)
 		}
 
 		const char32_t codepoint = text[textIndex];
-		if (codepoint == U'\n') { cursorX = 0.0f; cursorY += font->lineHeight * scale; continue; }
+		if (codepoint == U'\n') { cursorX = 0.0f; cursorY += font->lineHeight * scale; textHeight += font->lineHeight * scale; continue; }
 		auto found = font->glyphs.find(codepoint);
 		if (found == font->glyphs.end()) found = font->glyphs.find(U'?');
 		if (found == font->glyphs.end() || vertices.size() / 4 >= MaxGlyphCount) continue;
@@ -177,8 +179,18 @@ void PixelGraphics::TextRenderer::DrawText(const RenderingData& data)
 		vertices.push_back({ {x0,y0,0},{glyph.u0,glyph.v0},currentColor }); vertices.push_back({ {x1,y0,0},{glyph.u1,glyph.v0},currentColor });
 		vertices.push_back({ {x1,y1,0},{glyph.u1,glyph.v1},currentColor }); vertices.push_back({ {x0,y1,0},{glyph.u0,glyph.v1},currentColor });
 		cursorX += glyph.advance * scale;
+		textWidth = (std::max)(textWidth, cursorX);
 	}
 	if (vertices.empty()) return;
+
+	// Anchor the full text block using font advances and line height (not character count).
+	const float pivotOffsetX = textWidth * data.text.pivotX;
+	const float pivotOffsetY = textHeight * data.text.pivotY;
+	for (auto& vertex : vertices)
+	{
+		vertex.Pos.x -= pivotOffsetX;
+		vertex.Pos.y -= pivotOffsetY;
+	}
 
 	D3D11_MAPPED_SUBRESOURCE mapped = {};
 	auto context = core->GetDeviceContext();

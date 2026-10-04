@@ -17,5 +17,6 @@ extern "C" PIXEL_ENGINEDLL UITextData* UIText_Get(unsigned int id);
 extern "C" PIXEL_ENGINEDLL bool UIText_Has(unsigned int id);
 extern "C" PIXEL_ENGINEDLL void UIText_SetText(unsigned int id, const char* text);
 extern "C" PIXEL_ENGINEDLL void UIText_SetTextSize(unsigned int id, float scale);
+extern "C" PIXEL_ENGINEDLL void UIText_SetPivot(unsigned int id, float x, float y);
 extern "C" PIXEL_ENGINEDLL void UIText_SetFont(unsigned int id, const char* name);
 extern "C" PIXEL_ENGINEDLL void UIText_SetColor(unsigned int id, float r, float g, float b, float a);

@@ -7,10 +7,13 @@ end
 
 local function Draw(x, y)
     local cell = Cell(x, y)
-    local image = GridUI[x] and GridUI[x][y]
-    local transform = GridTransform[x] and GridTransform[x][y]
+    local image = GridUI and GridUI[x] and GridUI[x][y]
+    local transform = GridTransform and GridTransform[x] and GridTransform[x][y]
     if image then
         image:SetTexture(cell.ItemIndex == 0 and "tile" or ItemList[cell.ItemIndex].Texture)
+        image:SetAspectFit(18,18)
+        image:SetColor(255,255,255,255)
+        Entity.SetActive(image.thisID,Grid.Visible == true and cell.ItemIndex ~= 0)
     end
     if transform then transform.rotation.z = cell.ItemRotation end
 end
@@ -18,19 +21,28 @@ end
 function GridFunction.Add(x, y, itemIndex)
     local cell = Cell(x, y)
     if not cell or not ItemList[itemIndex] then return false end
-    if cell.ItemIndex ~= 0 and not InventoryFunction.Add(cell.ItemIndex, 1) then
+    if cell.ItemIndex ~= 0 and ItemList[cell.ItemIndex].ItemType == ItemType.Factory and not InventoryFunction.Add(cell.ItemIndex, 1) then
         return false
     end
     cell.ItemIndex = itemIndex
+    if itemIndex == 2 then
+        Grid.StartPoint = {x = x,y = y}
+        Debug.Log(tostring(Grid.StartPoint.y))
+    elseif itemIndex == 3 then 
+        Grid.EndPoint = {x = x,y = y}
+         Debug.Log(tostring(Grid.EndPoint.y))
+    end 
+    
     cell.ItemRotation = 0
     Draw(x, y)
+    Graph.Reset()
     return true
 end
 
 function GridFunction.Remove(x, y)
     local cell = Cell(x, y)
     if not cell or cell.ItemIndex == 0 then return false end
-    if not InventoryFunction.Add(cell.ItemIndex, 1) then return false end
+    if ItemList[cell.ItemIndex].ItemType == ItemType.Factory and not InventoryFunction.Add(cell.ItemIndex, 1) then return false end
     cell.ItemIndex = 0
     cell.ItemRotation = 0
     Draw(x, y)
@@ -43,7 +55,7 @@ function GridFunction.Rotation(x, y)
     local item = ItemList[cell.ItemIndex]
     if not item or (item.Texture ~= "line" and item.Texture ~= "corner") then return end
     cell.ItemRotation = (cell.ItemRotation + 90) % 360
-    local transform = GridTransform[x] and GridTransform[x][y]
+    local transform = GridTransform and GridTransform[x] and GridTransform[x][y]
     if transform then transform.rotation.z = cell.ItemRotation end
 end
 

@@ -1,9 +1,8 @@
-﻿local Script = {}
+local Script = {}
 
 function  Script:Spawn()  
+    self.UIList = {}
     self.transform = Transform.Add(self.ID)
-    self.transform.scale = PVector3(0.6,0.6,1)
-     self.transform.position = PVector3(50,75,0)
     self.InventoryCount = 7
     self.SelectTr = nil
 
@@ -14,6 +13,10 @@ function  Script:Spawn()
     User.ToolsComponent = {}
     User.InventoryComponent = {}
     
+    
+    self:AddUI(UI.CreateBookSubText(116.5,-140,"인벤토리",175))
+    self:AddUI(UI.CreateBookSubText(116.5,-70,"인벤토리",175))
+    --[[
     self:CreateInventory()
     self:CreateTileSelect(self.ToolsX,self.ToolsY)
     User.SelectTransform = self.SelectTr
@@ -21,13 +24,26 @@ function  Script:Spawn()
     self:InventoryText(0,-75,"ㅁ -- 도구 -- ㅁ")
     self:InventoryText(0,75,"ㅁ -- 생성 -- ㅁ")
     InventoryFunction.Move(InventoryType.Tool,1)
+    ]]--
+    
+    --self:Text(0,0,"Build",1.5)
+    --self:CreateUI(0,0,"line_1")
+    
+    
     
     Event.Bind(self.ID,"ShowInventory", "Show")
-    Entity.SetActive(self.ID, false)
+    Event.Bind(self.ID,"HideBookContent", "Hide")
+    self:Hide()
+end
+
+function Script:Hide()
+    for _, id in ipairs(self.UIList) do Entity.SetActive(id,false) end
+    Entity.SetActive(self.ID,false)
 end
 
 function Script:Show()
-    Entity.SetActive(self.ID, true)
+    Entity.SetActive(self.ID,true)
+    for _, id in ipairs(self.UIList) do Entity.SetActive(id,true) end
 end
 
 function Script:Update()
@@ -69,6 +85,7 @@ end
 
 function Script:CreateTile(x,y,value)
     local targetID = Entity.CreateEmpty()
+    self:AddUI(targetID)
     local targetTr = Transform.Add(targetID)
     local image = UIImage.Add(targetID)
     image:SetTexture("tile") 
@@ -83,6 +100,7 @@ end
 
 function Script:CreateIcon(x,y,value)
     local targetID = Entity.CreateEmpty()
+    self:AddUI(targetID)
     local targetTr = Transform.Add(targetID)
     local image = UIImage.Add(targetID)
     if value == 0 then
@@ -100,6 +118,7 @@ end
 function Script:CreateTileText(x,y,value)
     Debug.LogWarning("생성")
     local targetID = Entity.CreateEmpty()
+    self:AddUI(targetID)
     local targetTr = Transform.Add(targetID)
     local text = UIText.Add(targetID)
     text:SetFont("Jalnan2TTF")
@@ -114,6 +133,7 @@ end
 
 function Script:CreateTileSelect(x,y)
     local targetID = Entity.CreateEmpty()
+    self:AddUI(targetID)
     self.SelectTr = Transform.Add(targetID)
     local image = UIImage.Add(targetID)
     image:SetTexture("tile") 
@@ -127,6 +147,7 @@ end
 
 function Script:InventoryText(x,y,str)
     local targetID = Entity.CreateEmpty()
+    self:AddUI(targetID)
     local targetTr = Transform.Add(targetID)
     local text = UIText.Add(targetID)
     text:SetText(str)
@@ -181,9 +202,41 @@ end
 
 function Script:CreateDescription()
     local targetID = Entity.Create("TileDescription")
+    self:AddUI(targetID)
     self.transform:SetChild(targetID)
     User.InventoryDescriptionID = targetID
 end
 
+
+function Script:CreateUI(x,y,Name)
+    local targetID = Entity.CreateEmpty()
+    self:AddUI(targetID)
+    local targetTr = Transform.Add(targetID)
+    local image = UIImage.Add(targetID)
+    image:SetTexture(Name) 
+    image:SetPivot(0.5, 0.5)
+    targetTr.position = PVector3(x,y,0)
+    targetTr.scale = PVector3(3,3,1)
+    self.transform:SetChild(targetID)
+end
+
+function Script:Text(x,y,content,size)
+    local contentID = Entity.CreateEmpty()
+    self:AddUI(contentID)
+    local transform = Transform.Add(contentID)
+    local text = UIText.Add(contentID)
+    transform.position = PVector3(x,y,0)
+    text:SetColor(20,32,50,255)
+    text:SetText(content)
+    text:SetFont("Jalnan2TTF")
+    text:SetTextSize(size)
+    self.transform:SetChild(contentID)
+    return text, transform
+end
+
+
+function Script:AddUI(...)
+    for _, id in ipairs({...}) do self.UIList[#self.UIList + 1] = id end
+end
 
 return Script

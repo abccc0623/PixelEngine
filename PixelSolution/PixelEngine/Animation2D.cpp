@@ -39,6 +39,12 @@ void Animation2D_Play(unsigned int id, int AnimationIndex)
 	auto data = registry->Get<Animation2DDList>(id);
 	if (data != nullptr)
 	{
+		if (AnimationIndex < 0 || AnimationIndex >= static_cast<int>(data->animationArray.size()))
+		{
+			PixelLog::Error("[Animation2D][Play] Invalid AnimationIndex");
+			return;
+		}
+		data->play = true;
 		if (data->selectIndex != AnimationIndex)
 		{
 			data->selectIndex = AnimationIndex;

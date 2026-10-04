@@ -21,6 +21,8 @@ UITextData* UIText_Add(unsigned int id)
 	data->thisID = id;
 	graphicsData->renderingData.renderType = RENDER_TYPE::TEXT;
 	graphicsData->renderingData.passType = PASS_TYPE::UI;
+	graphicsData->renderingData.text.pivotX = 0.0f;
+	graphicsData->renderingData.text.pivotY = 0.0f;
 	graphicsData->renderingData.text.color[0] = 1.0f;
 	graphicsData->renderingData.text.color[1] = 1.0f;
 	graphicsData->renderingData.text.color[2] = 1.0f;
@@ -83,6 +85,19 @@ void UIText_SetTextSize(unsigned int id, float scale)
 	{
 		PixelLog::Error("[Renderer2D][SetTextSize] Not Find Component");
 	}
+}
+
+void UIText_SetPivot(unsigned int id, float x, float y)
+{
+	auto registry = GetRegistry();
+	auto graphics = registry->Get<GraphicsData>(id);
+	if (registry->Get<UITextData>(id) == nullptr || graphics == nullptr)
+	{
+		PixelLog::Error("[UIText][SetPivot] Not Find Component");
+		return;
+	}
+	graphics->renderingData.text.pivotX = (std::clamp)(x, 0.0f, 1.0f);
+	graphics->renderingData.text.pivotY = (std::clamp)(y, 0.0f, 1.0f);
 }
 
 void UIText_SetFont(unsigned int id, const char* name)

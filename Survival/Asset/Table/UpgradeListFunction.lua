@@ -5,7 +5,7 @@ function UpgradeListFunction.Shuffle()
     local indices = {}
 
     for i = 1, #ItemList do
-        if ItemList[i].Activeupgrade == true then
+        if ItemList[i].ItemType == ItemType.Stat or ItemList[i].ItemType == ItemType.Factory then
             indices[#indices + 1] = i
         end
     end
@@ -23,14 +23,25 @@ function UpgradeListFunction.Shuffle()
     
     for i = 1, 4 do
         local itemIndex = UpgradeList[i].ItemIndex
-        UpgradeUIList[i].TitleComponent:SetText(ItemList[itemIndex].Name)
-        UpgradeUIList[i].ContentComponent:SetText(ItemList[itemIndex].UpgradeContent)
-        UpgradeUIList[i].ImageComponent:SetTexture(ItemList[itemIndex].Texture)
+        local item = ItemList[itemIndex]
+        local ui = UpgradeUIList[i]
+        if ui then
+            if ui.TitleComponent then ui.TitleComponent:SetText(item.Name) end
+            if ui.TypeComponent then ui.TypeComponent:SetText(item.ItemType == ItemType.Stat and "[능력치]" or "[설치]") end
+            if ui.ContentComponent then ui.ContentComponent:SetText(item.UpgradeContent) end
+            if ui.ImageComponent then ui.ImageComponent:SetTexture(item.Texture) end
+        end
     end
 end
 
 ---@param UpgradeIndex number
 function UpgradeListFunction.Choice(UpgradeIndex)
     local index = UpgradeList[UpgradeIndex].ItemIndex
-    InventoryFunction.Add(index, 5)
+    local item = ItemList[index]
+    if not item or item.ItemType == ItemType.System then return false end
+    if item.ItemType == ItemType.Stat then
+        if item.UpgradeSelectAction then item.UpgradeSelectAction() end
+        return true
+    end
+    return InventoryFunction.Add(index, 5)
 end

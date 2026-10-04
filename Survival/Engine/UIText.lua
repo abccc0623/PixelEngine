@@ -13,6 +13,7 @@ ffi.cdef[[
 	void UIText_SetTextSize(unsigned int ID,float Scale);
 	void UIText_SetFont(unsigned int ID,const char* FontName);
 	void UIText_SetColor(unsigned int ID,float R,float G,float B,float A);
+	void UIText_SetPivot(unsigned int ID,float X,float Y);
 ]]
 
 ---@class UITextData
@@ -39,6 +40,12 @@ end
 ---@param A number
 function UITextData:SetColor(R,G,B,A)
 	return dll.UIText_SetColor(self.thisID,R,G,B,A)
+end
+
+---@param X number
+---@param Y number
+function UITextData:SetPivot(X,Y)
+	return dll.UIText_SetPivot(self.thisID,X,Y)
 end
 
 local UIText_mt = {

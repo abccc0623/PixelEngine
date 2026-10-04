@@ -1,157 +1,172 @@
 local Script = {}
 
--- Book-local coordinates: two entries on each page, with a clear center gutter.
-local Layout = {
-    Column = 232, Top = 20, Bottom = 210,
-    CardWidth = 368, CardHeight = 160,
-    Ink = {76, 53, 42}, Muted = {117, 93, 62}, Accent = {23, 105, 118},
-}
-
-local function Color(component, color)
-    component:SetColor(color[1], color[2], color[3], 255)
-end
-
--- LuaJIT strings are byte-based. Wrap whole UTF-8 characters, never byte slices.
-local function WrapDescription(value)
-    local output = {}
-    for paragraph in string.gmatch((value or "") .. "\n", "(.-)\n") do
-        local line, width = "", 0
-        for word in string.gmatch(paragraph, "%S+") do
-            local wordWidth = 0
-            for character in string.gmatch(word, "[%z\1-\127\194-\244][\128-\191]*") do
-                wordWidth = wordWidth + (#character > 1 and 1 or 0.55)
-            end
-            if width > 0 and width + 0.55 + wordWidth > 15 then
-                output[#output + 1], line, width = line, "", 0
-            end
-            if width > 0 then line, width = line .. " ", width + 0.55 end
-            line, width = line .. word, width + wordWidth
-        end
-        output[#output + 1] = line
-    end
-    return table.concat(output, "\n")
-end
-
 function Script:Spawn()
     self.transform = Transform.Add(self.ID)
-    self.pos = {
-        PVector3(-Layout.Column, Layout.Top, 0),
-        PVector3(-Layout.Column, Layout.Bottom, 0),
-        PVector3(Layout.Column, Layout.Top, 0),
-        PVector3(Layout.Column, Layout.Bottom, 0),
-    }
-    self.cards = {}
     self.selectIndex = 1
-    self:CreateText(self.ID, -412, -116, "아이템 선택", 0.8, Layout.Ink)
-    self:CreateText(self.ID, -410, -78, "네 가지 아이템 중 하나를 골라주세요", 0.39, Layout.Muted)
-    for index = 1, 4 do self:CreatePanel(self.pos[index], index) end
-    self:CreateText(self.ID, -410, 306, "방향키  이동     Z  선택", 0.47, Layout.Ink)
-    self:RefreshSelection()
     Event.Bind(self.ID, "ShowRandomCard", "Show")
+    Event.Bind(self.ID, "HideBookContent", "Hide")
+
+    self.UIList = {}
+    self.choiceImages = {}
+    self.descriptionTexts = {}
+
+    self:AddUI(UI.CreateBookTitleIcon("ContentIcon"))
+    self:AddUI(UI.CreateBookTitleText("능력 선택"))
+    self:AddUI(UI.CreateBookSubText(116.5,-140,"설명",150))
+    self:CreateLine(116.5,0)
+    self:CreateLine(116.5,40)
+    self:CreateLine(116.5,80)
+    self:CreateSelectContentIcon(116.5,-80)
+
+    local startPoint = -80
+    for i = 1, 4 do
+        local choiceID, nameText, typeText, nameID, typeID = UI.CreateChoiceImage(-116.5,startPoint)
+        self:AddUI(choiceID,nameID,typeID)
+        UpgradeUIList[i].TitleComponent = nameText
+        UpgradeUIList[i].TypeComponent = typeText
+        local iconID = Entity.CreateEmpty()
+        local iconTransform = Transform.Add(iconID)
+        iconTransform:SetParent(choiceID)
+        self:AddUI(iconID)
+        iconTransform.position = PVector3(-70.5,-3.5,0)
+        local iconImage = UIImage.Add(iconID)
+        iconImage:SetPivot(0.5,0.5)
+        iconImage:SetOrder(1)
+        self.choiceImages[i] = iconImage
+        UpgradeUIList[i].ImageComponent = iconImage
+        startPoint = startPoint + 50
+    end
+    self:CreateSelectUI(-210, -84)
+    self:Hide()
+
+end
+
+function Script:Hide()
+    for _, id in ipairs(self.UIList) do Entity.SetActive(id,false) end
     Entity.SetActive(self.ID, false)
 end
 
 function Script:Show()
-    Entity.SetActive(self.ID, true)
     UpgradeListFunction.Shuffle()
-    for index = 1, 4 do
-        local item = ItemList[UpgradeList[index].ItemIndex]
-        -- Fit after Shuffle assigns the actual texture (wide paths and square runes).
-        UpgradeUIList[index].ImageComponent:SetAspectFit(72, 72)
-        UpgradeUIList[index].ContentComponent:SetText(WrapDescription(item.UpgradeContent))
-    end
+    for _, image in ipairs(self.choiceImages) do image:SetAspectFit(26,26) end
     self.selectIndex = 1
-    self:RefreshSelection()
+    self:MoveSelect()
+    Entity.SetActive(self.ID, true)
+    for _, id in ipairs(self.UIList) do Entity.SetActive(id,true) end
 end
 
 function Script:Update()
+    if self.choiceSelectTransform == nil then return end
     local previous = self.selectIndex
-    if Input.KeyDown(Keycode.Left) and self.selectIndex > 2 then
-        self.selectIndex = self.selectIndex - 2
-    elseif Input.KeyDown(Keycode.Right) and self.selectIndex <= 2 then
-        self.selectIndex = self.selectIndex + 2
-    elseif Input.KeyDown(Keycode.Up) and self.selectIndex % 2 == 0 then
-        self.selectIndex = self.selectIndex - 1
-    elseif Input.KeyDown(Keycode.Down) and self.selectIndex % 2 == 1 then
-        self.selectIndex = self.selectIndex + 1
+    if Input.KeyDown(Keycode.Up) then
+        self.selectIndex = math.max(1,self.selectIndex - 1)
+    elseif Input.KeyDown(Keycode.Down) then
+        self.selectIndex = math.min(4,self.selectIndex + 1)
     end
-    if previous ~= self.selectIndex then self:RefreshSelection() end
+    if previous ~= self.selectIndex then self:MoveSelect() end
+
+    if Input.KeyDown(Keycode.X) then
+        self:Hide()
+        Event.Call("BookClose")
+        return
+    end
+
     if Input.KeyDown(Keycode.Z) then
         UpgradeListFunction.Choice(self.selectIndex)
-        Entity.SetActive(self.ID, false)
+        self:Hide()
         Event.Call("BookNext")
     end
 end
 
-function Script:RefreshSelection()
-    for index, card in ipairs(self.cards) do
-        local selected = index == self.selectIndex
-        -- Tint only the white selection border; keep the panel's original colors.
-        if selected then card.Frame:SetColor(255, 255, 255, 255)
-        else card.Frame:SetColor(185, 166, 136, 210) end
-        card.Border:SetColor(Layout.Accent[1], Layout.Accent[2], Layout.Accent[3], selected and 255 or 0)
-        Color(UpgradeUIList[index].TitleComponent, selected and Layout.Accent or Layout.Ink)
-        card.Hint:SetText(selected and "Z  선택하기" or "선택 대기")
-        Color(card.Hint, selected and Layout.Accent or Layout.Muted)
-        Color(card.Number, selected and Layout.Accent or Layout.Muted)
+function Script:MoveSelect()
+    if self.choiceSelectTransform ~= nil then
+        self.choiceSelectTransform.position = PVector3(-210,-84 + (self.selectIndex - 1) * 50,0)
+    end
+    local item = ItemList[UpgradeList[self.selectIndex].ItemIndex]
+    if item and self.selectedContentImage then
+        self.selectedContentImage:SetTexture(item.Texture)
+        self.selectedContentImage:SetAspectFit(200,200)
+    end
+    local lines = {}
+    for paragraph in ((item and item.UpgradeContent or "") .. "\n"):gmatch("([^\n]*)\n") do
+        local line, count = "", 0
+        for word in paragraph:gmatch("%S+") do
+            local _, length = word:gsub("[%z\1-\127\194-\244][\128-\191]*", "")
+            if count > 0 and count + 1 + length > 18 then
+                lines[#lines + 1] = line
+                line, count = "", 0
+            end
+            if count > 0 then line = line .. " "; count = count + 1 end
+            line, count = line .. word, count + length
+        end
+        lines[#lines + 1] = line
+    end
+    for index, text in ipairs(self.descriptionTexts) do text:SetText(lines[index] or "") end
+end
+
+function Script:CreateSelectUI(x,y)
+    local targetID = Entity.CreateEmpty()
+    self:AddUI(targetID)
+    local targetTr = Transform.Add(targetID)
+    self.choiceSelectTransform = targetTr
+    local image = UIImage.Add(targetID)
+    image:SetTexture("Right")
+    image:SetPivot(0.5, 0.5)
+    targetTr.position = PVector3(x,y,0)
+    targetTr.scale = PVector3(1.5,1.5,1)
+    targetTr:SetParent(UI.BookID)
+end
+
+function Script:CreateLine(x,y)
+    local targetID = Entity.CreateEmpty()
+    self:AddUI(targetID)
+    local targetTr = Transform.Add(targetID)
+    local image = UIImage.Add(targetID)
+    image:SetTexture("line_3")
+    image:SetPivot(0.5, 0.5)
+    targetTr.position = PVector3(x,y,0)
+    targetTr.scale = PVector3(0.75,0.75,1)
+    targetTr:SetParent(UI.BookID)
+    for lineIndex = 0, 1 do
+        local textID = Entity.CreateEmpty()
+        self:AddUI(textID)
+        local textTr = Transform.Add(textID)
+        textTr:SetParent(targetID)
+        textTr.position = PVector3(-114,-20 + lineIndex * 26,0)
+        local text = UIText.Add(textID)
+        text:SetFont("Jalnan2TTF")
+        text:SetTextSize(0.4)
+        text:SetPivot(0,0.5)
+        text:SetColor(37,35,35,255)
+        self.descriptionTexts[#self.descriptionTexts + 1] = text
     end
 end
 
-function Script:CreateText(parentID, x, y, value, size, color)
-    local id = Entity.CreateEmpty()
-    local transform = Transform.Add(id)
-    local text = UIText.Add(id)
-    transform.position = PVector3(x, y, 0)
-    transform.scale = PVector3(1, 1, 1)
-    transform:SetParent(parentID)
-    text:SetFont("Jalnan2TTF")
-    text:SetTextSize(size)
-    text:SetText(value)
-    Color(text, color)
-    return text
+function Script:CreateSelectContentIcon(x,y)
+    local targetID = Entity.CreateEmpty()
+    self:AddUI(targetID)
+    local targetTr = Transform.Add(targetID)
+    local image = UIImage.Add(targetID)
+    image:SetTexture("tile")
+    image:SetPivot(0.5, 0.5)
+    targetTr.position = PVector3(x,y,0)
+    targetTr.scale = PVector3(1,1,1)
+    targetTr:SetParent(UI.BookID)
+    local iconID = Entity.CreateEmpty()
+    self:AddUI(iconID)
+    local iconTr = Transform.Add(iconID)
+    iconTr:SetParent(targetID)
+    iconTr.position = PVector3(0,0,0)
+    iconTr.scale = PVector3(0.2,0.2,1)
+    local iconImage = UIImage.Add(iconID)
+    iconImage:SetPivot(0.5,0.5)
+    iconImage:SetOrder(1)
+    self.selectedContentImage = iconImage
 end
 
-function Script:CreatePanel(position, index)
-    local id = Entity.CreateEmpty()
-    local transform = Transform.Add(id)
-    transform.position = position
-    -- Uniform scale keeps Korean text and icons undistorted.
-    transform.scale = PVector3(1, 1, 1)
-    self.transform:SetChild(id)
-    local image = UIImage.Add(id)
-    image:SetPivot(0.5, 0.5)
-    image:SetTexture("tile_panel")
-    image:SetTextureSize(Layout.CardWidth, Layout.CardHeight)
-    image:SetOrder(-80)
-    local borderID = Entity.CreateEmpty()
-    local borderTransform = Transform.Add(borderID)
-    borderTransform.position = PVector3(0, 0, 0)
-    borderTransform.scale = PVector3(1, 1, 1)
-    borderTransform:SetParent(id)
-    local border = UIImage.Add(borderID)
-    border:SetPivot(0.5, 0.5)
-    border:SetTexture("selection_border")
-    border:SetTextureSize(Layout.CardWidth, Layout.CardHeight)
-    border:SetOrder(-70)
-    border:SetColor(255, 255, 255, 0)
-    local iconID = Entity.CreateEmpty()
-    local iconTransform = Transform.Add(iconID)
-    iconTransform.position = PVector3(-129, 4, 0)
-    iconTransform:SetParent(id)
-    local icon = UIImage.Add(iconID)
-    icon:SetPivot(0.5, 0.5)
-    icon:SetTexture("rune_gold103")
-    icon:SetAspectFit(72, 72)
-    icon:SetOrder(-60)
-    UpgradeUIList[index].ImageComponent = icon
-    UpgradeUIList[index].TitleComponent = self:CreateText(id, -68, -49, "", 0.68, Layout.Ink)
-    UpgradeUIList[index].ContentComponent = self:CreateText(id, -68, -9, "", 0.46, Layout.Muted)
-    self.cards[index] = {
-        Frame = image,
-        Border = border,
-        Number = self:CreateText(id, -158, -57, string.format("%02d", index), 0.43, Layout.Muted),
-        Hint = self:CreateText(id, -68, 51, "선택 대기", 0.37, Layout.Muted),
-    }
+
+function Script:AddUI(...)
+    for _, id in ipairs({...}) do self.UIList[#self.UIList + 1] = id end
 end
 
 return Script

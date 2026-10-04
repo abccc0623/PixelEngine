@@ -29,6 +29,7 @@ namespace PixelTool
 
         private readonly SemaphoreSlim _completionLock = new SemaphoreSlim(1, 1);
         private bool _disposed = false;
+        private int completionRequestId;
 
         public async Task Initialize()
         {
@@ -48,6 +49,7 @@ namespace PixelTool
                 string luarcPath = ProjectPathService.GetEditorFilePath(".luarc.json");
                 string luarcContent = $@"{{
     ""runtime"": {{ ""version"": ""Lua 5.1"" }},
+    ""completion"": {{ ""callSnippet"": ""Replace"" }},
     ""workspace"": {{ ""library"": [""{enginePath}""] }},
     ""diagnostics"": {{ ""globals"": [""Vector2"", ""Vector3"", ""Transform"", ""Renderer2D"", ""Camera"", ""Animation2D"", ""BoxCollider2D"", ""CircleCollider2D"", ""Rigidbody2D"", ""LuaEvent""] }}
 }}";
@@ -239,12 +241,15 @@ namespace PixelTool
         // 자동완성 요청만 담당
         public async Task RequestCompletionAsync(string triggerChar, int currentLine, int currentColumn)
         {
-            if (_rpc == null || _targetFilePath == null) return;
-            if (!await _completionLock.WaitAsync(0)) return;
+            if (_disposed || _rpc == null || _targetFilePath == null) return;
+            int requestId = Interlocked.Increment(ref completionRequestId);
             string requestUri = _targetFilePath;
+            int requestVersion = _documentVersion;
+            await _completionLock.WaitAsync();
 
             try
             {
+                if (_disposed || requestId != completionRequestId) return;
                 var context = new CompletionContext();
                 if (triggerChar != "." && triggerChar != ":")
                     context.TriggerKind = CompletionTriggerKind.Invoked;
@@ -278,6 +283,7 @@ namespace PixelTool
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
                     var luaEditor = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
+                    if (_disposed || requestId != completionRequestId || requestVersion != _documentVersion) return;
                     if (luaEditor == null) return;
                     if (string.IsNullOrEmpty(luaEditor.CurrentFilePath) ||
                         !string.Equals(new Uri(Path.GetFullPath(luaEditor.CurrentFilePath)).AbsoluteUri, requestUri, StringComparison.OrdinalIgnoreCase)) return;
@@ -299,7 +305,6 @@ namespace PixelTool
                         startOffset--;
                     }
 
-                    if (string.IsNullOrEmpty(triggerChar) && caretOffset == startOffset) return;
 
                     completionWindow.StartOffset = startOffset;
                     completionWindow.CloseAutomatically = true;
@@ -321,7 +326,6 @@ namespace PixelTool
 
                     foreach (var item in completionItems)
                     {
-                        if (item.Label.StartsWith("_")) continue;
                         if (isForCompletion && IsLuaForSnippet(item.Label)) continue;
 
                         var formattedText = new FormattedText(
@@ -375,7 +379,7 @@ namespace PixelTool
             if (_disposed) return;
             _disposed = true;
 
-            _completionLock?.Dispose();
+            // Pending requests still release this lock in finally.
 
             try { _rpc?.Dispose(); } catch { }
             try

@@ -1,4 +1,4 @@
-﻿--게임 로직에 진입점 입니다 
+--게임 로직에 진입점 입니다 
 function Main()
     Asset.Import("./Asset/Scene")
     Asset.Import("./Asset/Font")

@@ -8,17 +8,20 @@ function Scene:Start()
     local transform = Transform.Add(cameraEntityID)
     transform.position = PVector3(0,0,-20)
     
-    
     local bookID = Entity.Create("Book")
     local contentID = Entity.Create("Content")
     local gridID = Entity.Create("GridEntity")
     local inventoryID = Entity.Create("InventoryEntity")
+    --[[
+    
+    --local gridID = Entity.Create("GridEntity")
+    --local inventoryID = Entity.Create("InventoryEntity")
 
     -- 테스트용 시작 아이템 지급
     --for itemIndex = 1, #ItemList do InventoryFunction.Add(itemIndex,20) end
     GridFunction.Add(1,1,2)
-    GridFunction.Add(1,14,2)
-    for i = 2, 13 do
+    GridFunction.Add(1,Grid.height,2)
+    for i = 2, Grid.height - 1 do
          GridFunction.Add(1,i,1)
     end
     
@@ -27,9 +30,11 @@ function Scene:Start()
     bookTr:SetChild(contentID)
     bookTr:SetChild(gridID) 
     bookTr:SetChild(inventoryID)
+    
     --Entity.Create("GameLogic")
     --ChoiceManager.Init()
     --ChoiceManager.BookOpen()
+    ]]--
 end
 
 

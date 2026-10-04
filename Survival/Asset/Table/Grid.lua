@@ -1,23 +1,19 @@
-Grid = {}
-GridUI = {}
-GridTransform = {}
+Grid = {width = 12, height = 12}
 
 function Grid.Create()
-    for x = 1, 14 do
+    Grid.StartPoint = {x = 0, y = 0}
+    Grid.EndPoint = {x = 0, y = 0}
+
+    for x = 1, Grid.width do
         Grid[x] ={}
-        GridUI[x] = {}
-        GridTransform[x] = {}
-        for y = 1, 14 do
+        for y = 1, Grid.height do
              Grid[x][y] =
              {
                 ItemIndex = 0,
                 ItemRotation = 0
              }
-             GridUI[x][y] = nil
-             GridTransform[x][y] = nil
         end
     end
 end
 
 Grid.Create()
-GridFunction.Add(1,1,1)

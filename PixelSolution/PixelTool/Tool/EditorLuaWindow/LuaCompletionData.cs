@@ -10,9 +10,11 @@ namespace PixelTool
     internal class LuaCompletionData : ICompletionData
     {
         private readonly string snippetKind;
+        private readonly CompletionItem item;
 
         public LuaCompletionData(CompletionItem item)
         {
+            this.item = item;
             Text = item.Label;
             kind = item.Kind;
             switch (item.Kind)
@@ -85,27 +87,22 @@ namespace PixelTool
                 return;
             }
 
-            string insertText = this.Text;
-
-            // 2. 정규식으로 매개변수 예쁘게 갈아끼우기
-            insertText = Regex.Replace(insertText, @"\bstring[0-9]*\b", "\"\"");
-            insertText = Regex.Replace(insertText, @"\bnumber[0-9]*\b", "0");
-            insertText = Regex.Replace(insertText, @"\bboolean[0-9]*\b", "false");
-            insertText = Regex.Replace(insertText, @"\bvector2[0-9]*\b", "Vector2(0,0)");
-            insertText = Regex.Replace(insertText, @"\bvector3[0-9]*\b", "Vector3(0,0,0)");
-
-            // 3. (옵션) 변수일 경우 뒤에 콜론(:) 붙이기 
-            // ※ 주의: kind 속성이 없다면 이 부분은 주석 처리하거나 네 코드에 맞게 수정해!
-            // if (this.Kind == CompletionItemKind.Variable)
-            // {
-            //     insertText += ":";
-            // }
-
-            // 4. 🔥 [가장 중요] 덮어씌우기 전에 '시작 위치'를 안전하게 백업해 둠!
+            string insertText = item?.InsertText ?? this.Text;
             int startOffset = completionSegment.Offset;
+            int length = completionSegment.Length;
+            // LSP edits carry the replacement range as well as the insertion text.
+            var edit = item?.TextEdit;
+            var range = edit?.Range;
+            if (range != null)
+            {
+                startOffset = textArea.Document.GetOffset(range.Start.Line + 1, range.Start.Character + 1);
+                int endOffset = textArea.Document.GetOffset(range.End.Line + 1, range.End.Character + 1);
+                length = endOffset - startOffset;
+                insertText = edit.NewText ?? insertText;
+            }
 
-            // 5. 조립이 끝난 최종 텍스트를 단 *한 번만* 에디터에 덮어씌움
-            textArea.Document.Replace(completionSegment, insertText);
+            insertText = PrepareInsertion(insertText, item?.Detail);
+            textArea.Document.Replace(startOffset, length, insertText);
 
             // 6. 10년 차의 미친 디테일: 커서 위치 맞추기
             int quoteIndex = insertText.IndexOf("\"\"");
@@ -126,25 +123,53 @@ namespace PixelTool
             }
         }
 
+        internal static string PrepareInsertion(string text, string detail)
+        {
+            // LuaLS call snippets use argument names; signature details supply their types.
+            text = Regex.Replace(text, @"\$\{\d+:([^{}]*)\}|\$\{\d+\}|\$\d+", match =>
+                match.Groups[1].Success ? match.Groups[1].Value : string.Empty);
+            int open = text.IndexOf('(');
+            int close = text.LastIndexOf(')');
+            if (open < 0 || close <= open) return text;
+            string arguments = text.Substring(open + 1, close - open - 1);
+            arguments = Regex.Replace(arguments, @"\b[A-Za-z_][A-Za-z_0-9]*\b", match =>
+            {
+                string type = match.Value;
+                if (!string.IsNullOrEmpty(detail))
+                {
+                    var annotation = Regex.Match(detail, @"\b" + Regex.Escape(type) + @"\s*:\s*(string|number|integer|boolean)\b");
+                    if (annotation.Success) type = annotation.Groups[1].Value;
+                }
+                switch (Regex.Replace(type, @"\d+$", string.Empty))
+                {
+                    case "string": return "\"\"";
+                    case "number":
+                    case "integer": return "0";
+                    case "boolean": return "false";
+                    default: return match.Value;
+                }
+            });
+            return text.Substring(0, open + 1) + arguments + text.Substring(close);
+        }
+
         private bool TryCompleteSnippet(ICSharpCode.AvalonEdit.Editing.TextArea textArea, ICSharpCode.AvalonEdit.Document.ISegment completionSegment)
         {
-            string label = Text.Trim().ToLowerInvariant();
             string indent = GetCurrentIndent(textArea, completionSegment.Offset);
             string bodyIndent = indent + "    ";
             string snippet;
             int caretOffset;
 
-            if (snippetKind == "for_ipairs" || label.Contains("ipairs"))
+            if (snippetKind == "for_ipairs")
             {
                 snippet = $"for _, value in ipairs(items) do\n{bodyIndent}\n{indent}end";
                 caretOffset = snippet.IndexOf("items", StringComparison.Ordinal);
             }
-            else if (snippetKind == "for_pairs" || label.Contains("pairs"))
+            else if (snippetKind == "for_pairs")
             {
                 snippet = $"for key, value in pairs(items) do\n{bodyIndent}\n{indent}end";
                 caretOffset = snippet.IndexOf("items", StringComparison.Ordinal);
             }
-            else if (snippetKind == "for_numeric" || label.Contains("for i"))
+            else if (snippetKind == "for_numeric")
             {
                 snippet = $"for i = 1, count do\n{bodyIndent}\n{indent}end";
                 caretOffset = snippet.IndexOf("count", StringComparison.Ordinal);

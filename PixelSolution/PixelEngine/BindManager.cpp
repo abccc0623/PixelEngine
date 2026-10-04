@@ -205,6 +205,10 @@ static void RegisterComponentData()
 	info_SetFont.memberName.push_back("ID");
 	info_SetFont.memberName.push_back("FontName");
 	auto info_UITextSetColor = GeGlobalMethodInfo(&UIText_SetColor);
+	auto info_UITextSetPivot = GeGlobalMethodInfo(&UIText_SetPivot);
+	info_UITextSetPivot.memberName.push_back("ID");
+	info_UITextSetPivot.memberName.push_back("X");
+	info_UITextSetPivot.memberName.push_back("Y");
 	info_UITextSetColor.memberName.push_back("ID");
 	info_UITextSetColor.memberName.push_back("R");
 	info_UITextSetColor.memberName.push_back("G");
@@ -217,6 +221,7 @@ static void RegisterComponentData()
 	AddGlobalMethod(Static, name + "_SetTextSize", info_SetTextSize, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetFont", info_SetFont, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetColor", info_UITextSetColor, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetPivot", info_UITextSetPivot, EngineMetaFlag::Component);
 
 	name = "UISilder";
 	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);

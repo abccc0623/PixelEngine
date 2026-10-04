@@ -1,73 +1,90 @@
-﻿local Script = {}
+local Script = {}
 
-function  Script:Spawn()  
+function Script:Spawn()
+    UI.BookID = self.ID
     self.transform = Transform.Add(self.ID)
-    self.animation = Animation2D.Add(self.ID)
-    self.image = UIImage.Add(self.ID)
-    self.image:SetPivot(0.5, 0.5)
-    self.image:SetTexture("Open_book")
-    self.image:SetTextureSize(1088, 816)
-    -- Keep the book beneath card frames/icons; text is drawn at order 0.
-    self.image:SetOrder(-100)
+    self.transform.position = PVector3(960,540,1)
+    self.transform.scale = PVector3(3,3,1)
 
-    self.transform.position = PVector3(1920 * 0.5,1080 *0.5 -200,1)
-    self.transform.scale = PVector3(1.75,1.75,1)
-    
-    --애니메이션 SystemTime으로 변경
+    local image = UIImage.Add(self.ID)
+    image:SetPivot(0.5,0.5)
+    image:SetTextureSize(608,640)
+    image:SetOrder(-100)
+    self.image = image
+
+    self.animation = Animation2D.Add(self.ID)
     self.animation:SetUseUnscaledTime(true)
+    self.animationList = {
+        open = self.animation:Create("Open_book",8,1,0.65),
+        close = self.animation:Create("Close_book",5,1,0.65),
+        next = self.animation:Create("Next_book",9,1,0.65),
+        idle = self.animation:Create("Idle_book",1,1,1),
+    }
     
-    --사용할 애니메이션 생성
-    self.animationList = {}
-    self.animationList["open"] = self.animation:Create("Open_book", 4, 3, 5)
-    self.animationList["close"] = self.animation:Create("Close_book", 4, 3, 5)
-    self.animationList["next"] = self.animation:Create("Next_book", 4, 4, 5)
-    
-    --loop설정
-    self.animation:SetLoop(self.animationList["open"], false)
-    self.animation:SetLoop(self.animationList["close"], false)
-    self.animation:SetLoop(self.animationList["next"], false)
-    
-    self.animation:SetFrameCallback(self.animationList["open"], 11, false)
-    self.animation:SetFrameCallback(self.animationList["next"], 14, false)
-    self.animation:SetFrameCallback(self.animationList["close"], 11, false)
-    self.animation:Play(self.animationList["open"])
-    
+    for _, name in ipairs({"open","close","next"}) do
+        self.animation:SetLoop(self.animationList[name],false)
+    end
+    self.animation:SetFrameCallback(self.animationList.open,7,false)
+    self.animation:SetFrameCallback(self.animationList.close,4,false)
+    self.animation:SetFrameCallback(self.animationList.next,8,false)
+
     Event.Bind(self.ID,"BookOpen","BookOpen")
     Event.Bind(self.ID,"BookNext","BookNext")
     Event.Bind(self.ID,"BookClose","BookClose")
-end  
-
-
+    self.currentAnimationID = self.animationList.next
+    self.animation:Play(self.currentAnimationID)
+end
 
 function Script:OnAnimationCallBack(targetID,nowAnimationID,nowAnimationFrame)
-	if nowAnimationID == self.animationList["open"] then
-	   Event.Call("ShowRandomCard")
-	elseif nowAnimationID == self.animationList["close"] then
-	   Entity.SetActive(self.ID,false)
-	elseif nowAnimationID == self.animationList["next"] then
-	   self.animation:Stop(self.animationList["next"])
-	   self.animation:SetFrameIndex(self.animationList["next"], 0)
-	   Event.Call("ShowGrid")
-	   Event.Call("ShowInventory")
-	end
+    if targetID ~= self.ID or nowAnimationID ~= self.currentAnimationID then return end
+    if nowAnimationID == self.animationList.open then
+        self:BookIdle()
+        Event.Call("ShowRandomCard")
+    elseif nowAnimationID == self.animationList.next then
+        self:BookIdle()
+        Event.Call("ShowGrid")
+        Event.Call("ShowInventory")
+    elseif nowAnimationID == self.animationList.close then
+        Entity.SetActive(self.ID,false)
+    end
+end
+
+function Script:BookIdle()
+    self.image:SetPivot(0.5,0.5)
+    self.image:SetTextureSize(768,640)
+    self.currentAnimationID = self.animationList.idle
+    self.animation:Play(self.currentAnimationID)
+    self.animation:Reset()
+    self.animation:Stop()
 end
 
 function Script:BookOpen()
+    self.image:SetPivot(0.5,0.5)
+    self.image:SetTextureSize(608,640)
     Entity.SetActive(self.ID,true)
-    nowAnimationID = self.animationList["open"]
-    self.animation:Play(self.animationList["open"])
+    Event.Call("HideBookContent")
+    self.currentAnimationID = self.animationList.open
+    self.animation:Play(self.currentAnimationID)
+    self.animation:Reset()
 end
 
 function Script:BookNext()
-    nowAnimationID = self.animationList["next"]
-    self.animation:Play(self.animationList["next"])
+    -- Align Next_book's paper baseline (561) with Idle_book's baseline (455).
+    self.image:SetPivot(0.5,0.5 + 106 / 640)
+    self.image:SetTextureSize(608,640)
+    Event.Call("HideBookContent")
+    self.currentAnimationID = self.animationList.next
+    self.animation:Play(self.currentAnimationID)
+    self.animation:Reset()
 end
 
 function Script:BookClose()
-     nowAnimationID = self.animationList["close"]
-    self.animation:Play(self.animationList["close"])
+    self.image:SetPivot(0.5,0.5)
+    self.image:SetTextureSize(608,640)
+    Event.Call("HideBookContent")
+    self.currentAnimationID = self.animationList.close
+    self.animation:Play(self.currentAnimationID)
+    self.animation:Reset()
 end
-
-
 
 return Script

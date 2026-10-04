@@ -56,6 +56,8 @@ end
 ---@param ItemCount number
 function InventoryFunction.Add(ItemIndex,ItemCount)
     if ItemIndex <= 0 or ItemCount <= 0 then return false end
+    local item = ItemList[ItemIndex]
+    if not item or item.ItemType ~= ItemType.Factory then return false end
 
     --이미 아이템이 들어있다면 개수추가
     for index, value in ipairs(User.Inventory) do

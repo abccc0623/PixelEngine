@@ -64,6 +64,8 @@ struct TextData
 	std::uint16_t fontKey;
 	float scale;
 	float color[4];
+	float pivotX;
+	float pivotY;
 };
 
 

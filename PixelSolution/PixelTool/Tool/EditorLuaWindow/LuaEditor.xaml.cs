@@ -81,12 +81,13 @@ namespace PixelTool
                 var errorSegments = new List<ISegment>();
                 foreach (Diagnostic diagnostic in parameters.Diagnostics)
                 {
-                    if (diagnostic.Severity != DiagnosticSeverity.Error) continue;
+                    if (diagnostic.Severity.HasValue && diagnostic.Severity != DiagnosticSeverity.Error) continue;
 
                     int startOffset = GetDocumentOffset(diagnostic.Range.Start);
                     int endOffset = GetDocumentOffset(diagnostic.Range.End);
                     if (endOffset <= startOffset)
                     {
+                        if (startOffset == LuaEditor.Document.TextLength && startOffset > 0) startOffset--;
                         endOffset = Math.Min(LuaEditor.Document.TextLength, startOffset + 1);
                     }
 
@@ -284,7 +285,7 @@ namespace PixelTool
         {
             if (string.IsNullOrEmpty(e.Text)) return;
             char c = e.Text[0];
-            if (char.IsLetterOrDigit(c) || c == '.' || c == ':')
+            if (char.IsLetterOrDigit(c) || c == '_' || c == '.' || c == ':')
             {
                 int currentLine = LuaEditor.TextArea.Caret.Line - 1;
                 int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
@@ -347,6 +348,7 @@ namespace PixelTool
                 }
                 else if (e.Key == Key.Space)
                 {
+                    e.Handled = true;
                     int currentLine = LuaEditor.TextArea.Caret.Line - 1;
                     int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
                     luaLspService.RequestCompletionAsync("", currentLine, currentColumn);
