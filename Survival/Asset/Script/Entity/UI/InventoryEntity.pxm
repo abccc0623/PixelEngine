@@ -1,35 +1,34 @@
 local Script = {}
 
-function  Script:Spawn()  
+function Script:Spawn()
     self.UIList = {}
     self.transform = Transform.Add(self.ID)
-    self.InventoryCount = 7
     self.SelectTr = nil
 
-    self.ToolsX = 0
-    self.ToolsY = 0
-    self.InventoryX = 0
-    self.InventoryY = 150
     User.ToolsComponent = {}
     User.InventoryComponent = {}
     
     
-    self:AddUI(UI.CreateBookSubText(116.5,-140,"인벤토리",175))
+    self:AddUI(UI.CreateBookSubText(116.5,-140,"설명",175))
+    self:CreateSelectionDescription()
+    User.InventoryDescriptionID = self.ID
     self:AddUI(UI.CreateBookSubText(116.5,-70,"인벤토리",175))
-    --[[
-    self:CreateInventory()
-    self:CreateTileSelect(self.ToolsX,self.ToolsY)
+    self:AddUI(self:CreateSystem(116.5,-50))
+    self:AddUI(self:CreateInventory(116.5,-5))
+    local selectID = Entity.CreateEmpty()
+    self:AddUI(selectID)
+    self.SelectTr = Transform.Add(selectID)
+    local selectImage = UIImage.Add(selectID)
+    selectImage:SetTexture("UISelect_thick")
+    selectImage:SetTextureSize(34,34)
+    selectImage:SetPivot(0.5,0.5)
+    selectImage:SetOrder(2)
     User.SelectTransform = self.SelectTr
-    self:CreateDescription()
-    self:InventoryText(0,-75,"ㅁ -- 도구 -- ㅁ")
-    self:InventoryText(0,75,"ㅁ -- 생성 -- ㅁ")
+    User.SelectParentID = nil
+    InventoryFunction.RefreshAll()
     InventoryFunction.Move(InventoryType.Tool,1)
-    ]]--
-    
-    --self:Text(0,0,"Build",1.5)
-    --self:CreateUI(0,0,"line_1")
-    
-    
+    self:AddUI(UI.CreateBookSubText(116.5,60,"시스템",175))
+    self:CreateComplete()
     
     Event.Bind(self.ID,"ShowInventory", "Show")
     Event.Bind(self.ID,"HideBookContent", "Hide")
@@ -44,6 +43,8 @@ end
 function Script:Show()
     Entity.SetActive(self.ID,true)
     for _, id in ipairs(self.UIList) do Entity.SetActive(id,true) end
+    InventoryFunction.RefreshAll()
+    self:Setting(User.Selection.Index,User.Selection.Type)
 end
 
 function Script:Update()
@@ -53,14 +54,18 @@ function Script:Update()
     local index = User.Selection.Index
 
     if Input.KeyDown(Keycode.Right) then
-        local maxIndex = #User.Inventory
+        local maxIndex = math.min(#User.Inventory,12)
         if selectType == InventoryType.Tool then maxIndex = #User.Tools end
+        if selectType == InventoryType.Complete then maxIndex = 1 end
         index = math.min(index + 1, maxIndex)
     elseif Input.KeyDown(Keycode.Left) then
         index = math.max(index - 1, 1)
     elseif Input.KeyDown(Keycode.Up) then
-        if selectType == InventoryType.Inventory and index > 7 then
-            index = index - 7
+        if selectType == InventoryType.Complete then
+            selectType = InventoryType.Inventory
+            index = self.CompleteReturnIndex or math.min(#User.Inventory,12)
+        elseif selectType == InventoryType.Inventory and index > 6 then
+            index = index - 6
         elseif selectType == InventoryType.Inventory then
             selectType = InventoryType.Tool
             index = math.min(index, #User.Tools)
@@ -69,9 +74,15 @@ function Script:Update()
         if selectType == InventoryType.Tool then
             selectType = InventoryType.Inventory
             index = math.min(index, #User.Inventory)
-        else
-            local nextIndex = index + 7
-            if nextIndex <= #User.Inventory then index = nextIndex end
+        elseif selectType == InventoryType.Inventory then
+            local nextIndex = index + 6
+            if nextIndex <= math.min(#User.Inventory,12) then
+                index = nextIndex
+            else
+                self.CompleteReturnIndex = index
+                selectType = InventoryType.Complete
+                index = 1
+            end
         end
     else
         return
@@ -83,155 +94,163 @@ end
 
 
 
-function Script:CreateTile(x,y,value)
-    local targetID = Entity.CreateEmpty()
-    self:AddUI(targetID)
-    local targetTr = Transform.Add(targetID)
-    local image = UIImage.Add(targetID)
-    image:SetTexture("tile") 
-    image:SetTextureSize(64, 64)
-
-    image:SetColor(137, 108, 71,255)
-    targetTr.position = PVector3(x,y,0)
-    targetTr.scale = PVector3(2,2,1)
-    self.transform:SetChild(targetID)
-    return targetTr
-end
-
-function Script:CreateIcon(x,y,value)
-    local targetID = Entity.CreateEmpty()
-    self:AddUI(targetID)
-    local targetTr = Transform.Add(targetID)
-    local image = UIImage.Add(targetID)
-    if value == 0 then
-        image:SetColor(137, 108, 71,0)
-    else
-        image:SetColor(137, 108, 71,255)
-    end
-    image:SetTextureSize(64, 64)
-    targetTr.position = PVector3(x,y,0)
-    targetTr.scale = PVector3(1,1,1)
-    self.transform:SetChild(targetID)
-    return image
-end
-
-function Script:CreateTileText(x,y,value)
-    Debug.LogWarning("생성")
-    local targetID = Entity.CreateEmpty()
-    self:AddUI(targetID)
-    local targetTr = Transform.Add(targetID)
-    local text = UIText.Add(targetID)
-    text:SetFont("Jalnan2TTF")
-    text:SetColor(255, 0, 0,255)
-
-    targetTr.position = PVector3(x+20,y+20,0)
-    targetTr.scale = PVector3(0.75,0.75,1)
-    self.transform:SetChild(targetID)
-    return text
-end
 
 
-function Script:CreateTileSelect(x,y)
-    local targetID = Entity.CreateEmpty()
-    self:AddUI(targetID)
-    self.SelectTr = Transform.Add(targetID)
-    local image = UIImage.Add(targetID)
-    image:SetTexture("tile") 
-    image:SetTextureSize(64, 64)
-    image:SetColor(26, 113, 142, 255)
-
-    self.SelectTr.position = PVector3(x,y,0)
-    self.SelectTr.scale = PVector3(2.25,2.25,1)
-    self.transform:SetChild(targetID)
-end
-
-function Script:InventoryText(x,y,str)
-    local targetID = Entity.CreateEmpty()
-    self:AddUI(targetID)
-    local targetTr = Transform.Add(targetID)
-    local text = UIText.Add(targetID)
-    text:SetText(str)
-    text:SetTextSize(0.65)
-    text:SetFont("Jalnan2TTF")
-    text:SetColor(137, 108, 71,255)
-    targetTr.position = PVector3(x,y,0)
-    targetTr.scale = PVector3(1,1,1)
-    self.transform:SetChild(targetID)
-end
-
-function Script:CreateInventory()
-    User.ToolsComponent = {}
-    User.InventoryComponent = {}
-
-    for toolsIndex = 1, #User.Tools do
-        local item = User.Tools[toolsIndex]
-        User.ToolsComponent[toolsIndex] = {TransformComponent = nil, ImageComponent = nil}
-
-        if item ~= nil then
-            User.ToolsComponent[toolsIndex].TransformComponent = self:CreateTile(self.ToolsX, self.ToolsY, item.ItemIndex)
-            local img = self:CreateIcon(self.ToolsX, self.ToolsY, item.ItemIndex)
-            img:SetTexture(item.Texture)
-            User.ToolsComponent[toolsIndex].ImageComponent = img
-        end
-        if toolsIndex % 7 == 0 then
-            self.ToolsX = 0
-            self.ToolsY = self.ToolsY + 100
-        else
-            self.ToolsX = self.ToolsX + 100
+function Script:CreateSystem(x,y)
+    local parentID = Entity.CreateEmpty()
+    local parentTr = Transform.Add(parentID)
+    parentTr.position = PVector3(x,y,0)
+    parentTr.scale = PVector3(0.75,0.75,1)
+    parentTr:SetParent(UI.BookID)
+    for column = 0, 5 do
+        local slotID = Entity.CreateEmpty()
+        self:AddUI(slotID)
+        local slotTr = Transform.Add(slotID)
+        slotTr:SetParent(parentID)
+        slotTr.position = PVector3((column - 2.5) * 36,0,0)
+        local image = UIImage.Add(slotID)
+        image:SetTexture("box")
+        image:SetPivot(0.5,0.5)
+        image:SetTextureSize(32,32)
+        local tool = User.Tools[column + 1]
+        if tool then
+            local icon, text = self:CreateSlotContent(slotID)
+            icon:SetTexture(tool.Texture)
+            icon:SetColor(255,255,255,255)
+            icon:SetContentAspectFit(24,24)
+            text:SetText("")
+            User.ToolsComponent[column + 1] = {TransformComponent = slotTr, ImageComponent = icon, ParentID = parentID}
         end
     end
+    return parentID
+end
 
-    for inventoryIndex = 1, #User.Inventory do
-        local item = User.Inventory[inventoryIndex]
-        User.InventoryComponent[inventoryIndex] = {TransformComponent = nil, ImageComponent = nil, TextComponent = nil}
-        if item ~= nil then
-            User.InventoryComponent[inventoryIndex].TransformComponent = self:CreateTile(self.InventoryX, self.InventoryY, item.ItemIndex)
-            User.InventoryComponent[inventoryIndex].ImageComponent = self:CreateIcon(self.InventoryX, self.InventoryY, item.ItemIndex)
-            User.InventoryComponent[inventoryIndex].TextComponent = self:CreateTileText(self.InventoryX, self.InventoryY, item.ItemIndex)
-        end
-        if inventoryIndex % 7 == 0 then
-            self.InventoryX = 0
-            self.InventoryY = self.InventoryY + 100
-        else
-            self.InventoryX = self.InventoryX + 100
+function Script:CreateInventory(x,y)
+    local parentID = Entity.CreateEmpty()
+    local parentTr = Transform.Add(parentID)
+    parentTr.position = PVector3(x,y,0)
+    parentTr.scale = PVector3(0.75,0.75,1)
+    parentTr:SetParent(UI.BookID)
+    for row = 0, 1 do
+        for column = 0, 5 do
+            local slotID = Entity.CreateEmpty()
+            self:AddUI(slotID)
+            local slotTr = Transform.Add(slotID)
+            slotTr:SetParent(parentID)
+            slotTr.position = PVector3((column - 2.5) * 36,(row - 0.5) * 36,0)
+            local image = UIImage.Add(slotID)
+            image:SetTexture("box")
+            image:SetPivot(0.5,0.5)
+            image:SetTextureSize(32,32)
+            local icon, text = self:CreateSlotContent(slotID)
+            User.InventoryComponent[row * 6 + column + 1] = {TransformComponent = slotTr, ImageComponent = icon, TextComponent = text, ParentID = parentID}
         end
     end
-
-    InventoryFunction.RefreshAll()
-end
-
-function Script:CreateDescription()
-    local targetID = Entity.Create("TileDescription")
-    self:AddUI(targetID)
-    self.transform:SetChild(targetID)
-    User.InventoryDescriptionID = targetID
+    return parentID
 end
 
 
-function Script:CreateUI(x,y,Name)
-    local targetID = Entity.CreateEmpty()
-    self:AddUI(targetID)
-    local targetTr = Transform.Add(targetID)
-    local image = UIImage.Add(targetID)
-    image:SetTexture(Name) 
-    image:SetPivot(0.5, 0.5)
-    targetTr.position = PVector3(x,y,0)
-    targetTr.scale = PVector3(3,3,1)
-    self.transform:SetChild(targetID)
-end
-
-function Script:Text(x,y,content,size)
-    local contentID = Entity.CreateEmpty()
-    self:AddUI(contentID)
-    local transform = Transform.Add(contentID)
-    local text = UIText.Add(contentID)
-    transform.position = PVector3(x,y,0)
-    text:SetColor(20,32,50,255)
-    text:SetText(content)
+function Script:CreateSlotContent(parentID)
+    local iconID = Entity.CreateEmpty()
+    self:AddUI(iconID)
+    local iconTr = Transform.Add(iconID)
+    iconTr:SetParent(parentID)
+    iconTr.position = PVector3(0,0,0)
+    local image = UIImage.Add(iconID)
+    image:SetTexture("box")
+    image:SetTextureSize(24,24)
+    image:SetPivot(0.5,0.5)
+    image:SetOrder(1)
+    image:SetColor(255,255,255,0)
+    local textID = Entity.CreateEmpty()
+    self:AddUI(textID)
+    local textTr = Transform.Add(textID)
+    textTr:SetParent(parentID)
+    textTr.position = PVector3(12,10,0)
+    local text = UIText.Add(textID)
     text:SetFont("Jalnan2TTF")
-    text:SetTextSize(size)
-    self.transform:SetChild(contentID)
-    return text, transform
+    text:SetTextSize(0.25)
+    text:SetPivot(1,0.5)
+    text:SetColor(37,35,35,255)
+    return image, text
+end
+
+
+function Script:CreateSelectionDescription()
+    local iconID = Entity.CreateEmpty()
+    self:AddUI(iconID)
+    local iconTr = Transform.Add(iconID)
+    iconTr:SetParent(UI.BookID)
+    iconTr.position = PVector3(49,-110,0)
+    local image = UIImage.Add(iconID)
+    image:SetTexture("box")
+    image:SetPivot(0.5,0.5)
+    image:SetTextureSize(32,32)
+    self.descriptionImage = image
+    local textID = Entity.CreateEmpty()
+    self:AddUI(textID)
+    local textTr = Transform.Add(textID)
+    textTr:SetParent(UI.BookID)
+    textTr.position = PVector3(73,-120,0)
+    local text = UIText.Add(textID)
+    text:SetFont("Jalnan2TTF")
+    text:SetTextSize(0.22)
+    text:SetPivot(0,0)
+    text:SetColor(37,35,35,255)
+    self.descriptionText = text
+end
+
+function Script:Setting(index,selectType)
+    local texture, content
+    if selectType == InventoryType.Complete then
+        content = "Z 키를 눌러 빌드를 완료하고 책을 닫습니다."
+    elseif selectType == InventoryType.Tool then
+        local tool = User.Tools[index]
+        if tool then texture, content = tool.Texture, tool.Content end
+    elseif selectType == InventoryType.Inventory then
+        local slot = User.Inventory[index]
+        local item = slot and ItemList[slot.ItemIndex]
+        if item then
+            texture = item.Texture
+            content = item.InventoryContent ~= "" and item.InventoryContent or item.UpgradeContent
+        end
+    end
+    self.descriptionText:SetText(content or "")
+    self.descriptionImage:SetColor(255,255,255,texture and 255 or 0)
+    if texture then
+        self.descriptionImage:SetTexture(texture)
+        self.descriptionImage:SetContentAspectFit(32,32)
+    end
+end
+
+function Script:CreateComplete()
+    local parentID = Entity.CreateEmpty()
+    self:AddUI(parentID)
+    local parentTr = Transform.Add(parentID)
+    parentTr:SetParent(UI.BookID)
+    parentTr.position = PVector3(116.5,95,0)
+    parentTr.scale = PVector3(0.75,0.75,1)
+    local slotID = Entity.CreateEmpty()
+    self:AddUI(slotID)
+    local slotTr = Transform.Add(slotID)
+    slotTr:SetParent(parentID)
+    slotTr.position = PVector3(0,0,0)
+    local image = UIImage.Add(slotID)
+    image:SetTexture("box")
+    image:SetTextureSize(32,32)
+    image:SetPivot(0.5,0.5)
+    local textID = Entity.CreateEmpty()
+    self:AddUI(textID)
+    local textTr = Transform.Add(textID)
+    textTr:SetParent(slotID)
+    textTr.position = PVector3(0,0,0)
+    local text = UIText.Add(textID)
+    text:SetFont("Jalnan2TTF")
+    text:SetTextSize(0.25)
+    text:SetPivot(0.5,0.5)
+    text:SetColor(37,35,35,255)
+    text:SetText("완료")
+    User.CompleteComponent = {{TransformComponent = slotTr, ParentID = parentID}}
 end
 
 

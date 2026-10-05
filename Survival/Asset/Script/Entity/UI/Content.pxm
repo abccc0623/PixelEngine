@@ -48,7 +48,7 @@ end
 
 function Script:Show()
     UpgradeListFunction.Shuffle()
-    for _, image in ipairs(self.choiceImages) do image:SetAspectFit(26,26) end
+    for _, image in ipairs(self.choiceImages) do image:SetContentAspectFit(26,26) end
     self.selectIndex = 1
     self:MoveSelect()
     Entity.SetActive(self.ID, true)
@@ -85,7 +85,7 @@ function Script:MoveSelect()
     local item = ItemList[UpgradeList[self.selectIndex].ItemIndex]
     if item and self.selectedContentImage then
         self.selectedContentImage:SetTexture(item.Texture)
-        self.selectedContentImage:SetAspectFit(200,200)
+        self.selectedContentImage:SetContentAspectFit(200,200)
     end
     local lines = {}
     for paragraph in ((item and item.UpgradeContent or "") .. "\n"):gmatch("([^\n]*)\n") do

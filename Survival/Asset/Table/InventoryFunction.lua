@@ -13,11 +13,15 @@ function InventoryFunction.Refresh(InventoryIndex)
 
     if item.ItemIndex > 0 and ItemList[item.ItemIndex] ~= nil then
         image:SetTexture(ItemList[item.ItemIndex].Texture)
+        if component.ParentID then image:SetContentAspectFit(24,24) end
         image:SetColor(255,255,255,255)
         text:SetText("X"..tostring(item.ItemCount))
     else
         image:SetColor(255,255,255,0)
         text:SetText("")
+    end
+    if User.InventoryDescriptionID and User.Selection.Type == InventoryType.Inventory and User.Selection.Index == InventoryIndex then
+        Entity.CallFunction(User.InventoryDescriptionID,"Setting",InventoryIndex,InventoryType.Inventory)
     end
 end
 
@@ -34,6 +38,8 @@ function InventoryFunction.Move(SelectType,Index)
         componentList = User.ToolsComponent
     elseif SelectType == InventoryType.Inventory then
         componentList = User.InventoryComponent
+    elseif SelectType == InventoryType.Complete then
+        componentList = User.CompleteComponent
     else
         Debug.LogError("잘못된 인벤토리 선택 타입:"..tostring(SelectType))
         return false
@@ -43,6 +49,10 @@ function InventoryFunction.Move(SelectType,Index)
     if slot == nil or slot.TransformComponent == nil or User.SelectTransform == nil then return false end
     User.Selection.Type = SelectType
     User.Selection.Index = Index
+    if slot.ParentID and User.SelectParentID ~= slot.ParentID then
+        User.SelectTransform:SetParent(slot.ParentID)
+        User.SelectParentID = slot.ParentID
+    end
     User.SelectTransform.position.x = slot.TransformComponent.position.x
     User.SelectTransform.position.y = slot.TransformComponent.position.y
 

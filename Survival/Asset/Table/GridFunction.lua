@@ -7,11 +7,11 @@ end
 
 local function Draw(x, y)
     local cell = Cell(x, y)
-    local image = GridUI and GridUI[x] and GridUI[x][y]
-    local transform = GridTransform and GridTransform[x] and GridTransform[x][y]
+    local image = Grid.UI and Grid.UI[x] and Grid.UI[x][y]
+    local transform = Grid.Transform and Grid.Transform[x] and Grid.Transform[x][y]
     if image then
         image:SetTexture(cell.ItemIndex == 0 and "tile" or ItemList[cell.ItemIndex].Texture)
-        image:SetAspectFit(18,18)
+        image:SetContentAspectFit(18,18)
         image:SetColor(255,255,255,255)
         Entity.SetActive(image.thisID,Grid.Visible == true and cell.ItemIndex ~= 0)
     end
@@ -55,7 +55,7 @@ function GridFunction.Rotation(x, y)
     local item = ItemList[cell.ItemIndex]
     if not item or (item.Texture ~= "line" and item.Texture ~= "corner") then return end
     cell.ItemRotation = (cell.ItemRotation + 90) % 360
-    local transform = GridTransform and GridTransform[x] and GridTransform[x][y]
+    local transform = Grid.Transform and Grid.Transform[x] and Grid.Transform[x][y]
     if transform then transform.rotation.z = cell.ItemRotation end
 end
 

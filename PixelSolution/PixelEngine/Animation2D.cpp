@@ -55,6 +55,17 @@ void Animation2D_Play(unsigned int id, int AnimationIndex)
 			if (render != nullptr)
 			{
 				render->renderingData.sprite.isShared = false;
+				// Apply the new frame before rendering, including callback-triggered transitions.
+				const auto& animation = data->selectAnimation;
+				if (animation.maxFramesX > 0 && animation.maxFramesY > 0)
+				{
+					auto& sprite = render->renderingData.sprite;
+					render->renderingData.texture_key = animation.textureID;
+					sprite.TilingX = 1.0f / animation.maxFramesX;
+					sprite.TilingY = 1.0f / animation.maxFramesY;
+					sprite.OffsetX = (animation.framesIndex % animation.maxFramesX) * sprite.TilingX;
+					sprite.OffsetY = (animation.framesIndex / animation.maxFramesX) * sprite.TilingY;
+				}
 			}
 			else
 			{

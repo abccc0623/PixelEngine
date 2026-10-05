@@ -152,6 +152,10 @@ static void RegisterComponentData()
 	info_UIImageSetAspectFit.memberName.push_back("ID");
 	info_UIImageSetAspectFit.memberName.push_back("SlotWidth");
 	info_UIImageSetAspectFit.memberName.push_back("SlotHeight");
+	auto info_UIImageSetContentAspectFit = GeGlobalMethodInfo(&UIImage_SetContentAspectFit);
+	info_UIImageSetContentAspectFit.memberName.push_back("ID");
+	info_UIImageSetContentAspectFit.memberName.push_back("SlotWidth");
+	info_UIImageSetContentAspectFit.memberName.push_back("SlotHeight");
 	auto info_UIImageSetPivot = GeGlobalMethodInfo(&UIImage_SetPivot);
 	info_UIImageSetPivot.memberName.push_back("ID");
 	info_UIImageSetPivot.memberName.push_back("X");
@@ -179,6 +183,7 @@ static void RegisterComponentData()
 	AddGlobalMethod(Static, name + "_SetTexture", info_UIImageSetTexture, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetTextureSize", info_UIImageSetTextureSize, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetAspectFit", info_UIImageSetAspectFit, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetContentAspectFit", info_UIImageSetContentAspectFit, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetPivot", info_UIImageSetPivot, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetTiling", info_UIImageSetTiling, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetOffset", info_UIImageSetOffset, EngineMetaFlag::Component);

@@ -3,6 +3,30 @@
 #include "GraphicsCore.h"
 #include "ResourceManager.h"
 
+namespace
+{
+	void SetContentBounds(TextureResources& texture, const stbi_uc* pixels, int width, int height)
+	{
+		int left = width, top = height, right = -1, bottom = -1;
+		for (int y = 0; y < height; ++y)
+		{
+			for (int x = 0; x < width; ++x)
+			{
+				if (pixels[(static_cast<size_t>(y) * width + x) * 4 + 3] == 0) continue;
+				left = (std::min)(left, x);
+				top = (std::min)(top, y);
+				right = (std::max)(right, x);
+				bottom = (std::max)(bottom, y);
+			}
+		}
+		if (right < left) return; // Fully transparent textures have no visible bounds.
+		texture.contentX = static_cast<UINT>(left);
+		texture.contentY = static_cast<UINT>(top);
+		texture.contentWidth = static_cast<UINT>(right - left + 1);
+		texture.contentHeight = static_cast<UINT>(bottom - top + 1);
+	}
+}
+
 bool PixelGraphics::TextureFactory::Initialize(GraphicsCore* graphicsCore)
 {
 	Clear();
@@ -79,6 +103,8 @@ std::uint16_t PixelGraphics::TextureFactory::Load(const std::string& path)
 	}
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
+	TextureResources textureResource = {};
+	SetContentBounds(textureResource, pixels, width, height);
 	textureDesc.Width = static_cast<UINT>(width);
 	textureDesc.Height = static_cast<UINT>(height);
 	textureDesc.MipLevels = 1;
@@ -122,7 +148,6 @@ std::uint16_t PixelGraphics::TextureFactory::Load(const std::string& path)
 		return defaultTextureKey;
 	}
 
-	TextureResources textureResource = {};
 	textureResource.key = key;
 	textureResource.path = path;
 	textureResource.Texture = std::move(textureView);
@@ -173,6 +198,8 @@ bool PixelGraphics::TextureFactory::LoadDefaultTexture()
 	}
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
+	TextureResources textureResource = {};
+	SetContentBounds(textureResource, pixels, width, height);
 	textureDesc.Width = static_cast<UINT>(width);
 	textureDesc.Height = static_cast<UINT>(height);
 	textureDesc.MipLevels = 1;
@@ -208,7 +235,6 @@ bool PixelGraphics::TextureFactory::LoadDefaultTexture()
 		return false;
 	}
 
-	TextureResources textureResource = {};
 	textureResource.key = defaultTextureKey;
 	textureResource.path = "DEFAULT_PNG";
 	textureResource.Texture = std::move(textureView);

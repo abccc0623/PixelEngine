@@ -5,7 +5,7 @@ function Script:Spawn()
     self.SelectW, self.SelectH = 1, 1
     self.KeyRepeatStates = {}
     self.CellPositions = {}
-    GridUI, GridTransform = {}, {}
+    Grid.UI, Grid.Transform = {}, {}
 
     self:AddUI(UI.CreateBookTitleIcon("BuildIcon"))
     self:AddUI(UI.CreateBookTitleText("빌드"))
@@ -31,7 +31,7 @@ function Script:Show()
     -- Parent activation also activates children, so restore each item's state.
     for x = 1, Grid.width do
         for y = 1, Grid.height do
-            Entity.SetActive(GridUI[x][y].thisID,Grid[x][y].ItemIndex ~= 0)
+            Entity.SetActive(Grid.UI[x][y].thisID,Grid[x][y].ItemIndex ~= 0)
         end
     end
     self:GridCheck(1,1)
@@ -47,13 +47,16 @@ function Script:CreateGridImage(x,y)
     image:SetTextureSize(18,18)
 
     local cell = Grid[x][y]
-    if cell.ItemIndex ~= 0 then image:SetTexture(ItemList[cell.ItemIndex].Texture) end
+    if cell.ItemIndex ~= 0 then
+        image:SetTexture(ItemList[cell.ItemIndex].Texture)
+        image:SetContentAspectFit(18,18)
+    end
     image:SetColor(255,255,255,255)
     image:SetOrder(-70)
     targetTr.rotation.z = cell.ItemRotation
     targetTr.position = self.CellPositions[x][y]
     targetTr:SetParent(self.GridID)
-    GridTransform[x][y] = targetTr
+    Grid.Transform[x][y] = targetTr
     Entity.SetActive(targetID,Grid.Visible == true and cell.ItemIndex ~= 0)
     return image
 end
@@ -98,6 +101,9 @@ function Script:Update(DTime)
         if selectType == InventoryType.Tool then
             local tool = User.Tools[selectIndex]
             if tool ~= nil and tool.Action ~= nil then tool.Action(self.SelectW,self.SelectH) end
+        elseif selectType == InventoryType.Complete then
+            Event.Call("BookClose")
+            self:Hide()
         elseif selectType == InventoryType.Inventory then
             local inventory = User.Inventory[selectIndex]
             if inventory == nil or inventory.ItemIndex <= 0 or inventory.ItemCount <= 0 then return end
@@ -169,10 +175,11 @@ function Script:CreateGrid()
     image:SetOrder(-80)
     self.GridID = targetID
     for x = 1, Grid.width do
-        self.CellPositions[x], GridUI[x], GridTransform[x] = {}, {}, {}
+        self.CellPositions[x], Grid.UI[x], Grid.Transform[x] = {}, {}, {}
         for y = 1, Grid.height do
-            self.CellPositions[x][y] = PVector3(-120 + (x - 0.5) * (240 / Grid.width),-120 + (y - 0.5) * (240 / Grid.height),0)
-            GridUI[x][y] = self:CreateGridImage(x,y)
+            local position = Grid[x][y].Position
+            self.CellPositions[x][y] = PVector3((position.x - transform.position.x) / transform.scale.x,(position.y - transform.position.y) / transform.scale.y,position.z)
+            Grid.UI[x][y] = self:CreateGridImage(x,y)
         end
     end
 end

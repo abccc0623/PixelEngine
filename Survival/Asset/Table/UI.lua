@@ -55,7 +55,7 @@ function UI.CreateBookLine1(x,y)
     local TR = Transform.Add(id)
     local IM = UIImage.Add(id)
     TR.position = PVector3(x,y,0)
-    TR.scale = PVector3(2,2,1)
+    TR.scale = PVector3(1,1,1)
     TR:SetParent(UI.BookID)
     IM:SetTexture("line_1")
     IM:SetPivot(0.5,0.5)
@@ -118,6 +118,9 @@ function UI.CreateChoiceImage(x,y)
     typeText:SetColor(37,35,35,255)
     return id, nameText, typeText, nameID, typeID
 end
+
+
+
 
 
 

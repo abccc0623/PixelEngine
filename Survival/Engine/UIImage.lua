@@ -12,6 +12,7 @@ ffi.cdef[[
 	void UIImage_SetTexture(unsigned int ID,const char* textureName);
 	void UIImage_SetTextureSize(unsigned int ID,float Width,float Height);
 	bool UIImage_SetAspectFit(unsigned int ID,float SlotWidth,float SlotHeight);
+	bool UIImage_SetContentAspectFit(unsigned int ID,float SlotWidth,float SlotHeight);
 	void UIImage_SetPivot(unsigned int ID,float X,float Y);
 	void UIImage_SetTiling(unsigned int ID,float X,float Y);
 	void UIImage_SetOffset(unsigned int ID,float X,float Y);
@@ -38,6 +39,13 @@ end
 ---@return boolean
 function UIImageData:SetAspectFit(SlotWidth,SlotHeight)
 	return dll.UIImage_SetAspectFit(self.thisID,SlotWidth,SlotHeight)
+end
+
+---@param SlotWidth number
+---@param SlotHeight number
+---@return boolean
+function UIImageData:SetContentAspectFit(SlotWidth,SlotHeight)
+	return dll.UIImage_SetContentAspectFit(self.thisID,SlotWidth,SlotHeight)
 end
 
 ---@param X number

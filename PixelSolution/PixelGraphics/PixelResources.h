@@ -37,6 +37,10 @@ struct TextureResources
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Texture;
 	UINT width = 0;
 	UINT height = 0;
+	UINT contentX = 0;
+	UINT contentY = 0;
+	UINT contentWidth = 0;
+	UINT contentHeight = 0;
 };
 
 struct BufferResources

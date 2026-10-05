@@ -162,6 +162,20 @@ bool GetGraphicsTextureSize(uint16_t textureID, uint32_t* width, uint32_t* heigh
 	return true;
 }
 
+bool GetGraphicsTextureContentRect(uint16_t textureID, float* x, float* y, float* width, float* height)
+{
+	if (mEngine == nullptr || x == nullptr || y == nullptr || width == nullptr || height == nullptr) return false;
+	auto resources = mEngine->GetResourceManager();
+	auto factory = resources ? resources->GetFactory<PixelGraphics::TextureFactory>(PixelGraphics::ResourceType::TEXTURE) : nullptr;
+	auto texture = factory ? factory->Get(textureID) : nullptr;
+	if (texture == nullptr || texture->width == 0 || texture->height == 0 || texture->contentWidth == 0 || texture->contentHeight == 0) return false;
+	*x = static_cast<float>(texture->contentX) / texture->width;
+	*y = static_cast<float>(texture->contentY) / texture->height;
+	*width = static_cast<float>(texture->contentWidth) / texture->width;
+	*height = static_cast<float>(texture->contentHeight) / texture->height;
+	return true;
+}
+
 uint16_t LoadGraphicsFont(const char* filePath)
 {
 	if (mEngine != nullptr)

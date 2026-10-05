@@ -127,6 +127,35 @@ bool UIImage_SetAspectFit(unsigned int id, float slotWidth, float slotHeight)
 	return true;
 }
 
+bool UIImage_SetContentAspectFit(unsigned int id, float slotWidth, float slotHeight)
+{
+	auto registry = GetRegistry();
+	auto image = registry->Get<UIImageData>(id);
+	auto graphics = registry->Get<GraphicsData>(id);
+	if (image == nullptr || graphics == nullptr || slotWidth <= 0.0f || slotHeight <= 0.0f)
+	{
+		PixelLog::Error("[UIImage][SetContentAspectFit] Invalid component or slot size");
+		return false;
+	}
+	const auto textureID = static_cast<uint16_t>(graphics->renderingData.texture_key);
+	uint32_t textureWidth = 0, textureHeight = 0;
+	float x = 0.0f, y = 0.0f, width = 0.0f, height = 0.0f;
+	if (!GetGraphicsTextureSize(textureID, &textureWidth, &textureHeight) ||
+		!GetGraphicsTextureContentRect(textureID, &x, &y, &width, &height)) return false;
+	const float contentWidth = width * textureWidth;
+	const float contentHeight = height * textureHeight;
+	const float scale = (std::min)(slotWidth / contentWidth, slotHeight / contentHeight);
+	auto& sprite = graphics->renderingData.sprite;
+	sprite.width = contentWidth * scale;
+	sprite.height = contentHeight * scale;
+	sprite.isShared = false;
+	sprite.TilingX = width;
+	sprite.TilingY = height;
+	sprite.OffsetX = x;
+	sprite.OffsetY = y;
+	return true;
+}
+
 void UIImage_SetPivot(unsigned int id, float x, float y)
 {
 	auto registry = GetRegistry();

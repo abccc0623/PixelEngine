@@ -9,7 +9,7 @@ ItemList =
     {
         ItemType = ItemType.Factory,
         Name = "직선 길",
-        Texture = "line",
+        Texture = "road_1",
         UpgradeContent = "마법책에 자원을 이동시킬 길을 그린다.",
         UpgradeSelectAction = function() InventoryFunction.Add(1,5) end,
         InventoryContent = "Z 키를 눌러 직선 길 설치 합니다",

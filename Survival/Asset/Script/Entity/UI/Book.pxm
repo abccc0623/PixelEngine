@@ -31,7 +31,7 @@ function Script:Spawn()
     Event.Bind(self.ID,"BookOpen","BookOpen")
     Event.Bind(self.ID,"BookNext","BookNext")
     Event.Bind(self.ID,"BookClose","BookClose")
-    self.currentAnimationID = self.animationList.next
+    self.currentAnimationID = self.animationList.open
     self.animation:Play(self.currentAnimationID)
 end
 
