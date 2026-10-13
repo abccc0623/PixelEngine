@@ -17,6 +17,9 @@ __pycache__/
 *.pyc
 *.log
 
+# Locally installed REA tools and dependencies.
+/Tools/REA/
+
 # Local AI/build experiments, preview copies, screenshots, and recovery backups.
 # Keep permanent source, tests, and documentation outside this folder.
 /.tmp/

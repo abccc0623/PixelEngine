@@ -13,6 +13,7 @@ enum class EditorEventType : std::int32_t
 	GenerateEngineFile,
 	EditorMode,
 	PlayMode,
+	ToolInitialize,
 };
 
 namespace ECS

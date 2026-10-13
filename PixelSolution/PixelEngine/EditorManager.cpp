@@ -30,6 +30,11 @@ void EditorManager::Notify(std::int32_t eventType, std::string content)
 {
 	switch (eventType)
 	{
+	case (std::int32_t)EditorEventType::ToolInitialize:
+	{
+		Engine->IsTool = true;
+		break;
+	}
 	case (std::int32_t)EditorEventType::GenerateEngineFile:
 	{
 		GenerateManager* Generate = Engine->GetFactory<GenerateManager>();

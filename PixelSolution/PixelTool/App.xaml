@@ -22,6 +22,57 @@
         <Color x:Key="PixelBackgroundColor">#202630</Color>
         <Color x:Key="PixelBorderColor">#3C4755</Color>
 
+        <Style x:Key="PixelCompletionItem" TargetType="ListBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Row" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}" CornerRadius="3" Margin="3,1">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Row" Property="Background" Value="{DynamicResource PixelSurfaceBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Row" Property="Background" Value="{DynamicResource PixelAccentMutedBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PixelAccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PixelCompletionToolTip" TargetType="ToolTip">
+            <Setter Property="Background" Value="{DynamicResource PixelPanelBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PixelBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="MaxWidth" Value="540"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ScrollViewer MaxHeight="360" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <ContentPresenter/>
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="PixelToolButton" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource PixelButtonBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource PixelButtonTextBrush}"/>

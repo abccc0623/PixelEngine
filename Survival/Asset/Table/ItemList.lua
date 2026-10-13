@@ -9,9 +9,9 @@ ItemList =
     {
         ItemType = ItemType.Factory,
         Name = "직선 길",
-        Texture = "road_1",
+        Texture = "road_3",
         UpgradeContent = "마법책에 자원을 이동시킬 길을 그린다.",
-        UpgradeSelectAction = function() InventoryFunction.Add(1,5) end,
+        UpgradeSelectAction = function() InventoryFunction.Add(1,20) end,
         InventoryContent = "Z 키를 눌러 직선 길 설치 합니다",
     },
     {
@@ -37,5 +37,15 @@ ItemList =
         UpgradeContent = "생명력을 1 증가 시킵니다.",
         UpgradeSelectAction = nil,
         InventoryContent = "",
+    },
+    {
+        ItemType = ItemType.Factory,
+        Name = "자원 분배기",
+        Texture = "rune_gold103",
+        UpgradeContent = "들어온 자원을 연결된 두 길로 번갈아 분배한다",
+        UpgradeSelectAction = function()
+            InventoryFunction.Add(5,1)
+        end,
+        InventoryContent = "공격력과 개수를 유지한 채 두 길로 번갈아 보낸다. 대기 시간은 없다.",
     },
 }

@@ -42,6 +42,7 @@ namespace PixelTool
         private FileState activeFile;
         private bool switchingFile;
         private readonly Task lspReady;
+        private Task documentSync = Task.CompletedTask;
         public string CurrentFilePath => targetPath;
 
         public CompletionWindow completionWindow;
@@ -270,14 +271,29 @@ namespace PixelTool
             int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
 
             string changedPath = targetPath;
-            _ = SyncDocumentAsync(changedPath, currentText, currentLine, currentColumn);
+            documentSync = SyncDocumentAsync(documentSync, changedPath, currentText, currentLine, currentColumn);
         }
 
-        private async Task SyncDocumentAsync(string path, string text, int line, int column)
+        private async Task SyncDocumentAsync(Task previous, string path, string text, int line, int column)
         {
+            await previous;
             await lspReady;
             try { await luaLspService.SyncTextAsync(text, line, column, path); }
             catch (Exception) { }
+        }
+
+        private async Task RequestCurrentCompletionAsync(string trigger)
+        {
+            string path = CurrentFilePath;
+            var document = LuaEditor.Document;
+            int line = LuaEditor.TextArea.Caret.Line - 1;
+            int column = LuaEditor.TextArea.Caret.Column - 1;
+            string text = document.Text;
+            await lspReady;
+            await documentSync;
+            if (document != LuaEditor.Document || path != CurrentFilePath || text != document.Text ||
+                line != LuaEditor.TextArea.Caret.Line - 1 || column != LuaEditor.TextArea.Caret.Column - 1) return;
+            await luaLspService.RequestCompletionAsync(trigger,line,column);
         }
 
         // 자동완성 요청만 담당
@@ -287,11 +303,9 @@ namespace PixelTool
             char c = e.Text[0];
             if (char.IsLetterOrDigit(c) || c == '_' || c == '.' || c == ':')
             {
-                int currentLine = LuaEditor.TextArea.Caret.Line - 1;
-                int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
                 if (luaLspService != null)
                 {
-                    await luaLspService.RequestCompletionAsync(e.Text, currentLine, currentColumn);
+                    await RequestCurrentCompletionAsync(e.Text);
                 }
             }
         }
@@ -349,9 +363,7 @@ namespace PixelTool
                 else if (e.Key == Key.Space)
                 {
                     e.Handled = true;
-                    int currentLine = LuaEditor.TextArea.Caret.Line - 1;
-                    int currentColumn = LuaEditor.TextArea.Caret.Column - 1;
-                    luaLspService.RequestCompletionAsync("", currentLine, currentColumn);
+                    _ = RequestCurrentCompletionAsync("");
                 }
             }
         }

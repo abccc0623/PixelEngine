@@ -12,6 +12,7 @@ public enum EditorEventType : int
     GenerateEngineFile = 0,
     EditorMode = 1,
     PlayMode = 2,
+    ToolInitialize = 3,
 }
 
 public static class PixelEngineNative

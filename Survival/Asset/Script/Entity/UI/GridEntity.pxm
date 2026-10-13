@@ -5,6 +5,12 @@ function Script:Spawn()
     self.SelectW, self.SelectH = 1, 1
     self.KeyRepeatStates = {}
     self.CellPositions = {}
+    self.Editing = false
+    self.EnergySpawnTime = 0
+    self.EnergySpawnInterval = 1
+    Grid.Visible = true
+    self.PlayPosition = PVector3(1760,160,1)
+    self.PlayScale = PVector3(1,1,1)
     Grid.UI, Grid.Transform = {}, {}
 
     self:AddUI(UI.CreateBookTitleIcon("BuildIcon"))
@@ -14,19 +20,49 @@ function Script:Spawn()
 
     Event.Bind(self.ID,"ShowGrid", "Show")
     Event.Bind(self.ID,"HideBookContent", "Hide")
+    Event.Bind(self.ID,"ShowGridPlay", "ShowPlay")
     self:Hide()
 end
 
 function Script:Hide()
-    Grid.Visible = false
+    self:SetBoardVisible(false)
+    self.Editing = false
+    self.KeyRepeatStates = {}
     for _, id in ipairs(self.UIList) do Entity.SetActive(id,false) end
-    Entity.SetActive(self.ID, false)
+    Entity.SetActive(self.SelectID,false)
+    self.GridTr.position = self.PlayPosition
+    self.GridTr.scale = self.PlayScale
+end
+
+function Script:SetBoardVisible(visible)
+    Grid.Visible = visible
+    self.GridImage:SetColor(255,255,255,visible and 255 or 0)
+    for x = 1, Grid.width do
+        for y = 1, Grid.height do
+            Entity.SetActive(Grid.UI[x][y].thisID,visible and Grid[x][y].ItemIndex ~= 0)
+        end
+    end
+    -- 비활성 풀 객체를 깨우지 않고, 사용 중인 에너지의 표시만 변경한다.
+    for i = 0, Pool.GetActiveCount("EnergyItem") - 1 do
+        local image = UIImage.Get(Pool.GetActiveID("EnergyItem",i))
+        image:SetColor(255,255,255,visible and 255 or 0)
+    end
+end
+
+function Script:ShowPlay()
+    self:Hide()
+    self:SetBoardVisible(true)
 end
 
 function Script:Show()
-    Grid.Visible = true
-    Entity.SetActive(self.ID, true)
+    self:SetBoardVisible(true)
+    self.Editing = true
+    self.KeyRepeatStates = {}
+    local book = Transform.Get(UI.BookID)
+    self.GridTr.position = PVector3(book.position.x - 116.5 * book.scale.x,book.position.y - 10 * book.scale.y,book.position.z)
+    self.GridTr.scale = PVector3(0.8 * book.scale.x,0.8 * book.scale.y,book.scale.z)
     for _, id in ipairs(self.UIList) do Entity.SetActive(id,true) end
+    Entity.SetActive(self.SelectID,true)
     if self.SelectTr == -1 then return end
     -- Parent activation also activates children, so restore each item's state.
     for x = 1, Grid.width do
@@ -39,7 +75,6 @@ end
 
 function Script:CreateGridImage(x,y)
     local targetID = Entity.CreateEmpty()
-    self:AddUI(targetID)
     local targetTr = Transform.Add(targetID)
     local image = UIImage.Add(targetID)
     image:SetTexture("box")
@@ -48,11 +83,11 @@ function Script:CreateGridImage(x,y)
 
     local cell = Grid[x][y]
     if cell.ItemIndex ~= 0 then
-        image:SetTexture(ItemList[cell.ItemIndex].Texture)
-        image:SetContentAspectFit(18,18)
+        Graph.SetRoadImage(image,cell.RoadTexture or ItemList[cell.ItemIndex].Texture)
     end
     image:SetColor(255,255,255,255)
-    image:SetOrder(-70)
+    local item = ItemList[cell.ItemIndex]
+    image:SetOrder(cell.ItemIndex ~= 1 and item and item.ItemType == ItemType.Factory and 1 or -70)
     targetTr.rotation.z = cell.ItemRotation
     targetTr.position = self.CellPositions[x][y]
     targetTr:SetParent(self.GridID)
@@ -63,7 +98,7 @@ end
 
 function Script:CreateGridSelect()
     local targetID = Entity.CreateEmpty()
-    self:AddUI(targetID)
+    self.SelectID = targetID
     self.SelectTr = Transform.Add(targetID)
     local image = UIImage.Add(targetID)
     image:SetTexture("UISelect_thick")
@@ -77,7 +112,28 @@ function Script:CreateGridSelect()
 end
 
 function Script:Update(DTime)
-    if self.SelectTr == -1 then
+    local combatTime = GameFlow.State == "Combat" and not Time.IsPaused() and Time.GetDeltaTime() or 0
+    EnergyFunction.Update(combatTime)
+    -- 편집 입력과 별개로 게임 시간에 맞춰 주기적으로 생성한다.
+    if Graph.IsConnected == true and combatTime > 0 then
+        if self.EnergyPath ~= Graph.pathNodes then
+            self.EnergyPath = Graph.pathNodes
+            self.EnergySpawnTime = 0
+        end
+        self.EnergySpawnTime = self.EnergySpawnTime + combatTime
+        if self.EnergySpawnTime >= self.EnergySpawnInterval then
+            if Graph.SpawnEnergy() then
+                self.EnergySpawnTime = self.EnergySpawnTime % self.EnergySpawnInterval
+            else
+                self.EnergySpawnTime = self.EnergySpawnInterval
+            end
+        end
+    elseif not Graph.IsConnected then
+        self.EnergyPath = nil
+        self.EnergySpawnTime = 0
+    end
+
+    if not self.Editing or self.SelectTr == -1 then
         return
     end
 
@@ -90,7 +146,7 @@ function Script:Update(DTime)
     self:HandleMoveKey(Keycode.Right, 1, 0, RTime)
 
 	if Input.KeyDown(Keycode.Escape) then
-		Event.Call("BookClose")
+		GameFlow.CompleteBuild()
 		self:Hide()
 	end
 
@@ -102,7 +158,7 @@ function Script:Update(DTime)
             local tool = User.Tools[selectIndex]
             if tool ~= nil and tool.Action ~= nil then tool.Action(self.SelectW,self.SelectH) end
         elseif selectType == InventoryType.Complete then
-            Event.Call("BookClose")
+            GameFlow.CompleteBuild()
             self:Hide()
         elseif selectType == InventoryType.Inventory then
             local inventory = User.Inventory[selectIndex]
@@ -163,22 +219,23 @@ end
 
 function Script:CreateGrid()
     local targetID = Entity.CreateEmpty()
-    self:AddUI(targetID)
     local transform = Transform.Add(targetID)
     local image = UIImage.Add(targetID)
-    transform:SetParent(UI.BookID)
+    self.GridImage = image
     image:SetTexture("grid")
     image:SetTextureSize(256,256)
     image:SetPivot(0.5,0.5)
-    transform.position = PVector3(-116.5,-10,0)
-    transform.scale = PVector3(0.8,0.8,1)
+    transform.position = self.PlayPosition
+    transform.scale = self.PlayScale
     image:SetOrder(-80)
     self.GridID = targetID
+    self.GridTr = transform
+    Grid.BoardID = targetID
     for x = 1, Grid.width do
         self.CellPositions[x], Grid.UI[x], Grid.Transform[x] = {}, {}, {}
         for y = 1, Grid.height do
             local position = Grid[x][y].Position
-            self.CellPositions[x][y] = PVector3((position.x - transform.position.x) / transform.scale.x,(position.y - transform.position.y) / transform.scale.y,position.z)
+            self.CellPositions[x][y] = PVector3(position.x,position.y,position.z)
             Grid.UI[x][y] = self:CreateGridImage(x,y)
         end
     end

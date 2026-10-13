@@ -10,8 +10,9 @@ local function Draw(x, y)
     local image = Grid.UI and Grid.UI[x] and Grid.UI[x][y]
     local transform = Grid.Transform and Grid.Transform[x] and Grid.Transform[x][y]
     if image then
-        image:SetTexture(cell.ItemIndex == 0 and "tile" or ItemList[cell.ItemIndex].Texture)
-        image:SetContentAspectFit(18,18)
+        local item = ItemList[cell.ItemIndex]
+        image:SetOrder(cell.ItemIndex ~= 1 and item and item.ItemType == ItemType.Factory and 1 or -70)
+        Graph.SetRoadImage(image,cell.ItemIndex == 0 and "tile" or cell.RoadTexture or ItemList[cell.ItemIndex].Texture)
         image:SetColor(255,255,255,255)
         Entity.SetActive(image.thisID,Grid.Visible == true and cell.ItemIndex ~= 0)
     end
@@ -25,6 +26,7 @@ function GridFunction.Add(x, y, itemIndex)
         return false
     end
     cell.ItemIndex = itemIndex
+    cell.RoadTexture = nil
     if itemIndex == 2 then
         Grid.StartPoint = {x = x,y = y}
         Debug.Log(tostring(Grid.StartPoint.y))
@@ -44,8 +46,10 @@ function GridFunction.Remove(x, y)
     if not cell or cell.ItemIndex == 0 then return false end
     if ItemList[cell.ItemIndex].ItemType == ItemType.Factory and not InventoryFunction.Add(cell.ItemIndex, 1) then return false end
     cell.ItemIndex = 0
+    cell.RoadTexture = nil
     cell.ItemRotation = 0
     Draw(x, y)
+    Graph.Reset()
     return true
 end
 

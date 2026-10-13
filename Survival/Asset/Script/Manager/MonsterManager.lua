@@ -89,7 +89,7 @@ function MonsterManager.Update(DTime)
 
     -- 웨이브 종료
     if GameTimeManager.WaveTime >= wave.duration then
-        GameTimeManager.NextWave()
+        MonsterManager.NextWave()
     end
 end
 
@@ -101,5 +101,7 @@ function MonsterManager.NextWave()
 
     local nextWave = GameTimeManager.Waves[GameTimeManager.CurrentWave]
 
-    GameTimeManager.ResetMonsterSpawnCounts()
+    if nextWave then
+        for _, monster in ipairs(nextWave.monsters) do monster.spawned = 0 end
+    end
 end

@@ -24,6 +24,8 @@ function Script:Setting()
 end
 
 function Script:OnCollisionEnter(targetID)
+    local targetBody = Rigidbody2D.Get(targetID)
+    if targetBody == nil or ffi.string(targetBody:GetLayer()) ~= "Player" then return end
 	Pool.Disable("EXP", self.ID)
 	PlayerManager.AddExp(1)
 end

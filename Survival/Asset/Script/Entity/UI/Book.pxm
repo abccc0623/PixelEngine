@@ -15,9 +15,9 @@ function Script:Spawn()
     self.animation = Animation2D.Add(self.ID)
     self.animation:SetUseUnscaledTime(true)
     self.animationList = {
-        open = self.animation:Create("Open_book",8,1,0.65),
-        close = self.animation:Create("Close_book",5,1,0.65),
-        next = self.animation:Create("Next_book",9,1,0.65),
+        open = self.animation:Create("Open_book",8,1,1),
+        close = self.animation:Create("Close_book",5,1,1),
+        next = self.animation:Create("Next_book",9,1,1),
         idle = self.animation:Create("Idle_book",1,1,1),
     }
     
@@ -31,8 +31,8 @@ function Script:Spawn()
     Event.Bind(self.ID,"BookOpen","BookOpen")
     Event.Bind(self.ID,"BookNext","BookNext")
     Event.Bind(self.ID,"BookClose","BookClose")
-    self.currentAnimationID = self.animationList.open
-    self.animation:Play(self.currentAnimationID)
+    self:BookIdle()
+    Entity.SetActive(self.ID,false)
 end
 
 function Script:OnAnimationCallBack(targetID,nowAnimationID,nowAnimationFrame)
@@ -46,6 +46,7 @@ function Script:OnAnimationCallBack(targetID,nowAnimationID,nowAnimationFrame)
         Event.Call("ShowInventory")
     elseif nowAnimationID == self.animationList.close then
         Entity.SetActive(self.ID,false)
+        GameFlow.OnBookClosed()
     end
 end
 

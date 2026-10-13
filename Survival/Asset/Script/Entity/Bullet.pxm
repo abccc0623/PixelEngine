@@ -22,6 +22,7 @@ function Script:Spawn()
 end
 
 function Script:Update(DTime)
+    if Time.IsPaused() then return end
     self.lifeTime = self.lifeTime + DTime
     local targetDirection = PVector3(0,0,0)
     targetDirection.x = self.dir.x * self.speed
@@ -41,6 +42,8 @@ function Script:ActiveSetting(Direction)
 end
 
 function Script:OnCollisionEnter(targetID)
+    local targetBody = Rigidbody2D.Get(targetID)
+    if targetBody == nil or ffi.string(targetBody:GetLayer()) ~= "Enemy" then return end
     Pool.Disable("Bullet", self.ID)
     local targetTr = Transform.Get(targetID)
     local effectID = Pool.Active("HitEffect")

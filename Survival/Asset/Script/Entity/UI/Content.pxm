@@ -65,16 +65,8 @@ function Script:Update()
     end
     if previous ~= self.selectIndex then self:MoveSelect() end
 
-    if Input.KeyDown(Keycode.X) then
-        self:Hide()
-        Event.Call("BookClose")
-        return
-    end
-
     if Input.KeyDown(Keycode.Z) then
-        UpgradeListFunction.Choice(self.selectIndex)
-        self:Hide()
-        Event.Call("BookNext")
+        if GameFlow.Choose(self.selectIndex) then self:Hide() end
     end
 end
 

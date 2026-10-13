@@ -9,6 +9,7 @@
 #include "KeyInputManager.h"
 #include "SceneManager.h"
 #include "Entity.h"
+#include "Pool.h"
 
 #include "LuaModuleInfo.h"
 #include "LuaSceneInfo.h"
@@ -34,6 +35,14 @@ namespace
 		return 1;
 	}
 
+	int LuaPoolActive(lua_State* state)
+	{
+		const char* scriptName = luaL_checkstring(state, 1);
+		const unsigned int id = Pool_Active(scriptName);
+		lua_pushinteger(state, static_cast<lua_Integer>(id));
+		return 1;
+	}
+
 	bool RegisterLuaEntityCreate(lua_State* state)
 	{
 		lua_getglobal(state, "Entity");
@@ -45,6 +54,22 @@ namespace
 
 		lua_pushcfunction(state, LuaEntityCreate);
 		lua_setfield(state, -2, "Create");
+		lua_pop(state, 1);
+		return true;
+	}
+
+	bool RegisterLuaPoolActive(lua_State* state)
+	{
+		lua_getglobal(state, "Pool");
+		if (!lua_istable(state, -1))
+		{
+			lua_pop(state, 1);
+			return false;
+		}
+
+		// 풀 확장은 Lua 객체 생성과 Spawn을 호출하므로 FFI가 아닌 Lua C 함수로 진입한다.
+		lua_pushcfunction(state, LuaPoolActive);
+		lua_setfield(state, -2, "Active");
 		lua_pop(state, 1);
 		return true;
 	}
@@ -98,6 +123,10 @@ void LuaManager::Initialize()
 	if (!RegisterLuaEntityCreate(lua.lua_state()))
 	{
 		PixelLog::Error("Failed to register Entity.Create as a Lua C function.");
+	}
+	if (!RegisterLuaPoolActive(lua.lua_state()))
+	{
+		PixelLog::Error("Failed to register Pool.Active as a Lua C function.");
 	}
 	CreateLuaManager();
 }

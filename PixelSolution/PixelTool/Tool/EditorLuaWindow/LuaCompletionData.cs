@@ -1,6 +1,10 @@
 ﻿using ICSharpCode.AvalonEdit.CodeCompletion;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
-using System.Text.RegularExpressions;
+using ICSharpCode.AvalonEdit.Snippets;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -10,26 +14,35 @@ namespace PixelTool
     internal class LuaCompletionData : ICompletionData
     {
         private readonly string snippetKind;
-        private readonly CompletionItem item;
+        private CompletionItem item;
+        private readonly Func<CompletionItem,Task<CompletionItem>> resolver;
+        private Task resolveTask;
+        private readonly TextBlock description = new TextBlock { TextWrapping = TextWrapping.Wrap, MaxWidth = 500 };
 
-        public LuaCompletionData(CompletionItem item)
+        public LuaCompletionData(CompletionItem item, Func<CompletionItem,Task<CompletionItem>> resolver = null, bool engineApi = false)
         {
             this.item = item;
+            this.resolver = resolver;
+            ConfigureDescription();
+            UpdateDescription();
             Text = item.Label;
             kind = item.Kind;
             switch (item.Kind)
             {
-                case CompletionItemKind.Text:emoji          = "[T]"; break;
-                case CompletionItemKind.Interface:emoji     = "🌐";break;
-                case CompletionItemKind.Class:emoji         = "📦";break;
-                case CompletionItemKind.Function:emoji      = "🔷"; break;
-                case CompletionItemKind.Method:emoji        = "🔷"; break;
-                case CompletionItemKind.Variable: emoji     = "🔹"; break;
-                case CompletionItemKind.Field: emoji        = "🔹"; break;
+                case CompletionItemKind.Text:emoji          = "txt"; break;
+                case CompletionItemKind.Interface:emoji     = "type";break;
+                case CompletionItemKind.Class:emoji         = "type";break;
+                case CompletionItemKind.Function:emoji      = "fn"; break;
+                case CompletionItemKind.Method:emoji        = "fn"; break;
+                case CompletionItemKind.Variable: emoji     = "var"; break;
+                case CompletionItemKind.Field: emoji        = "field"; break;
                 default:
                     emoji = "";
                     break;
             }
+            if (engineApi && (item.Kind == CompletionItemKind.Field || item.Kind == CompletionItemKind.Variable ||
+                item.Kind == CompletionItemKind.Class || item.Kind == CompletionItemKind.Interface || item.Kind == CompletionItemKind.Module))
+                emoji = "API";
         }
 
         public LuaCompletionData(string label, string snippetKind)
@@ -37,7 +50,8 @@ namespace PixelTool
             Text = label;
             this.snippetKind = snippetKind;
             kind = CompletionItemKind.Snippet;
-            emoji = "[S]";
+            emoji = "code";
+            ConfigureDescription();
         }
         public string Text { get; private set; } 
         public object Content 
@@ -45,34 +59,37 @@ namespace PixelTool
             get
             {
                 var grid = new Grid();
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 이모티콘 컬럼
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) }); // 간격 컬럼
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(42) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 텍스트 컬럼
 
                 // 1. 이모티콘 (아이콘 역할)
                 var emojiBlock = new TextBlock
                 {
                     Text = emoji,
-                    Foreground = Brushes.Orange,
+                    FontSize = 10,
+                    HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
                 };
-                Grid.SetColumn(emojiBlock, 0);
+                emojiBlock.SetResourceReference(TextBlock.ForegroundProperty,"PixelAccentBrush");
+                var badge = new Border { Child = emojiBlock, CornerRadius = new CornerRadius(3), Padding = new Thickness(3,2,3,2), VerticalAlignment = VerticalAlignment.Center };
+                badge.SetResourceReference(Border.BackgroundProperty,"PixelSurfaceBrush");
+                Grid.SetColumn(badge, 0);
 
                 // 2. 함수 이름
                 var textBlock = new TextBlock
                 {
                     Text = this.Text,
-                    Foreground = Brushes.White, // 다크 테마용 글자색
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 Grid.SetColumn(textBlock, 2);
 
-                grid.Children.Add(emojiBlock);
+                grid.Children.Add(badge);
                 grid.Children.Add(textBlock);
                 return grid;
             }
         }           
-        public object Description { get; set; }  
+        public object Description => description;
         public double Priority => 0;
 
         public string emoji;
@@ -80,12 +97,41 @@ namespace PixelTool
 
         private CompletionItemKind kind;
 
-        public void Complete(ICSharpCode.AvalonEdit.Editing.TextArea textArea, ICSharpCode.AvalonEdit.Document.ISegment completionSegment, EventArgs insertionRequestEventArgs)
+        private void ConfigureDescription()
+        {
+            description.FontFamily = new FontFamily("Consolas");
+            description.FontSize = 12;
+            description.SetResourceReference(TextBlock.ForegroundProperty,"PixelTextBrush");
+            description.Loaded += (s,e) =>
+            {
+                DependencyObject parent = description;
+                while (parent != null)
+                {
+                    if (parent is ToolTip tooltip)
+                    {
+                        tooltip.SetResourceReference(FrameworkElement.StyleProperty,"PixelCompletionToolTip");
+                        break;
+                    }
+                    parent = VisualTreeHelper.GetParent(parent);
+                }
+            };
+        }
+
+        public async void Complete(ICSharpCode.AvalonEdit.Editing.TextArea textArea, ICSharpCode.AvalonEdit.Document.ISegment completionSegment, EventArgs insertionRequestEventArgs)
         {
             if (TryCompleteSnippet(textArea, completionSegment))
             {
                 return;
             }
+
+            var document = textArea.Document;
+            var version = document.Version;
+            int caret = textArea.Caret.Offset;
+            await ResolveAsync();
+            if (document != textArea.Document || version != document.Version || caret != textArea.Caret.Offset) return;
+
+            try
+            {
 
             string insertText = item?.InsertText ?? this.Text;
             int startOffset = completionSegment.Offset;
@@ -101,55 +147,95 @@ namespace PixelTool
                 insertText = edit.NewText ?? insertText;
             }
 
-            insertText = PrepareInsertion(insertText, item?.Detail);
-            textArea.Document.Replace(startOffset, length, insertText);
-
-            // 6. 10년 차의 미친 디테일: 커서 위치 맞추기
-            int quoteIndex = insertText.IndexOf("\"\"");
-            if (quoteIndex != -1)
+            var snippet = item?.InsertTextFormat == InsertTextFormat.Snippet
+                ? BuildSnippet(insertText, item.Detail, textArea.Selection.GetText()) : null;
+            var edits = new List<(int Offset, int Length, string Text)>();
+            if (item?.AdditionalTextEdits != null)
             {
-                // 쌍따옴표가 있으면 그 사이로 커서가 쏙! 들어감
-                textArea.Caret.Offset = startOffset + quoteIndex + 1;
+                foreach (var additional in item.AdditionalTextEdits)
+                {
+                    int from = document.GetOffset(additional.Range.Start.Line + 1, additional.Range.Start.Character + 1);
+                    int to = document.GetOffset(additional.Range.End.Line + 1, additional.Range.End.Character + 1);
+                    if (from < startOffset + length && to > startOffset) throw new InvalidOperationException("Overlapping completion edits.");
+                    edits.Add((from,to - from,additional.NewText ?? ""));
+                }
             }
-            else if (insertText.EndsWith(")"))
+            edits.Sort((a,b) => b.Offset.CompareTo(a.Offset));
+            using (document.RunUpdate())
             {
-                // 괄호로 끝나면 괄호 안으로 커서 이동 (예: GetMousePosition_X(|))
-                textArea.Caret.Offset = startOffset + insertText.Length - 1;
+                foreach (var additional in edits)
+                {
+                    document.Replace(additional.Offset,additional.Length,additional.Text);
+                    if (additional.Offset <= startOffset) startOffset += additional.Text.Length - additional.Length;
+                }
+                if (snippet != null)
+                {
+                    textArea.Selection = ICSharpCode.AvalonEdit.Editing.Selection.Create(textArea,startOffset,startOffset + length);
+                    snippet.Insert(textArea);
+                }
+                else
+                {
+                    document.Replace(startOffset,length,insertText);
+                    textArea.Caret.Offset = startOffset + insertText.Length;
+                }
             }
-            else
+            }
+            catch (Exception ex)
             {
-                // 그 외의 경우는 그냥 입력된 단어의 맨 뒤로 이동
-                textArea.Caret.Offset = startOffset + insertText.Length;
+                ConsoleWindow.LogMessage($"[LSP] 자동완성 삽입 실패: {ex.Message}",1);
             }
         }
 
-        internal static string PrepareInsertion(string text, string detail)
+        public Task ResolveAsync()
         {
-            // LuaLS call snippets use argument names; signature details supply their types.
-            text = Regex.Replace(text, @"\$\{\d+:([^{}]*)\}|\$\{\d+\}|\$\d+", match =>
-                match.Groups[1].Success ? match.Groups[1].Value : string.Empty);
-            int open = text.IndexOf('(');
-            int close = text.LastIndexOf(')');
-            if (open < 0 || close <= open) return text;
-            string arguments = text.Substring(open + 1, close - open - 1);
-            arguments = Regex.Replace(arguments, @"\b[A-Za-z_][A-Za-z_0-9]*\b", match =>
+            return resolveTask ??= ResolveCoreAsync();
+        }
+
+        private async Task ResolveCoreAsync()
+        {
+            if (resolver != null && item != null) item = await resolver(item);
+            UpdateDescription();
+        }
+
+        private void UpdateDescription()
+        {
+            var documentation = item?.Documentation == null ? null : JToken.FromObject(item.Documentation);
+            string content = documentation?.Type == JTokenType.String ? documentation.Value<string>() : documentation?["value"]?.Value<string>();
+            description.Text = string.Join("\n", new[] { item?.Detail,content }.Where(value => !string.IsNullOrEmpty(value)));
+        }
+
+        private static Snippet BuildSnippet(string text, string detail, string selectedText)
+        {
+            var snippet = new Snippet();
+            var fields = new Dictionary<int,SnippetReplaceableTextElement>();
+            var quotedFields = new HashSet<int>();
+            foreach (var part in LuaCompletionSnippet.Parse(text,detail,selectedText))
             {
-                string type = match.Value;
-                if (!string.IsNullOrEmpty(detail))
+                if (part.Index == 0)
                 {
-                    var annotation = Regex.Match(detail, @"\b" + Regex.Escape(type) + @"\s*:\s*(string|number|integer|boolean)\b");
-                    if (annotation.Success) type = annotation.Groups[1].Value;
+                    if (!string.IsNullOrEmpty(part.Text)) snippet.Elements.Add(new SnippetTextElement { Text = part.Text });
+                    snippet.Elements.Add(new SnippetCaretElement());
                 }
-                switch (Regex.Replace(type, @"\d+$", string.Empty))
+                else if (part.Index < 0)
+                    snippet.Elements.Add(new SnippetTextElement { Text = part.Text });
+                else if (fields.TryGetValue(part.Index,out var field))
                 {
-                    case "string": return "\"\"";
-                    case "number":
-                    case "integer": return "0";
-                    case "boolean": return "false";
-                    default: return match.Value;
+                    if (quotedFields.Contains(part.Index)) snippet.Elements.Add(new SnippetTextElement { Text = "\"" });
+                    snippet.Elements.Add(new SnippetBoundElement { TargetElement = field });
+                    if (quotedFields.Contains(part.Index)) snippet.Elements.Add(new SnippetTextElement { Text = "\"" });
                 }
-            });
-            return text.Substring(0, open + 1) + arguments + text.Substring(close);
+                else
+                {
+                    bool quoted = part.Text == "\"\"";
+                    if (quoted) quotedFields.Add(part.Index);
+                    if (quoted) snippet.Elements.Add(new SnippetTextElement { Text = "\"" });
+                    field = new SnippetReplaceableTextElement { Text = quoted ? "" : part.Text };
+                    fields.Add(part.Index,field);
+                    snippet.Elements.Add(field);
+                    if (quoted) snippet.Elements.Add(new SnippetTextElement { Text = "\"" });
+                }
+            }
+            return snippet;
         }
 
         private bool TryCompleteSnippet(ICSharpCode.AvalonEdit.Editing.TextArea textArea, ICSharpCode.AvalonEdit.Document.ISegment completionSegment)

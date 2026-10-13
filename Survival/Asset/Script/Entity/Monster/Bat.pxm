@@ -34,6 +34,7 @@ function  Script:Spawn()
 end
 
 function Script:Update(DTime)
+    if Time.IsPaused() then return end
     if PlayerManager.transform == nil then 
         return
     end
@@ -97,8 +98,9 @@ function Script:OnCollisionEnter(targetID)
     local targetRigidbody = Rigidbody2D.Get(targetID)
     if targetRigidbody ~= nil then 
         if ffi.string(targetRigidbody:GetLayer()) == "Bullet" then
+            if self.HP <= 0 then return end
             self.State = self.MonsterState.Hit
-            self.HP = self.HP - PlayerState.Power
+            self.HP = self.HP - BulletManager.GetAttack(targetID)
             if self.HP <= 0 then
                 self.State = self.MonsterState.Death
                 self.animation:Play(self.animationTabel["death"])

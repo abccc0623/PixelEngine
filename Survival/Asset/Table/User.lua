@@ -19,12 +19,6 @@ User = {
             Texture = "delete",
             Action = function(x,y) GridFunction.Remove(x,y) end
         },
-        {
-            Name = "회전",
-            Content = "z키를 눌러 해당 칸의 데이터를 회전",
-            Texture = "rotation",
-            Action = function(x,y) GridFunction.Rotation(x,y) end
-        },
     },
     
     Inventory = 

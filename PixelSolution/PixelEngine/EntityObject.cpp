@@ -42,7 +42,6 @@ void ECS::EntityObject::Create(const std::string& scriptName, unsigned int ID)
 	}
 	instance = luaInfo->Create();
 	instance["ID"] = ID;
-	instance["Active"] = Active;
 	lua->AddEntityID(ID, instance);
 
 	// 존재하지 않는 Lua 필드를 protected_function으로 강제 변환해 모든 Entity가 nil 레퍼런스를
@@ -138,10 +137,6 @@ bool ECS::EntityObject::GetActive()
 void ECS::EntityObject::SetActive(bool isActive)
 {
 	Active = isActive;
-	if (instance.valid())
-	{
-		instance["Active"] = Active;
-	}
 
 	if (Rigidbody2D_Has(ID))
 	{

@@ -56,6 +56,7 @@ namespace PixelTool
             string root = ProjectPathService.ProjectRootPath.Replace('\\', '/');
             GlobalFunction.CreateMainLuaFile(ProjectPathService.AssetPath);
             PixelEngineNative.EngineInitialize(_childHwnd, w, h, root);
+            PixelEngineNative.EditorNotify(EditorEventType.ToolInitialize, "");
             ProjectPathService.StartNewProject();
             PixelEngineNative.Asset_Import("./Asset/main.lua");
 

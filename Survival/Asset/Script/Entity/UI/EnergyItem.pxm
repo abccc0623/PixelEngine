@@ -1,0 +1,18 @@
+local Script = {}
+
+function Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.image = UIImage.Add(self.ID)
+    self.image:SetTexture("BuildIcon")
+    self.image:SetPivot(0.5,0.5)
+    self.image:SetContentAspectFit(15,15)
+    self.image:SetOrder(0)
+    self.image:SetColor(255,255,255,Grid.Visible == true and 255 or 0)
+    self.transform:SetParent(Grid.BoardID)
+end
+
+function Script:Update()
+    self.image:SetColor(255,255,255,Grid.Visible == true and 255 or 0)
+end
+
+return Script

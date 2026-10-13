@@ -7,6 +7,8 @@ function Main()
     Asset.Import("./Asset/UIScript")
     Asset.Import("./Asset/Table")
 	
+	
+	
     Scene.Change("Title")
     
     --Entity.Create("GameLogic")

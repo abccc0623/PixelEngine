@@ -513,6 +513,10 @@ void BindManager::Initialize()
 	info.memberName.push_back("colorG");
 	info.memberName.push_back("colorB");
 	AddGlobalMethod(globalCreate, "Engine_BackgroundColor", info, EngineMetaFlag::Class);
+	info = GeGlobalMethodInfo(&Engine_SetWindowSize);
+	info.memberName.push_back("width");
+	info.memberName.push_back("height");
+	AddGlobalMethod(globalCreate, "Engine_SetWindowSize", info, EngineMetaFlag::Class);
 
 	//SceneObject
 	PStatic* globalScene = CreateLuaMetaStatic("Scene", EngineMetaFlag::Class);

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PixelEngineAPI.h" 
+#include "Engine.h"
 #include "PixelGraphicsAPI.h"
 #include "PixelEngine.h" 
 #include <cctype>
@@ -35,6 +36,12 @@ extern "C" __declspec(dllexport) void __cdecl LuaDebug_SetBreakpoint(const char*
 
 
 PixelEngine* Engine = nullptr;
+namespace
+{
+	HWND clientWindow = nullptr;
+	int requestedWindowWidth = 0;
+	int requestedWindowHeight = 0;
+}
 LogCallbackFunc g_logCallback = nullptr;
 SceneChangeCallbackFunc g_SceneObjectChangeCallBack = nullptr;
 
@@ -47,6 +54,8 @@ ECS::Registry* GetRegistry()
 bool EngineInitialize(PixelWindowHandle hWnd, int width, int height, const char* assetPath)
 {
 	Engine = new PixelEngine();
+	clientWindow = static_cast<HWND>(hWnd);
+	requestedWindowWidth = requestedWindowHeight = 0;
 	Engine->Initialize((HWND)hWnd, width, height, std::string(assetPath));
 	return true;
 }
@@ -55,6 +64,21 @@ void UpdateEngine()
 {
 	if (Engine != nullptr)
 	{
+		// Apply requests outside Lua execution; WM_SIZE handles the graphics resize.
+		if (requestedWindowWidth > 0 && requestedWindowHeight > 0)
+		{
+			RECT rect = { 0, 0, requestedWindowWidth, requestedWindowHeight };
+			requestedWindowWidth = requestedWindowHeight = 0;
+			if (!Engine->IsTool && IsWindow(clientWindow))
+			{
+				const DWORD style = static_cast<DWORD>(GetWindowLongPtr(clientWindow, GWL_STYLE));
+				const DWORD exStyle = static_cast<DWORD>(GetWindowLongPtr(clientWindow, GWL_EXSTYLE));
+				if (AdjustWindowRectEx(&rect, style, GetMenu(clientWindow) != nullptr, exStyle))
+				{
+					SetWindowPos(clientWindow, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+				}
+			}
+		}
 		LuaDebugger::FrameScope debugFrame(Engine->IsPlayMode, [](double seconds)
 		{
 			Engine->GetFactory<TimeManager>()->ResetAfterDebugPause(seconds);
@@ -210,6 +234,17 @@ int GetFPS()
 		return time->GetFPS();
 	}
 	return -1;
+}
+
+void Engine_SetWindowSize(int width, int height)
+{
+	if (Engine == nullptr || Engine->IsTool || !IsWindow(clientWindow) ||
+		width <= 0 || height <= 0 || width > 32767 || height > 32767)
+	{
+		return;
+	}
+	requestedWindowWidth = width;
+	requestedWindowHeight = height;
 }
 
 void LogInfo(const char* log)

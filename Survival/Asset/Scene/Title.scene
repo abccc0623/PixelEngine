@@ -1,17 +1,21 @@
 local Scene = {} 
 
 function Scene:Start() 
+    GameFlow.Init()
     Engine.BackgroundColor(20, 27, 38)
-    
-    local cameraEntityID = Entity.CreateEmpty()
-    local camera = Camera.Add(cameraEntityID)
-    local transform = Transform.Add(cameraEntityID)
-    transform.position = PVector3(0,0,-20)
     
     local bookID = Entity.Create("Book")
     local contentID = Entity.Create("Content")
     local gridID = Entity.Create("GridEntity")
+    GridFunction.Add(1,1,2)
+    GridFunction.Add(1,12,3)
+    -- 시작점과 끝점 사이에 기본 길을 설치한다.
+    for y = Grid.StartPoint.y + 1, Grid.EndPoint.y - 1 do
+        GridFunction.Add(Grid.StartPoint.x,y,1)
+    end
     local inventoryID = Entity.Create("InventoryEntity")
+    Entity.Create("GameLogic")
+    GameFlow.StartCombat()
     --[[
     
     --local gridID = Entity.Create("GridEntity")

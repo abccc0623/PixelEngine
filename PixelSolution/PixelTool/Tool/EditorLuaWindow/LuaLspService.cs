@@ -9,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -30,6 +31,8 @@ namespace PixelTool
         private readonly SemaphoreSlim _completionLock = new SemaphoreSlim(1, 1);
         private bool _disposed = false;
         private int completionRequestId;
+        private bool completionResolveSupported;
+        private readonly HashSet<string> engineApiNames = new HashSet<string>(StringComparer.Ordinal);
 
         public async Task Initialize()
         {
@@ -46,6 +49,7 @@ namespace PixelTool
 
                 // .luarc.json 자동 생성
                 string enginePath = ProjectPathService.EnginePath.Replace("\\", "/");
+                LoadEngineApiNames(enginePath);
                 string luarcPath = ProjectPathService.GetEditorFilePath(".luarc.json");
                 string luarcContent = $@"{{
     ""runtime"": {{ ""version"": ""Lua 5.1"" }},
@@ -108,7 +112,7 @@ namespace PixelTool
                         window = new { workDoneProgress = false },
                         textDocument = new
                         {
-                            completion = new { completionItem = new { snippetSupport = true } }
+                            completion = new { completionItem = new { snippetSupport = true, resolveSupport = new { properties = new[] { "detail", "documentation", "additionalTextEdits" } } } }
                         }
                     }
                 };
@@ -121,6 +125,7 @@ namespace PixelTool
                 }
 
                 await _rpc.NotifyAsync(Methods.InitializedName);
+                completionResolveSupported = result["capabilities"]?["completionProvider"]?["resolveProvider"]?.Value<bool>() == true;
 
                 string engineGeneratePath = ProjectPathService.GetEngineFilePath("EngineGenerate.lua");
                 if (File.Exists(engineGeneratePath))
@@ -309,7 +314,14 @@ namespace PixelTool
                     completionWindow.StartOffset = startOffset;
                     completionWindow.CloseAutomatically = true;
                     completionWindow.AllowsTransparency = true;
-                    completionWindow.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(27, 28, 46));
+                    completionWindow.SetResourceReference(Control.BackgroundProperty, "PixelPanelBrush");
+                    completionWindow.SetResourceReference(Control.ForegroundProperty, "PixelTextBrush");
+                    completionWindow.SetResourceReference(Control.BorderBrushProperty, "PixelBorderBrush");
+                    completionWindow.BorderThickness = new Thickness(1);
+                    completionWindow.FontFamily = area.FontFamily;
+                    completionWindow.FontSize = area.FontSize;
+                    completionWindow.CompletionList.SetResourceReference(Control.BackgroundProperty, "PixelPanelBrush");
+                    completionWindow.Resources[typeof(ToolTip)] = Application.Current.FindResource("PixelCompletionToolTip");
 
                     double longestItemWidth = 0;
                     var typeface = new Typeface(area.FontFamily, area.FontStyle, area.FontWeight, area.FontStretch);
@@ -338,7 +350,10 @@ namespace PixelTool
                             VisualTreeHelper.GetDpi(area).PixelsPerDip);
                         longestItemWidth = Math.Max(longestItemWidth, formattedText.WidthIncludingTrailingWhitespace);
 
-                        completionWindow.CompletionList.CompletionData.Add(new LuaCompletionData(item));
+                        bool globalCandidate = startOffset == 0 ||
+                            (area.Document.GetCharAt(startOffset - 1) != '.' && area.Document.GetCharAt(startOffset - 1) != ':');
+                        bool engineApi = globalCandidate && engineApiNames.Contains(item.Label.TrimEnd('.'));
+                        completionWindow.CompletionList.CompletionData.Add(new LuaCompletionData(item, ResolveCompletionAsync, engineApi));
                     }
 
                     if (completionWindow.CompletionList.CompletionData.Count == 0) return;
@@ -348,10 +363,19 @@ namespace PixelTool
                     completionWindow.MaxHeight = 320;
 
                     var completionListBox = completionWindow.CompletionList.ListBox;
+                    completionListBox.SetResourceReference(Control.BackgroundProperty, "PixelPanelBrush");
+                    completionListBox.SetResourceReference(Control.ForegroundProperty, "PixelTextBrush");
+                    completionListBox.SetResourceReference(ItemsControl.ItemContainerStyleProperty, "PixelCompletionItem");
+                    completionListBox.BorderThickness = new Thickness(0);
                     ScrollViewer.SetVerticalScrollBarVisibility(completionListBox, ScrollBarVisibility.Visible);
                     ScrollViewer.SetHorizontalScrollBarVisibility(completionListBox, ScrollBarVisibility.Disabled);
 
                     luaEditor.completionWindow = completionWindow;
+                    completionListBox.SelectionChanged += async (s, e) =>
+                    {
+                        if (completionListBox.SelectedItem is LuaCompletionData selected)
+                            await selected.ResolveAsync();
+                    };
                     completionWindow.Show();
                     completionWindow.Closed += (s, e) => luaEditor.completionWindow = null;
                 });
@@ -372,6 +396,35 @@ namespace PixelTool
             return normalized.Contains("ipairs") ||
                    normalized.Contains("pairs") ||
                    normalized.Contains("for i");
+        }
+
+        private async Task<CompletionItem> ResolveCompletionAsync(CompletionItem item)
+        {
+            if (_disposed || _rpc == null || !completionResolveSupported) return item;
+            try
+            {
+                var resolved = await _rpc.InvokeWithParameterObjectAsync<JObject>("completionItem/resolve", item);
+                if (resolved == null) return item;
+                var merged = JObject.FromObject(item);
+                merged.Merge(resolved, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
+                return merged.ToObject<CompletionItem>() ?? item;
+            }
+            catch (Exception ex)
+            {
+                ConsoleWindow.LogMessage($"[LSP] 자동완성 상세 정보 요청 실패: {ex.Message}", 1);
+                return item;
+            }
+        }
+
+        private void LoadEngineApiNames(string enginePath)
+        {
+            engineApiNames.Clear();
+            if (!Directory.Exists(enginePath)) return;
+            foreach (string path in Directory.EnumerateFiles(enginePath,"*.lua"))
+            {
+                foreach (Match match in Regex.Matches(File.ReadAllText(path),@"^\s*function\s+([A-Za-z_][A-Za-z_0-9]*)\.[A-Za-z_][A-Za-z_0-9]*\s*\(",RegexOptions.Multiline))
+                    engineApiNames.Add(match.Groups[1].Value);
+            }
         }
 
         public void Dispose()

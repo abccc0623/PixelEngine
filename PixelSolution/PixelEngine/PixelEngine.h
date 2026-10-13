@@ -37,6 +37,7 @@ public:
 	bool RunningCheck();
 	bool IsClear = false;
 	bool IsPlayMode = false;
+	bool IsTool = false;
 	std::string GetEngineRootFolderPath();
 
 	sol::state* GetModuleCall_Lua();

@@ -39,9 +39,9 @@ function UpgradeListFunction.Choice(UpgradeIndex)
     local index = UpgradeList[UpgradeIndex].ItemIndex
     local item = ItemList[index]
     if not item or item.ItemType == ItemType.System then return false end
-    if item.ItemType == ItemType.Stat then
-        if item.UpgradeSelectAction then item.UpgradeSelectAction() end
-        return true
+    if item.UpgradeSelectAction then
+        local result = item.UpgradeSelectAction()
+        return result ~= false
     end
-    return InventoryFunction.Add(index, 5)
+    return item.ItemType == ItemType.Stat
 end
