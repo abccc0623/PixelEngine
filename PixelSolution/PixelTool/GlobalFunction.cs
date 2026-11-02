@@ -57,7 +57,6 @@ namespace PixelTool
             string mainpath = path + "/main.lua";
             if (!File.Exists(mainpath))
             {
-                CreateCameraLuaFile(path);
                 string content = LuaFileManager.GetFileContent("main.lua");
                 var utf8WithBom = new System.Text.UTF8Encoding(true);
                 File.WriteAllText(mainpath, content, utf8WithBom);
@@ -66,28 +65,6 @@ namespace PixelTool
                 if (luaWindow != null)
                 {
                     luaWindow.OpenFile(mainpath);
-                }
-                var findWindow = GlobalFunction.GetDockedWindow<AssetWindow>();
-                if (findWindow != null)
-                {
-                    findWindow.Refresh();
-                }
-            }
-        }
-        public static void CreateCameraLuaFile(string path)
-        {
-            path += "/BaseCamera.pxm";
-            string luafilePath = path;
-            if (!File.Exists(luafilePath))
-            {
-                string content = LuaFileManager.GetFileContent("BaseCamera.pxm");
-                var utf8WithBom = new System.Text.UTF8Encoding(true);
-                File.WriteAllText(luafilePath, content, utf8WithBom);
-
-                var luaWindow = GlobalFunction.GetDockedWindow<LuaEditorWindow>();
-                if (luaWindow != null)
-                {
-                    luaWindow.OpenFile(luafilePath);
                 }
                 var findWindow = GlobalFunction.GetDockedWindow<AssetWindow>();
                 if (findWindow != null)

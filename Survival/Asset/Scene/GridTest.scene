@@ -6,7 +6,8 @@ function Scene:Start()
 	Engine.BackgroundColor(255,255,255)
 	
 	
-	local camera = Entity.CreateCamera()
+	local cameraID = Entity.CreateCamera()
+	local camera = Camera.Get(cameraID)
 	camera.ViewportX = 0
     camera.ViewportY = 0
     camera.ViewportWidth = 1920

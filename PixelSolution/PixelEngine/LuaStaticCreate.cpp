@@ -94,7 +94,7 @@ std::string LuaStaticCreate::CreateFunction(const PixelClassMeta& PClass)
 std::string LuaStaticCreate::CreateEntityScriptAnnotation()
 {
 	std::string content;
-	content += "---@field CreateCamera fun(): CameraData?\n";
+	content += "---@field CreateCamera fun(): number?\n";
 	content += "---@field Create2DImage fun(textureName: string): UIImageData?\n";
 	content += "---@field GetScript fun(ID: number): LuaInstance?\n";
 	content += "---@field SetValue fun(ID: number, variableName: string, value: any): boolean\n";

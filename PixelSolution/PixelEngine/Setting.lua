@@ -44,14 +44,15 @@ function Entity.Destroy(ID)
 	return DestroyEntity(ID)
 end
 
----@return CameraData?
+---@return number? ID
 function Entity.CreateCamera()
 	local id = Entity.CreateEmpty()
 	if id == 4294967295 then
 		return nil
 	end
 	Transform.Add(id)
-	return Camera.Add(id)
+	Camera.Add(id)
+	return id
 end
 
 ---@param textureName string

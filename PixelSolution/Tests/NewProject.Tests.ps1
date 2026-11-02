@@ -14,5 +14,7 @@ Require ($project.Contains('GenerateProjectFilesPending |= !File.Exists')) 'Exis
 Require ($graphics.IndexOf('ProjectPathService.StartNewProject();') -gt $graphics.IndexOf('PixelEngineNative.EngineInitialize(')) 'Metadata generation needs the initialized engine'
 Require ($graphics.IndexOf('ProjectPathService.StartNewProject();') -lt $graphics.IndexOf('PixelEngineNative.Asset_Import(')) 'Generate engine Lua before importing main'
 Require ($lua.Contains('if (!UpdateFunction.valid())') -and $lua.Contains('scriptRoot / "Entity.lua"')) 'Fresh projects must defer Lua runtime setup until API files exist'
-Require ($main.Contains('Entity.Create("BaseCamera")') -and -not $main.Contains('Engine.CreateEntity')) 'Main template uses an obsolete API'
+Require ($main.Contains('Entity.CreateCamera()') -and -not $main.Contains('BaseCamera')) 'Main template must create the camera directly'
+$global = Get-Content -Raw -Encoding UTF8 (Join-Path $solution 'PixelTool/GlobalFunction.cs')
+Require (-not $global.Contains('CreateCameraLuaFile')) 'Main creation must not generate a camera script'
 Write-Output 'PASS: new-project initialization contracts (static checks only)'
