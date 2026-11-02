@@ -1,0 +1,20 @@
+﻿local Script = {}
+
+function  Script:Spawn()  
+	self.transform = Transform.Add(self.ID)
+	self.slider = UISilder.Add(self.ID)
+	self.transform.position = PVector3(0,0,0)
+	self.slider:SetBackgroundColor(0, 0, 0, 255)
+	self.slider:SetFillColor(0, 255, 0, 255)
+	self.slider:SetRange(0, 100)
+	self.slider:SetValue(25)
+	self.slider:SetSize(1920, 40)
+	self.slider:SetBackgroundTexture("SliderBackground")
+	self.slider:SetFillTexture("SliderBackground")
+end  
+
+function  Script:Update(DTime)  
+	
+end  
+
+return Script

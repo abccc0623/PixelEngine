@@ -20,6 +20,7 @@ namespace ECS
 	class GroupManager;
 	class PoolManager;
 	class EventManager;
+	class TweenManager;
 }
 class SceneObject
 {
@@ -46,6 +47,7 @@ public:
 	ECS::GroupManager* GetGroupManager();
 	ECS::PoolManager* GetPoolManager();
 	ECS::EventManager* GetEventManager();
+	ECS::TweenManager* GetTweenManager();
 private:
 	void DestroyEntityHierarchy(uint32_t id, std::unordered_set<uint32_t>& destroyingIDs);
 
@@ -59,5 +61,6 @@ private:
 	ECS::GroupManager* group;
 	ECS::PoolManager* pool;
 	ECS::EventManager* event;
+	ECS::TweenManager* tween = nullptr;
 };
 

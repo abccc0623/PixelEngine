@@ -64,6 +64,11 @@ bool UIImage_Has(unsigned int id)
 
 void UIImage_SetTexture(unsigned int id, const char* name)
 {
+	if (name == nullptr)
+	{
+		PixelLog::Error("[UIImage][SetTexture] Texture name is null.");
+		return;
+	}
 	auto registry = GetRegistry();
 	auto data1 = registry->Get<UIImageData>(id);
 	auto data2 = registry->Get<GraphicsData>(id);

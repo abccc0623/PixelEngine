@@ -75,11 +75,7 @@ void ECS::Animation2DSystem::Update(Registry* registry)
 			auto graphics = registry->Get<GraphicsData>(ID);
 			if (graphics != nullptr)
 			{
-				graphics->renderingData.texture_key = select.textureID;
-				graphics->renderingData.sprite.TilingX = 1.0f / select.maxFramesX;
-				graphics->renderingData.sprite.TilingY = 1.0f / select.maxFramesY;
-				graphics->renderingData.sprite.OffsetX = (select.framesIndex % select.maxFramesX) * graphics->renderingData.sprite.TilingX;
-				graphics->renderingData.sprite.OffsetY = (select.framesIndex / select.maxFramesX) * graphics->renderingData.sprite.TilingY;
+				ApplyAnimationFrame(*graphics, select);
 			}
 		});
 

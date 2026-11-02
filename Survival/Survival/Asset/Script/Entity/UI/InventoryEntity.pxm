@@ -1,0 +1,312 @@
+local Script = {}
+
+function Script:Spawn()
+    self.UIList = {}
+    self.transform = Transform.Add(self.ID)
+    self.SelectTr = nil
+	Event.Bind(self.ID,"ShowInventory", "Show")
+	Event.Bind(self.ID,"HideBookContent", "Hide")
+	Event.Bind(self.ID,"ResetInventorySelection", "ResetSelection")
+	if UI.BookID and UI.BookID ~= -1 then
+		self:AttachTo(UI.BookID)
+	end
+	self:Hide()
+end
+
+---기존 인벤토리를 지정한 페이지 아래에 배치하며 UI는 한 번만 생성합니다.
+function Script:AttachTo(parentID)
+	if self.ParentID ~= parentID then
+		self.transform:SetParent(parentID)
+		self.ParentID = parentID
+	end
+	self.transform.position = PVector3(0,0,0)
+	self.transform.scale = PVector3(1,1,1)
+	if self.Initialized then
+		return
+	end
+	self.Initialized = true
+    User.ToolsComponent = {}
+    User.InventoryComponent = {}
+    
+    
+    self:AddUI(UI.CreateBookSubText(116.5,-140,"설명",175,self.ID))
+    self:CreateSelectionDescription()
+    User.InventoryDescriptionID = self.ID
+    self:AddUI(UI.CreateBookSubText(116.5,-70,"인벤토리",175,self.ID))
+    self:AddUI(self:CreateSystem(116.5,-50))
+    self:AddUI(self:CreateInventory(116.5,-5))
+    local selectID = Entity.CreateEmpty()
+    self:AddUI(selectID)
+    self.SelectTr = Transform.Add(selectID)
+    local selectImage = UIImage.Add(selectID)
+    selectImage:SetTexture("UISelect_thick")
+    selectImage:SetTextureSize(34,34)
+    selectImage:SetPivot(0.5,0.5)
+    selectImage:SetOrder(2)
+    User.SelectTransform = self.SelectTr
+    User.SelectParentID = nil
+    InventoryFunction.RefreshAll()
+    InventoryFunction.Move(InventoryType.Tool,1)
+    self:AddUI(UI.CreateBookSubText(116.5,60,"시스템",175,self.ID))
+    self:CreateComplete()
+    
+    self:Hide()
+end
+
+function Script:ResetSelection()
+    self.CompleteReturnIndex = nil
+    InventoryFunction.Move(InventoryType.Tool,1)
+end
+
+function Script:Hide()
+    for _, id in ipairs(self.UIList) do Entity.SetActive(id,false) end
+    Entity.SetActive(self.ID,false)
+end
+
+function Script:Show()
+    Entity.SetActive(self.ID,true)
+    for _, id in ipairs(self.UIList) do Entity.SetActive(id,true) end
+    InventoryFunction.RefreshAll()
+    self:Setting(User.Selection.Index,User.Selection.Type)
+end
+
+function Script:Update()
+	local book = self.PageBookID and Entity.GetScript(self.PageBookID)
+	if self.PageBookID then
+		if not book or book.State ~= "idle" or book.PageIndex ~= 2 then
+			return
+		end
+	elseif GameFlow.State ~= "Build" then
+		return
+	end
+	if Input.KeyDown(Keycode.Z) and User.Selection.Type == InventoryType.Complete then
+		if User.Selection.Index == 1 then
+			if book then
+				Entity.GetScript(Grid.BoardID):ToggleTest()
+			else
+				GameFlow.TestBuild()
+			end
+		elseif User.Selection.Index == 2 then
+			if book then
+				book:Close()
+			else
+				GameFlow.CompleteBuild()
+			end
+		end
+		return
+	end
+    if Input.Key(Keycode.X) == false then return end
+
+    local selectType = User.Selection.Type
+    local index = User.Selection.Index
+
+    if Input.KeyDown(Keycode.Right) then
+        local maxIndex = math.min(#User.Inventory,12)
+        if selectType == InventoryType.Tool then maxIndex = #User.Tools end
+        if selectType == InventoryType.Complete then maxIndex = #User.CompleteComponent end
+        index = math.min(index + 1, maxIndex)
+    elseif Input.KeyDown(Keycode.Left) then
+        index = math.max(index - 1, 1)
+    elseif Input.KeyDown(Keycode.Up) then
+        if selectType == InventoryType.Complete then
+            selectType = InventoryType.Inventory
+            index = self.CompleteReturnIndex or math.min(#User.Inventory,12)
+        elseif selectType == InventoryType.Inventory and index > 6 then
+            index = index - 6
+        elseif selectType == InventoryType.Inventory then
+            selectType = InventoryType.Tool
+            index = math.min(index, #User.Tools)
+        end
+    elseif Input.KeyDown(Keycode.Down) then
+        if selectType == InventoryType.Tool then
+            selectType = InventoryType.Inventory
+            index = math.min(index, #User.Inventory)
+        elseif selectType == InventoryType.Inventory then
+            local nextIndex = index + 6
+            if nextIndex <= math.min(#User.Inventory,12) then
+                index = nextIndex
+            else
+                self.CompleteReturnIndex = index
+                selectType = InventoryType.Complete
+                index = 1
+            end
+        end
+    else
+        return
+    end
+
+    InventoryFunction.Move(selectType,index)
+end
+
+
+
+
+
+
+function Script:CreateSystem(x,y)
+    local parentID = Entity.CreateEmpty()
+    local parentTr = Transform.Add(parentID)
+    parentTr.position = PVector3(x,y,0)
+    parentTr.scale = PVector3(0.75,0.75,1)
+    parentTr:SetParent(self.ID)
+    for column = 0, 5 do
+        local slotID = Entity.CreateEmpty()
+        self:AddUI(slotID)
+        local slotTr = Transform.Add(slotID)
+        slotTr:SetParent(parentID)
+        slotTr.position = PVector3((column - 2.5) * 36,0,0)
+        local image = UIImage.Add(slotID)
+        image:SetTexture("box")
+        image:SetPivot(0.5,0.5)
+        image:SetTextureSize(32,32)
+        local tool = User.Tools[column + 1]
+        if tool then
+            local icon, text = self:CreateSlotContent(slotID)
+            icon:SetTexture(tool.Texture)
+            icon:SetColor(255,255,255,255)
+            icon:SetContentAspectFit(24,24)
+            text:SetText("")
+            User.ToolsComponent[column + 1] = {TransformComponent = slotTr, ImageComponent = icon, ParentID = parentID}
+        end
+    end
+    return parentID
+end
+
+function Script:CreateInventory(x,y)
+    local parentID = Entity.CreateEmpty()
+    local parentTr = Transform.Add(parentID)
+    parentTr.position = PVector3(x,y,0)
+    parentTr.scale = PVector3(0.75,0.75,1)
+    parentTr:SetParent(self.ID)
+    for row = 0, 1 do
+        for column = 0, 5 do
+            local slotID = Entity.CreateEmpty()
+            self:AddUI(slotID)
+            local slotTr = Transform.Add(slotID)
+            slotTr:SetParent(parentID)
+            slotTr.position = PVector3((column - 2.5) * 36,(row - 0.5) * 36,0)
+            local image = UIImage.Add(slotID)
+            image:SetTexture("box")
+            image:SetPivot(0.5,0.5)
+            image:SetTextureSize(32,32)
+            local icon, text = self:CreateSlotContent(slotID)
+            User.InventoryComponent[row * 6 + column + 1] = {TransformComponent = slotTr, ImageComponent = icon, TextComponent = text, ParentID = parentID}
+        end
+    end
+    return parentID
+end
+
+
+function Script:CreateSlotContent(parentID)
+    local iconID = Entity.CreateEmpty()
+    self:AddUI(iconID)
+    local iconTr = Transform.Add(iconID)
+    iconTr:SetParent(parentID)
+    iconTr.position = PVector3(0,0,0)
+    local image = UIImage.Add(iconID)
+    image:SetTexture("box")
+    image:SetTextureSize(24,24)
+    image:SetPivot(0.5,0.5)
+    image:SetOrder(1)
+    image:SetColor(255,255,255,0)
+    local textID = Entity.CreateEmpty()
+    self:AddUI(textID)
+    local textTr = Transform.Add(textID)
+    textTr:SetParent(parentID)
+    textTr.position = PVector3(12,10,0)
+    local text = UIText.Add(textID)
+    text:SetFont("Jalnan2TTF")
+    text:SetTextSize(0.25)
+    text:SetPivot(1,0.5)
+    text:SetColor(37,35,35,255)
+    return image, text
+end
+
+
+function Script:CreateSelectionDescription()
+    local iconID = Entity.CreateEmpty()
+    self:AddUI(iconID)
+    local iconTr = Transform.Add(iconID)
+    iconTr:SetParent(self.ID)
+    iconTr.position = PVector3(49,-110,0)
+    local image = UIImage.Add(iconID)
+    image:SetTexture("box")
+    image:SetPivot(0.5,0.5)
+    image:SetTextureSize(32,32)
+    self.descriptionImage = image
+    local textID = Entity.CreateEmpty()
+    self:AddUI(textID)
+    local textTr = Transform.Add(textID)
+    textTr:SetParent(self.ID)
+    textTr.position = PVector3(73,-120,0)
+    local text = UIText.Add(textID)
+    text:SetFont("Jalnan2TTF")
+    text:SetTextSize(0.22)
+    text:SetPivot(0,0)
+    text:SetColor(37,35,35,255)
+    self.descriptionText = text
+end
+
+function Script:Setting(index,selectType)
+    local texture, content, selectedItem
+    if selectType == InventoryType.Complete then
+		if index == 1 then
+			content = "Z 키로 빌드 테스트를 켜거나 끕니다.\n게임 시간은 멈춘 상태로 유지됩니다."
+		else
+			content = "Z 키를 눌러 빌드를 완료하고 책을 닫습니다.\n테스트 전 실제 자원 상태로 돌아갑니다."
+		end
+    elseif selectType == InventoryType.Tool then
+        local tool = User.Tools[index]
+        if tool then texture, content, selectedItem = tool.Texture, tool.Content, tool end
+    elseif selectType == InventoryType.Inventory then
+        local slot = User.Inventory[index]
+        local item = slot and ItemList[slot.ItemIndex]
+        if item then
+            selectedItem = item
+            texture = item.Texture
+            content = item.InventoryContent ~= "" and item.InventoryContent or item.UpgradeContent
+        end
+    end
+    self.descriptionText:SetText(content or "")
+    ItemVisual.Apply(self.descriptionImage,selectedItem,32,32,true)
+end
+
+function Script:CreateComplete()
+    local parentID = Entity.CreateEmpty()
+    self:AddUI(parentID)
+    local parentTr = Transform.Add(parentID)
+    parentTr:SetParent(self.ID)
+    parentTr.position = PVector3(116.5,95,0)
+    parentTr.scale = PVector3(0.75,0.75,1)
+    User.CompleteComponent = {}
+	for index, label in ipairs({"테스트","완료"}) do
+        local slotID = Entity.CreateEmpty()
+        self:AddUI(slotID)
+        local slotTr = Transform.Add(slotID)
+        slotTr:SetParent(parentID)
+		slotTr.position = PVector3((index - 1.5) * 40,0,0)
+        local image = UIImage.Add(slotID)
+        image:SetTexture("box")
+        image:SetTextureSize(32,32)
+        image:SetPivot(0.5,0.5)
+        local textID = Entity.CreateEmpty()
+        self:AddUI(textID)
+        local textTr = Transform.Add(textID)
+        textTr:SetParent(slotID)
+        textTr.position = PVector3(0,0,0)
+        local text = UIText.Add(textID)
+        text:SetFont("Jalnan2TTF")
+        text:SetTextSize(0.25)
+        text:SetPivot(0.5,0.5)
+        text:SetColor(37,35,35,255)
+        text:SetText(label)
+        User.CompleteComponent[index] = {TransformComponent = slotTr, ParentID = parentID}
+    end
+end
+
+
+function Script:AddUI(...)
+    for _, id in ipairs({...}) do self.UIList[#self.UIList + 1] = id end
+end
+
+return Script

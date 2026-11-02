@@ -34,6 +34,8 @@
                   Background="{StaticResource PixelPanelBrush}" Foreground="{StaticResource PixelTextBrush}"
                   BorderThickness="0" Padding="5"
                   ItemsSource="{Binding FolderItems}" SelectedItemChanged="FolderView_SelectedItemChanged"
+                  KeyDown="FolderView_KeyDown" PreviewMouseLeftButtonDown="FolderView_PreviewMouseLeftButtonDown"
+                  PreviewMouseMove="FolderView_PreviewMouseMove"
                   AllowDrop="True" DragOver="FolderView_DragOver" Drop="FolderView_Drop">
             <TreeView.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#544B16"/>
@@ -56,12 +58,14 @@
                             <ContextMenu>
                                 <MenuItem Header="New Folder" Click="FolderItem_Create"/>
                                 <Separator/>
+                                <MenuItem Header="Cut" Click="FolderItem_Cut" InputGestureText="Ctrl+X"/>
+                                <MenuItem Header="Copy" Click="FolderItem_Copy" InputGestureText="Ctrl+C"/>
                                 <MenuItem Header="Paste" Click="FolderItem_Paste" InputGestureText="Ctrl+V"/>
                                 <MenuItem Header="Copy Folder Path" Click="FolderItem_CopyPath"/>
                                 <MenuItem Header="Open In Explorer" Click="FolderItem_OpenExplorer"/>
                                 <Separator/>
-                                <MenuItem Header="Rename" Click="FolderItem_Rename"/>
-                                <MenuItem Header="Delete" Click="FolderItem_Delete" Foreground="#FF6B6B"/>
+                                <MenuItem Header="Rename" Click="FolderItem_Rename" InputGestureText="F2"/>
+                                <MenuItem Header="Delete" Click="FolderItem_Delete" InputGestureText="Delete" Foreground="#FF6B6B"/>
                             </ContextMenu>
                         </StackPanel.ContextMenu>
                         <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Margin="0,0,7,0" Foreground="#C6CCE0"/>

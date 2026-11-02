@@ -318,6 +318,12 @@
     <ClInclude Include="GroupManager.h">
       <Filter>EngineAPI\Manager\SceneManager\Group</Filter>
     </ClInclude>
+    <ClInclude Include="TweenManager.h">
+      <Filter>EngineAPI\Manager\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Tween.h">
+      <Filter>EngineAPI\Export</Filter>
+    </ClInclude>
     <ClInclude Include="PoolManager.h">
       <Filter>EngineAPI\Manager\SceneManager\Pool</Filter>
     </ClInclude>
@@ -532,6 +538,12 @@
     </ClCompile>
     <ClCompile Include="GroupManager.cpp">
       <Filter>EngineAPI\Manager\SceneManager\Group</Filter>
+    </ClCompile>
+    <ClCompile Include="TweenManager.cpp">
+      <Filter>EngineAPI\Manager\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Tween.cpp">
+      <Filter>EngineAPI\Export</Filter>
     </ClCompile>
     <ClCompile Include="PoolManager.cpp">
       <Filter>EngineAPI\Manager\SceneManager\Pool</Filter>

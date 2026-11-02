@@ -12,12 +12,10 @@ function InventoryFunction.Refresh(InventoryIndex)
     if image == nil or text == nil then return end
 
     if item.ItemIndex > 0 and ItemList[item.ItemIndex] ~= nil then
-        image:SetTexture(ItemList[item.ItemIndex].Texture)
-        if component.ParentID then image:SetContentAspectFit(24,24) end
-        image:SetColor(255,255,255,255)
+        ItemVisual.Apply(image,ItemList[item.ItemIndex],24,24,true)
         text:SetText("X"..tostring(item.ItemCount))
     else
-        image:SetColor(255,255,255,0)
+        ItemVisual.Apply(image,nil,24,24,true)
         text:SetText("")
     end
     if User.InventoryDescriptionID and User.Selection.Type == InventoryType.Inventory and User.Selection.Index == InventoryIndex then

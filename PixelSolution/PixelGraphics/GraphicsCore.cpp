@@ -246,6 +246,13 @@ bool PixelGraphics::GraphicsCore::CreateDepthStencilStates()
 	}
 
 	D3D11_DEPTH_STENCIL_DESC disabledDescription = {};
+	auto readOnlyDescription = enabledDescription;
+	readOnlyDescription.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	if (FAILED(device->CreateDepthStencilState(&readOnlyDescription, depthReadOnlyState.ReleaseAndGetAddressOf())))
+	{
+		depthEnabledState.Reset();
+		return false;
+	}
 	disabledDescription.DepthEnable = FALSE;
 	disabledDescription.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	disabledDescription.DepthFunc = D3D11_COMPARISON_ALWAYS;
@@ -253,6 +260,7 @@ bool PixelGraphics::GraphicsCore::CreateDepthStencilStates()
 	if (FAILED(device->CreateDepthStencilState(&disabledDescription, depthDisabledState.ReleaseAndGetAddressOf())))
 	{
 		depthEnabledState.Reset();
+		depthReadOnlyState.Reset();
 		return false;
 	}
 
@@ -439,6 +447,7 @@ void PixelGraphics::GraphicsCore::Release()
 	}
 
 	alphaBlendState.Reset();
+	depthReadOnlyState.Reset();
 	depthDisabledState.Reset();
 	depthEnabledState.Reset();
 	ReleaseSizeDependentResources();
@@ -489,6 +498,11 @@ ID3D11DepthStencilState* PixelGraphics::GraphicsCore::GetDepthEnabledState() con
 ID3D11DepthStencilState* PixelGraphics::GraphicsCore::GetDepthDisabledState() const
 {
 	return depthDisabledState.Get();
+}
+
+ID3D11DepthStencilState* PixelGraphics::GraphicsCore::GetDepthReadOnlyState() const
+{
+	return depthReadOnlyState.Get();
 }
 
 ID3D11BlendState* PixelGraphics::GraphicsCore::GetAlphaBlendState() const

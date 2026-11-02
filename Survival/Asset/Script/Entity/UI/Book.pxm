@@ -50,9 +50,15 @@ function Script:OnAnimationCallBack(targetID,nowAnimationID,nowAnimationFrame)
     end
 end
 
+function Script:SetBookLayout(width,centerX,bottomY)
+    -- Idle의 펼쳐진 책 중심 X=388, 하단 Y=456을 공통 기준으로 사용한다.
+    -- 프레임 내부 여백만 보정하며, 애니메이션 자체의 움직임은 유지한다.
+    self.image:SetTextureSize(width,640)
+    self.image:SetPivot((centerX - 4) / width,(bottomY - 136) / 640)
+end
+
 function Script:BookIdle()
-    self.image:SetPivot(0.5,0.5)
-    self.image:SetTextureSize(768,640)
+    self:SetBookLayout(768,388,456)
     self.currentAnimationID = self.animationList.idle
     self.animation:Play(self.currentAnimationID)
     self.animation:Reset()
@@ -60,8 +66,8 @@ function Script:BookIdle()
 end
 
 function Script:BookOpen()
-    self.image:SetPivot(0.5,0.5)
-    self.image:SetTextureSize(608,640)
+    -- 펼쳐지는 마지막 프레임 기준.
+    self:SetBookLayout(608,308,449)
     Entity.SetActive(self.ID,true)
     Event.Call("HideBookContent")
     self.currentAnimationID = self.animationList.open
@@ -70,9 +76,7 @@ function Script:BookOpen()
 end
 
 function Script:BookNext()
-    -- Align Next_book's paper baseline (561) with Idle_book's baseline (455).
-    self.image:SetPivot(0.5,0.5 + 106 / 640)
-    self.image:SetTextureSize(608,640)
+    self:SetBookLayout(608,308,562)
     Event.Call("HideBookContent")
     self.currentAnimationID = self.animationList.next
     self.animation:Play(self.currentAnimationID)
@@ -80,8 +84,8 @@ function Script:BookNext()
 end
 
 function Script:BookClose()
-    self.image:SetPivot(0.5,0.5)
-    self.image:SetTextureSize(608,640)
+    -- 펼쳐진 첫 프레임 기준.
+    self:SetBookLayout(608,308,560)
     Event.Call("HideBookContent")
     self.currentAnimationID = self.animationList.close
     self.animation:Play(self.currentAnimationID)

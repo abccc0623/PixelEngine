@@ -1,0 +1,53 @@
+﻿---@type LuaInstance
+
+local Script = {}
+
+function Script:Spawn()
+	self.transform = Transform.Add(self.ID)
+	self.animation = Animation2D.Add(self.ID)
+    self.renderer2D = Renderer2D.Add(self.ID)
+    self.rigidbody2D = Rigidbody2D.Add(self.ID)
+    
+    self.rigidbody2D:CreateCircleCollider(0.5, PVector2(0,0))
+    self.rigidbody2D:SetMotionType(MotionType.Kinematic)
+    self.rigidbody2D:SetPosition(PVector3(0,0,-1))
+    self.rigidbody2D:SetLayer("Player")
+    
+    
+    self.idle = self.animation:Create("Knight_Idle", 6, 1, 1.5)
+    self.run = self.animation:Create("Knight_Walk", 8, 1, 1.5)
+    self.transform.scale = PVector3(5,5,1)
+    
+end
+
+function Script:Update(DTime)
+    if Time.IsPaused() == true then 
+        return
+    end
+	local dir = PVector3(0,0,0)
+	if Input.Key(Keycode.Up) then dir.y = 1 end
+	if Input.Key(Keycode.Down) then dir.y = -1 end
+	if Input.Key(Keycode.Left) then dir.x = -1 self.transform.scale.x = -5 end
+	if Input.Key(Keycode.Right) then dir.x = 1  self.transform.scale.x = 5 end
+	
+	dir = dir:Normalize()
+	dir.x = dir.x * PlayerState.Speed
+	dir.y = dir.y * PlayerState.Speed
+	self.rigidbody2D:SetVelocity(dir)
+	self:AnimationPlay(dir)
+end
+
+function Script:AnimationPlay(vec3)
+	if vec3 == PVector3(0,0,0) then
+		self.animation:Play(self.idle)
+	else
+	   self.animation:Play(self.run)
+	end
+end
+
+function Script:OnCollisionEnter(targetID)
+	
+end
+
+
+return Script

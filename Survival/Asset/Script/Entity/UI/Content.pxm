@@ -66,7 +66,7 @@ function Script:Update()
     if previous ~= self.selectIndex then self:MoveSelect() end
 
     if Input.KeyDown(Keycode.Z) then
-        if GameFlow.Choose(self.selectIndex) then self:Hide() end
+        if GameFlow.Choose(self.selectIndex) and GameFlow.State ~= "Choice" then self:Hide() end
     end
 end
 
@@ -76,8 +76,7 @@ function Script:MoveSelect()
     end
     local item = ItemList[UpgradeList[self.selectIndex].ItemIndex]
     if item and self.selectedContentImage then
-        self.selectedContentImage:SetTexture(item.Texture)
-        self.selectedContentImage:SetContentAspectFit(200,200)
+        ItemVisual.Apply(self.selectedContentImage,item,200,200,true)
     end
     local lines = {}
     for paragraph in ((item and item.UpgradeContent or "") .. "\n"):gmatch("([^\n]*)\n") do

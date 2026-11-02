@@ -1,4 +1,5 @@
 local root = "D:/PixelEngine/Survival/Asset/"
+dofile(root .. "Table/ItemList.lua")
 Grid = {width = 5,height = 5,StartPoint = {x = 1,y = 3},EndPoint = {x = 5,y = 3}}
 for x = 1, 5 do
     Grid[x] = {}
@@ -8,8 +9,13 @@ Grid[1][3].ItemIndex = 2
 Grid[2][3].ItemIndex = 5
 Grid[5][3].ItemIndex = 3
 for _, point in ipairs({{2,2},{3,2},{4,2},{2,4},{3,4},{4,4},{4,3}}) do Grid[point[1]][point[2]].ItemIndex = 1 end
+Grid[4][3].ItemIndex = 9
 local transforms, arrivals, disabled, id = {}, {}, {}, 0
 local paused = false
+Entity = {}
+function Entity.CallFunction(id,name,itemIndex)
+    assert(name == "Setting" and itemIndex == 1)
+end
 Time = {}
 function Time.IsPaused()
     return paused

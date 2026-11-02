@@ -53,8 +53,9 @@ function Script:Move()
     local myPos = self.transform.position
     local playerPos = PlayerManager.transform.position
     local direction = myPos:Direction(playerPos)
-    direction.x = direction.x * self.Speed
-    direction.y = direction.y * self.Speed
+    local speed = self.Speed
+    direction.x = direction.x * speed
+    direction.y = direction.y * speed
     if direction.x > 0 then
         self.transform.scale.x = 5
     else 
@@ -86,9 +87,8 @@ end
 
 
 function Script:ActiveSetting()
-    self.HP = 3
-    self.Speed = 3
-    self.EXP = 1
+    EnemyEffects.Reset(self)
+    MonsterManager.ApplyStats(self,"Bat")
     
     self.animation:Play(self.animationTabel["move"])
     self.State = self.MonsterState.Move
@@ -98,18 +98,13 @@ function Script:OnCollisionEnter(targetID)
     local targetRigidbody = Rigidbody2D.Get(targetID)
     if targetRigidbody ~= nil then 
         if ffi.string(targetRigidbody:GetLayer()) == "Bullet" then
-            if self.HP <= 0 then return end
-            self.State = self.MonsterState.Hit
-            self.HP = self.HP - BulletManager.GetAttack(targetID)
-            if self.HP <= 0 then
-                self.State = self.MonsterState.Death
-                self.animation:Play(self.animationTabel["death"])
-                Group.Remove("MonsterList", self.ID)
-                local id = Pool.Active("EXP")
-                Transform.Get(id).position = self.transform.position
-            end
+            BulletManager.Hit(targetID,self)
         end
     end
+end
+
+function Script:TakeDamage(damage)
+	return EnemyEffects.TakeDamage(self,damage)
 end
 
 return Script

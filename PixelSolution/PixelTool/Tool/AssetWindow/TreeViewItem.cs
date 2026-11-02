@@ -22,14 +22,14 @@ namespace PixelTool
         public FolderItem(string path)
         {
             fullPath = path;
-            folderName = Path.GetFileNameWithoutExtension(path);
+            folderName = Path.GetFileName(Path.TrimEndingDirectorySeparator(path));
         }
 
         private bool _isExpanded;
         public bool IsExpanded
         {
             get => _isExpanded;
-            set { _isExpanded = value; OnPropertyChanged(nameof(IsExpanded)); }
+            set { if (_isExpanded == value) return; _isExpanded = value; OnPropertyChanged(nameof(IsExpanded)); }
         }
 
         private bool _isSelected;

@@ -360,8 +360,22 @@ bool PixelGraphics::ShaderFactory::CreateConstantBuffers(ID3DBlob* shaderBlob)
 			return false;
 		}
 
-		if (constantBuffers.find(bufferDescription.Name) != constantBuffers.end())
+		auto existing = constantBuffers.find(bufferDescription.Name);
+		const UINT requiredBytes = (bufferDescription.Size + 15u) & ~15u;
+		if (existing != constantBuffers.end())
 		{
+			// VS/PS can reflect different sizes for a shared buffer when a stage omits unused fields.
+			if (existing->second->byteWidth < requiredBytes)
+			{
+				D3D11_BUFFER_DESC grownDescription = {};
+				grownDescription.Usage = D3D11_USAGE_DEFAULT;
+				grownDescription.ByteWidth = requiredBytes;
+				grownDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+				Microsoft::WRL::ComPtr<ID3D11Buffer> grownBuffer;
+				if (FAILED(graphicsCore->GetDevice()->CreateBuffer(&grownDescription, nullptr, grownBuffer.GetAddressOf()))) return false;
+				existing->second->buffer = grownBuffer;
+				existing->second->byteWidth = requiredBytes;
+			}
 			continue;
 		}
 

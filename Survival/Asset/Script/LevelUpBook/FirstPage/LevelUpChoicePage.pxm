@@ -1,0 +1,201 @@
+local Script = {}
+
+function Script:Spawn()
+	self.transform = Transform.Add(self.ID)
+	self.UIList = {}
+	self.Slots = {}
+	self.SelectedIndex = 1
+	self.IsShown = false
+end
+
+---페이지의 모든 UI는 이 객체의 하위에 두어 다른 페이지와 표시 상태를 분리합니다.
+---@param bookID number 부모 LevelUpBook ID
+function Script:Setting(bookID)
+	self.BookID = bookID
+	self.transform:SetParent(bookID)
+	self.transform.position = PVector3(0,0,0)
+	self:CreateText(self.ID,-116.5,-145,"아이템 선택",0.36,0.5)
+	self:CreateDescription()
+	for index = 1, 3 do
+		local y = -80 + (index - 1) * 75
+		local slotID,_,slotTransform = self:CreateImage(self.ID,-116.5,y,"Choice",224,80)
+		local _,icon = self:CreateImage(slotID,-70.5,-3.5,"tile",26,26)
+		local _,name = self:CreateText(slotID,-46,-15.5,"",0.25,0)
+		local _,kind = self:CreateText(slotID,-46,0,"",0.2,0)
+		self.Slots[index] = {ID = slotID,Transform = slotTransform,Icon = icon,Name = name,Kind = kind}
+	end
+	local selectID,_,selectTransform = self:CreateImage(self.ID,-210,-84,"Right",20,20)
+	self.SelectID = selectID
+	self.SelectTransform = selectTransform
+	self:CreateText(self.ID,-116.5,135,"방향키 선택   Z 다음   X 닫기",0.2,0.5)
+	-- 아이콘의 애니메이션 객체도 미리 만들어 책 완료 콜백에서는 표시만 바꾼다.
+	self:Show()
+	self:Hide()
+end
+
+---기존 Content.pxm 오른쪽 페이지의 좌표·배율·장식을 그대로 유지합니다.
+function Script:CreateDescription()
+	local titleID,_,titleTransform = self:CreateText(self.ID,116.5,-140,"설명",1,0.5)
+	titleTransform.scale = PVector3(0.3,0.3,1)
+	for _, x in ipairs({-150,150}) do
+		local _,_,transform = self:CreateImage(titleID,x,-5,"line_2",80,16)
+		transform.scale = PVector3(3,3,1)
+	end
+	self.DescriptionLines = {}
+	for _, y in ipairs({0,40,80}) do
+		local lineID,_,transform = self:CreateImage(self.ID,116.5,y,"line_3",272,80)
+		transform.scale = PVector3(0.75,0.75,1)
+		for line = 0, 1 do
+			local _,text = self:CreateText(lineID,-114,-20 + line * 26,"",0.4,0)
+			self.DescriptionLines[#self.DescriptionLines + 1] = text
+		end
+	end
+	local frameID = self:CreateImage(self.ID,116.5,-80,"tile",64,64)
+	local _,image,transform = self:CreateImage(frameID,0,0,"tile",64,64)
+	transform.scale = PVector3(0.2,0.2,1)
+	self.DescriptionImage = image
+end
+
+function Script:CreateImage(parentID,x,y,texture,width,height)
+	local id = Entity.CreateEmpty()
+	self.UIList[#self.UIList + 1] = id
+	local transform = Transform.Add(id)
+	transform:SetParent(parentID)
+	transform.position = PVector3(x,y,0)
+	local image = UIImage.Add(id)
+	image:SetTexture(texture)
+	image:SetTextureSize(width,height)
+	image:SetPivot(0.5,0.5)
+	image:SetOrder(1)
+	return id,image,transform
+end
+
+function Script:CreateText(parentID,x,y,content,size,pivotX)
+	local id = Entity.CreateEmpty()
+	self.UIList[#self.UIList + 1] = id
+	local transform = Transform.Add(id)
+	transform:SetParent(parentID)
+	transform.position = PVector3(x,y,0)
+	local text = UIText.Add(id)
+	text:SetFont("Jalnan2TTF")
+	text:SetTextSize(size)
+	text:SetPivot(pivotX,0.5)
+	text:SetColor(37,35,35,255)
+	text:SetText(content)
+	return id,text,transform
+end
+
+---입구·출구의 큰 원본 시트 대신 객체와 동일한 첫 줄 두 번째 애니메이션을 표시합니다.
+function Script:GetVisual(index)
+	local item = ItemList[index]
+	if index == 2 or index == 3 then
+		return {Texture = item.Texture,StartX = 192,StartY = 0,FrameWidth = 24,FrameHeight = 24,FrameCount = 8,AnimationSpeed = 1}
+	end
+	return item
+end
+
+function Script:Show()
+	self.SelectedIndex = 1
+	Tween.Kill(self.SelectID,TweenProperty.PositionY)
+	self.SelectTransform.position = PVector3(-210,-84,0)
+	self.IsShown = true
+	Entity.SetActive(self.ID,true)
+	for index, slot in ipairs(self.Slots) do
+		local item = ItemList[index]
+		Entity.SetActive(slot.ID,item ~= nil)
+		if item then
+			slot.Name:SetText(item.Name)
+			local types = {[ItemType.Stat] = "능력치",[ItemType.Factory] = "설치",[ItemType.System] = "시스템"}
+			slot.Kind:SetText("[" .. (types[item.ItemType] or "아이템") .. "]")
+			ItemVisual.Apply(slot.Icon,self:GetVisual(index),26,26,true)
+		end
+	end
+	self:RefreshSelection()
+end
+
+function Script:Hide()
+	self:StopSelectionTween()
+	Tween.Kill(self.SelectID,TweenProperty.PositionY)
+	self.IsShown = false
+	Entity.SetActive(self.ID,false)
+end
+
+function Script:StopSelectionTween()
+	if not self.TweenSlot then
+		return
+	end
+	Tween.Kill(self.TweenSlot.ID,TweenProperty.ScaleX)
+	Tween.Kill(self.TweenSlot.ID,TweenProperty.ScaleY)
+	self.TweenSlot.Transform.scale = PVector3(1,1,1)
+	self.TweenSlot = nil
+end
+
+function Script:RefreshSelection()
+	local slot = self.Slots[self.SelectedIndex]
+	if self.TweenSlot ~= slot then
+		self:StopSelectionTween()
+		if self.IsShown and slot and ItemList[self.SelectedIndex] then
+			Tween.PingPong(slot.ID,TweenProperty.ScaleX,1,1.04,0.45,true)
+			Tween.PingPong(slot.ID,TweenProperty.ScaleY,1,1.04,0.45,true)
+			self.TweenSlot = slot
+		end
+	end
+	local targetY = -84 + (self.SelectedIndex - 1) * 75
+	local currentY = self.SelectTransform.position.y
+	if currentY ~= targetY then
+		-- 같은 ID·속성의 Move를 교체하므로 이동 중에도 현재 위치에서 이어진다.
+		Tween.Move(self.SelectID,TweenProperty.PositionY,currentY,targetY,0.12,true)
+	end
+	for index, slot in ipairs(self.Slots) do
+		if index == self.SelectedIndex then
+			slot.Name:SetColor(160,43,35,255)
+		else
+			slot.Name:SetColor(37,35,35,255)
+		end
+	end
+	local item = ItemList[self.SelectedIndex]
+	ItemVisual.Apply(self.DescriptionImage,item and self:GetVisual(self.SelectedIndex),200,200,true)
+	local lines = {}
+	local content = item and (item.UpgradeContent or item.InventoryContent or "") or ""
+	for paragraph in (content .. "\n"):gmatch("([^\n]*)\n") do
+		local line,count = "",0
+		for word in paragraph:gmatch("%S+") do
+			local _,length = word:gsub("[%z\1-\127\194-\244][\128-\191]*", "")
+			if count > 0 and count + 1 + length > 18 then
+				lines[#lines + 1] = line
+				line,count = "",0
+			end
+			if count > 0 then
+				line = line .. " "
+				count = count + 1
+			end
+			line = line .. word
+			count = count + length
+		end
+		lines[#lines + 1] = line
+	end
+	for index, text in ipairs(self.DescriptionLines) do
+		text:SetText(lines[index] or "")
+	end
+end
+
+function Script:Update()
+	local book = Entity.GetScript(self.BookID)
+	if not self.IsShown or not book or book.State ~= "idle" or book.PageIndex ~= 1 then
+		return
+	end
+	local previous = self.SelectedIndex
+	if Input.KeyDown(Keycode.Up) then
+		self.SelectedIndex = math.max(1,self.SelectedIndex - 1)
+	elseif Input.KeyDown(Keycode.Down) then
+		self.SelectedIndex = math.min(math.min(3,#ItemList),self.SelectedIndex + 1)
+	end
+	if previous ~= self.SelectedIndex then
+		self:RefreshSelection()
+	end
+	if Input.KeyDown(Keycode.Z) then
+		book:SelectItem(self.SelectedIndex)
+	end
+end
+
+return Script

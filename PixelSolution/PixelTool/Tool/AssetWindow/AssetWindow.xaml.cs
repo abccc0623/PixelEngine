@@ -33,22 +33,30 @@ namespace PixelTool
         {
             InitializeComponent();
             DataContext = this;
+            InitializeBrowser();
             Refresh();
         }
 
         public void Refresh()
         {
-            var selectedPath = nowFolder?.fullPath;
-            FolderItems.Clear();
-            rootFolder = new FolderItem(ProjectPathService.AssetPath);
-            rootFolder.IsExpanded = true;
-            ScanDirectories(rootFolder);
-            FolderItems.Add(rootFolder);
+            var selectedPath = nowFolder?.fullPath ?? Path.Combine(ProjectPathService.AssetPath,_browserState.Selected);
+            var selectedFiles = GetSelectedFiles().Select(file => file.FullPath).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            _restoringTree = true;
+            try
+            {
+                FolderItems.Clear();
+                rootFolder = CreateFolderItem(ProjectPathService.AssetPath);
+                ScanDirectories(rootFolder);
+                FolderItems.Add(rootFolder);
 
-            var targetPath = !string.IsNullOrWhiteSpace(selectedPath) && Directory.Exists(selectedPath)
-                ? selectedPath
-                : rootFolder.fullPath;
-            SelectFolderItem(targetPath);
+                var targetPath = !string.IsNullOrWhiteSpace(selectedPath) && Directory.Exists(selectedPath) && AssetFileOperations.IsInside(selectedPath,rootFolder.fullPath)
+                    ? selectedPath
+                    : rootFolder.fullPath;
+                SelectFolderItem(targetPath,false);
+                foreach (var file in FileItems.Where(file => selectedFiles.Contains(file.FullPath))) FileView.SelectedItems.Add(file);
+            }
+            finally { _restoringTree = false; }
+            SaveBrowserState();
         }
 
         private void ScanDirectories(FolderItem parentItem)
@@ -58,9 +66,10 @@ namespace PixelTool
                 var dirInfo = new DirectoryInfo(parentItem.fullPath);
                 if (!dirInfo.Exists) return;
 
-                foreach (var dir in dirInfo.GetDirectories())
+                foreach (var dir in dirInfo.GetDirectories().OrderBy(dir => dir.Name,StringComparer.OrdinalIgnoreCase))
                 {
-                    var newItem = new FolderItem(dir.FullName);
+                    if ((dir.Attributes & FileAttributes.ReparsePoint) != 0) continue;
+                    var newItem = CreateFolderItem(dir.FullName);
                     parentItem.FolderItems.Add(newItem);
                     ScanDirectories(newItem);
                 }
@@ -76,6 +85,7 @@ namespace PixelTool
 
             nowFolder = folder;
             SelectFolder(nowFolder.fullPath);
+            SaveBrowserState();
         }
 
         private void SelectFolder(string path)
@@ -86,7 +96,7 @@ namespace PixelTool
 
             try
             {
-                foreach (string filePath in Directory.GetFiles(path))
+                foreach (string filePath in Directory.GetFiles(path).OrderBy(file => file,StringComparer.OrdinalIgnoreCase))
                     _allFiles.Add(new FileItem(filePath));
             }
             catch (UnauthorizedAccessException) { }
@@ -95,7 +105,7 @@ namespace PixelTool
             ApplySearchFilter();
         }
 
-        private void SelectFolderItem(string path)
+        private void SelectFolderItem(string path, bool reveal = true)
         {
             var folder = FindFolder(rootFolder, path);
             if (folder == null)
@@ -109,8 +119,16 @@ namespace PixelTool
 
             nowFolder = folder;
             nowFolder.IsSelected = true;
-            nowFolder.IsExpanded = true;
+            if (reveal)
+            {
+                for (var parent = Directory.GetParent(path); parent != null && AssetFileOperations.IsInside(parent.FullName,rootFolder.fullPath); parent = parent.Parent)
+                {
+                    var ancestor = FindFolder(rootFolder,parent.FullName);
+                    if (ancestor != null) ancestor.IsExpanded = true;
+                }
+            }
             SelectFolder(nowFolder.fullPath);
+            SaveBrowserState();
         }
 
         private FolderItem FindFolder(FolderItem folder, string path)
@@ -193,6 +211,7 @@ namespace PixelTool
                 BitmapImage bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
                 bitmap.UriSource = new Uri(Path.GetFullPath(path));
                 bitmap.EndInit();
                 TexturePreview.Source = bitmap;
@@ -256,28 +275,11 @@ namespace PixelTool
             {
                 foreach (var file in files)
                 {
+                    AssetFileOperations.RequireAssetPath(file.FullPath,ProjectPathService.AssetPath);
                     if (File.Exists(file.FullPath))
                         FileSystem.DeleteFile(file.FullPath, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
                 }
                 SelectFolder(nowFolder.fullPath);
-            }
-            catch (Exception ex) { PixelMessageBox.Show($"Delete failed: {ex.Message}"); }
-        }
-
-        private void DeleteFile(FileItem targetFile)
-        {
-            if (targetFile == null) return;
-
-            var result = PixelMessageBox.Show($"Delete '{targetFile.FileName}{targetFile.Extension}'?", "Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (result != MessageBoxResult.Yes) return;
-
-            try
-            {
-                if (File.Exists(targetFile.FullPath))
-                    File.Delete(targetFile.FullPath);
-                _allFiles.RemoveAll(file => file.FullPath == targetFile.FullPath);
-                FileItems.Remove(targetFile);
-                ClearPreview();
             }
             catch (Exception ex) { PixelMessageBox.Show($"Delete failed: {ex.Message}"); }
         }
@@ -301,14 +303,16 @@ namespace PixelTool
 
             try
             {
-                string newPath = Path.Combine(directory, newNameOnly + extension);
-                if (File.Exists(newPath))
+                AssetFileOperations.RequireAssetPath(oldPath,ProjectPathService.AssetPath);
+                string newPath = AssetFileOperations.NamedPath(directory,newNameOnly + extension);
+                if (File.Exists(newPath) || Directory.Exists(newPath))
                 {
                     PixelMessageBox.Show("A file with the same name already exists.");
                     return;
                 }
 
                 File.Move(oldPath, newPath);
+                UpdateMovedPaths(oldPath,newPath);
                 SelectFolder(nowFolder.fullPath);
             }
             catch (Exception ex) { PixelMessageBox.Show($"Rename failed: {ex.Message}"); }
@@ -360,15 +364,16 @@ namespace PixelTool
 
             try
             {
-                string newPath = Path.Combine(nowFolder.fullPath, newName);
-                if (Directory.Exists(newPath))
+                AssetFileOperations.RequireAssetPath(nowFolder.fullPath,ProjectPathService.AssetPath,true);
+                string newPath = AssetFileOperations.NamedPath(nowFolder.fullPath,newName);
+                if (Directory.Exists(newPath) || File.Exists(newPath))
                 {
                     PixelMessageBox.Show("A folder with the same name already exists.");
                     return;
                 }
 
                 Directory.CreateDirectory(newPath);
-                var newItem = new FolderItem(newPath);
+                var newItem = CreateFolderItem(newPath);
                 nowFolder.FolderItems.Add(newItem);
                 nowFolder.IsExpanded = true;
             }
@@ -388,16 +393,16 @@ namespace PixelTool
 
             try
             {
-                string newPath = Path.Combine(parentPath, newName);
-                if (Directory.Exists(newPath))
+                AssetFileOperations.RequireAssetPath(oldPath,ProjectPathService.AssetPath);
+                string newPath = AssetFileOperations.NamedPath(parentPath,newName);
+                if (Directory.Exists(newPath) || File.Exists(newPath))
                 {
                     PixelMessageBox.Show("A folder with the same name already exists.");
                     return;
                 }
 
                 Directory.Move(oldPath, newPath);
-                nowFolder.fullPath = newPath;
-                nowFolder.folderName = newName;
+                UpdateMovedPaths(oldPath,newPath);
                 Refresh();
             }
             catch (Exception ex) { PixelMessageBox.Show($"Rename folder failed: {ex.Message}"); }
@@ -411,12 +416,13 @@ namespace PixelTool
                 return;
             }
 
-            var result = PixelMessageBox.Show($"Delete '{nowFolder.folderName}' and all contents?", "Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = PixelMessageBox.Show($"Move '{nowFolder.folderName}' and all contents to the Recycle Bin?", "Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (result != MessageBoxResult.Yes) return;
 
             try
             {
-                Directory.Delete(nowFolder.fullPath, true);
+                AssetFileOperations.RequireAssetPath(nowFolder.fullPath,ProjectPathService.AssetPath);
+                FileSystem.DeleteDirectory(nowFolder.fullPath,UIOption.OnlyErrorDialogs,RecycleOption.SendToRecycleBin);
                 nowFolder = rootFolder;
                 Refresh();
             }
@@ -454,8 +460,9 @@ namespace PixelTool
 
             try
             {
-                string newPath = Path.Combine(nowFolder.fullPath, newName + extension);
-                if (File.Exists(newPath))
+                AssetFileOperations.RequireAssetPath(nowFolder.fullPath,ProjectPathService.AssetPath,true);
+                string newPath = AssetFileOperations.NamedPath(nowFolder.fullPath,newName + extension);
+                if (File.Exists(newPath) || Directory.Exists(newPath))
                 {
                     PixelMessageBox.Show("A file with the same name already exists.");
                     return;
@@ -605,10 +612,13 @@ namespace PixelTool
             var data = new DataObject();
             data.SetData(DataFormats.FileDrop, paths);
             data.SetData("PixelTool.AssetPaths", paths);
-            DragDrop.DoDragDrop(FileView, data, DragDropEffects.Copy | DragDropEffects.Move);
-            _isDragging = false;
-            _preserveSelectionForDrag = false;
-            _draggedFile = null;
+            try { DragDrop.DoDragDrop(FileView, data, DragDropEffects.Copy | DragDropEffects.Move); }
+            finally
+            {
+                _isDragging = false;
+                _preserveSelectionForDrag = false;
+                _draggedFile = null;
+            }
         }
 
         private void FileView_Drop(object sender, DragEventArgs e)
@@ -649,14 +659,19 @@ namespace PixelTool
             bool internalDrag = e.Data.GetDataPresent("PixelTool.AssetPaths");
             bool move = internalDrag && (e.KeyStates & DragDropKeyStates.ControlKey) == 0;
             TransferPaths(paths, destinationDirectory, move);
+            e.Handled = true;
         }
 
         private void CopyFilesToClipboard(IReadOnlyList<FileItem> files, bool cut)
         {
-            if (files.Count == 0) return;
+            CopyPathsToClipboard(files.Select(file => file.FullPath).ToArray(),cut);
+        }
+
+        private void CopyPathsToClipboard(string[] paths, bool cut)
+        {
+            if (paths.Length == 0) return;
             try
             {
-                var paths = files.Select(file => Path.GetFullPath(file.FullPath)).ToArray();
                 var data = new DataObject();
                 data.SetData(DataFormats.FileDrop, paths);
                 data.SetData("Preferred DropEffect", new MemoryStream(new[] { cut ? (byte)2 : (byte)1, (byte)0, (byte)0, (byte)0 }));
@@ -673,7 +688,8 @@ namespace PixelTool
                 var data = Clipboard.GetDataObject();
                 var paths = data?.GetData(DataFormats.FileDrop) as string[];
                 if (paths == null || paths.Length == 0) return;
-                TransferPaths(paths, destinationDirectory, IsClipboardCut(data));
+                bool cut = IsClipboardCut(data);
+                if (TransferPaths(paths, destinationDirectory,cut) && cut) Clipboard.Clear();
             }
             catch (Exception ex) { PixelMessageBox.Show($"Paste failed: {ex.Message}"); }
         }
@@ -688,84 +704,34 @@ namespace PixelTool
             return effect == 2;
         }
 
-        private void TransferPaths(IEnumerable<string> sources, string destinationDirectory, bool move)
+        private bool TransferPaths(IEnumerable<string> sources, string destinationDirectory, bool move)
         {
             try
             {
-                foreach (string source in sources.Distinct(StringComparer.OrdinalIgnoreCase))
-                {
-                    string fullSource = Path.GetFullPath(source);
-                    string destination = Path.Combine(destinationDirectory, Path.GetFileName(fullSource));
-                    if (Path.GetFullPath(destination).Equals(fullSource, StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (move) continue;
-                        destination = GetUniquePath(destinationDirectory, Path.GetFileNameWithoutExtension(fullSource), Path.GetExtension(fullSource));
-                    }
-                    else if (File.Exists(destination) || Directory.Exists(destination))
-                    {
-                        destination = GetUniquePath(destinationDirectory, Path.GetFileNameWithoutExtension(fullSource), Path.GetExtension(fullSource));
-                    }
-
-                    if (File.Exists(fullSource))
-                    {
-                        if (move) File.Move(fullSource, destination);
-                        else File.Copy(fullSource, destination);
-                    }
-                    else if (Directory.Exists(fullSource))
-                    {
-                        if (IsSubPath(destination, fullSource)) continue;
-                        if (move) Directory.Move(fullSource, destination);
-                        else CopyDirectory(fullSource, destination);
-                    }
-                }
-                Refresh();
-                SelectFolderItem(destinationDirectory);
+                AssetFileOperations.Transfer(sources,destinationDirectory,move,ProjectPathService.AssetPath,UpdateMovedPaths);
+                return true;
             }
-            catch (Exception ex) { PixelMessageBox.Show($"File operation failed: {ex.Message}"); }
-        }
-
-        private static void CopyDirectory(string source, string destination)
-        {
-            Directory.CreateDirectory(destination);
-            foreach (string file in Directory.GetFiles(source))
-                File.Copy(file, Path.Combine(destination, Path.GetFileName(file)));
-            foreach (string directory in Directory.GetDirectories(source))
-                CopyDirectory(directory, Path.Combine(destination, Path.GetFileName(directory)));
-        }
-
-        private static bool IsSubPath(string candidate, string parent)
-        {
-            string parentPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(parent)) + Path.DirectorySeparatorChar;
-            string candidatePath = Path.GetFullPath(candidate);
-            return candidatePath.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase);
+            catch (Exception ex) { PixelMessageBox.Show($"File operation failed: {ex.Message}"); return false; }
+            finally
+            {
+                Refresh();
+                if (Directory.Exists(destinationDirectory) && AssetFileOperations.IsInside(destinationDirectory,ProjectPathService.AssetPath))
+                    SelectFolderItem(destinationDirectory);
+            }
         }
 
         private void CopyExternalFile(string source)
         {
             try
             {
-                if (!File.Exists(source)) return;
-                string dest = Path.Combine(nowFolder.fullPath, Path.GetFileName(source));
-                if (Path.GetFullPath(source).Equals(Path.GetFullPath(dest), StringComparison.OrdinalIgnoreCase)) return;
-
-                if (File.Exists(dest))
-                    dest = GetUniquePath(nowFolder.fullPath, Path.GetFileNameWithoutExtension(source), Path.GetExtension(source));
-
-                File.Copy(source, dest);
+                AssetFileOperations.Transfer(new[] {source},nowFolder.fullPath,false,ProjectPathService.AssetPath);
             }
             catch (Exception ex) { PixelMessageBox.Show($"Import failed: {ex.Message}"); }
         }
 
         private static string GetUniquePath(string directory, string baseName, string extension)
         {
-            string path = Path.Combine(directory, baseName + extension);
-            int index = 1;
-            while (File.Exists(path) || Directory.Exists(path))
-            {
-                path = Path.Combine(directory, $"{baseName}_{index}{extension}");
-                index++;
-            }
-            return path;
+            return AssetFileOperations.UniquePath(directory,baseName,extension);
         }
 
         private static void OpenExplorer(string argument)

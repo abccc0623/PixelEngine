@@ -15,6 +15,7 @@ ffi.cdef[[
 	bool Renderer2D_Has(unsigned int ID);
 	void Renderer2D_SetTexture(unsigned int ID,const char* textureName);
 	void Renderer2D_SetColor(unsigned int ID,float R,float G,float B,float A);
+	void Renderer2D_SetTransparent(unsigned int ID,bool Transparent);
 ]]
 
 ---@class Renderer2DData
@@ -35,6 +36,11 @@ end
 ---@param A number
 function Renderer2DData:SetColor(R,G,B,A)
 	return dll.Renderer2D_SetColor(self.thisID,R,G,B,A)
+end
+
+---@param Transparent boolean
+function Renderer2DData:SetTransparent(Transparent)
+	return dll.Renderer2D_SetTransparent(self.thisID,Transparent)
 end
 
 local Renderer2D_mt = {

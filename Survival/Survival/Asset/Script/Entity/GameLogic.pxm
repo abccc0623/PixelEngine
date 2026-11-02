@@ -1,0 +1,19 @@
+﻿---@type LuaInstance
+
+local Script = {}
+
+function Script:Spawn()
+    PlayerManager.Init()
+    MonsterManager.Init()
+    BulletManager.Init()
+    GameTimeManager.Init()
+end
+
+function Script:Update(DTime)
+    if GameFlow.State ~= "Combat" or Time.IsPaused() then return end
+    GameTimeManager.Update(DTime)
+    MonsterManager.Update(DTime)
+end
+
+
+return Script

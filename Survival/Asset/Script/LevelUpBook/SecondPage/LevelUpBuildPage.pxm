@@ -1,0 +1,161 @@
+local Script = {}
+
+function Script:Spawn()
+	self.transform = Transform.Add(self.ID)
+	self.HandlesInput = true
+	self.IsShown = false
+	self.KeyRepeatStates = {}
+end
+
+function Script:Setting(bookID)
+	if self.BookID ~= bookID then
+		self.transform:SetParent(bookID)
+		UI.CreateBookSubText(-116.5,-140,"빌드",150,self.ID)
+	end
+	self.BookID = bookID
+	self.transform.position = PVector3(0,0,0)
+	self.Build = Grid.BoardID and Entity.GetScript(Grid.BoardID)
+	if not self.Build or not self.Build.BeginEdit then
+		self.Build = Entity.GetScript(Entity.Create("BuildSystem"))
+		Entity.SetActive(self.Build.ID,false)
+	end
+	self.Inventory = User.InventoryDescriptionID and Entity.GetScript(User.InventoryDescriptionID)
+	if not self.Inventory or not self.Inventory.AttachTo then
+		self.Inventory = Entity.GetScript(Entity.Create("InventoryEntity"))
+	end
+	self.Inventory.PageBookID = bookID
+	self.Inventory:AttachTo(self.ID)
+	self.Inventory:Hide()
+end
+
+---실제 빌드는 보관하고 책이 열린 동안에는 두 번째 페이지에서만 표시합니다.
+function Script:OnBookOpened()
+	local transform = self.Build.transform
+	self.OriginalPosition = PVector3(transform.position.x,transform.position.y,transform.position.z)
+	self.OriginalScale = PVector3(transform.scale.x,transform.scale.y,transform.scale.z)
+	self.WasPaused = Time.IsPaused()
+	self.OwnsEditSession = not self.Build.IsEditing
+	if self.OwnsEditSession then
+		self.Build:BeginEdit()
+	end
+	self.BookIsOpen = true
+	Time.SetPaused(true)
+	Entity.SetActive(self.Build.ID,false)
+end
+
+function Script:Show()
+	local book = Entity.GetScript(self.BookID)
+	local position,scale = book.transform.position,book.transform.scale
+	-- Grid 자체의 데이터·자식·자원은 유지하고 최상위 Transform만 페이지에 맞춘다.
+	self.Build.transform.position = PVector3(position.x - 116.5 * scale.x,position.y,0)
+	self.Build.transform.scale = PVector3(scale.x * 0.75,scale.y * 0.75,1)
+	self.IsShown = true
+	Entity.SetActive(self.ID,true)
+	Entity.SetActive(self.Build.ID,true)
+	self.KeyRepeatStates = {}
+	self.Build:ShowSelection(true)
+	self.Inventory:ResetSelection()
+	self.Inventory:Show()
+end
+
+function Script:Hide()
+	self.IsShown = false
+	self.KeyRepeatStates = {}
+	if self.BookIsOpen then
+		self.Build:HideSelection()
+		self.Build:StopTest()
+		Entity.SetActive(self.Build.ID,false)
+	end
+	if self.Inventory then
+		self.Inventory:Hide()
+	end
+	Entity.SetActive(self.ID,false)
+end
+
+---책이 닫히면 Grid를 원래 위치·크기로 돌리고 테스트 전 실제 자원을 복원합니다.
+function Script:OnBookClosed()
+	if not self.BookIsOpen then
+		return
+	end
+	self.Build.transform.position = self.OriginalPosition
+	self.Build.transform.scale = self.OriginalScale
+	if self.OwnsEditSession then
+		self.Build:ResumePlay()
+	end
+	Entity.SetActive(self.Build.ID,true)
+	self.Build:HideSelection()
+	Time.SetPaused(self.WasPaused)
+	self.BookIsOpen = false
+end
+
+function Script:Update()
+	local book = Entity.GetScript(self.BookID)
+	if not self.IsShown or not book or book.State ~= "idle" or book.PageIndex ~= 2 then
+		return
+	end
+	if Input.Key(Keycode.X) then
+		self.KeyRepeatStates = {}
+		return
+	end
+	local deltaTime = Time.GetUnscaledDeltaTime()
+	self:HandleMoveKey(Keycode.Up,0,-1,deltaTime)
+	self:HandleMoveKey(Keycode.Down,0,1,deltaTime)
+	self:HandleMoveKey(Keycode.Left,-1,0,deltaTime)
+	self:HandleMoveKey(Keycode.Right,1,0,deltaTime)
+	if Input.KeyDown(Keycode.Z) then
+		self:ApplySelection()
+	end
+end
+
+function Script:HandleMoveKey(key,dx,dy,deltaTime)
+	local state = self.KeyRepeatStates[key]
+	if not state then
+		state = {HoldTime = 0,RepeatTime = 0}
+		self.KeyRepeatStates[key] = state
+	end
+	if Input.KeyDown(key) then
+		state.HoldTime,state.RepeatTime = 0,0
+		self.Build:MoveSelection(self.Build.SelectX + dx,self.Build.SelectY + dy)
+		return
+	end
+	if not Input.Key(key) then
+		state.HoldTime,state.RepeatTime = 0,0
+		return
+	end
+	state.HoldTime = state.HoldTime + deltaTime
+	if state.HoldTime >= 0.5 then
+		state.RepeatTime = state.RepeatTime + deltaTime
+		if state.RepeatTime >= 0.08 then
+			state.RepeatTime = state.RepeatTime - 0.08
+			self.Build:MoveSelection(self.Build.SelectX + dx,self.Build.SelectY + dy)
+		end
+	end
+end
+
+---선택한 칸에 현재 BuildSystem API로 설치하며 성공 시에만 인벤토리를 차감합니다.
+function Script:ApplySelection()
+	if self.Build.IsLocked then
+		return
+	end
+	local selection = User.Selection
+	local x,y = self.Build.SelectX,self.Build.SelectY
+	if selection.Type == InventoryType.Tool then
+		local tool = User.Tools[selection.Index]
+		if tool and tool.Action then
+			tool.Action(x,y)
+		end
+	elseif selection.Type == InventoryType.Inventory then
+		local item = User.Inventory[selection.Index]
+		if not item or item.ItemIndex <= 0 or item.ItemCount <= 0 then
+			return
+		end
+		if Grid[x][y].ItemIndex == item.ItemIndex then
+			return
+		end
+		if self.Build:Add(x,y,item.ItemIndex) then
+			InventoryFunction.Place(selection.Index)
+		end
+	end
+end
+
+return Script

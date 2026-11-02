@@ -1,6 +1,13 @@
 -- Run from D:/PixelEngine/Survival with Lua 5.1 / LuaJIT.
 local root = "D:/PixelEngine/Survival/Asset/"
 local paused, events, attacks = false, {}, {}
+local attackIndices = {}
+local attackElements = {}
+local attackRadii = {}
+Entity = {}
+function Entity.CallFunction(id,name,itemIndex)
+    assert(name == "Setting" and itemIndex >= 1)
+end
 EnergyFunction = {}
 function EnergyFunction.SaveBeforeEdit()
 
@@ -35,15 +42,21 @@ function PlayerManager.ExpSlider:SetRange(minimum,maximum)
     self.Maximum = maximum
 end
 BulletManager = {}
-function BulletManager.Create(attack)
+function BulletManager.Create(attack,itemIndex,element,chainCount,explosionRadius)
     attacks[#attacks + 1] = attack
+    attackIndices[#attacks] = itemIndex
+    attackElements[#attacks] = element
+    attackRadii[#attacks] = explosionRadius
 end
 PlayerManager.transform = {}
 GameFlow.Init()
 GameFlow.StartCombat()
 assert(GameFlow.State == "Combat" and not paused and events[#events] == "ShowGridPlay")
-GameFlow.OnEnergyArrived(0.5)
+GameFlow.OnEnergyArrived(0.5,2,"Fire",2,3)
 assert(#attacks == 1 and attacks[1] == 0.5)
+assert(attackIndices[1] == 2)
+assert(attackElements[1] == "Fire")
+assert(attackRadii[1] == 3)
 PlayerManager.AddExp(3)
 assert(GameFlow.State == "Choice" and paused and PlayerManager.Level == 2)
 assert(events[#events] == "BookOpen")
@@ -56,15 +69,14 @@ GameFlow.CompleteBuild()
 assert(GameFlow.State == "Closing" and paused and events[#events] == "BookClose")
 GameFlow.OnBookClosed()
 assert(GameFlow.State == "Combat" and not paused)
--- Excess EXP opens one upgrade at a time, never overlapping Book animations.
+-- Excess EXP grants all choices before a single Grid session.
 PlayerManager.AddExp(10)
-assert(PlayerManager.Level == 3 and GameFlow.State == "Choice")
+assert(PlayerManager.Level == 4 and GameFlow.State == "Choice" and GameFlow.PendingChoices == 2)
 GameFlow.Choose(1)
-GameFlow.CompleteBuild()
-GameFlow.OnBookClosed()
-assert(PlayerManager.Level == 4 and GameFlow.State == "Choice" and paused)
+assert(GameFlow.State == "Choice" and GameFlow.PendingChoices == 1 and paused)
 PlayerManager.Exp = 0
 GameFlow.Choose(1)
+assert(GameFlow.State == "Build" and GameFlow.PendingChoices == 0)
 GameFlow.CompleteBuild()
 GameFlow.OnBookClosed()
 
@@ -95,7 +107,7 @@ function Pool.Disable(name,targetID)
     disabled[targetID] = true
 end
 dofile(root .. "Table/EnergyFunction.lua")
-assert(EnergyFunction.Spawn(1,0.25))
+assert(EnergyFunction.Spawn(1,0.25,0,2,"Electric"))
 Time.SetPaused(true)
 EnergyFunction.Update(10)
 assert(EnergyFunction.Items[1].Progress == 0 and not EnergyFunction.Spawn(1,1))
@@ -103,6 +115,8 @@ Time.SetPaused(false)
 local count = #attacks
 EnergyFunction.Update(2)
 assert(#attacks == count + 1 and attacks[#attacks] == 0.25 and disabled[1])
+assert(attackIndices[#attacks] == 2)
+assert(attackElements[#attacks] == "Electric")
 EnergyFunction.Update(2)
 assert(#attacks == count + 1)
 -- With one connected outlet the distributor forwards one unchanged resource.
@@ -126,8 +140,12 @@ function PlayerManager.transform.position:Direction()
 end
 local configuredID
 Entity = {}
-function Entity.CallFunction(targetID,name,direction)
+function Entity.CallFunction(targetID,name,direction,itemIndex,element)
+    if name == "Setting" then return end
+    if itemIndex == nil then assert(name == "ActiveSetting") return end
     assert(name == "ActiveSetting" and direction.x == 1)
+    assert(itemIndex == 2)
+    assert(element == "Ice")
     configuredID = targetID
 end
 Rigidbody2D = {}
@@ -137,7 +155,7 @@ function Rigidbody2D.Get()
 
     end}
 end
-BulletManager.Create(0.25)
+BulletManager.Create(0.25,2,"Ice")
 assert(configuredID and BulletManager.GetAttack(configuredID) == 0.25)
 BulletManager.Attacks[99] = 0.5
 ffi = {}
@@ -150,8 +168,13 @@ function Rigidbody2D.Get()
         return "Bullet"
     end}
 end
-for _, name in ipairs({"Bat","Skeleton"}) do
+dofile(root .. "Table/AttributeList.lua")
+dofile(root .. "Table/EnemyEffects.lua")
+for index, name in ipairs({"Bat","Skeleton"}) do
     local enemy = dofile(root .. "Script/Entity/Monster/" .. name .. ".pxm")
+    enemy.ID = 200 + index
+    enemy.transform = {position = PVector3(0,0,0)}
+    BulletManager.Hits[99] = nil
     enemy.HP = 3
     enemy.MonsterState = {Hit = 2,Death = 1}
     enemy:OnCollisionEnter(99)
@@ -162,8 +185,9 @@ print("PASS: combat/choice/build/closing, pause, queued levels, energy recycling
 -- Editing must preserve in-flight resources and queue orphaned resources.
 local received = {}
 local onArrival = GameFlow.OnEnergyArrived
-function GameFlow.OnEnergyArrived(attack)
+function GameFlow.OnEnergyArrived(attack,itemIndex)
     received[#received + 1] = attack
+    attackIndices[#received] = itemIndex
 end
 local oldPath = Graph.pathNodes
 Grid[1][2].ItemIndex = 1
@@ -181,7 +205,7 @@ EnergyFunction.Update(1)
 assert(EnergyFunction.Items[movingID] == nil)
 
 Grid[1][2].ItemIndex = 5
-assert(EnergyFunction.Spawn(1,8))
+assert(EnergyFunction.Spawn(1,8,0,2))
 local distributorID = id
 EnergyFunction.Update(0.5)
 assert(EnergyFunction.Items[distributorID].Progress == 20)
@@ -204,6 +228,7 @@ assert(#received == 0 and #EnergyFunction.AttackQueue == 1)
 Time.SetPaused(false)
 EnergyFunction.Update(0.01)
 assert(#received == 1 and received[1] == 8)
+assert(attackIndices[1] == 2)
 EnergyFunction.QueueAttack({Attack = 3})
 EnergyFunction.Update(0.1)
 assert(#received == 1)

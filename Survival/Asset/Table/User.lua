@@ -17,8 +17,24 @@ User = {
             Name = "삭제",
             Content = "z키를 눌러 해당 칸의 데이터를 삭제",
             Texture = "delete",
-            Action = function(x,y) GridFunction.Remove(x,y) end
+            Action = function(x,y)
+                if Grid.BoardID then
+                    local build = Entity.GetScript(Grid.BoardID)
+                    build:Add(x,y,-1)
+                end
+            end
         },
+		{
+			Name = "회전",
+			Content = "Z키를 눌러 선택한 칸을 시계 방향으로 90도 회전",
+			Texture = "Right",
+			Action = function(x,y)
+				if Grid.BoardID then
+					local build = Entity.GetScript(Grid.BoardID)
+					build:Rotate(x,y)
+				end
+			end
+		},
     },
     
     Inventory = 

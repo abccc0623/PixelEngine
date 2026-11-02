@@ -1,61 +1,26 @@
-﻿MonsterManager = {}
+MonsterManager = {Spawned = {}}
 
-GameTimeManager.Waves =
-{
-    -- 1웨이브
-    {
-        duration = 5 * 60,
-        monsters =
-        {
-            {
-                name = "Bat",
-                count = 300/3,
-                spawned = 0,
-            },
-            {
-                name = "Skeleton",
-                count = 300/7,
-                spawned = 0,
-            },
-        }
-    },
-    -- 2웨이브
-    {
-        duration = 5 * 60,
-        monsters =
-        {
-            {
-                name = "Skeleton",
-                count = 300,
-                spawned = 0,
-            },
-            --[[
-            {
-                name = "FastMonster",
-                count = 60,
-                spawned = 0,
-            },
-
-            {
-                name = "TankMonster",
-                count = 20,
-                spawned = 0,
-            }
-            ]]--
-        }
-    }
-}
-
-
-
-function MonsterManager.Init()
-    --Pool.SetExpansionSize("Bat", 100)
+function MonsterManager.ApplyStats(monster,name)
+    local definition = assert(MonsterList[name],"Unknown monster: " .. tostring(name))
+    for key, value in pairs(definition.Stats) do
+        monster[key] = value
+    end
 end
 
+function MonsterManager.Init()
+    MonsterManager.Spawned = {}
+    for _, wave in ipairs(WaveList) do
+        assert(wave.duration > 0,"Wave duration must be positive")
+        for _, entry in ipairs(wave.monsters) do
+            assert(MonsterList[entry.name],"Unknown wave monster: " .. tostring(entry.name))
+            assert(entry.count >= 0 and entry.count == math.floor(entry.count),"Monster count must be a non-negative integer")
+        end
+    end
+end
 
 function MonsterManager.Create(MonsterScriptName,Distance)
     Debug.Log(MonsterScriptName)
-    if PlayerManager.transform ~= nil then 
+    if PlayerManager.transform ~= nil then
         local targetID = Pool.Active(MonsterScriptName)
         Group.Set("MonsterList", targetID)
         local angle = math.random() * math.pi * 2
@@ -68,40 +33,29 @@ function MonsterManager.Create(MonsterScriptName,Distance)
 end
 
 function MonsterManager.Update(DTime)
-    local wave = GameTimeManager.Waves[GameTimeManager.CurrentWave]
-
-    -- 모든 웨이브 종료
-    if wave == nil then
-        return
-    end
-
-    local progress = math.min(GameTimeManager.WaveTime / wave.duration, 1)
-
-    -- 몬스터 종류별 생성
-    for _, monsterData in ipairs(wave.monsters) do
-        local expectedCount = math.floor(progress * monsterData.count)
-
-        while monsterData.spawned < expectedCount do
-            MonsterManager.Create(monsterData.name,20)
-            monsterData.spawned = monsterData.spawned + 1
+    if Time.IsPaused() then return end
+    local wave = WaveList[GameTimeManager.CurrentWave]
+    while wave do
+        local progress = math.min(GameTimeManager.WaveTime / wave.duration,1)
+        for index, monsterData in ipairs(wave.monsters) do
+            local expectedCount = math.floor(progress * monsterData.count)
+            local spawned = MonsterManager.Spawned[index] or 0
+            while spawned < expectedCount do
+                MonsterManager.Create(monsterData.name,20)
+                spawned = spawned + 1
+            end
+            MonsterManager.Spawned[index] = spawned
         end
-    end
-
-    -- 웨이브 종료
-    if GameTimeManager.WaveTime >= wave.duration then
+        if GameTimeManager.WaveTime < wave.duration then return end
         MonsterManager.NextWave()
+        wave = WaveList[GameTimeManager.CurrentWave]
     end
 end
 
 function MonsterManager.NextWave()
-    local previousWave = GameTimeManager.Waves[GameTimeManager.CurrentWave]
-
+    local previousWave = WaveList[GameTimeManager.CurrentWave]
+    if not previousWave then return end
     GameTimeManager.WaveTime = GameTimeManager.WaveTime - previousWave.duration
     GameTimeManager.CurrentWave = GameTimeManager.CurrentWave + 1
-
-    local nextWave = GameTimeManager.Waves[GameTimeManager.CurrentWave]
-
-    if nextWave then
-        for _, monster in ipairs(nextWave.monsters) do monster.spawned = 0 end
-    end
+    MonsterManager.Spawned = {}
 end

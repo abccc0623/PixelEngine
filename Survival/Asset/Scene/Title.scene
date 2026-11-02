@@ -1,48 +1,13 @@
 local Scene = {} 
 
-function Scene:Start() 
-    GameFlow.Init()
-    Engine.BackgroundColor(20, 27, 38)
-    
-    local bookID = Entity.Create("Book")
-    local contentID = Entity.Create("Content")
-    local gridID = Entity.Create("GridEntity")
-    GridFunction.Add(1,1,2)
-    GridFunction.Add(1,12,3)
-    -- 시작점과 끝점 사이에 기본 길을 설치한다.
-    for y = Grid.StartPoint.y + 1, Grid.EndPoint.y - 1 do
-        GridFunction.Add(Grid.StartPoint.x,y,1)
-    end
-    local inventoryID = Entity.Create("InventoryEntity")
-    Entity.Create("GameLogic")
-    GameFlow.StartCombat()
-    --[[
-    
-    --local gridID = Entity.Create("GridEntity")
-    --local inventoryID = Entity.Create("InventoryEntity")
+function Scene:Start()
+   
 
-    -- 테스트용 시작 아이템 지급
-    --for itemIndex = 1, #ItemList do InventoryFunction.Add(itemIndex,20) end
-    GridFunction.Add(1,1,2)
-    GridFunction.Add(1,Grid.height,2)
-    for i = 2, Grid.height - 1 do
-         GridFunction.Add(1,i,1)
-    end
-    
-    
-    local bookTr = Transform.Get(bookID)
-    bookTr:SetChild(contentID)
-    bookTr:SetChild(gridID) 
-    bookTr:SetChild(inventoryID)
-    
-    --Entity.Create("GameLogic")
-    --ChoiceManager.Init()
-    --ChoiceManager.BookOpen()
-    ]]--
 end
 
 
 function Scene:Release()
+
 
 end
 

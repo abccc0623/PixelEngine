@@ -1,5 +1,5 @@
 
-//Ä«¸Ş¶ó °ü·Ã ¹öÆÛ
+//ì¹´ë©”ë¼ ê´€ë ¨ ë²„í¼
 cbuffer CameraBuffer : register(b0)
 {
     float4x4 view;
@@ -7,13 +7,14 @@ cbuffer CameraBuffer : register(b0)
     float4x4 view_proj;
 };
 
-//¿ÀºêÁ§Æ® °ü·Ã ¹öÆÛ
+//ì˜¤ë¸Œì íŠ¸ ê´€ë ¨ ë²„í¼
 cbuffer ObjectBuffer : register(b1)
 {
     float4x4 world;
     float4x4 wvp;
     float4x4 TexMatrix;
     float4 Color;
+    float4 AlphaSettings;
 };
 
 Texture2D MainTexture : register(t0);
@@ -31,13 +32,13 @@ struct PixelInputType
 float4 main(PixelInputType input) : SV_TARGET
 {
   
-    //¹ı¼±ÀÌ ´ÜÀ§º¤ÅÍ°¡ ¾Æ´Ò ¼ö ÀÖÀ¸¹Ç·Î ´Ù½Ã Á¤±ÔÈ­ ÇÑ´Ù.
+    //ë²•ì„ ì´ ë‹¨ìœ„ë²¡í„°ê°€ ì•„ë‹ ìˆ˜ ìˆìœ¼ë¯€ë¡œ ë‹¤ì‹œ ì •ê·œí™” í•œë‹¤.
     //input.NormalW = normalize(input.NormalW);
    
     float4 textureColor = MainTexture.Sample(SampleType, input.UV);
     float4 finalColor = textureColor * input.color * Color;
     
-    if (finalColor.a < 0.1f)
+    if (finalColor.a <= 0.0f || finalColor.a < AlphaSettings.x)
         discard;
     return finalColor;
 }

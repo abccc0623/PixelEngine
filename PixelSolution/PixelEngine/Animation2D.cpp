@@ -9,8 +9,19 @@
 #include "Scene.h"
 #include "SceneManager.h"
 #include "EntityObject.h"
+#include <cmath>
 
 extern PixelEngine* Engine;
+void ApplyAnimationFrame(GraphicsData& graphics, const AnimationFrame& animation)
+{
+	auto& sprite = graphics.renderingData.sprite;
+	sprite.isShared = false;
+	graphics.renderingData.texture_key = animation.textureID;
+	sprite.TilingX = animation.tilingX;
+	sprite.TilingY = animation.tilingY;
+	sprite.OffsetX = animation.startOffsetX + (animation.framesIndex % animation.maxFramesX) * animation.tilingX;
+	sprite.OffsetY = animation.startOffsetY + (animation.framesIndex / animation.maxFramesX) * animation.tilingY;
+}
 Animation2DData* Animation2D_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
@@ -59,12 +70,7 @@ void Animation2D_Play(unsigned int id, int AnimationIndex)
 				const auto& animation = data->selectAnimation;
 				if (animation.maxFramesX > 0 && animation.maxFramesY > 0)
 				{
-					auto& sprite = render->renderingData.sprite;
-					render->renderingData.texture_key = animation.textureID;
-					sprite.TilingX = 1.0f / animation.maxFramesX;
-					sprite.TilingY = 1.0f / animation.maxFramesY;
-					sprite.OffsetX = (animation.framesIndex % animation.maxFramesX) * sprite.TilingX;
-					sprite.OffsetY = (animation.framesIndex / animation.maxFramesX) * sprite.TilingY;
+					ApplyAnimationFrame(*render, animation);
 				}
 			}
 			else
@@ -248,6 +254,8 @@ int Animation2D_Create(unsigned int id, const char* textureName, int MaxFramesX,
 		data->animationArray.emplace_back();
 		data->animationArray[index].maxFramesX = MaxFramesX;
 		data->animationArray[index].maxFramesY = MaxFramesY;
+		data->animationArray[index].tilingX = 1.0f / MaxFramesX;
+		data->animationArray[index].tilingY = 1.0f / MaxFramesY;
 		data->animationArray[index].framesIndex = 0;
 		data->animationArray[index].oneFrameTime = 1.0f / MaxFramesX;
 		data->animationArray[index].nowFrameTime = 0.0f;
@@ -259,4 +267,36 @@ int Animation2D_Create(unsigned int id, const char* textureName, int MaxFramesX,
 		return index;
 	}
 	return 0;
+}
+
+int Animation2D_CreateRegion(unsigned int id, const char* textureName, int startX, int startY, int frameWidth, int frameHeight, int frameCount, float speed)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<Animation2DDList>(id);
+	if (data == nullptr || Engine == nullptr || textureName == nullptr || textureName[0] == '\0' ||
+		startX < 0 || startY < 0 || frameWidth <= 0 || frameHeight <= 0 || frameCount <= 0 || !std::isfinite(speed) || speed <= 0.0f)
+	{
+		PixelLog::Error("[Animation2D][CreateRegion] Invalid component or arguments");
+		return -1;
+	}
+	const auto textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
+	uint32_t width = 0, height = 0;
+	if (!GetGraphicsTextureSize(static_cast<uint16_t>(textureID), &width, &height) || width == 0 || height == 0 ||
+		static_cast<uint32_t>(startX) >= width || static_cast<uint32_t>(startY) >= height ||
+		static_cast<uint32_t>(frameHeight) > height - startY ||
+		static_cast<uint32_t>(frameCount) > (width - startX) / static_cast<uint32_t>(frameWidth))
+	{
+		PixelLog::Error("[Animation2D][CreateRegion] Texture missing or region outside texture");
+		return -1;
+	}
+	const int index = Animation2D_Create(id, textureName, frameCount, 1, speed);
+	auto& animation = data->animationArray[index];
+	animation.tilingX = static_cast<float>(frameWidth) / width;
+	animation.tilingY = static_cast<float>(frameHeight) / height;
+	animation.startOffsetX = static_cast<float>(startX) / width;
+	animation.startOffsetY = static_cast<float>(startY) / height;
+	data->selectAnimation = animation;
+	auto graphics = registry->Get<GraphicsData>(id);
+	if (graphics != nullptr) ApplyAnimationFrame(*graphics, animation);
+	return index;
 }

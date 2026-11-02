@@ -1,0 +1,20 @@
+local Script = {}
+
+function Script:Spawn()
+	self.transform = Transform.Add(self.ID)
+	self.transform:SetParent(Grid.BoardID)
+	self.ui_image = UIImage.Add(self.ID)
+	self.ui_image:SetPivot(0.5,0.5)
+	self.ui_image:SetOrder(1)
+end
+
+---설치된 Grid 인덱스를 저장하고 해당 아이템의 이미지를 설정합니다.
+---@param x number 가로 칸 인덱스
+---@param y number 세로 칸 인덱스
+function Script:Setting(x,y)
+	self.GridX = x
+	self.GridY = y
+	ItemVisual.Apply(self.ui_image,ItemList[Grid[x][y].ItemIndex],18,18,true)
+end
+
+return Script

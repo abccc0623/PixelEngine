@@ -18,16 +18,19 @@ function  Script:Update(DTime)
 	
 end  
 
-function Script:Setting()
-
-
+function Script:Setting(expPoint)
+    self.ExpPoint = expPoint or 1
+    self.Collected = false
 end
 
 function Script:OnCollisionEnter(targetID)
+    if self.Collected then return end
     local targetBody = Rigidbody2D.Get(targetID)
     if targetBody == nil or ffi.string(targetBody:GetLayer()) ~= "Player" then return end
+    self.Collected = true
+    local expPoint = self.ExpPoint or 1
 	Pool.Disable("EXP", self.ID)
-	PlayerManager.AddExp(1)
+	PlayerManager.AddExp(expPoint)
 end
 
 return Script

@@ -13,6 +13,7 @@ ffi.cdef[[
 	void Animation2D_Stop(unsigned int ID);
 	void Animation2D_Reset(unsigned int ID);
 	int Animation2D_Create(unsigned int ID,const char* TextureName,int MaxFrameX,int MaxFrameY,float Speed);
+	int Animation2D_CreateRegion(unsigned int ID,const char* TextureName,int StartX,int StartY,int FrameWidth,int FrameHeight,int FrameCount,float Speed);
 	int Animation2D_GetFrameIndex(unsigned int ID,int AnimationIndex);
 	void Animation2D_SetFrameIndex(unsigned int ID,int AnimationIndex,int FrameIndex);
 	void Animation2D_SetUseUnscaledTime(unsigned int ID,bool UseUnscaledTime);
@@ -43,6 +44,18 @@ end
 ---@return number
 function Animation2DData:Create(TextureName,MaxFrameX,MaxFrameY,Speed)
 	return dll.Animation2D_Create(self.thisID,TextureName,MaxFrameX,MaxFrameY,Speed)
+end
+
+---@param TextureName string
+---@param StartX number
+---@param StartY number
+---@param FrameWidth number
+---@param FrameHeight number
+---@param FrameCount number
+---@param Speed number
+---@return number
+function Animation2DData:CreateRegion(TextureName,StartX,StartY,FrameWidth,FrameHeight,FrameCount,Speed)
+	return dll.Animation2D_CreateRegion(self.thisID,TextureName,StartX,StartY,FrameWidth,FrameHeight,FrameCount,Speed)
 end
 
 ---@param AnimationIndex number

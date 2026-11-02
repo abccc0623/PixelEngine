@@ -7,6 +7,10 @@ struct AnimationFrame
 	int framesIndex;
 	int maxFramesX;
 	int maxFramesY;
+	float tilingX = 1.0f;
+	float tilingY = 1.0f;
+	float startOffsetX = 0.0f;
+	float startOffsetY = 0.0f;
 	int callbackFrame = -1;
 	bool callbackRepeat = false;
 	bool callbackCalled = false;
@@ -44,3 +48,8 @@ extern "C" PIXEL_ENGINEDLL void Animation2D_Stop(unsigned int id);
 extern "C" PIXEL_ENGINEDLL void Animation2D_Reset(unsigned int id);
 extern "C" PIXEL_ENGINEDLL void Animation2D_SetFrameCallback(unsigned int id, int animationIndex, int frameIndex, bool repeat);
 extern "C" PIXEL_ENGINEDLL int Animation2D_Create(unsigned int id, const char* textureName, int MaxFramesX, int MaxFramesY, float speed);
+// Pixel coordinates start at the top-left; frames run horizontally.
+extern "C" PIXEL_ENGINEDLL int Animation2D_CreateRegion(unsigned int id, const char* textureName, int startX, int startY, int frameWidth, int frameHeight, int frameCount, float speed);
+
+struct GraphicsData;
+void ApplyAnimationFrame(GraphicsData& graphics, const AnimationFrame& animation);

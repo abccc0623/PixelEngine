@@ -61,6 +61,10 @@ std::string LuaStaticCreate::CreateFunction(const PixelClassMeta& PClass)
 
 			content += propertys;
 			content += "function " + left + "." + right + "(" + CreateMethodParameter(PClass.methods[i]) + ")\n";
+			if (left == "Tween" && (right == "Move" || right == "PingPong"))
+			{
+				content += "\tEase = Ease or 0\n";
+			}
 			if (returnType == "")
 			{
 				content += "\tdll." + PClass.methods[i].name + "(" + CreateMethodParameter(PClass.methods[i]) + ")\n";
@@ -90,6 +94,8 @@ std::string LuaStaticCreate::CreateFunction(const PixelClassMeta& PClass)
 std::string LuaStaticCreate::CreateEntityScriptAnnotation()
 {
 	std::string content;
+	content += "---@field CreateCamera fun(): CameraData?\n";
+	content += "---@field Create2DImage fun(textureName: string): UIImageData?\n";
 	content += "---@field GetScript fun(ID: number): LuaInstance?\n";
 	content += "---@field SetValue fun(ID: number, variableName: string, value: any): boolean\n";
 	content += "---@field GetValue fun(ID: number, variableName: string): any\n";

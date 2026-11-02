@@ -320,14 +320,14 @@ void LuaManager::AddEntityID(unsigned int id, sol::table target)
 
 void LuaManager::RemoveEntityID(unsigned int id)
 {
-	if (RemoveFunction.valid())
+	// Lua에서 먼저 해제한 ID뿐 아니라 자식과 엔진 직접 삭제의 등록도 정리한다.
+	if (luaManager.valid())
 	{
-		auto result = RemoveFunction(luaManager, id);
-		if (!result.valid())
+		sol::object entitiesObject = luaManager["entities"];
+		if (entitiesObject.is<sol::table>())
 		{
-			sol::error err = result;
-			std::string errorMsg = err.what();
-			PixelLog::Error(errorMsg.c_str());
+			sol::table entities = entitiesObject.as<sol::table>();
+			entities.raw_set(id, sol::nil);
 		}
 	}
 }

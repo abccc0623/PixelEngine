@@ -31,6 +31,7 @@ void ECS::UITextSystem::Update(Registry* registry)
 			target.content[length] = '\0';
 			target.fontKey = data->fontKey;
 			target.scale = data->scale;
+			target.wrapWidth = data->wrapWidth;
 			std::copy(std::begin(data->color), std::end(data->color), target.color);
 		});
 }

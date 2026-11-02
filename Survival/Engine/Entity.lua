@@ -11,6 +11,8 @@ ffi.cdef[[
 ]]
 
 ---@class Entity
+---@field CreateCamera fun(): CameraData?
+---@field Create2DImage fun(textureName: string): UIImageData?
 ---@field GetScript fun(ID: number): LuaInstance?
 ---@field SetValue fun(ID: number, variableName: string, value: any): boolean
 ---@field GetValue fun(ID: number, variableName: string): any

@@ -29,7 +29,7 @@ function UpgradeListFunction.Shuffle()
             if ui.TitleComponent then ui.TitleComponent:SetText(item.Name) end
             if ui.TypeComponent then ui.TypeComponent:SetText(item.ItemType == ItemType.Stat and "[능력치]" or "[설치]") end
             if ui.ContentComponent then ui.ContentComponent:SetText(item.UpgradeContent) end
-            if ui.ImageComponent then ui.ImageComponent:SetTexture(item.Texture) end
+            if ui.ImageComponent then ItemVisual.Apply(ui.ImageComponent,item,26,26,true) end
         end
     end
 end

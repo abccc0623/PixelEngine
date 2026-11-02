@@ -37,6 +37,8 @@ namespace PixelTool
             public int SelectionLength;
             public double VerticalOffset;
             public double HorizontalOffset;
+            public string DiskText;
+            public string DeferredDiskText;
         }
         private readonly Dictionary<string, FileState> files = new Dictionary<string, FileState>(StringComparer.OrdinalIgnoreCase);
         private FileState activeFile;
@@ -68,6 +70,7 @@ namespace PixelTool
             LuaEditor.PreviewMouseWheel += LuaEditor_PreviewMouseWheel;
             ApplyLuaSyntaxHighlighting();
             LuaEditor.IsReadOnly = true;
+            InitializeExternalFileRefresh();
         }
 
         private void LuaLspService_DiagnosticsPublished(PublishDiagnosticParams parameters)
@@ -149,6 +152,7 @@ namespace PixelTool
                 if (!files.TryGetValue(path, out var file))
                 {
                     file = new FileState { Path = path, Document = new TextDocument(File.ReadAllText(path)) };
+                    file.DiskText = file.Document.Text;
                     file.Document.UndoStack.MarkAsOriginalFile();
                     file.Document.UndoStack.PropertyChanged += (_, args) =>
                     {
@@ -171,6 +175,43 @@ namespace PixelTool
             catch (Exception ex) { PixelMessageBox.Show(ex.Message, "파일 열기 실패", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
 
+        public void UpdateMovedFilePaths(string oldPath, string newPath)
+        {
+            oldPath = Path.GetFullPath(oldPath);
+            newPath = Path.GetFullPath(newPath);
+            foreach (var file in new List<FileState>(files.Values))
+            {
+                if (!AssetFileOperations.IsInside(file.Path,oldPath)) continue;
+                string previous = file.Path;
+                string moved = Path.GetFullPath(Path.Combine(newPath,Path.GetRelativePath(oldPath,previous)));
+                if (files.ContainsKey(moved) && !moved.Equals(previous,StringComparison.OrdinalIgnoreCase)) continue;
+                files.Remove(previous);
+                file.Path = moved;
+                files[moved] = file;
+                file.Tab.ToolTip = moved;
+                file.Label.Text = Path.GetFileName(moved) + (file.Document.UndoStack.IsOriginalFile ? "" : "*");
+                if (file == activeFile)
+                {
+                    targetPath = moved;
+                    completionWindow?.Close();
+                    documentSync = NotifyMovedFileAsync(documentSync,previous,moved,file.Document.Text);
+                }
+            }
+            UpdateFileStatus();
+        }
+
+        private async Task NotifyMovedFileAsync(Task previous, string oldPath, string newPath, string text)
+        {
+            try
+            {
+                await previous;
+                await lspReady;
+                await luaLspService.NotifyFileCloseAsync(oldPath);
+                if (targetPath == newPath) await luaLspService.NotifyFileOpenAsync(newPath,text);
+            }
+            catch (Exception ex) { ConsoleWindow.LogMessage("File move sync failed: " + ex.Message,2); }
+        }
+
         private async void FileTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.Source != FileTabs) return;
@@ -185,6 +226,7 @@ namespace PixelTool
             }
             switchingFile = true;
             activeFile = (FileTabs.SelectedItem as TabItem)?.Tag as FileState;
+            if (activeFile != null) activeFile.DeferredDiskText = null;
             targetPath = activeFile?.Path ?? "";
             LuaEditor.Document = activeFile?.Document ?? new TextDocument();
             LuaEditor.IsReadOnly = activeFile == null;
@@ -214,7 +256,9 @@ namespace PixelTool
             if (file == null) return false;
             try
             {
+                if (!CheckExternalFile(file, true)) return false;
                 File.WriteAllText(file.Path, file.Document.Text);
+                file.DiskText = file.Document.Text;
                 file.Document.UndoStack.MarkAsOriginalFile();
                 file.Label.Text = Path.GetFileName(file.Path);
                 UpdateFileStatus();
@@ -247,6 +291,7 @@ namespace PixelTool
 
         public void DisposeLanguageService()
         {
+            externalFileTimer.Stop();
             LuaDebugSession.StateChanged -= UpdateDebugStatus;
             completionWindow?.Close();
             luaLspService.DiagnosticsPublished -= LuaLspService_DiagnosticsPublished;
@@ -284,6 +329,7 @@ namespace PixelTool
 
         private async Task RequestCurrentCompletionAsync(string trigger)
         {
+            if (LuaEditor.TextArea.Selection is RectangleSelection) return;
             string path = CurrentFilePath;
             var document = LuaEditor.Document;
             int line = LuaEditor.TextArea.Caret.Line - 1;
@@ -291,7 +337,8 @@ namespace PixelTool
             string text = document.Text;
             await lspReady;
             await documentSync;
-            if (document != LuaEditor.Document || path != CurrentFilePath || text != document.Text ||
+            if (LuaEditor.TextArea.Selection is RectangleSelection ||
+                document != LuaEditor.Document || path != CurrentFilePath || text != document.Text ||
                 line != LuaEditor.TextArea.Caret.Line - 1 || column != LuaEditor.TextArea.Caret.Column - 1) return;
             await luaLspService.RequestCompletionAsync(trigger,line,column);
         }
@@ -312,6 +359,12 @@ namespace PixelTool
 
         private void luaEditor_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Escape && LuaEditor.TextArea.Selection is RectangleSelection)
+            {
+                LuaEditor.TextArea.ClearSelection();
+                e.Handled = true;
+                return;
+            }
             if (e.Key == Key.F9)
             {
                 ToggleBreakpoint(LuaEditor.TextArea.Caret.Line);
@@ -322,11 +375,24 @@ namespace PixelTool
 
             bool isCtrlPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
             bool isAltPressed = (Keyboard.Modifiers & ModifierKeys.Alt) != 0;
+            bool isShiftPressed = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
+            Key key = e.Key == Key.System ? e.SystemKey : e.Key;
 
-            if (isAltPressed && (e.SystemKey == Key.Up || e.SystemKey == Key.Down))
+            if (isAltPressed && !isCtrlPressed && (key == Key.Up || key == Key.Down))
             {
                 e.Handled = true;
-                MoveSelectedLines(e.SystemKey == Key.Up ? -1 : 1);
+                if (isShiftPressed)
+                {
+                    completionWindow?.Close();
+                    var command = key == Key.Up
+                        ? RectangleSelection.BoxSelectUpByLine
+                        : RectangleSelection.BoxSelectDownByLine;
+                    command.Execute(null, LuaEditor.TextArea);
+                }
+                else
+                {
+                    MoveSelectedLines(key == Key.Up ? -1 : 1);
+                }
                 return;
             }
 
@@ -569,6 +635,22 @@ namespace PixelTool
         {
             string content = LuaFileManager.GetBlockByMarker("CreateCollider", "RigidBody");
             LuaEditor.Document.Insert(LuaEditor.CaretOffset, content + "\n\n");
+        }
+
+        private void Create_Function(object sender, RoutedEventArgs e)
+        {
+            if (LuaEditor.IsReadOnly || LuaEditor.Document == null) return;
+
+            string content = LuaFileManager.GetBlockByMarker("EventFunction", "CreateFunction");
+            if (string.IsNullOrWhiteSpace(content)) return;
+            int offset = LuaEditor.CaretOffset;
+            string newline = TextUtilities.GetNewLineFromDocument(LuaEditor.Document, LuaEditor.TextArea.Caret.Line);
+            content = TextUtilities.NormalizeNewLines(content, newline);
+            LuaEditor.Document.Insert(offset, content + newline + newline);
+            LuaEditor.Focus();
+            int nameOffset = content.IndexOf("FunctionName", StringComparison.Ordinal);
+            if (nameOffset >= 0)
+                LuaEditor.Select(offset + nameOffset, "FunctionName".Length);
         }
 
         private void Create_CollisionEnter(object sender, RoutedEventArgs e)

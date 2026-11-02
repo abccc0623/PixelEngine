@@ -30,9 +30,14 @@ function PlayerManager.AddExp(expPoint)
 end
 
 function PlayerManager.CheckLevelUp()
-    if GameFlow.State == "Combat" and PlayerManager.Exp >= PlayerManager.ExpMax then
-        PlayerManager.Exp = PlayerManager.Exp - PlayerManager.ExpMax
-        PlayerManager.LevelUp()
+    if GameFlow.State == "Combat" or GameFlow.State == "Choice" then
+        local count = 0
+        while PlayerManager.Exp >= PlayerManager.ExpMax do
+            PlayerManager.Exp = PlayerManager.Exp - PlayerManager.ExpMax
+            PlayerManager.LevelUp()
+            count = count + 1
+        end
+        if count > 0 then GameFlow.BeginUpgrade(count) end
     end
     PlayerManager.ExpSlider:SetValue(PlayerManager.Exp)
 end
@@ -41,10 +46,11 @@ function PlayerManager.LevelUp()
     PlayerManager.Level = PlayerManager.Level + 1
     PlayerManager.ExpMax = math.floor(PlayerManager.ExpMax * EXP_GROWTH_RATE)
     PlayerManager.ExpSlider:SetRange(0, PlayerManager.ExpMax)
-    GameFlow.BeginUpgrade()
 end
 
-function PlayerManager.Attack(attack)
-    if PlayerManager.transform == nil then return end
-    BulletManager.Create(attack)
+function PlayerManager.Attack(attack,itemIndex)
+	if PlayerManager.transform == nil then
+		return
+	end
+	BulletManager.Create(attack,itemIndex)
 end

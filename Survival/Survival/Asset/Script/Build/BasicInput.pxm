@@ -1,0 +1,64 @@
+local Script = {}
+
+function Script:Spawn()
+	self.transform = Transform.Add(self.ID)
+	self.transform:SetParent(Grid.BoardID)
+	self.ui_image = UIImage.Add(self.ID)
+	self.ui_image:SetPivot(0.5,0.5)
+	self.ui_image:SetOrder(1)
+	self.Interval = 1
+	self.ResourceIndex = 1
+	self.Elapsed = 0
+	self:SetDirection(0)
+end
+
+---생성기의 Grid 인덱스를 저장하고 아이템 이미지를 설정합니다.
+---@param x number 가로 Grid 인덱스
+---@param y number 세로 Grid 인덱스
+function Script:Setting(x,y)
+	self.GridX = x
+	self.GridY = y
+	self.Elapsed = 0
+	local item = ItemList[Grid[x][y].ItemIndex]
+	local visual = {
+		Texture = item.Texture,
+		StartX = 192,
+		StartY = 0,
+		FrameWidth = 24,
+		FrameHeight = 24,
+		FrameCount = 8,
+		AnimationSpeed = 1,
+	}
+	ItemVisual.Apply(self.ui_image,visual,18,18,true)
+end
+
+---출력 방향을 설정합니다. 0도는 오른쪽, 90도는 아래쪽입니다.
+---@param angle number 90도 단위 회전 각도
+---@return boolean success 유효한 각도이면 true
+function Script:SetDirection(angle)
+	if type(angle) ~= "number" or angle % 90 ~= 0 then
+		return false
+	end
+	self.Direction = angle % 360
+	local outputs = {{1,0},{0,1},{-1,0},{0,-1}}
+	local output = outputs[self.Direction / 90 + 1]
+	self.OutPut = PVector2(output[1],output[2])
+	self.transform.rotation.z = self.Direction
+	return true
+end
+
+---BuildSystem이 선택한 게임 시간 또는 테스트 시간으로 생산을 진행합니다.
+function Script:Tick(DTime)
+	if not self.GridX or not self.GridY or DTime <= 0 then
+		return
+	end
+	self.Elapsed = self.Elapsed + DTime
+	if self.Elapsed < self.Interval then
+		return
+	end
+	-- 길이 없거나 자리가 없으면 input이 false를 반환하며, 생산 요청은 쌓지 않는다.
+	self.Elapsed = self.Elapsed % self.Interval
+	RoadTransport.input(self.GridX + self.OutPut.x,self.GridY + self.OutPut.y,self.ResourceIndex,self.GridX,self.GridY)
+end
+
+return Script

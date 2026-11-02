@@ -362,6 +362,8 @@ JPH::BodyID PhysManager::CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DDa
 
 void PhysManager::DebugDraw(JPH::BodyID id)
 {
+	if (Engine == nullptr || !Engine->IsTool) return;
+
 	JPH::ShapeRefC rootShape = mBodyInterface->GetShape(id);
 	if (rootShape == nullptr) return;
 

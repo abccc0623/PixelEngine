@@ -1,0 +1,20 @@
+﻿local Script = {}
+function Script:Spawn()
+     self.transform = Transform.Add(self.ID)
+    self.transform.position = PVector3((1920 * 0.5) - 125, 30, 0)
+
+    self.font = UIText.Add(self.ID)
+    self.font:SetText("00:00.0")
+    self.font:SetTextSize(1.75)
+    self.font:SetFont("Jalnan2TTF")
+
+end
+
+function Script:Update(DTime)
+    local minutes = math.floor(GameTimeManager.Time / 60)
+    local seconds = GameTimeManager.Time % 60
+    local text = string.format("%02d:%04.1f", minutes, seconds)
+    self.font:SetText(text)
+end
+
+return Script

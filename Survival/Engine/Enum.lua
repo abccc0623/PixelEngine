@@ -4,6 +4,8 @@ ffi.cdef[[
 	typedef int Keycode;
 	typedef int MotionType;
 	typedef int ProjectionType;
+	typedef int TweenEase;
+	typedef int TweenProperty;
 ]]
 
 ---@enum Keycode
@@ -118,8 +120,31 @@ ProjectionType = {
 	Orthographic = 1,
 }
 
+---@enum TweenEase
+TweenEase = {
+	Linear = 0,
+	In = 1,
+	Out = 2,
+	InOut = 3,
+}
+
+---@enum TweenProperty
+TweenProperty = {
+	PositionX = 0,
+	PositionY = 1,
+	PositionZ = 2,
+	RotationX = 3,
+	RotationY = 4,
+	RotationZ = 5,
+	ScaleX = 6,
+	ScaleY = 7,
+	ScaleZ = 8,
+}
+
 return {
 	Keycode = Keycode,
 	MotionType = MotionType,
 	ProjectionType = ProjectionType,
+	TweenEase = TweenEase,
+	TweenProperty = TweenProperty,
 }

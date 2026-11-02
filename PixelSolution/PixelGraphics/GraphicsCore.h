@@ -35,6 +35,7 @@ namespace PixelGraphics
 		ID3D11DepthStencilView* GetDepthStencilView() const;
 		ID3D11DepthStencilState* GetDepthEnabledState() const;
 		ID3D11DepthStencilState* GetDepthDisabledState() const;
+		ID3D11DepthStencilState* GetDepthReadOnlyState() const;
 		ID3D11BlendState* GetAlphaBlendState() const;
 
 		int GetClientWidth() const;
@@ -73,6 +74,7 @@ namespace PixelGraphics
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthEnabledState;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthDisabledState;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthReadOnlyState;
 		Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBlendState;
 
 		DirectX::SimpleMath::Matrix view = DirectX::SimpleMath::Matrix::Identity;

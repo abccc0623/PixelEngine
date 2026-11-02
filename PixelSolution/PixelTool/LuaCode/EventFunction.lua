@@ -1,3 +1,13 @@
+--#BEGIN_TABLE CreateFunction
+---함수 설명을 입력하세요.
+---@param value any 매개변수 설명
+---@return any result 반환값 설명
+function Script:FunctionName(value)
+
+
+end
+--#END_TABLE CreateFunction
+
 function Script:KeyDownEvent(KeyCode)  
 	--if KeyCode == 'W' then
 	--self.transfrom.Position.X = 1	

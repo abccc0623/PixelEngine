@@ -11,6 +11,7 @@ ffi.cdef[[
 	bool UIText_Has(unsigned int ID);
 	void UIText_SetText(unsigned int ID,const char* Text);
 	void UIText_SetTextSize(unsigned int ID,float Scale);
+	void UIText_SetWrapWidth(unsigned int ID,float Width);
 	void UIText_SetFont(unsigned int ID,const char* FontName);
 	void UIText_SetColor(unsigned int ID,float R,float G,float B,float A);
 	void UIText_SetPivot(unsigned int ID,float X,float Y);
@@ -27,6 +28,11 @@ end
 ---@param Scale number
 function UITextData:SetTextSize(Scale)
 	return dll.UIText_SetTextSize(self.thisID,Scale)
+end
+
+---@param Width number
+function UITextData:SetWrapWidth(Width)
+	return dll.UIText_SetWrapWidth(self.thisID,Width)
 end
 
 ---@param FontName string

@@ -1,0 +1,73 @@
+local Scene = {}
+
+function Scene:Start()
+	Time.SetPaused(false)
+	--Engine.BackgroundColor(20,27,38)
+	Engine.BackgroundColor(255,255,255)
+	
+	
+	local camera = Entity.CreateCamera()
+	camera.ViewportX = 0
+    camera.ViewportY = 0
+    camera.ViewportWidth = 1920
+    camera.ViewportHeight = 1080
+    camera.Projection = ProjectionType.Orthographic
+    camera.ZoomLevel = 50
+    
+	-- 빌드 테스트는 잠시 비활성화한다.
+	--[[
+    local buildSystem = Entity.Create("BuildSystem")
+	local buildTabel = Entity.GetScript(buildSystem)
+	
+	-- 같은 열에서 입구부터 출구까지 아래 방향으로 연결한다.
+	local x = 6
+	buildTabel:Add(x,1,2)
+	Grid[x][1].Script:SetDirection(90)
+	for y = 2, Grid.height - 1 do
+		buildTabel:Add(x,y,1)
+		local road = Grid[x][y].Script
+		road.Input = PVector2(0,-1)
+		road.OutPut = PVector2(0,1)
+	end
+	buildTabel:Add(x,Grid.height,3)
+	Grid[x][Grid.height].Script:SetDirection(90)
+	-- 두 번째 입구에서 길 한 칸을 거쳐 기존 세로 길의 중간에 붙인다.
+	buildTabel:Add(4,6,2)
+	Grid[4][6].Script:SetDirection(0)
+	buildTabel:Add(5,6,1)
+	Grid[5][6].Script.Input = PVector2(-1,0)
+	Grid[5][6].Script.OutPut = PVector2(1,0)
+	Grid.RebuildRoadGroups()
+	]]
+	local bookID = Entity.Create("LevelUpBook")
+	local book = Entity.GetScript(bookID)
+	local build = Entity.GetScript(Grid.BoardID)
+	build:Add(1,1,2)
+	build:Add(math.floor((Grid.width + 1) / 2),math.floor((Grid.height + 1) / 2),3)
+	InventoryFunction.Add(1,10)
+	book:Show()
+	
+	
+	--[[
+	Time.SetPaused(false)
+	local cameraID = Entity.CreateEmpty()
+	local transform = Transform.Add(cameraID)
+	transform.position = PVector3(0,0,-20)
+	local camera = Camera.Add(cameraID)
+	camera.ViewportX = 0
+	camera.ViewportY = 0
+	camera.ViewportWidth = 1920
+	camera.ViewportHeight = 1080
+	camera.Projection = ProjectionType.Orthographic
+	camera.ZoomLevel = 50
+	
+	
+	]]--
+end
+
+function Scene:Release()
+
+
+end
+
+return Scene

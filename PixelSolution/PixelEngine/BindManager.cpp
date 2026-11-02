@@ -20,6 +20,7 @@
 #include "Entity.h"
 #include "Event.h"
 #include "Group.h"
+#include "Tween.h"
 #include "Pool.h"
 #include "Debug.h"
 #include "TimeAPI.h"
@@ -130,6 +131,9 @@ static void RegisterComponentData()
 	AddGlobalMethod(GlobalRenderer2D, name + "_Has", info_Has, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalRenderer2D, "Renderer2D_SetTexture", info_SetTextrue, EngineMetaFlag::Component);
 	AddGlobalMethod(GlobalRenderer2D, "Renderer2D_SetColor", info_SetColor, EngineMetaFlag::Component);
+	auto info_SetTransparent = GeGlobalMethodInfo(&Renderer2D_SetTransparent);
+	info_SetTransparent.memberName = { "ID", "Transparent" };
+	AddGlobalMethod(GlobalRenderer2D, "Renderer2D_SetTransparent", info_SetTransparent, EngineMetaFlag::Component);
 
 	name = "UIImage";
 	Data = CreateLuaMetaClass(name + "Data", EngineMetaFlag::ComponentData);
@@ -206,6 +210,8 @@ static void RegisterComponentData()
 	auto info_SetTextSize = GeGlobalMethodInfo(&UIText_SetTextSize);
 	info_SetTextSize.memberName.push_back("ID");
 	info_SetTextSize.memberName.push_back("Scale");
+	auto info_SetWrapWidth = GeGlobalMethodInfo(&UIText_SetWrapWidth);
+	info_SetWrapWidth.memberName = { "ID", "Width" };
 	auto info_SetFont = GeGlobalMethodInfo(&UIText_SetFont);
 	info_SetFont.memberName.push_back("ID");
 	info_SetFont.memberName.push_back("FontName");
@@ -224,6 +230,7 @@ static void RegisterComponentData()
 	AddGlobalMethod(Static, name + "_Has", info_Has, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetText", info_SetText, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetTextSize", info_SetTextSize, EngineMetaFlag::Component);
+	AddGlobalMethod(Static, name + "_SetWrapWidth", info_SetWrapWidth, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetFont", info_SetFont, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetColor", info_UITextSetColor, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_SetPivot", info_UITextSetPivot, EngineMetaFlag::Component);
@@ -326,6 +333,9 @@ static void RegisterComponentData()
 	AddGlobalMethod(Static, name + "_Stop", info_Stop, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_Reset", info_Reset, EngineMetaFlag::Component);
 	AddGlobalMethod(Static, name + "_Create", info_Create, EngineMetaFlag::Component);
+	auto info_CreateRegion = GeGlobalMethodInfo(&Animation2D_CreateRegion);
+	info_CreateRegion.memberName = { "ID", "TextureName", "StartX", "StartY", "FrameWidth", "FrameHeight", "FrameCount", "Speed" };
+	AddGlobalMethod(Static, name + "_CreateRegion", info_CreateRegion, EngineMetaFlag::Component);
 	auto info_GetFrameIndex = GeGlobalMethodInfo(&Animation2D_GetFrameIndex);
 	info_GetFrameIndex.memberName.push_back("ID");
 	info_GetFrameIndex.memberName.push_back("AnimationIndex");
@@ -627,6 +637,24 @@ void BindManager::Initialize()
 	PoolSetExpansionSize.memberName.push_back("CreateCount");
 	AddGlobalMethod(globalPool, "Pool_SetExpansionSize", PoolSetExpansionSize, EngineMetaFlag::Class);
 
+	//Tween
+	PStatic* globalTween = CreateLuaMetaStatic("Tween", EngineMetaFlag::Class);
+	auto tweenPingPong = GeGlobalMethodInfo(&Tween_PingPong);
+	tweenPingPong.memberName = { "ID", "Property", "MinValue", "MaxValue", "Duration", "UseUnscaledTime", "Ease" };
+	AddGlobalMethod(globalTween, "Tween_PingPong", tweenPingPong, EngineMetaFlag::Class);
+	auto tweenMove = GeGlobalMethodInfo(&Tween_Move);
+	tweenMove.memberName = { "ID", "Property", "StartValue", "EndValue", "Duration", "UseUnscaledTime", "Ease" };
+	AddGlobalMethod(globalTween, "Tween_Move", tweenMove, EngineMetaFlag::Class);
+	auto tweenPause = GeGlobalMethodInfo(&Tween_Pause);
+	tweenPause.memberName = { "ID", "Property" };
+	AddGlobalMethod(globalTween, "Tween_Pause", tweenPause, EngineMetaFlag::Class);
+	auto tweenResume = GeGlobalMethodInfo(&Tween_Resume);
+	tweenResume.memberName = { "ID", "Property" };
+	AddGlobalMethod(globalTween, "Tween_Resume", tweenResume, EngineMetaFlag::Class);
+	auto tweenKill = GeGlobalMethodInfo(&Tween_Kill);
+	tweenKill.memberName = { "ID", "Property" };
+	AddGlobalMethod(globalTween, "Tween_Kill", tweenKill, EngineMetaFlag::Class);
+
 	//Group
 	PStatic* globalGroup = CreateLuaMetaStatic("Group", EngineMetaFlag::Class);
 	auto CreateGroupAndEntity = GeGlobalMethodInfo(&Group_CreateGroupAndEntity);
@@ -680,6 +708,21 @@ void BindManager::Release()
 void BindManager::BindEnum()
 {
 	PEnum* globalEnum = nullptr;
+	globalEnum = CreateNewEnum("TweenProperty");
+	AddEnum(globalEnum, "PositionX");
+	AddEnum(globalEnum, "PositionY");
+	AddEnum(globalEnum, "PositionZ");
+	AddEnum(globalEnum, "RotationX");
+	AddEnum(globalEnum, "RotationY");
+	AddEnum(globalEnum, "RotationZ");
+	AddEnum(globalEnum, "ScaleX");
+	AddEnum(globalEnum, "ScaleY");
+	AddEnum(globalEnum, "ScaleZ");
+	globalEnum = CreateNewEnum("TweenEase");
+	AddEnum(globalEnum, "Linear");
+	AddEnum(globalEnum, "In");
+	AddEnum(globalEnum, "Out");
+	AddEnum(globalEnum, "InOut");
 	//globalEnum = CreateNewEnum("EventType");
 	//AddEnum(globalEnum, "KeyUp");
 	//AddEnum(globalEnum, "KeyDown");

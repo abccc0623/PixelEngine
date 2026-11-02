@@ -20,11 +20,14 @@ Renderer2DData* Renderer2D_Add(unsigned int id)
 	auto graphics = registry->Get<GraphicsData>(id);
 	graphics->renderingData.renderType = RENDER_TYPE::QUAD;
 	graphics->renderingData.passType = PASS_TYPE::SCENE;
+	graphics->renderingData.transparent = false;
 	graphics->renderingData.sprite.Order = 0;
 	graphics->renderingData.sprite.TilingX = 1.0f;
 	graphics->renderingData.sprite.TilingY = 1.0f;
 	graphics->renderingData.sprite.OffsetX = 0.0f;
 	graphics->renderingData.sprite.OffsetY = 0.0f;
+	graphics->renderingData.sprite.pivotX = 0.5f;
+	graphics->renderingData.sprite.pivotY = 0.5f;
 	graphics->renderingData.sprite.color[0] = 1.0f;
 	graphics->renderingData.sprite.color[1] = 1.0f;
 	graphics->renderingData.sprite.color[2] = 1.0f;
@@ -94,4 +97,16 @@ void Renderer2D_SetColor(unsigned int id, float r, float g, float b, float a)
 	graphics->renderingData.sprite.color[1] = normalizeColor(g);
 	graphics->renderingData.sprite.color[2] = normalizeColor(b);
 	graphics->renderingData.sprite.color[3] = normalizeColor(a);
+}
+
+void Renderer2D_SetTransparent(unsigned int id, bool transparent)
+{
+	auto registry = GetRegistry();
+	auto graphics = registry->Get<GraphicsData>(id);
+	if (graphics == nullptr || !registry->Has<Renderer2DData>(id))
+	{
+		PixelLog::Error("[Renderer2D][SetTransparent] Not Find Component");
+		return;
+	}
+	graphics->renderingData.transparent = transparent;
 }

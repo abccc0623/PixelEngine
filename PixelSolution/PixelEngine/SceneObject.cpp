@@ -12,6 +12,8 @@
 #include "GroupManager.h"
 #include "PoolManager.h"
 #include "EventManager.h"
+#include "TweenManager.h"
+#include "TimeAPI.h"
 
 extern PixelEngine* Engine;
 extern SceneChangeCallbackFunc g_SceneObjectChangeCallBack;
@@ -37,6 +39,7 @@ void SceneObject::Initialize(const std::string& luaPath, const std::string& name
 	group = new ECS::GroupManager();
 	pool = new ECS::PoolManager();
 	event = new ECS::EventManager();
+	tween = new ECS::TweenManager();
 }
 
 
@@ -58,6 +61,10 @@ void SceneObject::Update()
 	{
 		info->Update();
 	}
+	if (IsPlayMode())
+	{
+		tween->Update(registry,Time_GetDeltaTime(),Time_GetUnscaledDeltaTime());
+	}
 	system->Update(registry);
 }
 
@@ -71,6 +78,9 @@ void SceneObject::Release()
 	group->Release();
 	pool->Release();
 	event->Release();
+	tween->Clear();
+	delete tween;
+	tween = nullptr;
 
 	delete registry;
 	delete system;
@@ -182,6 +192,7 @@ void SceneObject::DestroyEntityHierarchy(uint32_t id, std::unordered_set<uint32_
 		lua->RemoveEntityID(id);
 	}
 	group->RemoveFromAll(id);
+	tween->RemoveFromAll(id);
 	registry->Remove(id);
 	Chunked.Remove(ECS::ChunkedID(id));
 }
@@ -208,4 +219,9 @@ ECS::EventManager* SceneObject::GetEventManager()
 ECS::GroupManager* SceneObject::GetGroupManager()
 {
 	return group;
+}
+
+ECS::TweenManager* SceneObject::GetTweenManager()
+{
+	return tween;
 }

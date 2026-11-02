@@ -5,6 +5,7 @@
 #include "Graphics.h"
 #include <algorithm>
 #include <cstring>
+#include <cmath>
 #include "PixelEngine.h"
 #include "ResourceManager.h"
 extern PixelEngine* Engine;
@@ -23,6 +24,7 @@ UITextData* UIText_Add(unsigned int id)
 	graphicsData->renderingData.passType = PASS_TYPE::UI;
 	graphicsData->renderingData.text.pivotX = 0.0f;
 	graphicsData->renderingData.text.pivotY = 0.0f;
+	graphicsData->renderingData.text.wrapWidth = data->wrapWidth;
 	graphicsData->renderingData.text.color[0] = 1.0f;
 	graphicsData->renderingData.text.color[1] = 1.0f;
 	graphicsData->renderingData.text.color[2] = 1.0f;
@@ -85,6 +87,21 @@ void UIText_SetTextSize(unsigned int id, float scale)
 	{
 		PixelLog::Error("[Renderer2D][SetTextSize] Not Find Component");
 	}
+}
+
+void UIText_SetWrapWidth(unsigned int id, float width)
+{
+	auto registry = GetRegistry();
+	auto data = registry->Get<UITextData>(id);
+	auto graphics = registry->Get<GraphicsData>(id);
+	if (data == nullptr || graphics == nullptr)
+	{
+		PixelLog::Error("[UIText][SetWrapWidth] Not Find Component");
+		return;
+	}
+	// 0 이하 또는 유효하지 않은 값은 기존처럼 자동 줄바꿈을 사용하지 않는다.
+	data->wrapWidth = std::isfinite(width) && width > 0.0f ? width : 0.0f;
+	graphics->renderingData.text.wrapWidth = data->wrapWidth;
 }
 
 void UIText_SetPivot(unsigned int id, float x, float y)

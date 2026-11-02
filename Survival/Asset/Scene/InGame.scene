@@ -1,0 +1,32 @@
+local Scene = {}
+
+function Scene:Start()
+    GameFlow.Init()
+	local build = Entity.GetScript(Entity.Create("BuildSystem"))
+    Engine.BackgroundColor(20,27,38)
+	--Engine.BackgroundColor(255,255,255)
+
+    Entity.Create("Book")
+    Entity.Create("Content")
+	build:Add(6,1,2)
+	Grid[6][1].Script:SetDirection(90)
+	build:Add(6,12,3)
+	Grid[6][12].Script:SetDirection(90)
+	for y = 2,11 do
+		build:Add(6,y,1)
+		Grid[6][y].Script.Input = PVector2(0,-1)
+		Grid[6][y].Script.OutPut = PVector2(0,1)
+	end
+	Grid.RebuildRoadGroups()
+    Entity.Create("InventoryEntity")
+    InventoryFunction.Add(1,30)
+    Entity.Create("GameLogic")
+    GameFlow.StartCombat()
+end
+
+function Scene:Release()
+
+
+end
+
+return Scene

@@ -1,4 +1,4 @@
-//Ä«¸Ş¶ó °ü·Ã ¹öÆÛ
+//ì¹´ë©”ë¼ ê´€ë ¨ ë²„í¼
 cbuffer CameraBuffer : register(b0)
 {
     float4x4 view;
@@ -6,13 +6,14 @@ cbuffer CameraBuffer : register(b0)
     float4x4 view_proj;
 };
 
-//¿ÀºêÁ§Æ® °ü·Ã ¹öÆÛ
+//ì˜¤ë¸Œì íŠ¸ ê´€ë ¨ ë²„í¼
 cbuffer ObjectBuffer : register(b1)
 {
     float4x4 world;
     float4x4 wvp;
     float4x4 TexMatrix;
     float4 Color;
+    float4 AlphaSettings;
 };
 
 Texture2D MainTexture : register(t0);

@@ -183,6 +183,7 @@
             Grid.Row="2">
             <avalonedit:TextEditor.ContextMenu>
                 <ContextMenu Style="{StaticResource LuaEditorContextMenuStyle}">
+                    <MenuItem Header="CreateFunction" Style="{StaticResource LuaEditorMenuItemStyle}" Click="Create_Function"/>
                     <MenuItem Header="Create Event" Style="{StaticResource LuaEditorMenuItemStyle}">
                         <MenuItem Header="OnCollisionEnter" Style="{StaticResource LuaEditorMenuItemStyle}" Click="Create_CollisionEnter"/>
                         <MenuItem Header="OnCollisionExit" Style="{StaticResource LuaEditorMenuItemStyle}" Click="Create_CollisionExit"/>

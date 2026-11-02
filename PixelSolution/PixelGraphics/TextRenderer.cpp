@@ -169,11 +169,20 @@ void PixelGraphics::TextRenderer::DrawText(const RenderingData& data)
 		}
 
 		const char32_t codepoint = text[textIndex];
+		if (codepoint == U'\r') continue;
 		if (codepoint == U'\n') { cursorX = 0.0f; cursorY += font->lineHeight * scale; textHeight += font->lineHeight * scale; continue; }
 		auto found = font->glyphs.find(codepoint);
 		if (found == font->glyphs.end()) found = font->glyphs.find(U'?');
 		if (found == font->glyphs.end() || vertices.size() / 4 >= MaxGlyphCount) continue;
 		const auto& glyph = found->second;
+		// 글자 개수가 아닌 실제 advance와 가시 영역으로 로컬 폭을 검사한다.
+		const float glyphRight = (std::max)(glyph.advance, glyph.offsetX + glyph.width) * scale;
+		if (data.text.wrapWidth > 0.0f && cursorX > 0.0f && cursorX + glyphRight > data.text.wrapWidth)
+		{
+			cursorX = 0.0f;
+			cursorY += font->lineHeight * scale;
+			textHeight += font->lineHeight * scale;
+		}
 		const float x0 = cursorX + glyph.offsetX * scale, y0 = cursorY + glyph.offsetY * scale;
 		const float x1 = x0 + glyph.width * scale, y1 = y0 + glyph.height * scale;
 		vertices.push_back({ {x0,y0,0},{glyph.u0,glyph.v0},currentColor }); vertices.push_back({ {x1,y0,0},{glyph.u1,glyph.v0},currentColor });

@@ -31,13 +31,13 @@ function UI.CreateBookTitleText(content)
 end
 
 
-function UI.CreateBookSubText(x,y,content,lineGap)
+function UI.CreateBookSubText(x,y,content,lineGap,parentID)
     local id = Entity.CreateEmpty()
     local TR = Transform.Add(id)
     local TE = UIText.Add(id)
     TR.position = PVector3(x,y,0)
     TR.scale = PVector3(0.3,0.3,1)
-    TR:SetParent(UI.BookID)
+    TR:SetParent(parentID or UI.BookID)
     TE:SetFont("Jalnan2TTF")
     TE:SetPivot(0.5, 0.5)
     TE:SetText(content)
@@ -49,18 +49,6 @@ function UI.CreateBookSubText(x,y,content,lineGap)
     return id, line1, line2
 end
 
-
-function UI.CreateBookLine1(x,y)
-    local id = Entity.CreateEmpty()
-    local TR = Transform.Add(id)
-    local IM = UIImage.Add(id)
-    TR.position = PVector3(x,y,0)
-    TR.scale = PVector3(1,1,1)
-    TR:SetParent(UI.BookID)
-    IM:SetTexture("line_1")
-    IM:SetPivot(0.5,0.5)
-    return id
-end
 
 function UI.CreateBookLine2(x,y)
     local id = Entity.CreateEmpty()

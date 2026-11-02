@@ -66,6 +66,7 @@ struct TextData
 	float color[4];
 	float pivotX;
 	float pivotY;
+	float wrapWidth;
 };
 
 
@@ -86,11 +87,13 @@ public:
 		LineData line;
 		TextData text;
 	};
+	bool transparent = false;
 	void Clear()
 	{
 		mash_key = 0;
 		material_key = 0;
 		shader_key = 1;
 		texture_key = 0;
+		transparent = false;
 	}
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include "DirectXMath.h"
 #include "SimpleMath.h"
-//Ä«¸Ş¶ó ¹öÆÛ 
+//ì¹´ë©”ë¼ ë²„í¼
 struct CameraBuffer
 {
 	DirectX::SimpleMath::Matrix view;
@@ -9,14 +9,17 @@ struct CameraBuffer
 	DirectX::SimpleMath::Matrix view_proj;
 };
 
-//¿ÀºêÁ§Æ® ¹öÆÛ
+//ì˜¤ë¸Œì íŠ¸ ë²„í¼
 struct ObjectBuffer
 {
 	DirectX::SimpleMath::Matrix world;
 	DirectX::SimpleMath::Matrix wvp;
 	DirectX::SimpleMath::Matrix TexMatrix;
 	DirectX::SimpleMath::Vector4 Color;
+	// x is the alpha-test threshold. UI/cutout objects retain the existing threshold.
+	DirectX::SimpleMath::Vector4 AlphaSettings = DirectX::SimpleMath::Vector4(0.1f, 0.0f, 0.0f, 0.0f);
 };
+static_assert(sizeof(ObjectBuffer) == 224, "ObjectBuffer must match Static_vs/Static_ps HLSL layout");
 
 struct SkinningBuffer
 {

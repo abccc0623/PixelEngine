@@ -1,0 +1,30 @@
+﻿---@type LuaInstance
+local Script = {}
+function Script:Spawn()
+    self.transform = Transform.Add(self.ID)
+    self.camera = Camera.Add(self.ID)
+    self.camera.ViewportWidth = 1920
+    self.camera.ViewportHeight = 1080
+    self.camera.ViewportX = 0;
+    self.camera.ViewportY = 0;
+    self.camera.ZoomLevel = 50
+    self.camera.Projection = ProjectionType.Orthographic
+    self.transform.position.z = -20
+end
+
+function Script:Update(DTime)
+    if PlayerManager.transform == nil then
+        return
+    end
+    
+    local followSpeed = 1
+    local ratio = 1.0 - math.exp(-followSpeed * DTime)
+    local current = self.transform.position
+    local target = PlayerManager.transform.position
+
+    self.transform.position.x = current.x + (target.x - current.x) * ratio
+    self.transform.position.y = current.y + (target.y - current.y) * ratio
+    
+end
+
+return Script

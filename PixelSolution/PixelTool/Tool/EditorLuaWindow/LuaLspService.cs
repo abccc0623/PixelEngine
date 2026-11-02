@@ -293,6 +293,7 @@ namespace PixelTool
                     if (string.IsNullOrEmpty(luaEditor.CurrentFilePath) ||
                         !string.Equals(new Uri(Path.GetFullPath(luaEditor.CurrentFilePath)).AbsoluteUri, requestUri, StringComparison.OrdinalIgnoreCase)) return;
                     if (!luaEditor.GetLuaEditorTextArea().IsKeyboardFocusWithin) return;
+                    if (luaEditor.GetLuaEditorTextArea().Selection is ICSharpCode.AvalonEdit.Editing.RectangleSelection) return;
                     if (luaEditor.GetLuaEditorTextArea().Caret.Line - 1 != currentLine ||
                         luaEditor.GetLuaEditorTextArea().Caret.Column - 1 != currentColumn) return;
 

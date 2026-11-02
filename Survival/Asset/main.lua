@@ -4,12 +4,8 @@ function Main()
     Asset.Import("./Asset/Font")
     Asset.Import("./Asset/Image")
     Asset.Import("./Asset/Script")
-    Asset.Import("./Asset/UIScript")
     Asset.Import("./Asset/Table")
-	
-	
-	
-    Scene.Change("Title")
     
-    --Entity.Create("GameLogic")
+    Engine.SetWindowSize(1920, 1080)
+    Scene.Change("GridTest")
 end
