@@ -119,16 +119,10 @@ void LuaManager::Initialize()
 	lua.script(packagePathSetup);
 
 	//BindAll_GeneratedLuaModules(lua);
+	// 새 프로젝트는 Engine Update로 API가 생성된 뒤 런타임을 준비한다.
+	if (!std::filesystem::exists(scriptRoot / "EngineGenerate.lua") ||
+		!std::filesystem::exists(scriptRoot / "Entity.lua")) return;
 	ReadEngineGenerateFile();
-	if (!RegisterLuaEntityCreate(lua.lua_state()))
-	{
-		PixelLog::Error("Failed to register Entity.Create as a Lua C function.");
-	}
-	if (!RegisterLuaPoolActive(lua.lua_state()))
-	{
-		PixelLog::Error("Failed to register Pool.Active as a Lua C function.");
-	}
-	CreateLuaManager();
 }
 
 LuaModuleInfo* LuaManager::GetModuleLua(const std::string& fileName)
@@ -301,6 +295,17 @@ void LuaManager::ReadEngineGenerateFile()
 		sol::error err = result;
 		std::string test = err.what();
 		Debug_LogError(err.what());
+		return;
+	}
+	// 최초 생성 후에는 초기화 때 건너뛴 네이티브 진입점과 LuaManager도 준비한다.
+	if (!UpdateFunction.valid())
+	{
+		if (!RegisterLuaEntityCreate(lua.lua_state()) || !RegisterLuaPoolActive(lua.lua_state()))
+		{
+			PixelLog::Error("Failed to register native Lua entry points after Engine Update.");
+			return;
+		}
+		CreateLuaManager();
 	}
 }
 

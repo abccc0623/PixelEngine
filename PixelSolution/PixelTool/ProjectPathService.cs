@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace PixelTool
 {
@@ -56,6 +57,7 @@ namespace PixelTool
             Directory.CreateDirectory(Path.Combine(rootPath, "Asset"));
             Directory.CreateDirectory(Path.Combine(rootPath, "Engine"));
             Directory.CreateDirectory(Path.Combine(rootPath, "Editor"));
+			EnsureLayerMatrix(rootPath);
 
             GenerateProjectFilesPending = true;
         }
@@ -69,6 +71,9 @@ namespace PixelTool
             }
 
             ProjectRootPath = rootPath;
+			EnsureLayerMatrix(rootPath);
+			GenerateProjectFilesPending |= !File.Exists(Path.Combine(EnginePath, "EngineGenerate.lua")) ||
+				!File.Exists(Path.Combine(EnginePath, "Entity.lua"));
             Directory.SetCurrentDirectory(ProjectRootPath);
 
             Directory.CreateDirectory(SettingsDirectory);
@@ -113,6 +118,24 @@ namespace PixelTool
 
             GenerateProjectFilesPending = false;
         }
+
+		private static void EnsureLayerMatrix(string rootPath)
+		{
+			string path = Path.Combine(rootPath, "Engine", "LayerMatrix.json");
+			if (File.Exists(path)) return;
+			var data = new
+			{
+				fileType = "LayerMatrix",
+				layers = new[] { "Default", "Player", "Ground" },
+				collisionMatrix = new[]
+				{
+					new[] { true, true, true },
+					new[] { true, true, true },
+					new[] { true, true, true }
+				}
+			};
+			File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.Indented));
+		}
 
         private static string GetProjectFolderPath(string folderName) =>
             string.IsNullOrEmpty(ProjectRootPath)

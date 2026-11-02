@@ -4,7 +4,7 @@ function Main()
 	Asset.Import("./Asset/BaseCamera.pxm")
 
 	--카메라 객체 생성
-	Engine.CreateEntity("BaseCamera")
+	Entity.Create("BaseCamera")
 
 	--BackGround 변경
 	Engine.BackgroundColor(140, 170, 145)
