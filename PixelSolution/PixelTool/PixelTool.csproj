@@ -63,8 +63,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PixelEngine\PixelEngine.vcxproj" />
-    <ProjectReference Include="..\PixelGraphics\PixelGraphics.vcxproj" />
+    <ProjectReference Include="..\PixelEngine\PixelEngine.vcxproj" Condition="'$(InstallerPublish)' != 'true'" />
+    <ProjectReference Include="..\PixelGraphics\PixelGraphics.vcxproj" Condition="'$(InstallerPublish)' != 'true'" />
   </ItemGroup>                       
 
   <ItemGroup>
@@ -73,6 +73,13 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy &quot;$(ProjectDir)LSP\*.*&quot; &quot;$(TargetDir)LSP\&quot; /S /E /Y /I" />
+  </Target>
+
+  <Target Name="CreatePixelToolInstaller" AfterTargets="Build" DependsOnTargets="PostBuild"
+          Condition="'$(Configuration)' == 'Release' and '$(DesignTimeBuild)' != 'true' and '$(BuildInstaller)' != 'false'">
+    <MSBuild Projects="$(MSBuildProjectDirectory)\..\Client\Client.vcxproj" Targets="Build"
+             Properties="Configuration=Release;Platform=x64;SolutionDir=$(MSBuildProjectDirectory)\..\" />
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\Installer\Build-Installer.ps1&quot; -SourceDir &quot;$(MSBuildProjectDirectory)\..\bin\$(Configuration)&quot; -OutputDir &quot;$(MSBuildProjectDirectory)\..\bin\Installer&quot; -CompilerPath &quot;$(InnoSetupCompilerPath)&quot;" />
   </Target>
 
 </Project>

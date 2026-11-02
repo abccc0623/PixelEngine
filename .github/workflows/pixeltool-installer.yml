@@ -1,0 +1,99 @@
+name: Build PixelTool Installer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v6
+        with:
+          lfs: true
+          persist-credentials: false
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Locate Visual Studio and Inno Setup
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vs = & $vswhere -latest -products * -version '[18.0,19.0)' -requires Microsoft.Component.MSBuild -property installationPath
+          if (-not $vs) { throw 'Visual Studio 2026 is required for v145.' }
+          $msbuild = Join-Path $vs 'MSBuild\Current\Bin\MSBuild.exe'
+          if (-not (Test-Path $msbuild)) { throw 'MSBuild not found.' }
+          "MSBUILD_EXE=$msbuild" >> $env:GITHUB_ENV
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { throw 'Inno Setup is missing from the runner image.' }
+          "ISCC_EXE=$iscc" >> $env:GITHUB_ENV
+
+      - name: Check external libraries
+        run: |
+          $required = @(
+            'PixelSolution/PixelEngine/Library/lua51.lib',
+            'PixelSolution/PixelEngine/Library/lua51.dll',
+            'PixelSolution/PixelEngine/Library/Jolt.lib',
+            'PixelSolution/PixelGraphics/Library/DirectXTK_x64r.lib',
+            'PixelSolution/PixelGraphics/Library/DirectXTex_x64r.lib'
+          )
+          foreach ($path in $required) {
+            if (-not (Test-Path -LiteralPath $path)) { throw "Required library missing from checkout: $path" }
+          }
+
+      - name: Restore official LSP executable without replacing customized scripts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = '3.17.1'
+          $assetName = "lua-language-server-$version-win32-x64.zip"
+          $release = gh api "repos/LuaLS/lua-language-server/releases/tags/$version" | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw 'Unable to fetch official LSP release metadata.' }
+          $asset = $release.assets | Where-Object name -eq $assetName
+          if (-not $asset) { throw "Official release asset not found: $assetName" }
+          $archive = Join-Path $env:RUNNER_TEMP $assetName
+          Invoke-WebRequest $asset.browser_download_url -OutFile $archive
+          if ($asset.digest -like 'sha256:*') {
+            $expected = $asset.digest.Substring(7)
+            if ((Get-FileHash $archive -Algorithm SHA256).Hash -ne $expected) { throw 'LSP archive checksum mismatch.' }
+          }
+          $extract = Join-Path $env:RUNNER_TEMP 'pixeltool-lsp'
+          Expand-Archive -LiteralPath $archive -DestinationPath $extract
+          if (-not (Test-Path "$extract\bin\lua-language-server.exe")) { throw 'LSP archive layout changed.' }
+          New-Item -ItemType Directory -Path PixelSolution/PixelTool/LSP/bin -Force | Out-Null
+          Copy-Item "$extract\bin\*" PixelSolution/PixelTool/LSP/bin -Recurse -Force
+
+      - name: Build Release x64
+        run: |
+          & $env:MSBUILD_EXE PixelSolution/PixelSolution.slnx /restore /m /p:Configuration=Release /p:Platform=x64 /p:BuildInstaller=false /bl:release-build.binlog
+          if ($LASTEXITCODE -ne 0) { throw "Release build failed: $LASTEXITCODE" }
+
+      - name: Create self-contained installer
+        run: |
+          & ./PixelSolution/Installer/Build-Installer.ps1 -SourceDir ./PixelSolution/bin/Release -CompilerPath $env:ISCC_EXE
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v6
+        with:
+          name: PixelTool-Installer-${{ github.run_number }}
+          path: PixelSolution/bin/Installer/PixelTool-Setup-*.exe
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload build diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: PixelTool-Build-Logs-${{ github.run_number }}
+          path: release-build.binlog
+          if-no-files-found: ignore
+          retention-days: 7
