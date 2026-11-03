@@ -1,4 +1,3 @@
-﻿using AvalonDock.Layout;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -245,61 +244,22 @@ namespace PixelTool
         private void CreateMaterial(object sender, RoutedEventArgs e)
         {
             var materialWindow = new MaterialWindow();
-            var newToolWindow = new AvalonDock.Layout.LayoutAnchorable()
-            {
-                Title = "Create Material",
-                Content = materialWindow, // 만들어둔 UserControl
-                FloatingWidth = 500,
-                FloatingHeight = 600,
-            };
-            MainWindow main = Application.Current.MainWindow as MainWindow;
-            newToolWindow.AddToLayout(main.dockManager, AnchorableShowStrategy.Right);
-            newToolWindow.IsActive = true;
-            newToolWindow.Float();
-            materialWindow.Close = () =>
-            {
-                newToolWindow.Close();
-            };
+            if (Application.Current.MainWindow is MainWindow main)
+                materialWindow.Close = main.OpenFloatingTool("Create Material", materialWindow, 500, 600);
         }
 
         private void CreateCollider(object sender, RoutedEventArgs e)
         {
             var colliderWindow = new ColliderWindow();
-            var newToolWindow = new AvalonDock.Layout.LayoutAnchorable()
-            {
-                Title = "Create Collider",
-                Content = colliderWindow, // 만들어둔 UserControl
-                FloatingWidth = 500,
-                FloatingHeight = 600,
-            };
-            MainWindow main = Application.Current.MainWindow as MainWindow;
-            newToolWindow.AddToLayout(main.dockManager, AnchorableShowStrategy.Right);
-            newToolWindow.IsActive = true;
-            newToolWindow.Float();
-            colliderWindow.Close = () =>
-            {
-                newToolWindow.Close();
-            };
+            if (Application.Current.MainWindow is MainWindow main)
+                colliderWindow.Close = main.OpenFloatingTool("Create Collider", colliderWindow, 500, 600);
         }
 
         private void OpenLayerSettings(object sender, RoutedEventArgs e)
         {
             var layerSettingsWindow = new LayerSettingsWindow();
-            var newToolWindow = new LayoutAnchorable()
-            {
-                Title = "Physics Layers",
-                Content = layerSettingsWindow,
-                FloatingWidth = 900,
-                FloatingHeight = 700,
-            };
-            MainWindow main = Application.Current.MainWindow as MainWindow;
-            newToolWindow.AddToLayout(main.dockManager, AnchorableShowStrategy.Right);
-            newToolWindow.IsActive = true;
-            newToolWindow.Float();
-            layerSettingsWindow.Close = () =>
-            {
-                newToolWindow.Close();
-            };
+            if (Application.Current.MainWindow is MainWindow main)
+                layerSettingsWindow.Close = main.OpenFloatingTool("Physics Layers", layerSettingsWindow, 900, 700);
         }
 
         private void ResetEditorLayout(object sender, RoutedEventArgs e)

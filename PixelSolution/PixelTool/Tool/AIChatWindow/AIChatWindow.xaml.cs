@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -22,6 +23,7 @@ public partial class AIChatWindow : UserControl
     private bool _restoringPreferences = true;
     private bool _restoreAttempted;
     private bool _scrollToEndQueued;
+    private readonly ObservableCollection<string> _transcript = new();
     private sealed record ChatAccount(string Id, string Label);
     private sealed record ChatModel(string Model, string DisplayName, bool IsDefault, string? DefaultEffort);
     private readonly Dictionary<string, string> _fileChanges = new();
@@ -29,6 +31,7 @@ public partial class AIChatWindow : UserControl
     public AIChatWindow()
     {
         InitializeComponent();
+        TranscriptBox.ItemsSource = _transcript;
         try { _history = CodexChatHistory.Load(_project); }
         catch (Exception)
         {
@@ -526,8 +529,31 @@ public partial class AIChatWindow : UserControl
 
     private void RenderTranscript()
     {
-        TranscriptBox.Text = string.Join("\n\n", _history.Messages.Select(m => "[" + m.Role + "]\n" + m.Text));
+        // Keep existing containers intact while streaming; only changed messages notify WPF.
+        for (int i = 0; i < _history.Messages.Count; i++)
+        {
+            var message = _history.Messages[i];
+            string text = "[" + message.Role + "]\n" + message.Text;
+            if (i == _transcript.Count) _transcript.Add(text);
+            else if (_transcript[i] != text) _transcript[i] = text;
+        }
+        while (_transcript.Count > _history.Messages.Count)
+            _transcript.RemoveAt(_transcript.Count - 1);
         ScrollTranscriptToEnd();
+    }
+
+    private void CopyTranscript(object sender, RoutedEventArgs e)
+    {
+        if (_transcript.Count == 0) return;
+        try { Clipboard.SetText(string.Join("\n\n", _transcript)); }
+        catch (System.Runtime.InteropServices.COMException) { StatusText.Text = "클립보드가 사용 중입니다. 다시 복사해 주세요."; }
+    }
+
+    private void TranscriptKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.C || Keyboard.Modifiers != (ModifierKeys.Control | ModifierKeys.Shift)) return;
+        CopyTranscript(sender, e);
+        e.Handled = true;
     }
 
     private void ScrollTranscriptToEnd()
@@ -538,7 +564,9 @@ public partial class AIChatWindow : UserControl
         Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
         {
             _scrollToEndQueued = false;
-            if (!_disposed && IsVisible) TranscriptBox.ScrollToEnd();
+            if (!_disposed && IsVisible &&
+                TranscriptBox.Template.FindName("TranscriptScrollHost", TranscriptBox) is ScrollViewer scroll)
+                scroll.ScrollToEnd();
         }));
     }
 

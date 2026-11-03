@@ -133,7 +133,51 @@
                     </ProgressBar>
                 </StackPanel>
             </Border>
-            <TextBox x:Name="TranscriptBox" Grid.Row="1" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+            <ListBox x:Name="TranscriptBox" Grid.Row="1"
+                     Background="{DynamicResource PixelBackgroundBrush}" Foreground="{DynamicResource PixelTextBrush}"
+                     BorderBrush="{DynamicResource PixelBorderBrush}"
+                     ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                     VirtualizingPanel.ScrollUnit="Pixel" PreviewKeyDown="TranscriptKeyDown">
+                <ListBox.Template>
+                    <ControlTemplate TargetType="ListBox">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer x:Name="TranscriptScrollHost" CanContentScroll="True"
+                                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </ListBox.Template>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate><VirtualizingStackPanel/></ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="선택 영역 복사" Command="Copy"/>
+                        <MenuItem Header="대화 전체 복사" InputGestureText="Ctrl+Shift+C" Click="CopyTranscript"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0,0,0,8"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <!-- Avoid character-by-character wrapping at transient narrow docking widths. -->
+                        <TextBox Text="{Binding Mode=OneWay}" IsReadOnly="True" IsUndoEnabled="False"
+                                 ContextMenu="{Binding ContextMenu, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
+                                 MinWidth="160" TextWrapping="Wrap" AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled"
+                                 Background="Transparent" BorderThickness="0" Padding="8"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Grid>
         <TextBox x:Name="PromptBox" Grid.Row="4" Margin="0,6,0,0" MinHeight="56" MaxHeight="120" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" PreviewKeyDown="PromptKeyDown" ToolTip="Ctrl+Enter: 전송"
                  IsReadOnly="{Binding IsEnabled, ElementName=StopButton}"/>
