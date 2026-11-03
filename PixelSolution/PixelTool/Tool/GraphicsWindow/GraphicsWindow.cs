@@ -149,13 +149,9 @@ namespace PixelTool
                 _renderThread.Join(1000);
             }
 
-            // 2. 엔진 리소스 해제
-            lock (_engineLock)
-            {
-                //PixelEngineNative.ReleaseEngine();
-            }
-
-            // 3. 창 핸들 파괴
+            // Do not take _engineLock after a timed-out join. A stalled native
+            // frame owns it, so reacquiring it would block WPF shutdown forever.
+            // ReleaseEngine must not run concurrently with that frame either.
             DestroyWindow(hwnd.Handle);
         }
     }

@@ -41,7 +41,7 @@ if ($LASTEXITCODE -ne 0) { throw "Self-contained publish failed with exit code $
 foreach ($relative in @('PixelEngine.dll','PixelGraphics.dll','PixelMeta.dll','lua51.dll','Client.exe')) {
     Copy-Item -LiteralPath (Join-Path $source $relative) -Destination (Join-Path $publish $relative) -Force
 }
-foreach ($runtime in @('coreclr.dll','hostfxr.dll','hostpolicy.dll','PresentationFramework.dll')) {
+foreach ($runtime in @('coreclr.dll','hostfxr.dll','hostpolicy.dll','PresentationFramework.dll','Microsoft.AspNetCore.Server.Kestrel.Core.dll')) {
     if (-not (Test-Path -LiteralPath (Join-Path $publish $runtime))) {
         throw "Self-contained runtime missing: $runtime"
     }

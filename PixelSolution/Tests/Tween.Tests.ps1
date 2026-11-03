@@ -49,6 +49,10 @@ Require ($complete -ge 0 -and $manager.Substring($complete,160).Contains('it = t
 Require ($manager.Contains('tween.Elapsed = std::fmod(tween.Elapsed + step, duration * 2.0);')) 'Ping-pong phase must wrap over a full round trip'
 Require ($manager.Contains('phase <= 1.0 ? phase : 2.0 - phase')) 'Return leg must run backwards'
 Require ($manager.Contains('registry->Get<TransformData>(tween.ID)')) 'Update must resolve current components by ID'
+$inactive = $manager.IndexOf('if (!Entity_GetActive(tween.ID))')
+Require ($inactive -gt $manager.IndexOf('if (target == nullptr)')) 'Deleted targets must be removed before checking activity'
+Require ($inactive -lt $manager.IndexOf('const float step = tween.UseUnscaledTime')) 'Inactive tweens must not accumulate either clock'
+Require ($manager.Substring($inactive,100).Contains('++it;') -and $manager.Substring($inactive,100).Contains('continue;')) 'Skip only the inactive tween without blocking other objects'
 Require (-not $managerHeader.Contains('TransformData*')) 'Manager must not retain component pointers'
 Require ($manager.Contains('it = tweens.erase(it);')) 'Missing component must cancel the tween'
 Require (-not ($manager -match 'sol::|lua_State|CallFunction')) 'Tween update must not re-enter Lua'

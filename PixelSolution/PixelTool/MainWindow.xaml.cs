@@ -1,4 +1,5 @@
 using AvalonDock.Layout.Serialization;
+using AvalonDock.Layout;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,10 +22,12 @@ namespace PixelTool
         private readonly Dictionary<string, object> _layoutContents;
         private readonly string _layoutFilePath;
         private readonly string _defaultLayout;
+        private readonly AIChatWindow _aiChat;
 
         public MainWindow()
         {
             InitializeComponent();
+			_aiChat = new AIChatWindow();
 			InputManager.Current.PreProcessInput += MainWindow_PreProcessInput;
 
             _layoutContents = new Dictionary<string, object>
@@ -32,7 +35,8 @@ namespace PixelTool
                 ["SceneView"] = SceneViewContent,
                 ["LuaEditor"] = LuaEditorContent,
                 ["Asset"] = AssetContent,
-                ["Log"] = LogContent
+                ["Log"] = LogContent,
+                ["AIChat"] = _aiChat
             };
             _layoutFilePath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -44,10 +48,16 @@ namespace PixelTool
             Loaded += (_, _) =>
             {
                 LoadSavedLayout();
+                ShowAIChat(false);
                 ApplyAvalonDockRuntimeTheme();
             };
             Closing += MainWindow_Closing;
-            Closed += (_, _) => (LuaEditorContent.Child as LuaEditorWindow)?.DisposeLanguageService();
+            Closed += (_, _) =>
+            {
+                _dockThemeTimer.Stop();
+                (LuaEditorContent.Child as LuaEditorWindow)?.DisposeLanguageService();
+                _aiChat.DisposeChat();
+            };
 
             _dockThemeTimer = new DispatcherTimer(DispatcherPriority.Background)
             {
@@ -147,6 +157,33 @@ namespace PixelTool
             catch
             {
             }
+        }
+
+        public void ShowAIChat(bool activate = true)
+        {
+            var existing = dockManager.Layout.Descendents().OfType<LayoutDocument>()
+                .FirstOrDefault(document => document.ContentId == "AIChat");
+            if (existing != null)
+            {
+                if (activate) existing.IsActive = true;
+                return;
+            }
+            var document = new LayoutDocument { Title = "AI Chat", ContentId = "AIChat", Content = _aiChat };
+            var lua = dockManager.Layout.Descendents().OfType<LayoutDocument>()
+                .FirstOrDefault(item => item.ContentId == "LuaEditor");
+            if (lua?.Parent is LayoutDocumentPane luaPane && luaPane.Parent is LayoutPanel panel)
+            {
+                var pane = new LayoutDocumentPane { DockWidth = new GridLength(0.65, GridUnitType.Star) };
+                panel.Children.Insert(panel.Children.IndexOf(luaPane) + 1, pane);
+                pane.Children.Add(document);
+            }
+            else
+            {
+                var pane = dockManager.Layout.Descendents().OfType<LayoutDocumentPane>().FirstOrDefault();
+                if (pane == null) return;
+                pane.Children.Add(document);
+            }
+            if (activate) document.IsActive = true;
         }
 
         private void ApplyAvalonDockRuntimeTheme()

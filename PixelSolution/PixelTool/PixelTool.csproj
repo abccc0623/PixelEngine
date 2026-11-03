@@ -54,6 +54,8 @@
  </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="2.3.0" />
     <PackageReference Include="AvalonEdit" Version="6.3.1.120" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
     <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
@@ -68,6 +70,9 @@
   </ItemGroup>                       
 
   <ItemGroup>
+    <EmbeddedResource Include="AI\AIRestrictions.md" LogicalName="PixelTool.AI.AIRestrictions.md" />
+    <EmbeddedResource Include="AI\EditorGuide.md" LogicalName="PixelTool.AI.EditorGuide.md" />
+    <EmbeddedResource Include="AI\LuaApiGuide.md" LogicalName="PixelTool.AI.LuaApiGuide.md" />
     <EmbeddedResource Include="Tool\EditorLuaWindow\Lua.xshd" />
   </ItemGroup>
 

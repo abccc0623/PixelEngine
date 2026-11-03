@@ -3,6 +3,7 @@
 #include "Tween.h"
 #include "Registry.h"
 #include "Transform.h"
+#include "Entity.h"
 #include <cmath>
 
 namespace
@@ -107,6 +108,11 @@ void ECS::TweenManager::Update(Registry* registry, float deltaTime, float unscal
 		if (target == nullptr)
 		{
 			it = tweens.erase(it);
+			continue;
+		}
+		if (!Entity_GetActive(tween.ID))
+		{
+			++it;
 			continue;
 		}
 		const float step = tween.UseUnscaledTime ? unscaledDeltaTime : deltaTime;

@@ -1,5 +1,11 @@
 # 공통 작업 규칙
 
+## PixelTool AI 공통 가이드
+
+- 사용자가 엔진 지식이나 사용 규칙을 "MCP에 추가해줘"라고 하면 `PixelSolution/PixelTool/AI/`의 공통 문서에 추가한다. 금지/운영 규칙은 `AIRestrictions.md`, 에디터 기능은 `EditorGuide.md`, Lua API는 `LuaApiGuide.md`로 구분한다. 실제 MCP 도구/기능 구현을 명시한 요청과는 구분한다.
+- 이 문서는 PixelTool의 EmbeddedResource로 포함되어 툴 AI 채팅에서 참고한다. 엔진 DLL이나 게임 Asset에 복사하지 않는다.
+- 설명을 추가하기 전에 실제 API와 호출 경로를 확인하고, 개인 경로·계정·토큰·게임 전용 데이터를 공통 가이드에 넣지 않는다.
+
 ## 엔진과 클라이언트(게임) 구분
 
 - 엔진과 클라이언트(게임)는 별도 영역으로 관리한다.

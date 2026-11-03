@@ -310,6 +310,11 @@ namespace PixelTool
             }
         }
 
+        private void OpenAIChat(object sender, RoutedEventArgs e)
+        {
+            (Application.Current.MainWindow as MainWindow)?.ShowAIChat();
+        }
+
         private void OpenLuaDataTable(object sender, RoutedEventArgs e)
         {
             var window = new LuaDataTableWindow

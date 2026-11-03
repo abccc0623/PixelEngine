@@ -152,6 +152,9 @@
                         ToolTip="Lua Data Table"
                         Click="OpenLuaDataTable"/>
 
+                <Button Content="&#xE8BD;" Style="{StaticResource ToolbarActionButton}"
+                        ToolTip="AI Chat (Codex)" Click="OpenAIChat"/>
+
                 <Button Content=""
                         Style="{StaticResource ToolbarActionButton}"
                         ToolTip="Engine Update"
