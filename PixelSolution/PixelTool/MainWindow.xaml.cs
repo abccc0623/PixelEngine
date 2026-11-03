@@ -18,7 +18,12 @@ namespace PixelTool
         private readonly Brush _dockBorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x3A, 0x3C, 0x5E));
         private readonly Brush _dockBackgroundBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x1B, 0x1C, 0x2E));
         private readonly Brush _dockTextBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xD1, 0xD1, 0xE0));
-        private readonly DispatcherTimer _dockThemeTimer;
+        private readonly Brush _activeDockBackgroundBrush = new SolidColorBrush(Color.FromRgb(37, 74, 112));
+        private readonly Brush _activeDockBorderBrush = new SolidColorBrush(Color.FromRgb(101, 185, 255));
+        private readonly DispatcherTimer _fpsTimer;
+        private LayoutRoot? _observedDockLayout;
+        private bool _dockThemeQueued;
+        private bool _closed;
         private readonly Dictionary<string, object> _layoutContents;
         private readonly string _layoutFilePath;
         private readonly string _defaultLayout;
@@ -43,35 +48,84 @@ namespace PixelTool
                 "PixelTool",
                 "Layout.xml");
             _defaultLayout = SerializeCurrentLayout();
+            dockManager.LayoutChanged += DockLayoutChanged;
+            dockManager.ActiveContentChanged += DockThemeStateChanged;
+            dockManager.LayoutFloatingWindowControlCreated += DockThemeStateChanged;
+            dockManager.LayoutFloatingWindowControlClosed += DockThemeStateChanged;
+            ObserveDockLayout();
 
             IntPtr hWnd = new WindowInteropHelper(this).Handle;
             Loaded += (_, _) =>
             {
                 LoadSavedLayout();
-                ShowAIChat(false);
-                ApplyAvalonDockRuntimeTheme();
+                ShowAIChat(false, placeBesideLua: true);
+                QueueDockThemeUpdate();
             };
             Closing += MainWindow_Closing;
             Closed += (_, _) =>
             {
-                _dockThemeTimer.Stop();
+                _closed = true;
+                _fpsTimer.Stop();
+                dockManager.LayoutChanged -= DockLayoutChanged;
+                dockManager.ActiveContentChanged -= DockThemeStateChanged;
+                dockManager.LayoutFloatingWindowControlCreated -= DockThemeStateChanged;
+                dockManager.LayoutFloatingWindowControlClosed -= DockThemeStateChanged;
+                DetachDockLayout();
                 (LuaEditorContent.Child as LuaEditorWindow)?.DisposeLanguageService();
                 _aiChat.DisposeChat();
             };
 
-            _dockThemeTimer = new DispatcherTimer(DispatcherPriority.Background)
+            _fpsTimer = new DispatcherTimer(DispatcherPriority.Background)
             {
                 Interval = TimeSpan.FromMilliseconds(1000)
             };
-            _dockThemeTimer.Tick += (_, _) =>
+            _fpsTimer.Tick += (_, _) =>
             {
-                ApplyAvalonDockRuntimeTheme();
                 float frameTimeMilliseconds =
                     Math.Max(0.0f, PixelEngineNative.GetDeltaTime()) * 1000.0f;
                 FpsTextBlock.Text =
                     $"FPS: {PixelEngineNative.GetFPS()}  |  Frame: {frameTimeMilliseconds:F2} ms";
             };
-            _dockThemeTimer.Start();
+            _fpsTimer.Start();
+        }
+
+        private void DockLayoutChanged(object? sender, EventArgs e)
+        {
+            ObserveDockLayout();
+            QueueDockThemeUpdate();
+        }
+
+        private void ObserveDockLayout()
+        {
+            DetachDockLayout();
+            _observedDockLayout = dockManager.Layout;
+            if (_observedDockLayout != null)
+            {
+                _observedDockLayout.ElementAdded += DockThemeStateChanged;
+                _observedDockLayout.ElementRemoved += DockThemeStateChanged;
+            }
+        }
+
+        private void DetachDockLayout()
+        {
+            if (_observedDockLayout == null) return;
+            _observedDockLayout.ElementAdded -= DockThemeStateChanged;
+            _observedDockLayout.ElementRemoved -= DockThemeStateChanged;
+        }
+
+        private void DockThemeStateChanged(object? sender, EventArgs e) => QueueDockThemeUpdate();
+
+        private void QueueDockThemeUpdate()
+        {
+            if (_closed || _dockThemeQueued) return;
+            _dockThemeQueued = true;
+            // Model geometry updates fire continuously during docking drags. Do
+            // not subscribe to Updated, and let input/rendering run before styling.
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+            {
+                _dockThemeQueued = false;
+                if (!_closed) ApplyAvalonDockRuntimeTheme();
+            }));
         }
 
 		private void MainWindow_PreProcessInput(object sender, PreProcessInputEventArgs e)
@@ -169,7 +223,8 @@ namespace PixelTool
         public void ResetDockLayout()
         {
             DeserializeLayout(_defaultLayout);
-            ApplyAvalonDockRuntimeTheme();
+            ShowAIChat(false, placeBesideLua: true);
+            QueueDockThemeUpdate();
 
             try
             {
@@ -180,31 +235,75 @@ namespace PixelTool
             }
         }
 
-        public void ShowAIChat(bool activate = true)
+        public void ShowAIChat(bool activate = true, bool placeBesideLua = false)
         {
             var existing = dockManager.Layout.Descendents().OfType<LayoutDocument>()
                 .FirstOrDefault(document => document.ContentId == "AIChat");
-            if (existing != null)
+            if (existing != null && !placeBesideLua)
             {
+                existing.IsSelected = true;
                 if (activate) existing.IsActive = true;
                 return;
             }
-            var document = new LayoutDocument { Title = "AI Chat", ContentId = "AIChat", Content = _aiChat };
+            var document = existing ?? new LayoutDocument { Title = "AI Chat", ContentId = "AIChat", Content = _aiChat };
             var lua = dockManager.Layout.Descendents().OfType<LayoutDocument>()
                 .FirstOrDefault(item => item.ContentId == "LuaEditor");
             if (lua?.Parent is LayoutDocumentPane luaPane && luaPane.Parent is LayoutPanel panel)
             {
+                var oldPane = document.Parent as LayoutDocumentPane;
+                if (oldPane != luaPane && oldPane?.Children.Count == 1 && oldPane.Parent == panel &&
+                    panel.Orientation == Orientation.Horizontal && panel.Children.IndexOf(oldPane) == panel.Children.IndexOf(luaPane) + 1)
+                {
+                    lua.IsSelected = document.IsSelected = true;
+                    if (activate) document.IsActive = true;
+                    return;
+                }
+                document.Parent?.RemoveChild(document);
+                if (panel.Orientation != Orientation.Horizontal)
+                {
+                    int index = panel.Children.IndexOf(luaPane);
+                    var row = new LayoutPanel { Orientation = Orientation.Horizontal, DockWidth = luaPane.DockWidth, DockHeight = luaPane.DockHeight };
+                    panel.Children.Remove(luaPane);
+                    panel.Children.Insert(index, row);
+                    row.Children.Add(luaPane);
+                    panel = row;
+                }
                 var pane = new LayoutDocumentPane { DockWidth = new GridLength(0.65, GridUnitType.Star) };
                 panel.Children.Insert(panel.Children.IndexOf(luaPane) + 1, pane);
                 pane.Children.Add(document);
+                lua.IsSelected = true;
+                if (oldPane?.Children.Count == 0) oldPane.Parent?.RemoveChild(oldPane);
+            }
+            else if (lua?.Parent is LayoutDocumentPane groupedLua && groupedLua.Parent is LayoutDocumentPaneGroup group)
+            {
+                var oldPane = document.Parent as LayoutDocumentPane;
+                document.Parent?.RemoveChild(document);
+                var pane = new LayoutDocumentPane { DockWidth = new GridLength(0.65, GridUnitType.Star) };
+                if (group.Orientation == Orientation.Horizontal)
+                    group.Children.Insert(group.Children.IndexOf(groupedLua) + 1, pane);
+                else
+                {
+                    int index = group.Children.IndexOf(groupedLua);
+                    var row = new LayoutDocumentPaneGroup { Orientation = Orientation.Horizontal, DockWidth = groupedLua.DockWidth, DockHeight = groupedLua.DockHeight };
+                    group.Children.Remove(groupedLua);
+                    group.Children.Insert(index, row);
+                    row.Children.Add(groupedLua);
+                    row.Children.Add(pane);
+                }
+                pane.Children.Add(document);
+                lua.IsSelected = true;
+                if (oldPane?.Children.Count == 0) oldPane.Parent?.RemoveChild(oldPane);
             }
             else
             {
+                if (existing != null) { existing.IsSelected = true; if (activate) existing.IsActive = true; return; }
                 var pane = dockManager.Layout.Descendents().OfType<LayoutDocumentPane>().FirstOrDefault();
                 if (pane == null) return;
                 pane.Children.Add(document);
             }
+            document.IsSelected = true;
             if (activate) document.IsActive = true;
+            QueueDockThemeUpdate();
         }
 
         private void ApplyAvalonDockRuntimeTheme()
@@ -241,9 +340,9 @@ namespace PixelTool
                     if (control is AvalonDock.Controls.LayoutDocumentTabItem documentTab)
                     {
                         bool active = documentTab.Model?.IsActive == true;
-                        control.SetCurrentValue(Control.BackgroundProperty, active ? new SolidColorBrush(Color.FromRgb(37, 74, 112)) : _dockBackgroundBrush);
+                        control.SetCurrentValue(Control.BackgroundProperty, active ? _activeDockBackgroundBrush : _dockBackgroundBrush);
                         control.SetCurrentValue(Control.ForegroundProperty, active ? Brushes.White : _dockTextBrush);
-                        control.SetCurrentValue(Control.BorderBrushProperty, active ? new SolidColorBrush(Color.FromRgb(101, 185, 255)) : _dockBorderBrush);
+                        control.SetCurrentValue(Control.BorderBrushProperty, active ? _activeDockBorderBrush : _dockBorderBrush);
                     }
                 }
                 else if (target is Panel panel)

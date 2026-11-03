@@ -17,6 +17,8 @@ $main = ReadSource 'PixelTool/MainWindow.xaml.cs'
 $toolbar = ReadSource 'PixelTool/Tool/ToolbarWindow/ToolbarWindow.xaml.cs'
 [xml]$xaml = ReadSource 'PixelTool/Tool/AIChatWindow/AIChatWindow.xaml'
 Require ($main.Contains('panel.Children.Insert(panel.Children.IndexOf(luaPane) + 1, pane)')) 'Chat must open beside the Lua editor'
+Require ($main.Contains('ShowAIChat(false, placeBesideLua: true)') -and $main.Contains('existing != null && !placeBesideLua')) 'Startup must reposition a saved AI tab beside Lua instead of returning early'
+Require ($main.Contains('existing ?? new LayoutDocument') -and $main.Contains('document.Parent?.RemoveChild(document)') -and $main.Contains('document.IsSelected = true')) 'Reposition the same chat document into a visible pane without duplicating the conversation'
 Require ($toolbar.Contains('ShowAIChat()') -and $main.Contains('["AIChat"] = _aiChat')) 'Toolbar and persisted docking must refer to the same chat view'
 Require ($view.Contains('new ChatGptChatClient()') -and -not $view.Contains('new CodexChatClient()') -and -not $direct.Contains('Process.Start')) 'Default connection must not require a Codex executable'
 Require ($auth.Contains('dynamic_agent_client') -and $auth.Contains('code_verifier') -and $auth.Contains('code_challenge_method') -and $auth.Contains('nonce')) 'Direct sign-in must use dynamic registration, state/nonce and PKCE'
@@ -50,7 +52,12 @@ Require ($view.Contains('new Microsoft.Win32.OpenFileDialog') -and $view.Contain
 Require ($history.Contains('SHA256.HashData') -and $history.Contains('"AIChat", key + ".json"')) 'Persist conversations separately per project'
 Require ($history.Contains('File.Move(temporary, path, overwrite: true)')) 'History writes must use a temporary file'
 Require ($main.Contains('_aiChat.DisposeChat()') -and $direct.Contains('_stop.Cancel()') -and $auth.Contains('_listener?.Close()')) 'Shutdown must cancel direct HTTP/login without waiting on UI callbacks'
-Require ($main.Contains('_dockThemeTimer.Stop()')) 'Stop native FPS callbacks when the main window closes'
+Require ($main.Contains('_fpsTimer.Stop()')) 'Stop native FPS callbacks when the main window closes'
+$fpsTick = $main.Substring($main.IndexOf('_fpsTimer.Tick +='), $main.IndexOf('_fpsTimer.Start()') - $main.IndexOf('_fpsTimer.Tick +='))
+Require (-not $fpsTick.Contains('ApplyAvalonDockRuntimeTheme') -and $fpsTick.Contains('GetFPS()')) 'The periodic FPS timer must not repaint the docking theme'
+Require ($main.Contains('dockManager.ActiveContentChanged += DockThemeStateChanged') -and $main.Contains('dockManager.LayoutFloatingWindowControlCreated += DockThemeStateChanged') -and $main.Contains('_observedDockLayout.ElementAdded += DockThemeStateChanged')) 'Theme updates must follow structural tab changes, active tabs and floating windows'
+Require ($main.Contains('if (_closed || _dockThemeQueued) return;') -and $main.Contains('_observedDockLayout.ElementRemoved -= DockThemeStateChanged')) 'Coalesce docking events and detach old layout models'
+Require (-not $main.Contains('_observedDockLayout.Updated +=') -and $main.Contains('Dispatcher.BeginInvoke(DispatcherPriority.Background')) 'Docking drag geometry must not repeatedly schedule styling ahead of user input'
 $graphics = ReadSource 'PixelTool/Tool/GraphicsWindow/GraphicsWindow.cs'
 $focus = $graphics.Substring($graphics.IndexOf('private void OnThreadFilterMessage'), $graphics.IndexOf('protected override void DestroyWindowCore') - $graphics.IndexOf('private void OnThreadFilterMessage'))
 Require ($focus.Contains('msg.hwnd != _childHwnd') -and $focus.Contains('!IsChild(_childHwnd, msg.hwnd)') -and $focus.IndexOf('msg.hwnd != _childHwnd') -lt $focus.IndexOf('this.Focus()')) 'Scene View must not steal focus from WPF controls or dropdown popup windows'
@@ -86,6 +93,9 @@ Require ($execution.Contains('string mode = confirmCommands') -and $execution -m
 Require ($execution -match '\uC0AD\uC81C,.*\uCEE4\uBC0B, \uD478\uC2DC' -and $execution -match '\uBCC4\uB3C4 \uBA85\uC2DC\uC801') 'Sensitive operations must still require separate consent'
 Require (-not $view.Contains('approvalPolicy = "never"') -and -not $view.Contains('dangerFullAccess')) 'Automatic preference must not disable server approvals or sandboxing'
 Require ($xaml.SelectSingleNode('//*[@*[local-name()="Name"]="ActivityBanner"]') -ne $null) 'Chat must have a prominent activity banner above the transcript'
+$settings = $xaml.SelectSingleNode('//*[@*[local-name()="Name"]="SettingsPanel"]')
+Require ($settings.Visibility -eq 'Collapsed' -and $settings.GetAttribute('Panel.ZIndex') -eq '10' -and $settings.SelectSingleNode('.//*[@*[local-name()="Name"]="ModelBox"]') -ne $null -and $settings.SelectSingleNode('.//*[@*[local-name()="Name"]="CommandApprovalBox"]') -ne $null) 'Model/account/approval settings must be an initially hidden overlay, not a tall header above chat'
+Require ($view.Contains('Loaded += (_, _) => ScrollTranscriptToEnd()') -and $view.Contains('DispatcherPriority.ContextIdle') -and $view.Contains('IsVisibleChanged +=')) 'Scroll to latest history after the visible pane has completed its initial layout'
 $progress = $xaml.SelectSingleNode('//*[@*[local-name()="Name"]="ResponseProgress"]')
 Require ($progress.IsIndeterminate -eq '{Binding IsEnabled, ElementName=StopButton}') 'Busy animation must follow the same turn state as the stop button'
 Require ($view.Contains('StopButton.Background') -and $view.Contains('SendButton.Content = busy')) 'Busy state must also highlight stop and change the send label'

@@ -21,6 +21,7 @@ public partial class AIChatWindow : UserControl
     private bool _loadingAccounts;
     private bool _restoringPreferences = true;
     private bool _restoreAttempted;
+    private bool _scrollToEndQueued;
     private sealed record ChatAccount(string Id, string Label);
     private sealed record ChatModel(string Model, string DisplayName, bool IsDefault, string? DefaultEffort);
     private readonly Dictionary<string, string> _fileChanges = new();
@@ -45,6 +46,8 @@ public partial class AIChatWindow : UserControl
         _restoringPreferences = false;
         RenderTranscript();
         Loaded += RestoreConnection;
+        Loaded += (_, _) => ScrollTranscriptToEnd();
+        IsVisibleChanged += (_, e) => { if (e.NewValue is true) ScrollTranscriptToEnd(); };
     }
 
     private async void Connect(object sender, RoutedEventArgs e)
@@ -60,6 +63,11 @@ public partial class AIChatWindow : UserControl
     private void ToggleAccountDetails(object sender, RoutedEventArgs e)
     {
         AccountDetails.Visibility = AccountDetails.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private void ToggleChatSettings(object sender, RoutedEventArgs e)
+    {
+        SettingsPanel.Visibility = SettingsPanel.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private void AllowEditsChanged(object sender, RoutedEventArgs e)
@@ -109,6 +117,7 @@ public partial class AIChatWindow : UserControl
                 if (!allowBrowserLogin)
                 {
                     AccountDetails.Visibility = Visibility.Visible;
+                    SettingsPanel.Visibility = Visibility.Visible;
                     AccountSummary.Text = "계정 재연결 필요";
                     ConnectButton.IsEnabled = true;
                     StatusText.Text = "저장된 연결을 복원하지 못했습니다. 계정 연결을 눌러주세요.";
@@ -125,6 +134,7 @@ public partial class AIChatWindow : UserControl
         catch (Exception exception)
         {
             AccountDetails.Visibility = Visibility.Visible;
+            SettingsPanel.Visibility = Visibility.Visible;
             AccountSummary.Text = "계정 연결 확인 필요";
             StatusText.Text = "연결 실패: " + exception.Message;
             ConnectButton.IsEnabled = true;
@@ -178,6 +188,7 @@ public partial class AIChatWindow : UserControl
         string plan = account.TryGetProperty("planType", out var p) ? p.GetString() ?? "" : "";
         AccountSummary.Text = "연결됨 · " + plan;
         AccountDetails.Visibility = Visibility.Collapsed;
+        SettingsPanel.Visibility = Visibility.Collapsed;
         StatusText.Text = "ChatGPT 계정 연결됨 · " + plan + " · " + _project;
         SendButton.IsEnabled = NewButton.IsEnabled = true;
         ConnectButton.IsEnabled = false;
@@ -516,7 +527,19 @@ public partial class AIChatWindow : UserControl
     private void RenderTranscript()
     {
         TranscriptBox.Text = string.Join("\n\n", _history.Messages.Select(m => "[" + m.Role + "]\n" + m.Text));
-        TranscriptBox.ScrollToEnd();
+        ScrollTranscriptToEnd();
+    }
+
+    private void ScrollTranscriptToEnd()
+    {
+        if (_disposed || !IsVisible || _scrollToEndQueued) return;
+        _scrollToEndQueued = true;
+        // Scroll only after the loaded/visible pane has measured its actual viewport.
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
+        {
+            _scrollToEndQueued = false;
+            if (!_disposed && IsVisible) TranscriptBox.ScrollToEnd();
+        }));
     }
 
     private string ItemKey(JsonElement parameters, string id)
