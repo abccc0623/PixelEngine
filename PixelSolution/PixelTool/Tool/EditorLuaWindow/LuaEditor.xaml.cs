@@ -46,6 +46,7 @@ namespace PixelTool
         private readonly Task lspReady;
         private Task documentSync = Task.CompletedTask;
         public string CurrentFilePath => targetPath;
+        private bool IsSceneGameInputActive => System.Windows.Application.Current.MainWindow is MainWindow main && main.IsSceneGameInputActive;
 
         public CompletionWindow completionWindow;
         private CancellationTokenSource _debounceTokenSource;
@@ -67,6 +68,14 @@ namespace PixelTool
             LuaEditor.TextArea.TextView.BackgroundRenderers.Add(diagnosticRenderer);
             LuaEditor.TextChanged += LuaEditor_TextChanged;
             LuaEditor.TextArea.TextEntered += TextArea_TextEntered;
+            LuaEditor.PreviewTextInput += (_, e) =>
+            {
+                if (IsSceneGameInputActive) { e.Handled = true; completionWindow?.Close(); }
+            };
+            CommandManager.AddPreviewExecutedHandler(LuaEditor, (_, e) =>
+            {
+                if (IsSceneGameInputActive) e.Handled = true;
+            });
             LuaEditor.PreviewMouseWheel += LuaEditor_PreviewMouseWheel;
             ApplyLuaSyntaxHighlighting();
             LuaEditor.IsReadOnly = true;
@@ -361,6 +370,12 @@ namespace PixelTool
 
         private void luaEditor_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (IsSceneGameInputActive)
+            {
+                completionWindow?.Close();
+                e.Handled = true;
+                return;
+            }
             if (e.Key == Key.Escape && LuaEditor.TextArea.Selection is RectangleSelection)
             {
                 LuaEditor.TextArea.ClearSelection();
@@ -373,7 +388,7 @@ namespace PixelTool
                 e.Handled = true;
                 return;
             }
-            if (!LuaEditor.IsKeyboardFocusWithin) { e.Handled = true; }
+            if (!LuaEditor.IsKeyboardFocusWithin) { e.Handled = true; return; }
 
             bool isCtrlPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
             bool isAltPressed = (Keyboard.Modifiers & ModifierKeys.Alt) != 0;

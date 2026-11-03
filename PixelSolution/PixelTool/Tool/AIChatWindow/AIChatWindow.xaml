@@ -170,11 +170,22 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <!-- Avoid character-by-character wrapping at transient narrow docking widths. -->
-                        <TextBox Text="{Binding Mode=OneWay}" IsReadOnly="True" IsUndoEnabled="False"
+                        <TextBox Text="{Binding Text, Mode=OneWay}" IsReadOnly="True" IsUndoEnabled="False"
                                  ContextMenu="{Binding ContextMenu, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
                                  MinWidth="160" TextWrapping="Wrap" AcceptsReturn="True"
                                  VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled"
-                                 Background="Transparent" BorderThickness="0" Padding="8"/>
+                                 Background="Transparent" BorderThickness="0" Padding="8">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                    <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsUser}" Value="True">
+                                            <Setter Property="Foreground" Value="#9AD0FF"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

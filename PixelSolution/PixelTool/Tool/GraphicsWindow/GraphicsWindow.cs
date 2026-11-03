@@ -23,6 +23,10 @@ namespace PixelTool
 
         [DllImport("user32.dll")]
         static extern bool IsChild(IntPtr hWndParent, IntPtr hWnd);
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetFocus();
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetFocus(IntPtr hWnd);
         #endregion
 
         // Win32 상수
@@ -32,6 +36,14 @@ namespace PixelTool
 
         // 엔진 제어 변수
         private IntPtr _childHwnd;
+        internal bool HasNativeKeyboardFocus
+        {
+            get
+            {
+                IntPtr focus = GetFocus();
+                return _childHwnd != IntPtr.Zero && (focus == _childHwnd || IsChild(_childHwnd, focus));
+            }
+        }
 
         // 멀티스레드 동기화 및 관리 (HyungSunGameEngine 최적화 포인트)
         private Thread _renderThread;
@@ -64,6 +76,7 @@ namespace PixelTool
 
         public GraphicsWindow()
         {
+            Focusable = true;
             // 초기화 로직은 BuildWindowCore에서 수행
         }
 
@@ -161,6 +174,7 @@ namespace PixelTool
                 }
 
                 this.Focus();
+                SetFocus(_childHwnd);
 
                 _pendingUiChanges.Enqueue(() => PixelEngineNative.SetWindowFocus(true));
             }

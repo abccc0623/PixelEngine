@@ -7,7 +7,7 @@
         Foreground="{DynamicResource PixelTextBrush}">
     <Grid Background="{DynamicResource PixelBackgroundBrush}">
         <Grid.ColumnDefinitions><ColumnDefinition Width="54"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-        <Grid VerticalAlignment="Top"><local:ToolbarWindow/></Grid>
+        <Grid VerticalAlignment="Top"><local:ToolbarWindow x:Name="EditorToolbar"/></Grid>
         <Border Grid.Column="1" BorderBrush="{DynamicResource PixelDockBorderBrush}" BorderThickness="1"
                 Background="{DynamicResource PixelBackgroundBrush}">
             <local:DockWorkspace x:Name="dockManager"/>

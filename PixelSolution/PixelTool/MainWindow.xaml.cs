@@ -103,6 +103,7 @@ namespace PixelTool
             => dockManager.ShowDocument("AIChat", activate);
 
         internal IEnumerable<FrameworkElement> DockContents => dockManager.Contents;
+        internal bool IsSceneGameInputActive => EditorToolbar.IsPlayMode && GraphicsWindow.HasNativeKeyboardFocus;
 
         internal Action OpenFloatingTool(string title, FrameworkElement content, double width, double height)
             => dockManager.OpenTool(title, content, width, height);

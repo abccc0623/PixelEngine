@@ -23,7 +23,8 @@ public partial class AIChatWindow : UserControl
     private bool _restoringPreferences = true;
     private bool _restoreAttempted;
     private bool _scrollToEndQueued;
-    private readonly ObservableCollection<string> _transcript = new();
+    private sealed record TranscriptMessage(string Text, bool IsUser);
+    private readonly ObservableCollection<TranscriptMessage> _transcript = new();
     private sealed record ChatAccount(string Id, string Label);
     private sealed record ChatModel(string Model, string DisplayName, bool IsDefault, string? DefaultEffort);
     private readonly Dictionary<string, string> _fileChanges = new();
@@ -529,15 +530,18 @@ public partial class AIChatWindow : UserControl
 
     private void RenderTranscript()
     {
+        // Keep diagnostics in saved history; the conversation surface only shows questions and answers.
+        var visibleMessages = _history.Messages.Where(m => m.Role is "사용자" or "ChatGPT").ToList();
         // Keep existing containers intact while streaming; only changed messages notify WPF.
-        for (int i = 0; i < _history.Messages.Count; i++)
+        for (int i = 0; i < visibleMessages.Count; i++)
         {
-            var message = _history.Messages[i];
+            var message = visibleMessages[i];
             string text = "[" + message.Role + "]\n" + message.Text;
-            if (i == _transcript.Count) _transcript.Add(text);
-            else if (_transcript[i] != text) _transcript[i] = text;
+            var entry = new TranscriptMessage(text, message.Role == "사용자");
+            if (i == _transcript.Count) _transcript.Add(entry);
+            else if (_transcript[i] != entry) _transcript[i] = entry;
         }
-        while (_transcript.Count > _history.Messages.Count)
+        while (_transcript.Count > visibleMessages.Count)
             _transcript.RemoveAt(_transcript.Count - 1);
         ScrollTranscriptToEnd();
     }
@@ -545,7 +549,7 @@ public partial class AIChatWindow : UserControl
     private void CopyTranscript(object sender, RoutedEventArgs e)
     {
         if (_transcript.Count == 0) return;
-        try { Clipboard.SetText(string.Join("\n\n", _transcript)); }
+        try { Clipboard.SetText(string.Join("\n\n", _transcript.Select(message => message.Text))); }
         catch (System.Runtime.InteropServices.COMException) { StatusText.Text = "클립보드가 사용 중입니다. 다시 복사해 주세요."; }
     }
 
