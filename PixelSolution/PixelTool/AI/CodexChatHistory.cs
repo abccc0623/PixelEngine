@@ -11,6 +11,8 @@ internal sealed class CodexChatHistory
     public string? ThreadId { get; set; }
     public string Executable { get; set; } = "codex.exe";
     public string? Model { get; set; }
+    public bool ConfirmCommands { get; set; } = true;
+    public bool AllowEdits { get; set; }
     public List<CodexChatMessage> Messages { get; set; } = new();
 
     internal static string PathFor(string project)

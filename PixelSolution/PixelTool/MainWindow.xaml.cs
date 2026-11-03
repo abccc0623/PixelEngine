@@ -90,6 +90,27 @@ namespace PixelTool
             SaveCurrentLayout();
         }
 
+        internal async Task<System.Text.Json.JsonElement> ReimportForAiAsync(CancellationToken token)
+        {
+            Dispatcher.VerifyAccess();
+            if ((LuaEditorContent.Child as LuaEditorWindow)?.HasUnsavedFiles == true)
+                return System.Text.Json.JsonSerializer.SerializeToElement(new { reimportCompleted = false, reason = "저장하지 않은 Lua 편집 내용이 있습니다. 먼저 저장해 주세요." });
+            if (LuaDebugSession.IsInspecting || LuaDebugSession.IsShuttingDown)
+                return System.Text.Json.JsonSerializer.SerializeToElement(new { reimportCompleted = false, reason = "Lua 디버거가 중단 또는 종료 상태입니다. 계속 실행한 뒤 다시 요청하세요." });
+            long cursor;
+            try { cursor = await GraphicsWindow.RequestReimportAsync(token); }
+            catch (OperationCanceledException) when (!token.IsCancellationRequested)
+            {
+                return System.Text.Json.JsonSerializer.SerializeToElement(new { reimportCompleted = false,
+                    reason = "리임포트 완료 대기 시간이 초과되었습니다. 이미 시작된 초기화는 진행됐을 수 있으므로 성공으로 판단하거나 자동 재시도하지 말고 로그·디버거 상태를 확인하세요." });
+            }
+            return System.Text.Json.JsonSerializer.SerializeToElement(new
+            {
+                reimportCompleted = true, afterCursor = cursor, logs = ConsoleWindow.ReadLogsForAi(cursor, 100),
+                note = "리임포트 프레임 처리가 끝났습니다. 반환된 로그와 이후 로그를 확인하세요. 오류가 없는 전체 실행을 보장하지 않습니다."
+            });
+        }
+
         private string SerializeCurrentLayout()
         {
             var serializer = new XmlLayoutSerializer(dockManager);

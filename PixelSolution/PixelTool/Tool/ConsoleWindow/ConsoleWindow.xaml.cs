@@ -9,6 +9,8 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace PixelTool
 {
@@ -57,6 +59,35 @@ namespace PixelTool
 
         // 고성능 처리를 위한 스레드 안전 큐 및 바인딩 컬렉션
         private static readonly ConcurrentQueue<LogEntry> _pendingLogs = new ConcurrentQueue<LogEntry>();
+        private sealed record CapturedLog(long Sequence, string Timestamp, int Level, string Message);
+        private static readonly object _captureLock = new();
+        private static readonly Queue<CapturedLog> _capturedLogs = new();
+        private static long _logSequence;
+        private static long _clearedThroughCursor;
+
+        internal static long LogCursor
+        {
+            get { lock (_captureLock) return _logSequence; }
+        }
+
+        internal static JsonElement ReadLogsForAi(long afterCursor, int limit)
+        {
+            if (afterCursor < 0 || limit < 1 || limit > 100) throw new ArgumentOutOfRangeException(nameof(limit));
+            lock (_captureLock)
+            {
+                var selected = _capturedLogs.Where(log => log.Sequence > afterCursor).Take(limit).ToArray();
+                return JsonSerializer.SerializeToElement(new
+                {
+                    entries = selected.Select(log => new { sequence = log.Sequence, timestamp = log.Timestamp, level = log.Level,
+                        message = Regex.Replace(Regex.Replace(log.Message, @"(?i)\bBearer\s+[^\s""']+", "Bearer <redacted>"),
+                            @"(?i)(access_token|refresh_token|id_token|api_key)\s*[=:]\s*[^\s,;]+", "$1=<redacted>") }),
+                    cursor = selected.LastOrDefault()?.Sequence ?? afterCursor, latestCursor = _logSequence,
+                    hasMore = selected.Length > 0 && selected[^1].Sequence < _logSequence,
+                    cleared = afterCursor < _clearedThroughCursor,
+                    truncated = _capturedLogs.Count > 0 && afterCursor < _capturedLogs.Peek().Sequence - 1
+                });
+            }
+        }
         private readonly ObservableCollection<LogEntry> _logItems = new ObservableCollection<LogEntry>();
         private readonly Dictionary<string, LogEntry> _logIndex = new Dictionary<string, LogEntry>();
         private readonly DispatcherTimer _uiUpdateTimer;
@@ -91,6 +122,12 @@ namespace PixelTool
         // 1. C# 툴 내부의 다른 시스템에서 호출하기 위한 정적 인터페이스
         public static void LogMessage(string message, int level)
         {
+            lock (_captureLock)
+            {
+                _capturedLogs.Enqueue(new(++_logSequence, DateTime.Now.ToString("HH:mm:ss"), level,
+                    message.Length > 4000 ? message[..4000] + " [truncated]" : message));
+                while (_capturedLogs.Count > MAX_LOG_COUNT) _capturedLogs.Dequeue();
+            }
             // 어느 스레드에서 호출하든 안전하게 큐에 적재
             _pendingLogs.Enqueue(new LogEntry
             {
@@ -149,6 +186,7 @@ namespace PixelTool
 
 		public void ClearLogs()
         {
+            lock (_captureLock) { _capturedLogs.Clear(); _clearedThroughCursor = _logSequence; }
             _logItems.Clear();
             _logIndex.Clear();
             while (_pendingLogs.TryDequeue(out _)) { } // 잔여 큐 완전히 비우기

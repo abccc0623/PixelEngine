@@ -1,36 +1,44 @@
-# PixelTool AI Chat
+# PixelTool ChatGPT direct connection
 
-The **AI Chat** document opens beside the Lua editor. The toolbar's **AI Chat (Codex)** button reopens or activates the same view.
+The AI Chat tab opens beside the Lua editor. **Continue with ChatGPT** uses the official local-personal/open-source Sign in with ChatGPT flow. No installed `codex.exe`, API key, client secret, or partner API key is used. The legacy `CodexChatClient.cs` remains but is not instantiated by the editor UI.
 
-## Account connection
+## Sign-in
 
-Install the official native Codex CLI separately; it is not bundled in the PixelTool installer. The editor searches PATH and the current Windows user's Codex installation. You can select `codex.exe` manually.
+- Starts a loopback-only callback at `http://127.0.0.1:<port>/auth/callback` before opening the system browser. Uses per-attempt state, nonce, PKCE S256 and a stable host ID. Initial dynamic registration receives an issued client ID, not an API key.
+- Validates RS256 ID-token signature using OpenAI's discovered JWKS, issuer, audience, nonce and expiry. Other signing algorithms fail closed. Responses access requires the granted `chatgpt.tokens.use.direct` scope.
+- Saves each issued client/account separately under `%LOCALAPPDATA%/PixelTool/ChatGPT`, with a current-user ACL and DPAPI encryption. No tokens are put in project files, chat history, command lines or source control. Account selection, adding another account and reauthorization are supported.
+- After connection, account details collapse behind **계정 관리**. A saved account is restored once when the chat view first loads; this may refresh tokens and fetch models but never starts inference or opens the login browser automatically. Restore errors reveal the account controls for manual reconnection.
+- Refreshes near expiry and saves replacement tokens. A local file lock serializes refresh across editor processes. Failed HTTP requests are not automatically retried. There is no API-key fallback.
+- No sign-out/revocation UI yet: disconnect through ChatGPT settings when needed. Closing the editor cancels local requests, not the renewable account grant.
 
-Click **계정 연결**. The editor starts `codex app-server`, initializes its stdio connection and checks `account/read`. Existing ChatGPT login can be reused. Otherwise, the official browser login opens. **로그인 확인** retries the account check. API-key accounts are not allowed to start a chat turn, and the editor never reads or copies Codex credential files.
+## Inference and tools
 
-This is a new Codex conversation, not a connection to an existing desktop chat. ChatGPT-plan limits still apply. The editor does not collect an API key or implement inference HTTP requests itself.
-
-When this editor's MCP endpoint is running, the child Codex process is connected to it automatically using a private environment variable. The global Codex configuration is not edited. If another editor owns the fixed MCP port, this editor's chat disables the `pixeltool` MCP entry rather than reading another project's state.
-
-## Chat and file changes
-
-- Enter a message and click **전송**, or press Ctrl+Enter. Replies stream into the transcript.
-- Initially **프로젝트 파일 수정 허용** is unchecked: turns are read-only and elevation requests are declined.
-- Enable it to allow workspace changes inside the selected project. Turns use the `on-request` approval policy, restricted network access, and the selected project as the writable root. Server-issued file/command approvals open a detail dialog. No session-wide approval or automatic extra permissions are granted. Normal sandbox-authorized operations follow Codex policy; this is not a guarantee of one prompt per changed file.
-- Save unsaved editor buffers before asking AI to modify those files. Disk changes are handled by the editor's existing external-file detection.
-- **응답 중지** interrupts the current turn. Closing the editor disposes the owned Codex process; closing just the tab retains the same conversation for reopening.
-- The model selector is populated with `model/list` after ChatGPT login, including pagination. The saved project selection is restored if still present; otherwise the server's recommended default is selected. Changes apply on the next turn, not mid-response. Each turn supplies the selected model and its catalog default reasoning effort. A catalog entry does not guarantee account access; errors are shown rather than silently switching models. The selection is saved with project chat history.
-- Three required documents are embedded in `PixelTool.dll`: `AIRestrictions.md` (operating restrictions), `EditorGuide.md` (editor functions), and `LuaApiGuide.md` (Lua APIs). They are supplied through `developerInstructions` on both thread creation and resume, not prepended to user messages. Missing/empty resources stop connection preparation. Update the relevant document and rebuild the tool; they are not copied into EngineDLL or game Asset folders.
-- These documents take priority over conflicting project documents, `AGENTS.md`, skills and user messages within PixelTool AI. Other documents may still be read as supplementary context. Platform/managed policies and actual permissions remain higher; instructions are not a security boundary or a guarantee of perfect model compliance. Project API/version mismatches must still be checked and reported. The documents are not secret, model training, or an MCP tool.
+- Fetches the current account's visible models from `GET https://api.openai.com/v1/models`. Sends the selected slug to `POST https://api.openai.com/v1/responses` with OAuth, `store:false`, `stream:true`. Only `response.completed` means success. Failed, incomplete and interrupted responses are distinct.
+- The three required embedded guides are sent as Responses `instructions` on every inference request. They are not prepended to user text. Project documents may supplement but not override them.
+- Local tools list a directory, read/write text, create Asset folders, inspect/copy existing image/audio/font files, import a user-picked external asset, and create simple RGBA PNGs. Text assets include Lua/pxm/scene/JSON and SVG, but SVG engine rendering is not assumed. PNGs are procedural rectangle drawing, not AI image generation: dimensions up to 1024x1024, 4096 rectangles and a bounded pixel-work budget. Copy/import supports files up to 16MB. New binary assets never overwrite existing files; outside files must be explicitly selected by the user in the editor picker.
+- Read-only rejects all writes in both modes. **Always ask** shows text changes or an asset operation description for approval; **automatic approval** skips that dialog for requested ordinary creation/replacement when edits are enabled. External import still requires the file picker. Missing preference defaults to ask. The 256KB text cap, project/Asset path boundaries, reparse-point/credential-name checks and stale-text SHA256 checks remain enforced. These are not an OS sandbox or a defense against concurrent malicious filesystem substitution.
+- `reimport_project` dispatches through WPF into the render queue, calls existing Reload before UpdateEngine, and completes after that frame processes the main.lua import. It resets runtime, refuses unsaved Lua buffers or paused/shutting-down debugging, uses the selected approval mode and requires edit permission. A 15-second deadline prevents indefinite waiting; a timed-out or canceled operation may already have started and is never automatically retried.
+- `read_editor_logs` reads a thread-safe sequence-numbered capture of up to 2000 recent entries, including native logs still pending UI display. Pages contain up to 100 entries with cursor, hasMore, truncated and cleared flags. Existing UI logs are not cleared by AI reimport. Manual log clearing also clears the AI capture without resetting its sequence. Known credential patterns are redacted, and returned message lengths are capped. Partial/cleared/truncated logs are not proof of no errors.
+- **No arbitrary shell, deletion, installation, build, new game/editor launch, network tool or MCP execution is exposed to the model.** The narrowly scoped existing-editor reimport is not a build or a new process.
+- Save editor buffers first. Tools work with disk files, not unsaved editor content. There is a 16-response tool loop cap and no automatic inference retries.
 
 ## History
 
-The latest thread ID, selected Codex executable and transcript are stored under `%LOCALAPPDATA%\PixelTool\AIChat\<project-path-hash>.json`. Reconnecting resumes that same thread. Resume failure is shown rather than silently creating a new conversation; use **새 대화** if necessary. New conversations archive the previous local transcript and do not delete the old Codex thread. Store these files as private user data; they can contain source code and chat content.
+Display history remains at `AIChat/<project-hash>.json`. Full direct input/output items are saved in separate project/account-bound `chatgpt-<id>` files for replay with `store:false`. New conversations preserve old files. Switching from Codex preserves the transcript but starts new model context, without silently transmitting the old transcript. Account selection starts new context, and resume rejects account mismatches.
 
-## Verification
+The edit-permission checkbox and task approval choice save immediately in project history and restore on restart. New/older histories without the edit-permission field default to read-only. Restoring an explicitly saved permission does not change another project's settings.
+
+Interrupted/failed turns are not saved into replay context; already approved file changes may still exist. The UI warns about that. History may contain source code and is private user data. Authentication tokens are stored separately.
+
+## Verification and distribution
 
 `powershell -NoProfile -ExecutionPolicy Bypass -File PixelSolution/Tests/AIChat.Tests.ps1`
 
-This checks source contracts only. Native/editor builds, real account login, inference, file approvals, streaming and restart recovery require a rebuilt editor and an actual Codex connection. No such live requests are performed by this test.
+These are static checks, not live authentication/inference tests. Rebuilt-editor browser login, plan entitlement, streaming, file approval, refresh, restart and shutdown need runtime verification. No login, inference, editor launch or build is executed by this test.
 
-Protocol reference: https://learn.chatgpt.com/docs/app-server
+The target is currently a personal local tool. Recheck eligibility before sharing the closed-source editor or packaging AI for other users. Game-only distribution must not include editor credentials.
+
+Official references:
+- https://developers.openai.com/siwc/token-sharing-open-source/sign-in
+- https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference
+- https://developers.openai.com/siwc/token-sharing-open-source/profiles-and-sessions

@@ -20,6 +20,9 @@ namespace PixelTool
 
         [DllImport("user32.dll")]
         static extern bool DestroyWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        static extern bool IsChild(IntPtr hWndParent, IntPtr hWnd);
         #endregion
 
         // Win32 상수
@@ -35,6 +38,29 @@ namespace PixelTool
         private volatile bool _isRunning; // 스레드 가시성 보장
         private readonly object _engineLock = new object(); // C++ Native 호출 동기화 락
         private readonly ConcurrentQueue<Action> _pendingUiChanges = new ConcurrentQueue<Action>();
+        private readonly ConcurrentQueue<Action> _afterFrameActions = new();
+
+        internal async Task<long> RequestReimportAsync(CancellationToken token)
+        {
+            if (!_isRunning) throw new InvalidOperationException("Scene View 엔진이 실행 중이 아닙니다.");
+            using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
+            deadline.CancelAfter(TimeSpan.FromSeconds(15));
+            var cancelled = deadline.Token;
+            var completion = new TaskCompletionSource<long>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _pendingUiChanges.Enqueue(() =>
+            {
+                if (cancelled.IsCancellationRequested || !_isRunning) { completion.TrySetCanceled(); return; }
+                try
+                {
+                    long cursor = ConsoleWindow.LogCursor;
+                    PixelEngineNative.Reload();
+                    // Reload requests a clear; UpdateEngine below performs it and imports main.lua.
+                    _afterFrameActions.Enqueue(() => completion.TrySetResult(cursor));
+                }
+                catch (Exception ex) { completion.TrySetException(ex); }
+            });
+            return await completion.Task.WaitAsync(cancelled).ConfigureAwait(false);
+        }
 
         public GraphicsWindow()
         {
@@ -87,6 +113,7 @@ namespace PixelTool
                 {
                     while (_pendingUiChanges.TryDequeue(out var change)) change();
                     PixelEngineNative.UpdateEngine();
+                    while (_afterFrameActions.TryDequeue(out var finished)) finished();
                 }
             }
         }
@@ -112,6 +139,10 @@ namespace PixelTool
         private void OnThreadFilterMessage(ref MSG msg, ref bool handled)
         {
             if (LuaDebugSession.IsInspecting) return;
+            // ThreadFilterMessage also sees WPF and ComboBox popup clicks.
+            // Only the native render window (or its children) may take engine focus.
+            if (_childHwnd == IntPtr.Zero ||
+                (msg.hwnd != _childHwnd && !IsChild(_childHwnd, msg.hwnd))) return;
             const int WM_LBUTTONDOWN = 0x0201;
             const int WM_RBUTTONDOWN = 0x0204;
             const int WM_MBUTTONDOWN = 0x0207;

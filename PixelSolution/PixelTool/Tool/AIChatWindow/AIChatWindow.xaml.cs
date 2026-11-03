@@ -1,4 +1,3 @@
-using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -12,13 +11,17 @@ public partial class AIChatWindow : UserControl
 {
     private readonly string _project = ProjectPathService.ProjectRootPath;
     private CodexChatHistory _history;
-    private CodexChatClient? _client;
+    private ChatGptChatClient? _client;
     private string? _threadId;
     private string? _turnId;
     private bool _busy;
     private bool _disposed;
     private bool _historyWritable = true;
     private bool _stopRequested;
+    private bool _loadingAccounts;
+    private bool _restoringPreferences = true;
+    private bool _restoreAttempted;
+    private sealed record ChatAccount(string Id, string Label);
     private sealed record ChatModel(string Model, string DisplayName, bool IsDefault, string? DefaultEffort);
     private readonly Dictionary<string, string> _fileChanges = new();
 
@@ -37,34 +40,36 @@ public partial class AIChatWindow : UserControl
             _history = new() { ProjectPath = _project };
             StatusText.Text = "기존 대화 기록을 읽지 못했습니다. 연결 시 새 대화로 시작합니다.";
         }
-        try
-        {
-          if (_history.Executable == "codex.exe")
-          {
-            var paths = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator);
-            string? executable = paths.Select(p => Path.Combine(p.Trim('"'), "codex.exe")).FirstOrDefault(File.Exists);
-            if (executable == null)
-            {
-                string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OpenAI", "Codex", "bin");
-                if (Directory.Exists(directory))
-                    executable = new DirectoryInfo(directory).GetDirectories().OrderByDescending(d => d.LastWriteTimeUtc)
-                        .Select(d => Path.Combine(d.FullName, "codex.exe")).FirstOrDefault(File.Exists);
-            }
-            if (executable != null) _history.Executable = executable;
-          }
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException) { }
-        ExecutableBox.Text = _history.Executable;
+        CommandApprovalBox.SelectedIndex = _history.ConfirmCommands ? 0 : 1;
+        AllowEdits.IsChecked = _history.AllowEdits;
+        _restoringPreferences = false;
         RenderTranscript();
-    }
-
-    private void BrowseCodex(object sender, RoutedEventArgs e)
-    {
-        var dialog = new OpenFileDialog { Title = "Codex CLI 실행 파일 선택", Filter = "Codex 실행 파일 (*.exe)|*.exe" };
-        if (dialog.ShowDialog() == true) ExecutableBox.Text = dialog.FileName;
+        Loaded += RestoreConnection;
     }
 
     private async void Connect(object sender, RoutedEventArgs e)
+        => await ConnectAsync(allowBrowserLogin: true);
+
+    private async void RestoreConnection(object sender, RoutedEventArgs e)
+    {
+        if (_restoreAttempted || _disposed || _client != null) return;
+        _restoreAttempted = true;
+        if (ChatGptSignIn.HasSavedAccount) await ConnectAsync(allowBrowserLogin: false);
+    }
+
+    private void ToggleAccountDetails(object sender, RoutedEventArgs e)
+    {
+        AccountDetails.Visibility = AccountDetails.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private void AllowEditsChanged(object sender, RoutedEventArgs e)
+    {
+        if (_restoringPreferences || _history == null) return;
+        _history.AllowEdits = AllowEdits.IsChecked == true;
+        SaveHistory();
+    }
+
+    private async Task ConnectAsync(bool allowBrowserLogin)
     {
         ConnectButton.IsEnabled = false;
         ModelBox.IsEnabled = SendButton.IsEnabled = NewButton.IsEnabled = false;
@@ -72,7 +77,14 @@ public partial class AIChatWindow : UserControl
         {
             if (_client != null) await _client.DisposeAsync();
             _threadId = _turnId = null;
-            _client = new CodexChatClient();
+            _client = new ChatGptChatClient();
+            if (_history.ThreadId != null && !_history.ThreadId.StartsWith("chatgpt-"))
+            {
+                _history.ThreadId = null;
+                _history.Messages.Add(new() { Role = "시스템", Text = "ChatGPT 직접 연결로 변경했습니다. 이전 Codex 대화 기록은 보존되지만 새 연결의 AI 문맥에는 전송되지 않습니다." });
+                SaveHistory();
+                RenderTranscript();
+            }
             _client.Notification += (method, p) => Dispatcher.BeginInvoke(new Action(() => HandleNotification(method, p)));
             _client.Disconnected += () => Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -81,28 +93,64 @@ public partial class AIChatWindow : UserControl
                 SendButton.IsEnabled = RefreshButton.IsEnabled = NewButton.IsEnabled = false;
                 ModelBox.IsEnabled = false;
                 ConnectButton.IsEnabled = true;
-                StatusText.Text = "Codex 연결이 종료되었습니다. 계정 연결을 다시 눌러주세요.";
+                StatusText.Text = "ChatGPT 연결이 종료되었습니다. 계정 연결을 다시 눌러주세요.";
             }));
             _client.Approve = (method, p) => Dispatcher.InvokeAsync(() => ConfirmApproval(method, p)).Task;
-            StatusText.Text = "Codex 연결 중…";
-            await _client.ConnectAsync(ExecutableBox.Text.Trim(), _project, (Application.Current as App)?.IsMcpRunning == true);
-            _history.Executable = ExecutableBox.Text.Trim();
+            _client.PickAsset = () => Dispatcher.InvokeAsync(PickImportAsset).Task;
+            _client.ReadEditorLogs = ConsoleWindow.ReadLogsForAi;
+            _client.ReimportProject = token => Dispatcher.InvokeAsync(() =>
+                ((MainWindow)Application.Current.MainWindow).ReimportForAiAsync(token)).Task.Unwrap();
+            StatusText.Text = "ChatGPT 연결 중…";
+            await _client.ConnectAsync(_project);
+            AddAccountButton.IsEnabled = ReauthorizeButton.IsEnabled = true;
             RefreshButton.IsEnabled = true;
             if (!await LoadAccountAsync())
             {
+                if (!allowBrowserLogin)
+                {
+                    AccountDetails.Visibility = Visibility.Visible;
+                    AccountSummary.Text = "계정 재연결 필요";
+                    ConnectButton.IsEnabled = true;
+                    StatusText.Text = "저장된 연결을 복원하지 못했습니다. 계정 연결을 눌러주세요.";
+                    return;
+                }
                 var result = await _client.RequestAsync("account/login/start", new { type = "chatgpt" });
                 string url = result.GetProperty("authUrl").GetString()!;
-                if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
-                    throw new InvalidDataException("Codex returned an invalid login URL.");
+                if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps || uri.Host != "auth.openai.com")
+                    throw new InvalidDataException("ChatGPT returned an invalid login URL.");
                 Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
                 StatusText.Text = "브라우저에서 ChatGPT 로그인을 완료하세요. 자동 연결되지 않으면 로그인 확인을 누르세요.";
             }
         }
         catch (Exception exception)
         {
-            StatusText.Text = "연결 실패: " + exception.Message + " · Codex CLI가 없으면 설치하거나 실행 파일을 선택하세요.";
+            AccountDetails.Visibility = Visibility.Visible;
+            AccountSummary.Text = "계정 연결 확인 필요";
+            StatusText.Text = "연결 실패: " + exception.Message;
             ConnectButton.IsEnabled = true;
         }
+    }
+
+    private async void AddAccount(object sender, RoutedEventArgs e)
+        => await OpenLoginAsync(true);
+
+    private async void Reauthorize(object sender, RoutedEventArgs e)
+        => await OpenLoginAsync(false);
+
+    private async Task OpenLoginAsync(bool newAccount)
+    {
+        if (_busy || _client == null) return;
+        try
+        {
+            var result = await _client.RequestAsync("account/login/start", new { type = "chatgpt", newAccount });
+            var uri = new Uri(result.GetProperty("authUrl").GetString()!);
+            if (uri.Scheme != "https" || uri.Host != "auth.openai.com") throw new InvalidDataException("잘못된 로그인 주소입니다.");
+            Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
+            _threadId = _history.ThreadId = null;
+            SendButton.IsEnabled = NewButton.IsEnabled = ModelBox.IsEnabled = false;
+            StatusText.Text = "브라우저에서 새 ChatGPT 계정을 연결하세요. 기존 대화 기록은 유지됩니다.";
+        }
+        catch (Exception ex) { StatusText.Text = "계정 추가 실패: " + ex.Message; }
     }
 
     private async Task<bool> LoadAccountAsync()
@@ -115,14 +163,40 @@ public partial class AIChatWindow : UserControl
             StatusText.Text = "ChatGPT 계정 로그인이 필요합니다. API 키로는 대화를 실행하지 않습니다.";
             return false;
         }
+        var accounts = await _client.RequestAsync("account/list", new { });
+        _loadingAccounts = true;
+        try
+        {
+            var options = accounts.GetProperty("data").EnumerateArray().Select(a => new ChatAccount(a.GetProperty("id").GetString()!, a.GetProperty("label").GetString()!)).ToArray();
+            AccountBox.ItemsSource = options;
+            AccountBox.SelectedItem = options.FirstOrDefault(a => a.Id == accounts.GetProperty("selected").GetString());
+            AccountBox.IsEnabled = true;
+        }
+        finally { _loadingAccounts = false; }
         await LoadModelsAsync();
         await PrepareThreadAsync();
         string plan = account.TryGetProperty("planType", out var p) ? p.GetString() ?? "" : "";
+        AccountSummary.Text = "연결됨 · " + plan;
+        AccountDetails.Visibility = Visibility.Collapsed;
         StatusText.Text = "ChatGPT 계정 연결됨 · " + plan + " · " + _project;
         SendButton.IsEnabled = NewButton.IsEnabled = true;
         ConnectButton.IsEnabled = false;
         SaveHistory();
         return true;
+    }
+
+    private async void AccountChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loadingAccounts || _busy || _client == null || AccountBox.SelectedItem is not ChatAccount selected) return;
+        SendButton.IsEnabled = NewButton.IsEnabled = ModelBox.IsEnabled = AccountBox.IsEnabled = false;
+        try
+        {
+            await _client.RequestAsync("account/select", new { id = selected.Id });
+            _threadId = _history.ThreadId = null;
+            SaveHistory();
+            await LoadAccountAsync();
+        }
+        catch (Exception ex) { StatusText.Text = "계정 변경 실패: " + ex.Message; AccountBox.IsEnabled = true; }
     }
 
     private async Task LoadModelsAsync()
@@ -146,7 +220,7 @@ public partial class AIChatWindow : UserControl
             cursor = result.TryGetProperty("nextCursor", out var next) ? next.GetString() : null;
             if (cursor != null && !cursors.Add(cursor)) throw new InvalidDataException("모델 목록의 다음 페이지가 반복됩니다.");
         } while (cursor != null);
-        if (models.Count == 0) throw new InvalidOperationException("선택 가능한 Codex 모델이 없습니다. 로그인 상태와 Codex 버전을 확인하세요.");
+        if (models.Count == 0) throw new InvalidOperationException("이 ChatGPT 계정에서 선택 가능한 모델이 없습니다. 로그인과 사용 권한을 확인하세요.");
         string? savedModel = _history.Model;
         ModelBox.ItemsSource = models;
         ModelBox.SelectedItem = models.FirstOrDefault(m => m.Model == savedModel)
@@ -158,6 +232,13 @@ public partial class AIChatWindow : UserControl
     {
         if (ModelBox.SelectedItem is not ChatModel selected) return;
         _history.Model = selected.Model;
+        SaveHistory();
+    }
+
+    private void CommandApprovalChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_restoringPreferences || _history == null || CommandApprovalBox.SelectedIndex < 0) return;
+        _history.ConfirmCommands = CommandApprovalBox.SelectedIndex == 0;
         SaveHistory();
     }
 
@@ -184,7 +265,7 @@ public partial class AIChatWindow : UserControl
         }
         var thread = result.GetProperty("thread");
         if (thread.TryGetProperty("cwd", out var cwd) && !string.Equals(Path.GetFullPath(cwd.GetString()!), Path.GetFullPath(_project), StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Codex thread belongs to a different project.");
+            throw new InvalidDataException("ChatGPT thread belongs to a different project.");
         _history.ThreadId = _threadId = thread.GetProperty("id").GetString();
     }
 
@@ -198,6 +279,7 @@ public partial class AIChatWindow : UserControl
     private async void Send(object sender, RoutedEventArgs e)
     {
         if (_busy || _client == null || _threadId == null || ModelBox.SelectedItem is not ChatModel selected || string.IsNullOrWhiteSpace(PromptBox.Text)) return;
+        bool confirmCommands = _history.ConfirmCommands;
         string text = PromptBox.Text;
         PromptBox.Clear();
         _history.Messages.Add(new() { Role = "사용자", Text = text });
@@ -221,11 +303,16 @@ public partial class AIChatWindow : UserControl
                 threadId = _threadId,
                 model = selected.Model,
                 effort = selected.DefaultEffort,
+                confirmActions = confirmCommands,
                 approvalPolicy = "on-request",
                 sandboxPolicy = AllowEdits.IsChecked == true
                     ? (object)new { type = "workspaceWrite", writableRoots = new[] { _project }, networkAccess = false }
                     : new { type = "readOnly" },
-                input = new[] { new { type = "text", text } }
+                input = new[]
+                {
+                    new { type = "text", text = CommandExecutionPreference.ForTurn(confirmCommands) },
+                    new { type = "text", text }
+                }
             });
             if (_busy)
             {
@@ -254,7 +341,7 @@ public partial class AIChatWindow : UserControl
         {
             SendButton.IsEnabled = NewButton.IsEnabled = false;
             ConnectButton.IsEnabled = true;
-            StatusText.Text = "Codex 응답 형식을 처리하지 못했습니다. 응답을 중지하고 계정 연결을 다시 눌러주세요.";
+            StatusText.Text = "ChatGPT 응답 형식을 처리하지 못했습니다. 응답을 중지하고 계정 연결을 다시 눌러주세요.";
         }
     }
 
@@ -288,7 +375,7 @@ public partial class AIChatWindow : UserControl
             if (type == "agentMessage" && method == "item/completed")
             {
                 var message = _history.Messages.FirstOrDefault(m => m.ItemId == id);
-                if (message == null) _history.Messages.Add(new() { Role = "Codex", ItemId = id, Text = item.GetProperty("text").GetString() ?? "" });
+                if (message == null) _history.Messages.Add(new() { Role = "ChatGPT", ItemId = id, Text = item.GetProperty("text").GetString() ?? "" });
                 else message.Text = item.GetProperty("text").GetString() ?? "";
             }
         }
@@ -298,7 +385,7 @@ public partial class AIChatWindow : UserControl
             var message = _history.Messages.FirstOrDefault(m => m.ItemId == id);
             if (message == null)
             {
-                message = new() { Role = "Codex", ItemId = id };
+                message = new() { Role = "ChatGPT", ItemId = id };
                 _history.Messages.Add(message);
             }
             message.Text += p.GetProperty("delta").GetString();
@@ -311,7 +398,10 @@ public partial class AIChatWindow : UserControl
             SetBusy(false);
             _turnId = null;
             SaveHistory();
-            StatusText.Text = "응답 완료 · 대화 저장됨";
+            string state = turn.TryGetProperty("status", out var status) ? status.GetString() ?? "failed" : "failed";
+            StatusText.Text = state == "completed" ? "응답 완료 · 대화 저장됨"
+                : state == "interrupted" ? "응답 중지됨 · 이미 수행한 작업은 되돌리지 않습니다."
+                : "응답 실패 · 로그와 계정 상태를 확인하세요. 이미 수행한 작업은 유지됩니다.";
         }
         RenderTranscript();
     }
@@ -354,6 +444,25 @@ public partial class AIChatWindow : UserControl
         return accepted && !_disposed;
     }
 
+    private ChatGptProjectTools.ImportedAsset? PickImportAsset()
+    {
+        if (_disposed || !_busy || AllowEdits.IsChecked != true) return null;
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "AI가 Asset으로 가져올 파일을 직접 선택하세요",
+            Filter = "이미지·오디오·폰트|*.png;*.jpg;*.jpeg;*.bmp;*.tga;*.dds;*.wav;*.ogg;*.mp3;*.ttf;*.otf",
+            CheckFileExists = true, Multiselect = false
+        };
+        if (dialog.ShowDialog(Application.Current.MainWindow) != true || _disposed || !_busy) return null;
+        if (!ChatGptProjectTools.AssetExtensions.Contains(Path.GetExtension(dialog.FileName)))
+            throw new InvalidOperationException("지원하지 않는 에셋 형식입니다.");
+        using var file = new FileStream(dialog.FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+        if (file.Length > 16 * 1024 * 1024) throw new InvalidOperationException("가져올 에셋은 16MB까지 지원합니다.");
+        byte[] bytes = new byte[checked((int)file.Length)];
+        file.ReadExactly(bytes);
+        return new(Path.GetFileName(dialog.FileName), bytes);
+    }
+
     private async void Stop(object sender, RoutedEventArgs e)
     {
         if (!_busy || _client == null || _threadId == null) return;
@@ -390,11 +499,18 @@ public partial class AIChatWindow : UserControl
         _busy = busy;
         if (busy) _stopRequested = false;
         AllowEdits.IsEnabled = !busy;
+        AddAccountButton.IsEnabled = !busy && _client != null;
+        ReauthorizeButton.IsEnabled = !busy && _client != null;
+        AccountBox.IsEnabled = !busy && _client != null;
         ModelBox.IsEnabled = !busy && _threadId != null && ModelBox.SelectedItem is ChatModel;
         SendButton.IsEnabled = NewButton.IsEnabled = ModelBox.IsEnabled;
         StopButton.IsEnabled = busy;
+        SendButton.Content = busy ? "응답 진행 중…" : "전송 (Ctrl+Enter)";
+        StopButton.Background = (System.Windows.Media.Brush)FindResource(busy ? "PixelAccentBrush" : "PixelSurfaceBrush");
+        StopButton.Foreground = busy ? System.Windows.Media.Brushes.Black
+            : (System.Windows.Media.Brush)FindResource("PixelTextBrush");
         RefreshButton.IsEnabled = !busy && _client != null;
-        if (busy) StatusText.Text = "Codex 응답 중…";
+        if (busy) StatusText.Text = "ChatGPT 응답 중…";
     }
 
     private void RenderTranscript()

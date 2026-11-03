@@ -298,6 +298,8 @@ namespace PixelTool
             luaLspService.Dispose();
         }
 
+        internal bool HasUnsavedFiles => files.Values.Any(file => !file.Document.UndoStack.IsOriginalFile);
+
         // 텍스트 동기화만 담당
         private void LuaEditor_TextChanged(object sender, EventArgs e)
         {
