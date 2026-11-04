@@ -34,9 +34,14 @@
             <TextBlock x:Name="AccountSummary" Text="계정 연결 필요" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
                        Foreground="{DynamicResource PixelMutedTextBrush}" Margin="6"/>
         </DockPanel>
-        <TextBlock x:Name="StatusText" Grid.Row="1" Text="연결되지 않음 · 설정에서 ChatGPT 계정을 연결하세요."
+        <DockPanel Grid.Row="1">
+          <TextBlock x:Name="ElapsedTimeText" DockPanel.Dock="Right" Visibility="Collapsed"
+                     Foreground="{DynamicResource PixelAccentBrush}" FontSize="11" Margin="6,2"
+                     VerticalAlignment="Center" ToolTip="요청 전송부터 완료까지의 시간입니다. 사용자 답변·승인 대기 시간도 포함합니다."/>
+          <TextBlock x:Name="StatusText" Text="연결되지 않음 · 설정에서 ChatGPT 계정을 연결하세요."
                    TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
                    Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="11" Margin="6,2"/>
+        </DockPanel>
         <Border x:Name="SettingsPanel" Grid.Row="2" Grid.RowSpan="4" Panel.ZIndex="10" VerticalAlignment="Top"
                 Visibility="Collapsed" MaxHeight="280" Padding="8" Margin="0,4" BorderThickness="1" CornerRadius="4"
                 Background="{DynamicResource PixelPanelBrush}" BorderBrush="{DynamicResource PixelAccentBrush}">
@@ -73,10 +78,10 @@
                     <ComboBoxItem Content="일반 작업 자동 승인"/>
                 </ComboBox>
             </DockPanel>
-            <TextBlock Text="자동 승인에서는 요청에 필요한 조회·일반 파일 생성·수정을 다시 묻지 않습니다. 파일 변경에는 ‘프로젝트 파일 수정 허용’이 필요합니다. 삭제·설치·커밋·푸시는 별도 확인 대상입니다."
+            <TextBlock Text="자동 승인에서는 요청에 필요한 조회·파일 수정·Asset 파일 및 폴더 생성·이동·삭제를 다시 묻지 않습니다. 변경에는 ‘프로젝트 파일 수정 허용’이 필요합니다. 설치·커밋·푸시는 별도 확인 대상입니다."
                        TextWrapping="Wrap" Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="11" Margin="6,0,6,6"/>
             <TextBlock Text="수정 허용 전에는 읽기 전용입니다. 수정할 파일은 먼저 저장하세요. API 키 로그인은 사용하지 않습니다." TextWrapping="Wrap" Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="11" Margin="6,0,6,6"/>
-            <TextBlock Text="직접 연결: 코드·에셋·리임포트·로그 조회 지원. 리임포트는 현재 실행 상태를 초기화합니다. 임의 명령·삭제·빌드는 지원하지 않습니다."
+            <TextBlock Text="직접 연결: 코드·에셋·Asset 파일 및 폴더 생성·이동·휴지통 삭제·리임포트·로그 조회 지원. 리임포트는 실행 상태를 초기화합니다. 임의 명령·빌드는 지원하지 않습니다."
                        TextWrapping="Wrap" Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="11" Margin="6,0,6,6"/>
            </StackPanel>
           </ScrollViewer>
@@ -192,6 +197,9 @@
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsUser}" Value="True">
                                             <Setter Property="Foreground" Value="#9AD0FF"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsNotice}" Value="True">
+                                            <Setter Property="Foreground" Value="#FFCA80"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

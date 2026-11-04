@@ -15,6 +15,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
     private readonly CancellationTokenSource _stop = new();
     private CancellationTokenSource? _turnStop;
     private Task? _turn;
+    private bool _userInterrupted;
     private string _project = "", _threadId = "", _instructions = "", _account = "";
     private List<JsonElement> _input = new();
     public event Action<string, JsonElement>? Notification;
@@ -23,6 +24,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
     public Func<Task<ChatGptProjectTools.ImportedAsset?>>? PickAsset { get; set; }
     public Func<CancellationToken, Task<JsonElement>>? ReimportProject { get; set; }
     public Func<long, int, JsonElement>? ReadEditorLogs { get; set; }
+    public Func<string, Task<bool>>? CanDeleteAssetFile { get; set; }
     public Func<string, string[], CancellationToken, Task<string>>? AskChoice { get; set; }
 
     internal ChatGptChatClient()
@@ -83,6 +85,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                 _turnStop?.Dispose();
                 _turnStop = CancellationTokenSource.CreateLinkedTokenSource(_stop.Token);
                 _turnStop.CancelAfter(TimeSpan.FromMinutes(10));
+                _userInterrupted = false;
                 string turnId = Guid.NewGuid().ToString("N");
                 bool edits = p.GetProperty("sandboxPolicy").GetProperty("type").GetString() == "workspaceWrite";
                 bool confirmActions = !p.TryGetProperty("confirmActions", out var confirm) || confirm.GetBoolean();
@@ -93,6 +96,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                 _turn = Task.Run(() => RunTurnAsync(turnId, model, string.Join("\n\n", input), edits, confirmActions, cancel));
                 return JsonSerializer.SerializeToElement(new { turn = new { id = turnId } });
             case "turn/interrupt":
+                _userInterrupted = true;
                 _turnStop?.Cancel();
                 return JsonSerializer.SerializeToElement(new { });
             default: throw new NotSupportedException("직접 연결에서 지원하지 않는 요청입니다: " + method);
@@ -108,7 +112,8 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
             Emit("turn/started", new { threadId = _threadId, turn = new { id = turnId } });
             var pending = new List<JsonElement>(_input) { JsonSerializer.SerializeToElement(new { role = "user", content = text }) };
             var tools = new ChatGptProjectTools(_project);
-            for (int round = 0; round < 16; round++)
+            var repeatedFailures = new Dictionary<string, int>();
+            while (true)
             {
                 token.ThrowIfCancellationRequested();
                 using var response = await SendAsync(HttpMethod.Post, "responses", new
@@ -119,7 +124,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                         "Project tools can list/read/write text, create Asset folders, inspect/copy existing assets, import a user-picked external asset, and draw simple PNGs. " +
                         "For a requested simple placeholder or pixel graphic, use create_png_asset, not an unsupported-format excuse. SVG text can be saved but engine SVG rendering support must not be assumed; prefer PNG for textures. " +
                         "PNG drawing is procedural, not an image-generation AI. Reimport and editor-log tools are available: after script changes use reimport_project and inspect its logs, then read_editor_logs if more logs are needed. " +
-                        "Reimport resets runtime; it is not a build or a new game/editor process. No arbitrary command execution, deletion, network, build or game launch tool exists. " +
+                        "Reimport resets runtime; it is not a build or a new game/editor process. Asset file/folder creation, moves/renames and recycle-bin deletion are available under current edit/approval settings. Never move/delete Asset itself or Engine/Editor/outside paths. Automatic mode needs no extra confirmation. No arbitrary command execution, permanent deletion, network, build or game launch tool exists. " +
                         "Never claim those actions were performed. Ask the user to perform them when needed. " +
                         CommandExecutionPreference.ForTurn(confirmActions) +
                         "\nThis is the current editor setting, including for file/list/read tools. Previous assistant promises to always ask do not override this setting. " +
@@ -138,10 +143,12 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                     status = "completed";
                     return;
                 }
+                string? stalled = null;
                 foreach (var call in calls)
                 {
                     token.ThrowIfCancellationRequested();
                     string result;
+                    bool fileChanged = false;
                     try
                     {
                         using var args = JsonDocument.Parse(call.GetProperty("arguments").GetString()!);
@@ -152,7 +159,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                         {
                             string id = Guid.NewGuid().ToString("N");
                             var request = JsonSerializer.SerializeToElement(new { threadId = _threadId, turnId, itemId = id,
-                                path, previousContent = before, proposedContent = after });
+                                path, operation = name, previousContent = before, proposedContent = after });
                             string approvalMethod = name == "reimport_project" ? "item/commandExecution/requestApproval" : "item/fileChange/requestApproval";
                             if (Approve == null || !await Approve(approvalMethod, request).WaitAsync(token).ConfigureAwait(false)) return false;
                             return !token.IsCancellationRequested;
@@ -188,22 +195,63 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                             else result = (await ReimportProject(token).ConfigureAwait(false)).GetRawText();
                         }
                         else result = await tools.InvokeAsync(name, args.RootElement, allowEdits, confirmActions, ConfirmOperation, token, PickAsset,
-                            (path, before, after) => Emit("item/completed", new { threadId = _threadId, turnId,
-                                item = new { id = Guid.NewGuid().ToString("N"), type = "fileChange", path, before, after } })).ConfigureAwait(false);
-                        if (name is "write_project_file" or "create_asset_folder" or "create_png_asset" or "copy_asset" or "import_asset")
+                            (path, before, after) =>
+                            {
+                                fileChanged = before != after;
+                                Emit("item/completed", new { threadId = _threadId, turnId,
+                                    item = new { id = Guid.NewGuid().ToString("N"), type = "fileChange", path, before, after } });
+                            }, CanDeleteAssetFile).ConfigureAwait(false);
+                        if (name is "write_project_file" or "delete_asset_file" or "delete_asset_folder" or "move_asset" or "create_asset_folder" or "create_png_asset" or "copy_asset" or "import_asset")
                             Emit("item/completed", new { threadId = _threadId, turnId, item = new { id = Guid.NewGuid().ToString("N"), type = "fileChange", result } });
                     }
                     catch (OperationCanceledException) { throw; }
                     catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException or FormatException or OverflowException)
                     {
-                        result = "Project tool refused or failed: " + ex.GetType().Name + ". No success is assumed. Recheck the relative path, file size, hash and edit permission.";
+                        result = "도구 실행 실패: " + (ex is InvalidOperationException ? ex.Message
+                            : ex is UnauthorizedAccessException ? "파일 접근 권한이 없습니다."
+                            : "파일 경로·크기·변경 여부와 접근 권한을 확인해 주세요. (" + ex.GetType().Name + ")");
                     }
+                    if (!result.TrimStart().StartsWith('{'))
+                        Emit("turn/toolWarning", new { threadId = _threadId, turnId,
+                            message = "도구 작업을 완료하지 못했습니다: " + call.GetProperty("name").GetString() + "\n" + result });
                     pending.Add(JsonSerializer.SerializeToElement(new { type = "function_call_output", call_id = call.GetProperty("call_id").GetString(), output = result }));
+                    string toolName = call.GetProperty("name").GetString() ?? "";
+                    if (fileChanged || IsAssetMutation(toolName, result))
+                    {
+                        repeatedFailures.Clear();
+                        stalled = null;
+                    }
+                    string? failure = ToolFailure(toolName, result);
+                    if (failure != null)
+                    {
+                        string target = "";
+                        try
+                        {
+                            using var args = JsonDocument.Parse(call.GetProperty("arguments").GetString()!);
+                            if (args.RootElement.TryGetProperty("path", out var path)) target = path.GetString() ?? "";
+                        }
+                        catch (JsonException) { }
+                        string key = toolName + "\n" + target + "\n" + failure;
+                        int count = repeatedFailures.GetValueOrDefault(key) + 1;
+                        repeatedFailures[key] = count;
+                        if (count >= 3) stalled = toolName + (target.Length == 0 ? "" : " (" + target + ")") + "\n" + failure;
+                    }
+                }
+                if (stalled != null)
+                {
+                    _input = pending;
+                    await SaveThreadAsync(token).ConfigureAwait(false);
+                    throw new InvalidOperationException("실제 파일 변경 없이 같은 오류가 3번 반복되어 작업을 중지했습니다. 원인을 확인한 뒤 다시 요청해 주세요.\n" + stalled);
                 }
             }
-            throw new InvalidOperationException("도구 호출 횟수 제한에 도달했습니다. 요청을 나누어 진행하세요.");
         }
-        catch (OperationCanceledException) { status = "interrupted"; }
+        catch (OperationCanceledException ex)
+        {
+            if (_userInterrupted) status = "interrupted";
+            else error = new { message = token.IsCancellationRequested || ex.InnerException is TimeoutException
+                ? "응답 제한 시간을 초과해 작업을 종료했습니다. 요청을 나누어 다시 시도해 주세요."
+                : "대기 또는 도구 작업이 취소되어 요청을 완료하지 못했습니다." };
+        }
         catch (Exception ex)
         {
             error = new { message = ex is InvalidOperationException or InvalidDataException ? ex.Message : "ChatGPT 응답 처리에 실패했습니다. 네트워크와 계정 연결을 확인하세요." };
@@ -212,6 +260,35 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
         {
             if (!_stop.IsCancellationRequested) Emit("turn/completed", new { threadId = _threadId, turn = new { id = turnId, status, error } });
         }
+    }
+
+    private static bool IsAssetMutation(string name, string result)
+    {
+        try
+        {
+            using var json = JsonDocument.Parse(result);
+            return new[] { "created", "deleted", "moved" }.Any(key => json.RootElement.TryGetProperty(key, out _)) ||
+                (name is "create_png_asset" or "copy_asset" or "import_asset" && json.RootElement.TryGetProperty("saved", out _));
+        }
+        catch (JsonException) { return false; }
+    }
+
+    private static string? ToolFailure(string name, string result)
+    {
+        try
+        {
+            using var json = JsonDocument.Parse(result);
+            var root = json.RootElement;
+            if (root.TryGetProperty("reimportCompleted", out var completed) && completed.ValueKind == JsonValueKind.False)
+                return root.TryGetProperty("reason", out var reason) ? reason.GetString() : "리임포트를 완료하지 못했습니다.";
+            if (name is not ("reimport_project" or "read_editor_logs")) return null;
+            if (root.TryGetProperty("logs", out var logs)) root = logs;
+            if (!root.TryGetProperty("entries", out var entries)) return null;
+            string[] errors = entries.EnumerateArray().Where(entry => entry.GetProperty("level").GetInt32() >= 2)
+                .Select(entry => entry.GetProperty("message").GetString() ?? "").Distinct().OrderBy(message => message).ToArray();
+            return errors.Length == 0 ? null : string.Join("\n", errors);
+        }
+        catch (JsonException) { return result; }
     }
 
     private async Task<List<JsonElement>> ReadStreamAsync(HttpResponseMessage response, string turnId, CancellationToken token)

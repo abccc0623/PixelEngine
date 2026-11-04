@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 
 namespace PixelTool;
 
-// Deliberately no arbitrary shell, deletion or network tool in the direct client.
+// No arbitrary shell or network access; Asset file deletion follows the editor approval mode.
 internal sealed class ChatGptProjectTools(string project)
 {
     private readonly string _root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(project));
@@ -33,6 +33,13 @@ internal sealed class ChatGptProjectTools(string project)
             new Dictionary<string, object> { ["path"] = new { type = "string" } }),
         Tool("write_project_file", "Create or replace one project text file under the current editor approval setting. Read first and supply its expected SHA256. For a new file use an empty expectedHash. Never delete.",
             new Dictionary<string, object> { ["path"] = new { type = "string" }, ["content"] = new { type = "string" }, ["expectedHash"] = new { type = "string" } }),
+        Tool("delete_asset_file", "Move ONE existing file strictly inside Asset/ to the Windows Recycle Bin. Never delete folders, Asset itself, Engine, Editor or outside paths. Follow the editor approval setting: automatic mode needs no additional confirmation. Explain references/impact in reason. No permanent-delete fallback.",
+            new Dictionary<string, object> { ["path"] = new { type = "string" }, ["reason"] = new { type = "string", minLength = 1, maxLength = 1000 } }),
+        Tool("delete_asset_folder", "Recycle ONE folder and all its contents strictly inside Asset/. Never delete Asset itself or outside paths. Reject links, secret paths and unsaved editor buffers anywhere in the subtree. Follow current edit/approval settings.",
+            new Dictionary<string, object> { ["path"] = new { type = "string" }, ["reason"] = new { type = "string", minLength = 1, maxLength = 1000 } }),
+        Tool("move_asset", "Move or rename one file OR folder within Asset/. path is source and destination is the complete new relative path. Destination parent must exist. Never overwrite or move a folder into itself. Check and update project references separately. Follow current edit/approval settings.",
+            new Dictionary<string, object> { ["path"] = new { type = "string" }, ["destination"] = new { type = "string" },
+                ["reason"] = new { type = "string", minLength = 1, maxLength = 1000 } }),
         Tool("create_asset_folder", "Create an Asset subdirectory. path must begin with Asset/.",
             new Dictionary<string, object> { ["path"] = new { type = "string" } }),
         Tool("inspect_asset", "Get a project image/audio/font file's size, extension and SHA256. Does not interpret image contents or play audio.",
@@ -60,11 +67,76 @@ internal sealed class ChatGptProjectTools(string project)
 
     internal async Task<string> InvokeAsync(string name, JsonElement arguments, bool allowEdits, bool confirmChanges,
         Func<string, string, string, Task<bool>> approve, CancellationToken token, Func<Task<ImportedAsset?>>? pickAsset = null,
-        Action<string, string, string>? savedCode = null)
+        Action<string, string, string>? savedCode = null, Func<string, Task<bool>>? canDeleteAssetFile = null)
     {
         token.ThrowIfCancellationRequested();
         string relative = arguments.GetProperty("path").GetString() ?? "";
         string path = Resolve(relative);
+        if (name is "delete_asset_file" or "delete_asset_folder" or "move_asset")
+        {
+            if (!allowEdits) return "파일 수정 허용이 꺼져 있습니다. 변경하지 않았습니다.";
+            path = ResolveAsset(relative);
+            bool directory = Directory.Exists(path);
+            if ((!directory && !File.Exists(path)) || (name == "delete_asset_file" && directory) ||
+                (name == "delete_asset_folder" && !directory))
+                throw new InvalidOperationException("Asset 하위의 해당 종류 파일 또는 폴더가 필요합니다.");
+            string? destinationRelative = name == "move_asset" ? arguments.GetProperty("destination").GetString() : null;
+            string? destination = destinationRelative == null ? null : ResolveAsset(destinationRelative);
+            void CheckDestination()
+            {
+                if (destination == null) return;
+                ResolveAsset(destinationRelative!);
+                if (File.Exists(destination) || Directory.Exists(destination))
+                    throw new InvalidOperationException("대상이 이미 존재합니다. 덮어쓰지 않습니다.");
+                if (!Directory.Exists(Path.GetDirectoryName(destination)))
+                    throw new InvalidOperationException("대상 부모 폴더를 먼저 생성해야 합니다.");
+                if (directory && AssetFileOperations.IsInside(destination, path))
+                    throw new InvalidOperationException("폴더를 자기 내부로 이동할 수 없습니다.");
+            }
+            CheckDestination();
+            string reason = arguments.GetProperty("reason").GetString() ?? "";
+            if (string.IsNullOrWhiteSpace(reason) || reason.Length > 1000)
+                throw new InvalidOperationException("변경 이유와 영향을 1000자 이내로 설명해야 합니다.");
+            if (canDeleteAssetFile == null || !await canDeleteAssetFile(relative).ConfigureAwait(false))
+                return "저장되지 않은 편집 내용 또는 에디터 상태 때문에 삭제하지 않았습니다.";
+            string expectedHash = await HashAssetPathAsync(relative, token).ConfigureAwait(false);
+            string action = destination == null ? "휴지통 삭제" : "이동·이름 변경 → " + destinationRelative;
+            string details = $"{action}: {relative}\n하위 내용 포함: {directory}\n이유·영향: {reason}\nSHA256: {expectedHash}";
+            if (confirmChanges && !await approve(relative, details, action).ConfigureAwait(false))
+                return "사용자가 변경을 승인하지 않았습니다. 변경하지 않았습니다.";
+            token.ThrowIfCancellationRequested();
+            path = ResolveAsset(relative);
+            if (Directory.Exists(path) != directory || (!directory && !File.Exists(path)) ||
+                await HashAssetPathAsync(relative, token).ConfigureAwait(false) != expectedHash)
+                return "승인 중 대상 또는 하위 내용이 변경되었습니다. 변경하지 않았습니다.";
+            CheckDestination();
+            token.ThrowIfCancellationRequested();
+            ResolveAsset(relative);
+            if (!await canDeleteAssetFile(relative).ConfigureAwait(false))
+                return "에디터 편집 상태가 변경되어 삭제하지 않았습니다.";
+            token.ThrowIfCancellationRequested();
+            ResolveAsset(relative);
+            CheckDestination();
+            if (destination != null)
+            {
+                if (directory) Directory.Move(path, destination);
+                else File.Move(path, destination, overwrite: false);
+                return JsonSerializer.Serialize(new { moved = relative, destination = destinationRelative,
+                    note = "Asset 내부로 이동했습니다. 임포트·스크립트·리소스 참조를 확인하세요." });
+            }
+            if (directory)
+                Microsoft.VisualBasic.FileIO.FileSystem.DeleteDirectory(path,
+                    Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs,
+                    Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin,
+                    Microsoft.VisualBasic.FileIO.UICancelOption.ThrowException);
+            else Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(path,
+                Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs,
+                Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin,
+                Microsoft.VisualBasic.FileIO.UICancelOption.ThrowException);
+            if (File.Exists(path) || Directory.Exists(path)) throw new IOException("대상이 남아 있어 삭제 성공으로 처리하지 않습니다.");
+            return JsonSerializer.Serialize(new { deleted = relative, recycleBin = true,
+                note = "Windows 휴지통으로 이동했습니다. 참조를 정리하고 필요한 경우 리임포트하세요." });
+        }
         if (name == "list_project_files")
         {
             var entries = Directory.EnumerateFileSystemEntries(path)
@@ -192,11 +264,42 @@ internal sealed class ChatGptProjectTools(string project)
         || name.EndsWith(".key", StringComparison.OrdinalIgnoreCase);
     private string ResolveAsset(string relative)
     {
-        string path = Resolve(relative);
+        string path = Path.TrimEndingDirectorySeparator(Resolve(relative));
         string assetRoot = Path.Combine(_root, "Asset");
         if (!path.StartsWith(assetRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("새 에셋은 Asset 폴더 하위에만 생성할 수 있습니다.");
+            throw new InvalidOperationException("에셋 작업은 Asset 폴더 하위에서만 가능합니다.");
         return path;
+    }
+    private async Task<string> HashAssetPathAsync(string relative, CancellationToken token)
+    {
+        string path = ResolveAsset(relative);
+        if (File.Exists(path)) return "file:" + await HashFileAsync(path, token).ConfigureAwait(false);
+        if (!Directory.Exists(path)) throw new DirectoryNotFoundException("대상 폴더가 없습니다.");
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        var pending = new Stack<string>();
+        pending.Push(path);
+        while (pending.Count > 0)
+        {
+            token.ThrowIfCancellationRequested();
+            string folder = pending.Pop();
+            ResolveAsset(Path.GetRelativePath(_root, folder));
+            hash.AppendData(Encoding.UTF8.GetBytes("directory:" + Path.GetRelativePath(path, folder) + "\n"));
+            foreach (string entry in Directory.EnumerateFileSystemEntries(folder).OrderBy(entry => entry, StringComparer.Ordinal))
+            {
+                token.ThrowIfCancellationRequested();
+                ResolveAsset(Path.GetRelativePath(_root, entry));
+                if (Directory.Exists(entry)) pending.Push(entry);
+                else hash.AppendData(Encoding.UTF8.GetBytes(Path.GetRelativePath(path, entry) + "\0" +
+                    await HashFileAsync(entry, token).ConfigureAwait(false) + "\n"));
+            }
+        }
+        return "directory:" + Convert.ToHexString(hash.GetHashAndReset());
+    }
+    private static async Task<string> HashFileAsync(string path, CancellationToken token)
+    {
+        using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read,
+            81920, FileOptions.Asynchronous | FileOptions.SequentialScan);
+        return Convert.ToHexString(await SHA256.HashDataAsync(file, token).ConfigureAwait(false));
     }
     private static void CheckAssetExtension(string path)
     {

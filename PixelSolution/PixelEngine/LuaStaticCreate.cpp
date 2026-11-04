@@ -17,6 +17,11 @@ void LuaStaticCreate::Generate(const std::string& outPath, std::map<std::string,
 		std::string content;
 		content += "local ffi = require(\"ffi\")\n";
 		content += "local dll = ffi.load(\"PixelEngine\")\n\n";
+		if (meta.second.name == "Entity")
+		{
+			// The native image creation API returns a component pointer.
+			content += "require(\"UIImage\")\n\n";
+		}
 		content += CreateClassAnnotation(meta.second);
 		content += "ffi.cdef[[\n";
 		content += CreateCDef(meta.second);
@@ -94,8 +99,6 @@ std::string LuaStaticCreate::CreateFunction(const PixelClassMeta& PClass)
 std::string LuaStaticCreate::CreateEntityScriptAnnotation()
 {
 	std::string content;
-	content += "---@field CreateCamera fun(): number?\n";
-	content += "---@field Create2DImage fun(textureName: string): UIImageData?\n";
 	content += "---@field GetScript fun(ID: number): LuaInstance?\n";
 	return content;
 }

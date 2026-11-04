@@ -593,6 +593,9 @@ void BindManager::Initialize()
 	auto EntityCreate = GeGlobalMethodInfo(&Entity_Create);
 	EntityCreate.memberName.push_back("ScriptName");
 	auto EntityCreateEmpty = GeGlobalMethodInfo(&Entity_CreateEmpty);
+	auto EntityCreateCamera = GeGlobalMethodInfo(&Entity_CreateCamera);
+	auto EntityCreate2DImage = GeGlobalMethodInfo(&Entity_Create2DImage);
+	EntityCreate2DImage.memberName.push_back("textureName");
 	auto EntityDestroy = GeGlobalMethodInfo(&Entity_Destroy);
 	EntityDestroy.memberName.push_back("ID");
 	auto EntityGetActive = GeGlobalMethodInfo(&Entity_GetActive);
@@ -603,6 +606,8 @@ void BindManager::Initialize()
 
 	AddGlobalMethod(globalEntity, "Entity_Create", EntityCreate, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_CreateEmpty", EntityCreateEmpty, EngineMetaFlag::Class);
+	AddGlobalMethod(globalEntity, "Entity_CreateCamera", EntityCreateCamera, EngineMetaFlag::Class);
+	AddGlobalMethod(globalEntity, "Entity_Create2DImage", EntityCreate2DImage, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_Destroy", EntityDestroy, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_GetActive", EntityGetActive, EngineMetaFlag::Class);
 	AddGlobalMethod(globalEntity, "Entity_SetActive", EntitySetActive, EngineMetaFlag::Class);

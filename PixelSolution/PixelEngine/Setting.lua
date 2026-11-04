@@ -44,33 +44,6 @@ function Entity.Destroy(ID)
 	return DestroyEntity(ID)
 end
 
----@return number? ID
-function Entity.CreateCamera()
-	local id = Entity.CreateEmpty()
-	if id == 4294967295 then
-		return nil
-	end
-	Transform.Add(id)
-	Camera.Add(id)
-	return id
-end
-
----@param textureName string
----@return UIImageData?
-function Entity.Create2DImage(textureName)
-	if type(textureName) ~= "string" then
-		error("Entity.Create2DImage: textureName must be a string",2)
-	end
-	local id = Entity.CreateEmpty()
-	if id == 4294967295 then
-		return nil
-	end
-	Transform.Add(id)
-	local image = UIImage.Add(id)
-	image:SetTexture(textureName)
-	return image
-end
-
 function Entity.GetScript(ID)
 	local entity = LuaManager.entities[ID]
 	if entity == nil then

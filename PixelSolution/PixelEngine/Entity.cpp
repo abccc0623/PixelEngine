@@ -6,6 +6,9 @@
 #include "SceneManager.h"
 #include "LuaManager.h"
 #include "SceneObject.h"
+#include "Transform.h"
+#include "Camera.h"
+#include "UIImage.h"
 
 extern PixelEngine* Engine;
 unsigned int Entity_Create(const char* scriptName)
@@ -27,6 +30,28 @@ unsigned int Entity_CreateEmpty()
 {
 	auto sceneManager = Engine->GetFactory<SceneManager>();
 	return sceneManager->CreateEntity("");
+}
+
+unsigned int Entity_CreateCamera()
+{
+	const auto id = Entity_CreateEmpty();
+	Transform_Add(id);
+	Camera_Add(id);
+	return id;
+}
+
+UIImageData* Entity_Create2DImage(const char* textureName)
+{
+	if (textureName == nullptr)
+	{
+		PixelLog::Error("[Entity][Create2DImage] textureName is nil.");
+		return nullptr;
+	}
+	const auto id = Entity_CreateEmpty();
+	Transform_Add(id);
+	auto image = UIImage_Add(id);
+	UIImage_SetTexture(id, textureName);
+	return image;
 }
 
 void Entity_Destroy(unsigned int id)
@@ -56,25 +81,4 @@ bool Entity_GetActive(unsigned int id)
 		return false;
 	}
 	return find->GetActive();
-}
-
-sol::object Entity_GetValue(unsigned int id, const char* memberName)
-{
-	auto target = FindEntity(id);
-	if (target == nullptr)
-	{
-		return sol::nil;
-	}
-	return target->GetValue(memberName);
-}
-
-void Entity_SetValue(unsigned int id, const char* memberName, sol::object value)
-{
-	auto target = FindEntity(id);
-	if (target == nullptr)
-	{
-		PixelLog::Error("[Entity][SetValue] Not Find ID");
-		return;
-	}
-	target->SetValue(memberName, value);
 }
