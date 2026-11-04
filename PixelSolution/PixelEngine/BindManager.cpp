@@ -394,6 +394,12 @@ static void RegisterComponentData()
 	info_SetMotionType.memberName.push_back("ID");
 	info_SetMotionType.memberName.push_back("MotionType");
 	AddGlobalMethod(Static, "Rigidbody2D_SetMotionType", info_SetMotionType, EngineMetaFlag::Component);
+	auto info_SetLockPosition = GeGlobalMethodInfo(&Rigidbody2D_SetLockPosition);
+	info_SetLockPosition.memberName = { "ID", "X", "Y", "Z" };
+	AddGlobalMethod(Static, "Rigidbody2D_SetLockPosition", info_SetLockPosition, EngineMetaFlag::Component);
+	auto info_SetLockRotation = GeGlobalMethodInfo(&Rigidbody2D_SetLockRotation);
+	info_SetLockRotation.memberName = { "ID", "X", "Y", "Z" };
+	AddGlobalMethod(Static, "Rigidbody2D_SetLockRotation", info_SetLockRotation, EngineMetaFlag::Component);
 	auto info_SetPosition = GeGlobalMethodInfo(&Rigidbody2D_SetPosition);
 	info_SetPosition.memberName.push_back("ID");
 	info_SetPosition.memberName.push_back("position");

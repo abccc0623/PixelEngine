@@ -13,6 +13,7 @@
 #include "PixelMath.h"
 #include "PixelEngineAPI.h"
 #include "Physics2DData.h"
+#include "ColliderFactory.h"
 #include "Asset.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -344,6 +345,14 @@ JPH::BodyID PhysManager::CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DDa
 	bodySettings.mIsSensor = physics->sensor;
 	bodySettings.mLinearDamping = physics->linearDamping;
 	bodySettings.mGravityFactor = physics->gravity;
+	// Retain motion properties so an all-locked (static) body can be unlocked later.
+	bodySettings.mAllowDynamicOrKinematic = true;
+	bodySettings.mAllowedDOFs = physics->allowedDOFs;
+	if (physics->allowedDOFs == JPH::EAllowedDOFs::None)
+	{
+		bodySettings.mMotionType = JPH::EMotionType::Static;
+		bodySettings.mAllowedDOFs = JPH::EAllowedDOFs::All;
+	}
 
 	if (physics->active == true)
 	{
@@ -360,72 +369,70 @@ JPH::BodyID PhysManager::CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DDa
 	}
 }
 
+namespace
+{
+	void DrawColliderOutline(const JPH::Shape* actualShape, JPH::RVec3 pos, JPH::Quat rot)
+	{
+		if (actualShape == nullptr) return;
+		while (actualShape->GetSubType() == JPH::EShapeSubType::RotatedTranslated)
+		{
+			auto shape = static_cast<const JPH::RotatedTranslatedShape*>(actualShape);
+			pos += rot * shape->GetPosition();
+			rot = rot * shape->GetRotation();
+			actualShape = shape->GetInnerShape();
+		}
+		if (actualShape->GetSubType() == JPH::EShapeSubType::Box)
+		{
+			const auto extent = static_cast<const JPH::BoxShape*>(actualShape)->GetHalfExtent();
+			const JPH::Vec3 corners[4] = {
+				JPH::Vec3(-extent.GetX(), -extent.GetY(), 0),
+				JPH::Vec3(extent.GetX(), -extent.GetY(), 0),
+				JPH::Vec3(extent.GetX(), extent.GetY(), 0),
+				JPH::Vec3(-extent.GetX(), extent.GetY(), 0)
+			};
+			for (int i = 0; i < 4; ++i)
+			{
+				const JPH::RVec3 start = pos + rot * corners[i];
+				const JPH::RVec3 end = pos + rot * corners[(i + 1) % 4];
+				DrawLine(start.GetX(), start.GetY(), start.GetZ(), end.GetX(), end.GetY(), end.GetZ(), 1.0f, 0.0f, 0.0f);
+			}
+		}
+		else if (actualShape->GetSubType() == JPH::EShapeSubType::Sphere)
+		{
+			const float radius = static_cast<const JPH::SphereShape*>(actualShape)->GetRadius();
+			DrawCircle2D(pos.GetX(), pos.GetY(), pos.GetZ(), radius, 0.0f, 1.0f, 0.0f);
+		}
+	}
+}
+
 void PhysManager::DebugDraw(JPH::BodyID id)
 {
-	if (Engine == nullptr || !Engine->IsTool) return;
+	if (Engine == nullptr || !Engine->IsTool || id.IsInvalid()) return;
+	if (!mBodyInterface->IsAdded(id)) return;
+	const auto shape = mBodyInterface->GetShape(id);
+	DrawColliderOutline(shape.GetPtr(), mBodyInterface->GetPosition(id), mBodyInterface->GetRotation(id));
+}
 
-	JPH::ShapeRefC rootShape = mBodyInterface->GetShape(id);
-	if (rootShape == nullptr) return;
-
-	if (mBodyInterface->IsAdded(id) == false) return;
-
-	JPH::RVec3 pos = mBodyInterface->GetPosition(id);
-	JPH::Quat rot = mBodyInterface->GetRotation(id);
-
-	// 1. 데코레이터(껍데기) 해제 및 로컬 오프셋 추출
-	JPH::Vec3 localOffset = JPH::Vec3::sZero();
-	const JPH::Shape* actualShape = rootShape.GetPtr();
-
-	if (actualShape->GetSubType() == JPH::EShapeSubType::RotatedTranslated)
+void PhysManager::DebugDrawPreview(Rigidbody2DData* rigidbody, Physics2DData* physics)
+{
+	if (Engine == nullptr || !Engine->IsTool || physics == nullptr || !physics->active) return;
+	const auto transform = GetRegistry()->Get<TransformData>(rigidbody->thisID);
+	if (transform == nullptr) return;
+	auto shape = physics->colliderRefC;
+	if (shape == nullptr)
 	{
-		auto rtShape = static_cast<const JPH::RotatedTranslatedShape*>(actualShape);
-		localOffset = rtShape->GetPosition();
-
-		actualShape = rtShape->GetInnerShape();
+		PVector2 size{ 1,1 }, center{ 0,0 };
+		shape = ColliderFactory::CreateBox2D(&size, &center);
 	}
-
-	// 2. 실제 Shape 타입에 따른 렌더링 분기
-	switch (actualShape->GetSubType())
-	{
-	case JPH::EShapeSubType::Box:
-	{
-		auto boxShape = static_cast<const JPH::BoxShape*>(actualShape);
-		JPH::Vec3 extent = boxShape->GetHalfExtent(); // AABox 대신 실제 박스의 절반 크기를 가져옴
-
-		JPH::Vec3 p[4] = {
-			JPH::Vec3(localOffset.GetX() - extent.GetX(), localOffset.GetY() - extent.GetY(), 0),
-			JPH::Vec3(localOffset.GetX() + extent.GetX(), localOffset.GetY() - extent.GetY(), 0),
-			JPH::Vec3(localOffset.GetX() + extent.GetX(), localOffset.GetY() + extent.GetY(), 0),
-			JPH::Vec3(localOffset.GetX() - extent.GetX(), localOffset.GetY() + extent.GetY(), 0)
-		};
-		JPH::Vec3 w[4];
-		for (int i = 0; i < 4; ++i)
-		{
-			w[i] = pos + rot * p[i];
-		}
-		DrawLine(w[0].GetX(), w[0].GetY(), 0, w[1].GetX(), w[1].GetY(), 1, 1.0f, 0.0f, 0.0f);
-		DrawLine(w[1].GetX(), w[1].GetY(), 0, w[2].GetX(), w[2].GetY(), 1, 1.0f, 0.0f, 0.0f);
-		DrawLine(w[2].GetX(), w[2].GetY(), 0, w[3].GetX(), w[3].GetY(), 1, 1.0f, 0.0f, 0.0f);
-		DrawLine(w[3].GetX(), w[3].GetY(), 0, w[0].GetX(), w[0].GetY(), 1, 1.0f, 0.0f, 0.0f);
-		break;
-	}
-	case JPH::EShapeSubType::Sphere:
-	{
-		auto sphereShape = static_cast<const JPH::SphereShape*>(actualShape);
-		float radius = sphereShape->GetRadius();
-		JPH::Vec3 worldCenter = pos + rot * localOffset;
-		DrawCircle2D(worldCenter.GetX(), worldCenter.GetY(), worldCenter.GetZ(), radius, 0.0f, 1.0f, 0.0f);
-		break;
-	}
-	default:
-	{
-		break;
-	}
-	}
+	constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
+	const JPH::Vec3 angles(transform->rotation.x * DEG_TO_RAD, transform->rotation.y * DEG_TO_RAD, transform->rotation.z * DEG_TO_RAD);
+	// Use the same 2D origin and shape as body creation, without advancing simulation.
+	DrawColliderOutline(shape.GetPtr(), JPH::RVec3(transform->position.x, transform->position.y, 0.0f), JPH::Quat::sEulerAngles(angles));
 }
 
 void PhysManager::SyncPhysics(JPH::BodyID id)
 {
+	if (id.IsInvalid()) return;
 	unsigned int userData = mBodyInterface->GetUserData(id);
 	if (mBodyInterface->IsAdded(id) == false) return;
 	auto EntityID = static_cast<unsigned int>(userData);
@@ -434,8 +441,14 @@ void PhysManager::SyncPhysics(JPH::BodyID id)
 	auto r = GetRegistry();
 	auto worldData = r->Get<WorldData>(EntityID);
 	auto transformData = r->Get<TransformData>(EntityID);
+	if (transformData == nullptr) return;
 	transformData->position.x = pos.GetX();
 	transformData->position.y = pos.GetY();
+	constexpr float RAD_TO_DEG = 180.0f / 3.14159265358979323846f;
+	const auto angles = rot.GetEulerAngles();
+	transformData->rotation.x = angles.GetX() * RAD_TO_DEG;
+	transformData->rotation.y = angles.GetY() * RAD_TO_DEG;
+	transformData->rotation.z = angles.GetZ() * RAD_TO_DEG;
 	DebugDraw(id);
 }
 

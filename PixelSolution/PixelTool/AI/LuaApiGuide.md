@@ -169,6 +169,10 @@ Tween.Move(targetID, TweenProperty.PositionX, 0, 100, 1, true, TweenEase.InOut)
 
 - Rigidbody2D 데이터는 `CreateBoxCollider(size, center)`, `CreateCircleCollider(radius, center)`로 충돌체를 만들고 `SetMotionType(MotionType)`로 운동 유형을 설정한다. 인수의 벡터 타입과 열거형 값은 현재 Engine 선언을 확인한다.
 - 물리 위치·회전·속도는 `SetPosition(position)`, `SetRotation(rotation)`, `SetVelocity(velocity)`로 설정한다. 물리 객체의 Transform만 바꿨을 때 물리 상태까지 자동 변경된다고 가정하지 않는다.
+- `rigidbody:SetLockPosition(x, y, z)`는 월드 X·Y·Z축 이동을, `rigidbody:SetLockRotation(x, y, z)`는 각 축 회전을 고정하거나 해제한다. 인수는 boolean이며 **true는 고정, false는 해제**다. 반환값은 설정 성공 여부다. 이동 고정과 회전 고정은 서로의 설정을 유지하며, 생성 전 `Spawn()`과 물리 바디 생성 후 모두 설정할 수 있다.
+- 일반적인 2D 설정은 `rigidbody:SetLockPosition(false, false, true)`와 `rigidbody:SetLockRotation(true, true, false)`다. 캐릭터가 물리 충돌로 회전하지 않게 하려면 `rigidbody:SetLockRotation(true, true, true)`를 사용한다. 기존 기본값은 축 제한 없음이므로 필요한 고정은 명시한다.
+- 여섯 축을 모두 고정하면 내부적으로 정적 물체로 처리하며 잠금을 해제하면 지정된 운동 유형으로 복원한다. 축 고정은 물리 시뮬레이션의 자유도를 제한하는 기능으로, 회전 각도의 최솟값·최댓값 제한이 아니며 `SetPosition`·`SetRotation` 같은 명시적 위치·회전 지정까지 금지하지 않는다.
+- 새 축 고정 API가 프로젝트의 `Engine/Rigidbody2D.lua`에 없다면 엔진 버전·Engine Update 상태를 확인한다. 배포된 구버전 DLL에 Lua 선언만 추가해서 사용할 수 있다고 안내하지 않는다.
 - `SetGravity`, `SetRestitution`, `SetFriction`, `SetLinearDamping`, `SetSensor`, `SetActive`, `SetLayer(layerName)`, `GetLayer()`를 제공한다. Rigidbody2D의 SetActive와 Entity 전체 활성화는 다른 범위의 API다.
 - 충돌 이벤트 스크립트 형식은 `Script:OnCollisionEnter(targetID)`와 `Script:OnCollisionExit(targetID)`다. 상대 객체 ID를 받는다.
 

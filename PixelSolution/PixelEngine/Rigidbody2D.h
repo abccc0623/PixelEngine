@@ -20,6 +20,9 @@ extern "C" PIXEL_ENGINEDLL void Rigidbody2D_CreateBoxCollider(unsigned int id, P
 extern "C" PIXEL_ENGINEDLL void Rigidbody2D_CreateCircleCollider(unsigned int id, float radius, PVector2 center);
 
 extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetMotionType(unsigned int id, MotionType motionType);
+// true locks the corresponding world axis; false releases it.
+extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetLockPosition(unsigned int id, bool x, bool y, bool z);
+extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetLockRotation(unsigned int id, bool x, bool y, bool z);
 extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetPosition(unsigned int id, PVector3 position);
 extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetRotation(unsigned int id, PVector3 rotation);
 extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetVelocity(unsigned int id, PVector3 velocity);
@@ -35,8 +38,6 @@ extern "C" PIXEL_ENGINEDLL const char* Rigidbody2D_GetLayer(unsigned int id);
 //extern "C" PIXEL_ENGINEDLL void Rigidbody2D_SetAutoSleep(unsigned int id, bool sleep);
 //extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetVelocity(unsigned int id, PVector3 velocity);
 //extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetPosition(unsigned int id, PVector3 position);
-//extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetLockPosition(unsigned int id, bool x, bool y, bool z);
-//extern "C" PIXEL_ENGINEDLL bool Rigidbody2D_SetLockRotation(unsigned int id, bool x, bool y, bool z);
 
 
 /*

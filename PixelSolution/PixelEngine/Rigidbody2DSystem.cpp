@@ -42,7 +42,11 @@ void ECS::Rigidbody2DSystem::Update(ECS::Registry* registry)
 
 void ECS::Rigidbody2DSystem::EditorUpdate(Registry* registry)
 {
-
+	auto& bodies = registry->GetChunkedArray<Rigidbody2DData>();
+	bodies.ForEach([this, registry](Rigidbody2DData* data, size_t index)
+		{
+			phys->DebugDrawPreview(data, registry->Get<Physics2DData>(data->thisID));
+		});
 }
 void ECS::Rigidbody2DSystem::Release()
 {

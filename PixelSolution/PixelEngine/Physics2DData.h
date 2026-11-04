@@ -1,5 +1,6 @@
 #pragma once
 #include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Body/AllowedDOFs.h>
 #include <string>
 struct Physics2DData
 {
@@ -15,6 +16,7 @@ struct Physics2DData
 	JPH::EMotionType Motiontype = JPH::EMotionType::Kinematic;
 	bool sensor = true;
 	bool active = true;
+	JPH::EAllowedDOFs allowedDOFs = JPH::EAllowedDOFs::All;
 
 	std::string layer = "Default";
 

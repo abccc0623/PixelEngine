@@ -10,6 +10,48 @@
 #include "PixelMetaAPI.h"
 
 extern PixelEngine* Engine;
+namespace
+{
+	bool SetLockedAxes(unsigned int id, bool x, bool y, bool z, bool rotation)
+	{
+		auto data = GetRegistry()->Get<Physics2DData>(id);
+		if (data == nullptr)
+		{
+			PixelLog::Error("[Rigidbody2D][SetLock] Not Find Component");
+			return false;
+		}
+		using DOF = JPH::EAllowedDOFs;
+		const DOF axisX = rotation ? DOF::RotationX : DOF::TranslationX;
+		const DOF axisY = rotation ? DOF::RotationY : DOF::TranslationY;
+		const DOF axisZ = rotation ? DOF::RotationZ : DOF::TranslationZ;
+		auto allowed = data->allowedDOFs & ~(axisX | axisY | axisZ);
+		if (!x) allowed |= axisX;
+		if (!y) allowed |= axisY;
+		if (!z) allowed |= axisZ;
+		if (!data->bodyID.IsInvalid())
+		{
+			auto physics = Engine->GetFactory<PhysicsFunction>();
+			if (!physics->SetAllowedDOFs(data->bodyID, allowed, data->Motiontype))
+			{
+				PixelLog::Error("[Rigidbody2D][SetLock] Cannot update body constraints");
+				return false;
+			}
+		}
+		data->allowedDOFs = allowed;
+		return true;
+	}
+}
+
+bool Rigidbody2D_SetLockPosition(unsigned int id, bool x, bool y, bool z)
+{
+	return SetLockedAxes(id, x, y, z, false);
+}
+
+bool Rigidbody2D_SetLockRotation(unsigned int id, bool x, bool y, bool z)
+{
+	return SetLockedAxes(id, x, y, z, true);
+}
+
 Rigidbody2DData* Rigidbody2D_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
@@ -69,10 +111,10 @@ void Rigidbody2D_SetMotionType(unsigned int id, MotionType motionType)
 		break;
 	}
 
-	if (data1->bodyID.IsInvalid() == true)
+	if (data1->bodyID.IsInvalid() == false)
 	{
 		auto phys = Engine->GetFactory<PhysicsFunction>();
-		phys->SetMotionType(data1->bodyID, data1->Motiontype);
+		phys->SetAllowedDOFs(data1->bodyID, data1->allowedDOFs, data1->Motiontype);
 	}
 }
 

@@ -12,6 +12,8 @@ ffi.cdef[[
 	void Rigidbody2D_CreateBoxCollider(unsigned int ID,PVector2 Size,PVector2 Center);
 	void Rigidbody2D_CreateCircleCollider(unsigned int ID,float Radius,PVector2 Center);
 	void Rigidbody2D_SetMotionType(unsigned int ID,MotionType MotionType);
+	bool Rigidbody2D_SetLockPosition(unsigned int ID,bool X,bool Y,bool Z);
+	bool Rigidbody2D_SetLockRotation(unsigned int ID,bool X,bool Y,bool Z);
 	void Rigidbody2D_SetPosition(unsigned int ID,PVector3 position);
 	void Rigidbody2D_SetRotation(unsigned int ID,PVector3 rotation);
 	void Rigidbody2D_SetVelocity(unsigned int ID,PVector3 velocity);
@@ -27,6 +29,24 @@ ffi.cdef[[
 
 ---@class Rigidbody2DData
 local Rigidbody2DData = {}
+
+---각 월드 축의 이동을 고정하거나 해제한다. true는 고정이다.
+---@param X boolean
+---@param Y boolean
+---@param Z boolean
+---@return boolean
+function Rigidbody2DData:SetLockPosition(X,Y,Z)
+	return dll.Rigidbody2D_SetLockPosition(self.thisID,X,Y,Z)
+end
+
+---각 월드 축의 회전을 고정하거나 해제한다. true는 고정이다.
+---@param X boolean
+---@param Y boolean
+---@param Z boolean
+---@return boolean
+function Rigidbody2DData:SetLockRotation(X,Y,Z)
+	return dll.Rigidbody2D_SetLockRotation(self.thisID,X,Y,Z)
+end
 
 ---@param Size PVector2
 ---@param Center PVector2

@@ -1,5 +1,6 @@
 #pragma once
 #include "EngineManager.h"
+#include <Jolt/Physics/Body/AllowedDOFs.h>
 
 class PhysicsFunction : public EngineManager
 {
@@ -15,6 +16,7 @@ public:
 	void SetActive(JPH::BodyID id, bool active);
 	void SetVelocity(JPH::BodyID id, float x, float y, float z);
 	void SetMotionType(JPH::BodyID id, JPH::EMotionType type);
+	bool SetAllowedDOFs(JPH::BodyID id, JPH::EAllowedDOFs allowedDOFs, JPH::EMotionType motionType);
 	void SetGravity(JPH::BodyID id, float Gravity);
 	void SetRestitution(JPH::BodyID id, float restitution);
 	void SetFriction(JPH::BodyID id, float friction);

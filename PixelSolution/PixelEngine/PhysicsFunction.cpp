@@ -4,6 +4,7 @@
 #include "PixelEngineAPI.h"
 #include <Jolt/Physics/Body/BodyLock.h>
 #include <Jolt/Physics/Body/MotionProperties.h>
+#include <Jolt/Physics/Body/MassProperties.h>
 #include "PixelObjectLayerPairFilter.h"
 
 void PhysicsFunction::Initialize()
@@ -72,8 +73,32 @@ void PhysicsFunction::SetActive(JPH::BodyID id, bool active)
 
 void PhysicsFunction::SetVelocity(JPH::BodyID id, float x, float y, float z)
 {
+	if (PhysManager::mBodyInterface->GetMotionType(id) == JPH::EMotionType::Static) return;
 	JPH::Vec3 targetVelocity(x, y, 0.0f);
 	PhysManager::mBodyInterface->SetLinearVelocity(id, targetVelocity);
+}
+
+bool PhysicsFunction::SetAllowedDOFs(JPH::BodyID id, JPH::EAllowedDOFs allowedDOFs, JPH::EMotionType motionType)
+{
+	if (id.IsInvalid() || PhysManager::mBodyLockInterface == nullptr || PhysManager::mBodyInterface == nullptr) return false;
+	const bool fullyLocked = allowedDOFs == JPH::EAllowedDOFs::None;
+	{
+		JPH::BodyLockWrite lock(*PhysManager::mBodyLockInterface, id);
+		if (!lock.Succeeded()) return false;
+		auto& body = lock.GetBody();
+		auto motion = body.GetMotionPropertiesUnchecked();
+		if (motion == nullptr) return false;
+		// Rebuild inertia from the shape: previously locked axes may have zero inverse inertia.
+		motion->SetMassProperties(fullyLocked ? JPH::EAllowedDOFs::All : allowedDOFs,
+			body.GetShape()->GetMassProperties());
+		motion->SetLinearVelocityClamped(fullyLocked ? JPH::Vec3::sZero() : motion->GetLinearVelocity());
+		motion->SetAngularVelocityClamped(fullyLocked ? JPH::Vec3::sZero() : motion->GetAngularVelocity());
+	}
+	const auto effectiveType = fullyLocked ? JPH::EMotionType::Static : motionType;
+	PhysManager::mBodyInterface->SetMotionType(id, effectiveType, JPH::EActivation::DontActivate);
+	if (effectiveType != JPH::EMotionType::Static && PhysManager::mBodyInterface->IsAdded(id))
+		PhysManager::mBodyInterface->ActivateBody(id);
+	return true;
 }
 
 void PhysicsFunction::SetMotionType(JPH::BodyID id, JPH::EMotionType type)
@@ -83,7 +108,11 @@ void PhysicsFunction::SetMotionType(JPH::BodyID id, JPH::EMotionType type)
 
 void PhysicsFunction::SetGravity(JPH::BodyID id, float Gravity)
 {
-	PhysManager::mBodyInterface->SetGravityFactor(id, Gravity);
+	// Fully locked bodies are static but retain their properties for later unlocking.
+	JPH::BodyLockWrite lock(*PhysManager::mBodyLockInterface, id);
+	if (!lock.Succeeded()) return;
+	auto motion = lock.GetBody().GetMotionPropertiesUnchecked();
+	if (motion != nullptr) motion->SetGravityFactor(Gravity);
 }
 
 void PhysicsFunction::SetRestitution(JPH::BodyID id, float restitution)
@@ -112,7 +141,7 @@ void PhysicsFunction::SetLinearDamping(JPH::BodyID id, float linearDamping)
 	}
 
 	JPH::MotionProperties* motionProperties =
-		lock.GetBody().GetMotionProperties();
+		lock.GetBody().GetMotionPropertiesUnchecked();
 	if (motionProperties == nullptr)
 	{
 		return;

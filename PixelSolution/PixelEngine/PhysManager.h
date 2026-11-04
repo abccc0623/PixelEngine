@@ -58,6 +58,7 @@ public:
 	JPH::BodyID CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DData* physics);
 
 	void DebugDraw(JPH::BodyID id);
+	void DebugDrawPreview(Rigidbody2DData* rigidbody, Physics2DData* physics);
 	void SyncPhysics(JPH::BodyID id);
 private:
 	JPH::ObjectLayer FindLayer(std::string key);
