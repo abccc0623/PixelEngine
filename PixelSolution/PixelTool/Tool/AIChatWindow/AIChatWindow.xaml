@@ -4,9 +4,9 @@
              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
     <UserControl.Resources>
-        <Style TargetType="Button">
+        <Style TargetType="Button" BasedOn="{StaticResource PixelToolButton}">
             <Setter Property="Background" Value="{DynamicResource PixelSurfaceBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
+            <Setter Property="Foreground" Value="#F2F5F9"/>
             <Setter Property="BorderBrush" Value="{DynamicResource PixelBorderBrush}"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Margin" Value="3"/>
@@ -30,7 +30,7 @@
                 <Button Content="설정" Click="ToggleChatSettings"/>
                 <Button x:Name="NewButton" Content="새 대화" Click="NewConversation" IsEnabled="False"/>
             </StackPanel>
-            <TextBlock Text="CHATGPT" Foreground="{DynamicResource PixelAccentBrush}" FontWeight="Bold" Margin="6" VerticalAlignment="Center"/>
+            <TextBlock Text="자비스" Foreground="{DynamicResource PixelAccentBrush}" FontWeight="Bold" Margin="6" VerticalAlignment="Center"/>
             <TextBlock x:Name="AccountSummary" Text="계정 연결 필요" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
                        Foreground="{DynamicResource PixelMutedTextBrush}" Margin="6"/>
         </DockPanel>
@@ -85,6 +85,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Border x:Name="ActivityBanner" Padding="8,6" Margin="0,2,0,4" CornerRadius="4" BorderThickness="2">
                 <Border.Style>
@@ -109,8 +110,11 @@
                                 <Setter Property="Foreground" Value="{DynamicResource PixelMutedTextBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsEnabled, ElementName=StopButton}" Value="True">
-                                        <Setter Property="Text" Value="AI 응답 중 · 생각하거나 작업하고 있습니다"/>
+                                        <Setter Property="Text" Value="자비스 응답 중 · 생각하거나 작업하고 있습니다"/>
                                         <Setter Property="Foreground" Value="{DynamicResource PixelAccentBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Visibility, ElementName=ChoicePanel}" Value="Visible">
+                                        <Setter Property="Text" Value="답변 대기 중 · 아래 선택지를 클릭해 주세요"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -119,13 +123,16 @@
                     <ProgressBar x:Name="ResponseProgress" Height="5" Margin="0,9,0,0"
                                  IsIndeterminate="{Binding IsEnabled, ElementName=StopButton}"
                                  Foreground="{DynamicResource PixelAccentBrush}" Background="#211E17"
-                                 AutomationProperties.Name="AI 응답 진행 중">
+                                 AutomationProperties.Name="자비스 응답 진행 중">
                         <ProgressBar.Style>
                             <Style TargetType="ProgressBar">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsEnabled, ElementName=StopButton}" Value="True">
                                         <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Visibility, ElementName=ChoicePanel}" Value="Visible">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -169,6 +176,7 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
+                      <StackPanel>
                         <!-- Avoid character-by-character wrapping at transient narrow docking widths. -->
                         <TextBox Text="{Binding Text, Mode=OneWay}" IsReadOnly="True" IsUndoEnabled="False"
                                  ContextMenu="{Binding ContextMenu, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
@@ -179,6 +187,9 @@
                                 <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                                     <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
                                     <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCodeChange}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
                                         <DataTrigger Binding="{Binding IsUser}" Value="True">
                                             <Setter Property="Foreground" Value="#9AD0FF"/>
                                         </DataTrigger>
@@ -186,9 +197,51 @@
                                 </Style>
                             </TextBox.Style>
                         </TextBox>
+                        <Expander Header="{Binding Header}" IsExpanded="False" Margin="8,0"
+                                  Foreground="{DynamicResource PixelMutedTextBrush}">
+                            <Expander.Style>
+                                <Style TargetType="Expander">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCodeChange}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Expander.Style>
+                            <TextBox Text="{Binding Text, Mode=OneWay}" IsReadOnly="True" IsUndoEnabled="False"
+                                     FontFamily="Consolas" MaxHeight="360" TextWrapping="NoWrap"
+                                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                     ContextMenu="{Binding ContextMenu, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                        </Expander>
+                      </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+            <Border x:Name="ChoicePanel" Grid.Row="2" Visibility="Collapsed" Padding="10" Margin="0,6,0,0"
+                    MaxHeight="260" BorderThickness="1" CornerRadius="4"
+                    Background="{DynamicResource PixelSurfaceBrush}" BorderBrush="{DynamicResource PixelAccentBrush}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <TextBlock x:Name="ChoiceQuestion" TextWrapping="Wrap" FontWeight="Bold"
+                                   Foreground="{DynamicResource PixelTextBrush}" Margin="0,0,0,6"/>
+                        <ItemsControl x:Name="ChoiceOptions">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Click="ChooseOption" HorizontalContentAlignment="Left" Padding="10,7">
+                                        <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <DockPanel Margin="0,6,0,0">
+                            <Button DockPanel.Dock="Right" Content="답변 보내기" Click="SubmitCustomChoice"/>
+                            <TextBox x:Name="ChoiceCustomText" MaxLength="2000" TextWrapping="Wrap" MinHeight="32"
+                                     ToolTip="선택지 대신 직접 답변할 수도 있습니다."/>
+                        </DockPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
         </Grid>
         <TextBox x:Name="PromptBox" Grid.Row="4" Margin="0,6,0,0" MinHeight="56" MaxHeight="120" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" PreviewKeyDown="PromptKeyDown" ToolTip="Ctrl+Enter: 전송"
                  IsReadOnly="{Binding IsEnabled, ElementName=StopButton}"/>

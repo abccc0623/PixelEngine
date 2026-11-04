@@ -23,6 +23,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
     public Func<Task<ChatGptProjectTools.ImportedAsset?>>? PickAsset { get; set; }
     public Func<CancellationToken, Task<JsonElement>>? ReimportProject { get; set; }
     public Func<long, int, JsonElement>? ReadEditorLogs { get; set; }
+    public Func<string, string[], CancellationToken, Task<string>>? AskChoice { get; set; }
 
     internal ChatGptChatClient()
     {
@@ -156,7 +157,24 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                             if (Approve == null || !await Approve(approvalMethod, request).WaitAsync(token).ConfigureAwait(false)) return false;
                             return !token.IsCancellationRequested;
                         }
-                        if (name == "read_editor_logs")
+                        if (name == "ask_choice")
+                        {
+                            string question = args.RootElement.GetProperty("question").GetString() ?? "";
+                            string[] options = args.RootElement.GetProperty("options").EnumerateArray()
+                                .Select(option => option.GetString() ?? "").ToArray();
+                            if (string.IsNullOrWhiteSpace(question) || question.Length > 500 || options.Length is < 2 or > 5 ||
+                                options.Any(option => string.IsNullOrWhiteSpace(option) || option.Length > 150) ||
+                                options.Distinct(StringComparer.OrdinalIgnoreCase).Count() != options.Length)
+                                throw new InvalidOperationException("질문과 서로 다른 선택지 2~5개가 필요합니다.");
+                            if (AskChoice == null) throw new InvalidOperationException("선택형 질문 UI가 연결되지 않았습니다.");
+                            _turnStop?.CancelAfter(Timeout.InfiniteTimeSpan);
+                            string answer;
+                            try { answer = await AskChoice(question, options, token).WaitAsync(token).ConfigureAwait(false); }
+                            finally { _turnStop?.CancelAfter(TimeSpan.FromMinutes(10)); }
+                            token.ThrowIfCancellationRequested();
+                            result = JsonSerializer.Serialize(new { question, answer });
+                        }
+                        else if (name == "read_editor_logs")
                         {
                             if (ReadEditorLogs == null) throw new InvalidOperationException("로그 조회 도구가 연결되지 않았습니다.");
                             result = ReadEditorLogs(args.RootElement.GetProperty("afterCursor").GetInt64(), args.RootElement.GetProperty("limit").GetInt32()).GetRawText();
@@ -169,7 +187,9 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                                 result = "리임포트를 승인하지 않았습니다.";
                             else result = (await ReimportProject(token).ConfigureAwait(false)).GetRawText();
                         }
-                        else result = await tools.InvokeAsync(name, args.RootElement, allowEdits, confirmActions, ConfirmOperation, token, PickAsset).ConfigureAwait(false);
+                        else result = await tools.InvokeAsync(name, args.RootElement, allowEdits, confirmActions, ConfirmOperation, token, PickAsset,
+                            (path, before, after) => Emit("item/completed", new { threadId = _threadId, turnId,
+                                item = new { id = Guid.NewGuid().ToString("N"), type = "fileChange", path, before, after } })).ConfigureAwait(false);
                         if (name is "write_project_file" or "create_asset_folder" or "create_png_asset" or "copy_asset" or "import_asset")
                             Emit("item/completed", new { threadId = _threadId, turnId, item = new { id = Guid.NewGuid().ToString("N"), type = "fileChange", result } });
                     }

@@ -28,7 +28,8 @@ function MonsterManager.Create(MonsterScriptName,Distance)
 
         local rigidbody = Rigidbody2D.Get(targetID)
         rigidbody:SetPosition(spawnPoint)
-        Entity.CallFunction(targetID,"ActiveSetting")
+		local monster = Entity.GetScript(targetID)
+		monster:ActiveSetting()
     end
 end
 

@@ -23,11 +23,12 @@ public partial class AIChatWindow : UserControl
     private bool _restoringPreferences = true;
     private bool _restoreAttempted;
     private bool _scrollToEndQueued;
-    private sealed record TranscriptMessage(string Text, bool IsUser);
+    private sealed record TranscriptMessage(string Text, bool IsUser, bool IsCodeChange = false, string Header = "");
     private readonly ObservableCollection<TranscriptMessage> _transcript = new();
     private sealed record ChatAccount(string Id, string Label);
     private sealed record ChatModel(string Model, string DisplayName, bool IsDefault, string? DefaultEffort);
     private readonly Dictionary<string, string> _fileChanges = new();
+    private TaskCompletionSource<string>? _choiceAnswer;
 
     public AIChatWindow()
     {
@@ -110,6 +111,8 @@ public partial class AIChatWindow : UserControl
             _client.Approve = (method, p) => Dispatcher.InvokeAsync(() => ConfirmApproval(method, p)).Task;
             _client.PickAsset = () => Dispatcher.InvokeAsync(PickImportAsset).Task;
             _client.ReadEditorLogs = ConsoleWindow.ReadLogsForAi;
+            _client.AskChoice = (question, options, token) => Dispatcher.InvokeAsync(() =>
+                AskChoiceAsync(question, options, token)).Task.Unwrap();
             _client.ReimportProject = token => Dispatcher.InvokeAsync(() =>
                 ((MainWindow)Application.Current.MainWindow).ReimportForAiAsync(token)).Task.Unwrap();
             StatusText.Text = "ChatGPT 연결 중…";
@@ -487,6 +490,55 @@ public partial class AIChatWindow : UserControl
         catch (Exception exception) { StatusText.Text = "중지 요청 실패: " + exception.Message; }
     }
 
+    private async Task<string> AskChoiceAsync(string question, string[] options, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (_disposed) throw new OperationCanceledException(token);
+        var answer = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _choiceAnswer = answer;
+        ChoiceQuestion.Text = question;
+        ChoiceOptions.ItemsSource = options;
+        ChoiceCustomText.Clear();
+        ChoicePanel.IsEnabled = true;
+        ChoicePanel.Visibility = Visibility.Visible;
+        StatusText.Text = "답변 대기 중 · 선택지를 클릭하거나 직접 입력해 주세요.";
+        _history.Messages.Add(new() { Role = "ChatGPT", Text = question + "\n" +
+            string.Join("\n", options.Select((option, index) => $"{index + 1}. {option}")) });
+        SaveHistory();
+        RenderTranscript();
+        using var cancellation = token.Register(() => answer.TrySetCanceled(token));
+        try
+        {
+            string selected = await answer.Task;
+            token.ThrowIfCancellationRequested();
+            _history.Messages.Add(new() { Role = "사용자", Text = selected });
+            SaveHistory();
+            RenderTranscript();
+            return selected;
+        }
+        finally
+        {
+            _choiceAnswer = null;
+            ChoicePanel.Visibility = Visibility.Collapsed;
+            ChoiceOptions.ItemsSource = null;
+            ChoiceCustomText.Clear();
+            if (!_disposed && _busy) StatusText.Text = "자비스 응답 중…";
+        }
+    }
+
+    private void ChooseOption(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { DataContext: string option }) SubmitChoice(option);
+    }
+
+    private void SubmitCustomChoice(object sender, RoutedEventArgs e) => SubmitChoice(ChoiceCustomText.Text.Trim());
+
+    private void SubmitChoice(string answer)
+    {
+        if (!string.IsNullOrWhiteSpace(answer) && _choiceAnswer?.TrySetResult(answer) == true)
+            ChoicePanel.IsEnabled = false;
+    }
+
     private void NewConversation(object sender, RoutedEventArgs e)
     {
         if (_busy) return;
@@ -525,19 +577,22 @@ public partial class AIChatWindow : UserControl
         StopButton.Foreground = busy ? System.Windows.Media.Brushes.Black
             : (System.Windows.Media.Brush)FindResource("PixelTextBrush");
         RefreshButton.IsEnabled = !busy && _client != null;
-        if (busy) StatusText.Text = "ChatGPT 응답 중…";
+        if (busy) StatusText.Text = "자비스 응답 중…";
     }
 
     private void RenderTranscript()
     {
-        // Keep diagnostics in saved history; the conversation surface only shows questions and answers.
-        var visibleMessages = _history.Messages.Where(m => m.Role is "사용자" or "ChatGPT").ToList();
+        // Keep diagnostics hidden, but retain successful code changes as collapsed entries.
+        var visibleMessages = _history.Messages.Where(m => m.Role is "사용자" or "ChatGPT" ||
+            (m.Role == "파일 변경" && ReadCodeChange(m.Text) != null)).ToList();
         // Keep existing containers intact while streaming; only changed messages notify WPF.
         for (int i = 0; i < visibleMessages.Count; i++)
         {
             var message = visibleMessages[i];
-            string text = "[" + message.Role + "]\n" + message.Text;
-            var entry = new TranscriptMessage(text, message.Role == "사용자");
+            string role = message.Role == "ChatGPT" ? "자비스" : message.Role;
+            string text = "[" + role + "]\n" + message.Text;
+            var entry = message.Role == "파일 변경" ? ReadCodeChange(message.Text)! :
+                new TranscriptMessage(text, message.Role == "사용자");
             if (i == _transcript.Count) _transcript.Add(entry);
             else if (_transcript[i] != entry) _transcript[i] = entry;
         }
@@ -546,10 +601,33 @@ public partial class AIChatWindow : UserControl
         ScrollTranscriptToEnd();
     }
 
+    private static TranscriptMessage? ReadCodeChange(string json)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            var item = document.RootElement;
+            if (!item.TryGetProperty("path", out var path) || !item.TryGetProperty("before", out var before) ||
+                !item.TryGetProperty("after", out var after)) return null;
+            string[] oldLines = (before.GetString() ?? "").Replace("\r\n", "\n").Split('\n');
+            string[] newLines = (after.GetString() ?? "").Replace("\r\n", "\n").Split('\n');
+            int start = 0, oldEnd = oldLines.Length, newEnd = newLines.Length;
+            while (start < oldEnd && start < newEnd && oldLines[start] == newLines[start]) start++;
+            while (oldEnd > start && newEnd > start && oldLines[oldEnd - 1] == newLines[newEnd - 1]) { oldEnd--; newEnd--; }
+            if (start == oldEnd && start == newEnd) return null;
+            string diff = $"@@ -{start + 1},{oldEnd - start} +{start + 1},{newEnd - start} @@\n" +
+                string.Join("\n", oldLines[start..oldEnd].Select(line => "- " + line)
+                    .Concat(newLines[start..newEnd].Select(line => "+ " + line)));
+            return new TranscriptMessage(diff, false, true, "변경된 코드 · " + path.GetString());
+        }
+        catch (JsonException) { return null; }
+    }
+
     private void CopyTranscript(object sender, RoutedEventArgs e)
     {
         if (_transcript.Count == 0) return;
-        try { Clipboard.SetText(string.Join("\n\n", _transcript.Select(message => message.Text))); }
+        try { Clipboard.SetText(string.Join("\n\n", _transcript.Select(message =>
+            message.IsCodeChange ? message.Header + "\n" + message.Text : message.Text))); }
         catch (System.Runtime.InteropServices.COMException) { StatusText.Text = "클립보드가 사용 중입니다. 다시 복사해 주세요."; }
     }
 

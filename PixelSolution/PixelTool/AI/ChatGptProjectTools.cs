@@ -19,6 +19,10 @@ internal sealed class ChatGptProjectTools(string project)
 
     internal static object[] Definitions => new object[]
     {
+        Tool("ask_choice", "Ask the user one concrete question with 2 to 5 clickable options. Wait for their selection or custom text before continuing. Use for meaningful choices, not approvals or decisions already clear from project code.",
+            new Dictionary<string, object> { ["question"] = new { type = "string", minLength = 1, maxLength = 500 },
+                ["options"] = new { type = "array", minItems = 2, maxItems = 5,
+                    items = new { type = "string", minLength = 1, maxLength = 150 } } }),
         Tool("reimport_project", "Request the editor's existing Reload path on its render thread, resetting runtime and reimporting Asset/main.lua. Refuses unsaved editor buffers or a paused debugger. Returns only after the reload frame completes, with a log cursor and captured logs. Inspect logs; completion is not proof of no runtime errors.",
             new Dictionary<string, object>()),
         Tool("read_editor_logs", "Read captured editor/engine logs newer than afterCursor (0 for recent history). Follow cursor/hasMore for more pages. Check truncated/cleared flags before claiming no errors.",
@@ -55,7 +59,8 @@ internal sealed class ChatGptProjectTools(string project)
     };
 
     internal async Task<string> InvokeAsync(string name, JsonElement arguments, bool allowEdits, bool confirmChanges,
-        Func<string, string, string, Task<bool>> approve, CancellationToken token, Func<Task<ImportedAsset?>>? pickAsset = null)
+        Func<string, string, string, Task<bool>> approve, CancellationToken token, Func<Task<ImportedAsset?>>? pickAsset = null,
+        Action<string, string, string>? savedCode = null)
     {
         token.ThrowIfCancellationRequested();
         string relative = arguments.GetProperty("path").GetString() ?? "";
@@ -160,6 +165,7 @@ internal sealed class ChatGptProjectTools(string project)
             File.Move(temporary, path, original != null);
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
+        savedCode?.Invoke(relative, original == null ? "" : Encoding.UTF8.GetString(original).TrimStart('\uFEFF'), content);
         return JsonSerializer.Serialize(new { saved = relative, sha256 = Hash(replacement) });
     }
 

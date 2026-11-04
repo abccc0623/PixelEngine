@@ -19,7 +19,10 @@ function InventoryFunction.Refresh(InventoryIndex)
         text:SetText("")
     end
     if User.InventoryDescriptionID and User.Selection.Type == InventoryType.Inventory and User.Selection.Index == InventoryIndex then
-        Entity.CallFunction(User.InventoryDescriptionID,"Setting",InventoryIndex,InventoryType.Inventory)
+		local description = Entity.GetScript(User.InventoryDescriptionID)
+		if description then
+			description:Setting(InventoryIndex,InventoryType.Inventory)
+		end
     end
 end
 
@@ -55,7 +58,10 @@ function InventoryFunction.Move(SelectType,Index)
     User.SelectTransform.position.y = slot.TransformComponent.position.y
 
     if User.InventoryDescriptionID ~= nil then
-        Entity.CallFunction(User.InventoryDescriptionID,"Setting",Index,SelectType)
+		local description = Entity.GetScript(User.InventoryDescriptionID)
+		if description then
+			description:Setting(Index,SelectType)
+		end
     end
     return true
 end

@@ -97,8 +97,5 @@ std::string LuaStaticCreate::CreateEntityScriptAnnotation()
 	content += "---@field CreateCamera fun(): number?\n";
 	content += "---@field Create2DImage fun(textureName: string): UIImageData?\n";
 	content += "---@field GetScript fun(ID: number): LuaInstance?\n";
-	content += "---@field SetValue fun(ID: number, variableName: string, value: any): boolean\n";
-	content += "---@field GetValue fun(ID: number, variableName: string): any\n";
-	content += "---@field CallFunction fun(ID: number, functionName: string, ...: any): boolean, any\n";
 	return content;
 }

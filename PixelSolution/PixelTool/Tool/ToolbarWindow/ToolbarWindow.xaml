@@ -153,7 +153,7 @@
                         Click="OpenLuaDataTable"/>
 
                 <Button Content="&#xE8BD;" Style="{StaticResource ToolbarActionButton}"
-                        ToolTip="AI Chat (ChatGPT)" Click="OpenAIChat"/>
+                        ToolTip="자비스 (ChatGPT 연결)" Click="OpenAIChat"/>
 
                 <Button Content=""
                         Style="{StaticResource ToolbarActionButton}"

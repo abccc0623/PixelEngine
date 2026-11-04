@@ -17,7 +17,8 @@ function BulletManager.Create(attack,itemIndex)
 		BulletManager.Hits[id] = false
         local rigidbody = Rigidbody2D.Get(id)
         rigidbody:SetPosition(playerPos)
-        Entity.CallFunction(id,"ActiveSetting",Direction,itemIndex or 1)
+		local bullet = Entity.GetScript(id)
+		bullet:ActiveSetting(Direction,itemIndex or 1)
     end
 end
 
@@ -33,7 +34,8 @@ function BulletManager.Hit(id,enemy)
 	BulletManager.Hits[id] = true
 	if enemy:TakeDamage(BulletManager.GetAttack(id)) then
 		local effectID = Pool.Active("HitEffect")
-		Entity.CallFunction(effectID,"ActiveSetting",enemy.transform.position)
+		local effect = Entity.GetScript(effectID)
+		effect:ActiveSetting(enemy.transform.position)
 	end
 	Pool.Disable("Bullet",id)
 end

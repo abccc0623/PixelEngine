@@ -25,7 +25,7 @@ namespace PixelTool
             dockManager.Register("LuaEditor", "Lua Editor", LuaEditorContent);
             dockManager.Register("Asset", "Asset", AssetContent);
             dockManager.Register("Log", "Log", LogContent);
-            dockManager.Register("AIChat", "AI Chat", _aiChat);
+            dockManager.Register("AIChat", "자비스", _aiChat);
             string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PixelTool");
             _layoutFilePath = Path.Combine(directory, "DockLayout.json");
             _legacyLayoutPath = Path.Combine(directory, "Layout.xml");

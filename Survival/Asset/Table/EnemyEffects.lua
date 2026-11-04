@@ -16,7 +16,8 @@ function EnemyEffects.TakeDamage(enemy,damage)
         Group.Remove("MonsterList",enemy.ID)
         local id = Pool.Active("EXP")
         Rigidbody2D.Get(id):SetPosition(enemy.transform.position)
-        Entity.CallFunction(id,"Setting",enemy.EXP or 1)
+		local experience = Entity.GetScript(id)
+		experience:Setting(enemy.EXP or 1)
     else
         enemy.State = enemy.MonsterState.Hit
     end
