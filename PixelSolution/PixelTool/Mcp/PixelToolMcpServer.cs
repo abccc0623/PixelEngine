@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
+using System.Windows;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -130,6 +131,16 @@ internal sealed class PixelToolMcpServer : IAsyncDisposable
 
 public sealed record PixelToolProjectInfo(string ProjectPath, string AssetPath, string EnginePath, string EditorPath, int ProcessId);
 
+public sealed record PixelToolEditorContext(string FilePath, int CaretLine, int CaretColumn,
+    int SelectionStartLine, int SelectionEndLine, string SelectedText, bool IsDirty);
+
+internal static class PixelToolEditorContextSnapshot
+{
+    private static PixelToolEditorContext _current = new("", 0, 0, 0, 0, "", false);
+    internal static PixelToolEditorContext Current => Volatile.Read(ref _current);
+    internal static void Update(PixelToolEditorContext context) => Volatile.Write(ref _current, context);
+}
+
 [McpServerToolType]
 public sealed class PixelToolProjectTools
 {
@@ -138,5 +149,24 @@ public sealed class PixelToolProjectTools
     public static string GetProjectInfo(PixelToolProjectInfo project)
     {
         return JsonSerializer.Serialize(project);
+    }
+
+    [McpServerTool(Name = "get_editor_context", ReadOnly = true, Destructive = false, OpenWorld = false),
+     Description("Returns the current Lua editor file, caret, selected line range and selected text. For code changes, inspect this file/selection first and expand to directly related declarations or callers only when needed. Read-only snapshot; empty FilePath means no file is open.")]
+    public static string GetEditorContext()
+    {
+        return JsonSerializer.Serialize(PixelToolEditorContextSnapshot.Current);
+    }
+
+    [McpServerTool(Name = "highlight_lua_lines", ReadOnly = false, Destructive = false, OpenWorld = false),
+     Description("Open a project Lua file in the PixelTool Lua editor and highlight a 1-based line range. Use after locating the requested code. path is relative to the open project, e.g. Asset/Script/main.lua. Selects the current in-memory document, including unsaved edits. Does not change file content.")]
+    public static async Task<string> HighlightLuaLines(string path, int startLine, int endLine)
+    {
+        var app = Application.Current;
+        if (app == null) return "PixelTool 에디터가 실행 중이지 않습니다.";
+        return await app.Dispatcher.InvokeAsync(() =>
+            app.MainWindow is MainWindow window
+                ? window.HighlightLuaLines(path, startLine, endLine)
+                : "PixelTool 메인 창을 찾을 수 없습니다.").Task.ConfigureAwait(false);
     }
 }

@@ -31,25 +31,32 @@
 
  <ItemGroup>
    <EmbeddedResource Include="LuaCode\CreateCollider.lua">
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+     <CopyToPublishDirectory>Never</CopyToPublishDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="LuaCode\EventFunction.lua">
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+     <CopyToPublishDirectory>Never</CopyToPublishDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="LuaCode\BaseCamera.pxm">
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+     <CopyToPublishDirectory>Never</CopyToPublishDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="LuaCode\main.lua">
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+     <CopyToPublishDirectory>Never</CopyToPublishDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="LuaCode\Module.lua">
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+     <CopyToPublishDirectory>Never</CopyToPublishDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="LuaCode\Scene.lua">
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+     <CopyToPublishDirectory>Never</CopyToPublishDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="LuaCode\Default.lua">
-     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+     <CopyToPublishDirectory>Never</CopyToPublishDirectory>
    </EmbeddedResource>
  </ItemGroup>
 
@@ -71,6 +78,7 @@
     <EmbeddedResource Include="AI\AIRestrictions.md" LogicalName="PixelTool.AI.AIRestrictions.md" />
     <EmbeddedResource Include="AI\EditorGuide.md" LogicalName="PixelTool.AI.EditorGuide.md" />
     <EmbeddedResource Include="AI\LuaApiGuide.md" LogicalName="PixelTool.AI.LuaApiGuide.md" />
+    <EmbeddedResource Include="AI\Ponytail.md" LogicalName="PixelTool.AI.Ponytail.md" />
     <EmbeddedResource Include="Tool\EditorLuaWindow\Lua.xshd" />
   </ItemGroup>
 

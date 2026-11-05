@@ -1,7 +1,8 @@
-﻿---@type LuaInstance
+---@type LuaInstance
 local Script = {}
 
-function  Script:Spawn()
+--- 박쥐의 컴포넌트를 생성하고 물리 회전을 모든 축에서 고정한다.
+function Script:Spawn()
     self.transform = Transform.Add(self.ID)
     self.renderer = Renderer2D.Add(self.ID)
     self.animation = Animation2D.Add(self.ID)
@@ -10,6 +11,7 @@ function  Script:Spawn()
     --rigidbody
     self.rigidbody:CreateCircleCollider(0.5, PVector2(0,0))
     self.rigidbody:SetMotionType(MotionType.Dynamic)
+	self.rigidbody:SetLockRotation(true,true,true)
     self.rigidbody:SetSensor(false)
     self.rigidbody:SetGravity(0)
     self.rigidbody:SetLayer("Enemy")

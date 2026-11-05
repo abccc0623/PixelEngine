@@ -10,6 +10,13 @@
 
 #define PE_NEW new(__FILE__, __LINE__)
 
+void __stdcall PrintEngineLog(const char* message, int level)
+{
+	static constexpr const char* levelNames[] = { "INFO", "WARN", "ERROR" };
+	const char* levelName = level >= 0 && level < 3 ? levelNames[level] : "UNKNOWN";
+	std::cout << "[" << levelName << "] " << (message ? message : "") << std::endl;
+}
+
 std::filesystem::path GetExecutableDirectory()
 {
 	wchar_t executablePath[MAX_PATH] = {};
@@ -46,6 +53,7 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 int main()
 {
 	std::filesystem::current_path(GetExecutableDirectory());
+	RegisterLogCallback(PrintEngineLog);
 
 	//_CrtSetBreakAlloc(2192);
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);

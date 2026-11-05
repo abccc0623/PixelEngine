@@ -1,13 +1,15 @@
 local Script = {}
 
+--- Grid와 선택 표시를 생성하고 전투용 미니맵 배치를 준비한다.
 function Script:Spawn()
     self.transform = Transform.Add(self.ID)
     self.ui_image = UIImage.Add(self.ID)
     self.ui_image:SetTexture("grid")
     self.ui_image:SetPivot(0.5, 0.5)
 
-    self.transform.position = PVector3(1920 *0.5 , 1080 * 0.5,0)
-    self.transform.scale = PVector3(4,4,4)
+	self.MinimapSize = 240
+	self.MinimapMargin = 24
+	self:ShowPlayGrid()
     self:CreateGrid()
     Grid.BoardID = self.ID
 	self:CreateSelection()
@@ -16,8 +18,25 @@ function Script:Spawn()
 	self.IsTesting = false
 	Event.Bind(self.ID,"BuildEdit","BeginEdit")
 	Event.Bind(self.ID,"BuildPlay","ResumePlay")
+	Event.Bind(self.ID,"ShowGridPlay","ShowPlayGrid")
+	Event.Bind(self.ID,"ShowGrid","ShowEditGrid")
 	Event.Bind(self.ID,"ToggleBuildTest","ToggleTest")
 	Event.Bind(self.ID,"StopBuildTest","StopTest")
+end
+
+--- Grid와 자식들을 왼쪽 위의 작은 전투용 표시로 배치한다.
+function Script:ShowPlayGrid()
+	local scale = self.MinimapSize / 240
+	local center = self.MinimapMargin + self.MinimapSize * 0.5
+	self.transform.position = PVector3(center,center,0)
+	self.transform.scale = PVector3(scale,scale,1)
+end
+
+--- 책의 왼쪽 페이지에 맞춰 편집용 Grid를 확대한다.
+function Script:ShowEditGrid()
+	local book = Transform.Get(UI.BookID)
+	self.transform.position = PVector3(book.position.x - 116.5 * book.scale.x,book.position.y,0)
+	self.transform.scale = PVector3(book.scale.x * 0.75,book.scale.y * 0.75,1)
 end
 
 ---인벤토리와 같은 선택 테두리를 현재 Grid의 셀 크기로 생성합니다.

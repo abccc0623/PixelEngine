@@ -67,6 +67,8 @@ namespace PixelTool
             diagnosticRenderer = new LuaDiagnosticRenderer(LuaEditor.TextArea.TextView);
             LuaEditor.TextArea.TextView.BackgroundRenderers.Add(diagnosticRenderer);
             LuaEditor.TextChanged += LuaEditor_TextChanged;
+            LuaEditor.TextArea.Caret.PositionChanged += (_, _) => PublishEditorContext();
+            LuaEditor.TextArea.SelectionChanged += (_, _) => PublishEditorContext();
             LuaEditor.TextArea.TextEntered += TextArea_TextEntered;
             LuaEditor.PreviewTextInput += (_, e) =>
             {
@@ -184,6 +186,20 @@ namespace PixelTool
             catch (Exception ex) { PixelMessageBox.Show(ex.Message, "파일 열기 실패", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
 
+        internal bool HighlightLines(string path, int startLine, int endLine)
+        {
+            OpenFile(path);
+            if (!string.Equals(CurrentFilePath, Path.GetFullPath(path), StringComparison.OrdinalIgnoreCase)) return false;
+            if (startLine < 1 || endLine < startLine || endLine > LuaEditor.Document.LineCount) return false;
+            DocumentLine first = LuaEditor.Document.GetLineByNumber(startLine);
+            DocumentLine last = LuaEditor.Document.GetLineByNumber(endLine);
+            LuaEditor.Select(first.Offset, last.EndOffset - first.Offset);
+            LuaEditor.CaretOffset = first.Offset;
+            LuaEditor.ScrollToLine(startLine);
+            LuaEditor.Focus();
+            return true;
+        }
+
         public void UpdateMovedFilePaths(string oldPath, string newPath)
         {
             oldPath = Path.GetFullPath(oldPath);
@@ -246,6 +262,7 @@ namespace PixelTool
             diagnosticRenderer.SetErrors(new List<ISegment>());
             switchingFile = false;
             UpdateFileStatus();
+            PublishEditorContext();
             var selected = activeFile;
             await lspReady;
             if (selected != null && selected == activeFile)
@@ -260,6 +277,22 @@ namespace PixelTool
             EditorChange.Foreground = new SolidColorBrush(IsDirty ? System.Windows.Media.Color.FromRgb(244, 190, 74) : System.Windows.Media.Color.FromRgb(99, 193, 116));
         }
 
+        private void PublishEditorContext()
+        {
+            if (string.IsNullOrEmpty(targetPath) || LuaEditor.Document == null)
+            {
+                PixelToolEditorContextSnapshot.Update(new("", 0, 0, 0, 0, "", false));
+                return;
+            }
+
+            int start = LuaEditor.SelectionStart;
+            int end = start + LuaEditor.SelectionLength;
+            int startLine = LuaEditor.Document.GetLineByOffset(start).LineNumber;
+            int endLine = LuaEditor.Document.GetLineByOffset(Math.Min(end, LuaEditor.Document.TextLength)).LineNumber;
+            PixelToolEditorContextSnapshot.Update(new(targetPath, LuaEditor.TextArea.Caret.Line,
+                LuaEditor.TextArea.Caret.Column, startLine, endLine, LuaEditor.SelectedText, IsDirty));
+        }
+
         private bool SaveFile(FileState file)
         {
             if (file == null) return false;
@@ -271,6 +304,7 @@ namespace PixelTool
                 file.Document.UndoStack.MarkAsOriginalFile();
                 file.Label.Text = Path.GetFileName(file.Path);
                 UpdateFileStatus();
+                PublishEditorContext();
                 return true;
             }
             catch (Exception ex) { PixelMessageBox.Show(ex.Message, "저장 실패", MessageBoxButton.OK, MessageBoxImage.Error); return false; }
@@ -323,6 +357,7 @@ namespace PixelTool
                 EditorChange.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(244, 190, 74));
                 EditorChange.Text = "● Modified";
             }
+            PublishEditorContext();
 
             string currentText = LuaEditor.Text;
             int currentLine = LuaEditor.TextArea.Caret.Line - 1;

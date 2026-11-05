@@ -38,6 +38,7 @@ namespace PixelTool
             Closing += MainWindow_Closing;
             Closed += (_, _) =>
             {
+                InputManager.Current.PreProcessInput -= MainWindow_PreProcessInput;
                 _fpsTimer.Stop();
                 dockManager.Dispose();
                 (LuaEditorContent.Child as LuaEditorWindow)?.DisposeLanguageService();
@@ -53,6 +54,16 @@ namespace PixelTool
 
         private void MainWindow_PreProcessInput(object sender, PreProcessInputEventArgs e)
         {
+            bool closeShortcut = e.StagingItem.Input is KeyEventArgs closeKey &&
+                closeKey.Key == Key.System && closeKey.SystemKey == Key.F4 && (Keyboard.Modifiers & ModifierKeys.Alt) != 0;
+            if (IsSceneGameInputActive && !LuaDebugSession.IsInspecting && !closeShortcut &&
+                (e.StagingItem.Input is KeyEventArgs or TextCompositionEventArgs))
+            {
+                // InputManager also covers floating dock windows on this UI thread.
+                e.StagingItem.Input.Handled = true;
+                e.Cancel();
+                return;
+            }
             if (e.StagingItem.Input is not KeyEventArgs keyEvent) return;
             if (keyEvent.RoutedEvent != Keyboard.PreviewKeyDownEvent) return;
             if (keyEvent.Key != Key.R || (Keyboard.Modifiers & ModifierKeys.Control) == 0) return;
@@ -91,7 +102,7 @@ namespace PixelTool
             }
             return System.Text.Json.JsonSerializer.SerializeToElement(new
             {
-                reimportCompleted = true, afterCursor = cursor, logs = ConsoleWindow.ReadLogsForAi(cursor, 100),
+                reimportCompleted = true, afterCursor = cursor, logs = ConsoleWindow.SummarizeLogsForAi(cursor),
                 note = "리임포트 프레임 처리가 끝났습니다. 반환된 로그와 이후 로그를 확인하세요. 오류가 없는 전체 실행을 보장하지 않습니다."
             });
         }
@@ -101,6 +112,28 @@ namespace PixelTool
 
         public void ShowAIChat(bool activate = true, bool placeBesideLua = false)
             => dockManager.ShowDocument("AIChat", activate);
+
+        internal string HighlightLuaLines(string relativePath, int startLine, int endLine)
+        {
+            Dispatcher.VerifyAccess();
+            if (string.IsNullOrWhiteSpace(relativePath) || Path.IsPathRooted(relativePath) || relativePath.Contains(':'))
+                return "프로젝트 상대 경로가 필요합니다.";
+            string root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(ProjectPathService.ProjectRootPath));
+            string path = Path.GetFullPath(Path.Combine(root, relativePath));
+            if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||
+                !new[] { ".lua", ".pxm" }.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase) ||
+                !File.Exists(path)) return "프로젝트 안의 기존 Lua 파일(.lua, .pxm)을 지정하세요.";
+            for (string? current = path; current != null && !current.Equals(root, StringComparison.OrdinalIgnoreCase);
+                current = Path.GetDirectoryName(current))
+                if ((File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
+                    return "링크 경로는 열 수 없습니다.";
+            if (startLine < 1 || endLine < startLine || endLine - startLine >= 200)
+                return "1~200줄 범위를 지정하세요.";
+            if (LuaEditorContent.Child is not LuaEditorWindow editor) return "Lua 에디터를 찾을 수 없습니다.";
+            dockManager.ShowDocument("LuaEditor", true);
+            if (!editor.HighlightLines(path, startLine, endLine)) return "해당 줄을 찾을 수 없습니다. 파일 내용을 다시 확인하세요.";
+            return $"표시됨: {Path.GetRelativePath(root, path)} {startLine}~{endLine}줄";
+        }
 
         internal IEnumerable<FrameworkElement> DockContents => dockManager.Contents;
         internal bool IsSceneGameInputActive => EditorToolbar.IsPlayMode && GraphicsWindow.HasNativeKeyboardFocus;

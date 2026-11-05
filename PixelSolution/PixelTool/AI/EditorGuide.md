@@ -1,62 +1,60 @@
-# PixelTool 에디터 기능 가이드
+# PixelTool editor guide
 
-## 프로젝트 구조와 갱신
+Feature reference only; AIRestrictions.md governs authority. Report version mismatches rather than assuming unsupported behavior. These guides are embedded in PixelTool, not copied into game Asset or engine DLLs.
 
-- 프로젝트 루트는 에디터에서 지정한 폴더다. 아래 세 폴더는 모두 프로젝트 루트 바로 아래에 있어야 한다.
-- `Asset`: 사용자가 작성하는 게임 스크립트, 씬, 이미지 등 게임 콘텐츠.
-- `Engine`: 엔진에서 제공하는 Lua API 파일과 엔진 설정.
-- `Editor`: 에디터에서 사용하는 프로젝트 전용 데이터.
-- 에디터에서 프로젝트를 실행할 때 최초 시작 파일은 항상 `Asset/main.lua`다. 이후 불러오는 스크립트와 씬은 이 파일의 실행 흐름을 기준으로 확인한다.
-- 엔진 Lua 파일이 없거나 API 버전이 오래되면 PixelTool의 Engine Update로 갱신한다.
-- `Engine` 자동 생성 파일만 수동 수정하면 다음 갱신에서 덮어써질 수 있다.
+## Project layout
 
-## 게임 콘텐츠 폴더 정리
+Editor-selected root:
+- `Asset/main.lua`: fixed execution entry point.
+- `Asset/Scene/`: `.scene` files.
+- `Asset/Script/`: `.pxm` objects and `.lua` game logic; optional Player/Monster/Inventory/Build/UI subfolders.
+- `Asset/Table/`: global designer-editable data such as ItemList/MonsterList. Data first; allow only trivial one-body-line lookup helpers, still written as multiline functions. Object-local state/behavior stays in its script.
+- `Asset/Texture/`: images/sheets, optionally Character/UI.
+- `Asset/Audio/`: optionally BGM/SFX.
+- `Asset/Font/`: fonts.
+- `Engine/`: generated engine APIs/settings. Engine Update refreshes missing/stale APIs; hand edits may be overwritten.
+- `Editor/`: editor-only project data.
 
-- 게임 콘텐츠는 기능별로 모든 파일을 섞어 두지 않고 **종류별 폴더**로 구분한다. 프로젝트 루트의 `Asset`, `Engine`, `Editor` 역할은 유지한다.
-- `Asset/main.lua`: 실행의 최초 시작점. 하위 폴더로 옮기지 않는다.
-- `Asset/Scene/`: 씬 파일(`.scene`).
-- `Asset/Script/`: 객체 스크립트(`.pxm`)와 게임 로직(`.lua`). 필요하면 Player, Monster, Inventory, Build, UI 등 기능별 하위 폴더를 둔다.
-- `Asset/Table/`: ItemList, MonsterList처럼 여러 곳에서 전역으로 사용하는 공통 데이터 테이블(`.lua`). `Script`와 같은 단계의 별도 폴더로 분리한다. 모든 Lua 테이블을 이곳으로 옮기는 것은 아니며 객체 내부 상태와 객체 고유 로직은 해당 객체 스크립트에 둔다.
-- `Table`은 주로 기획자가 값과 목록을 수정하기 위한 데이터 파일이다. 읽기 쉽게 데이터 중심으로 작성하고 함수는 원칙적으로 넣지 않는다. 다만 처리 본문이 한 줄 정도인 단순한 데이터 조회 등은 함께 둘 수 있다. 복잡한 계산·상태 변경·게임 동작 로직은 `Script`에서 처리한다. 짧은 함수도 함수 선언·본문·`end`는 기존 규칙대로 여러 줄로 작성한다.
-- `Asset/Texture/`: 이미지와 스프라이트 시트. 필요하면 Character, UI 등 용도별 하위 폴더를 둔다.
-- `Asset/Audio/`: 오디오. 필요하면 BGM, SFX로 나눈다.
-- `Asset/Font/`: 폰트.
-- 폴더·파일 이름은 영어로 작성하고 기존 이름 규칙과 대소문자를 일관되게 유지한다. 불필요한 하위 폴더나 의미 없는 임시 이름을 늘리지 않는다.
-- 기존 프로젝트 전체를 이 구조에 맞추기 위해 임의로 이동하지 않는다. 새 파일은 기존 구조와 위 종류 구분을 함께 고려해 배치하고, 기존 구조와 충돌하여 정리가 필요하면 사용자에게 확인한다.
-- 파일 이동·이름 변경 시 `Asset.Import`, `Entity.Create`, `Scene.Change`와 리소스 참조를 확인한다. 파일 이름 기반 로딩에서는 중복 이름 충돌도 확인한다. 원본 시트를 임의로 분할하거나 사용 여부가 확인되지 않은 리소스를 삭제하지 않는다.
+Separate by file kind, not mixed feature bundles. Use English file/folder names and consistent existing casing; avoid needless nesting or placeholder names. Do not reorganize an existing project without a request; ask when layout conflicts require changes. Preserve source sheets and do not delete assets whose use is unknown. Check Asset.Import, Entity.Create, Scene.Change, resource references and name-only loading collisions on moves/renames.
 
-## Lua 코드 변경 후 확인
+## Chat and settings
 
-- 변경한 Lua 코드를 먼저 저장한다.
-- 실행 중인 에디터에서 `Ctrl+R`로 리임포트한다.
-- 리임포트 이후 로그창을 확인해 Lua 문법 오류와 실행 오류가 없는지 점검한다. 로그만 지워진 상태를 검증 완료로 판단하지 않는다.
-- 오류 로그가 없어질 때까지 오류 수정·저장·리임포트·새 로그 확인을 반복한다. 오류 해결에 많은 코드 변경이나 구조·기존 동작 변경이 필요하면 원인과 변경 계획·영향을 설명하고 "이렇게 변경해도 될까요?"라고 승인받은 뒤 진행한다. 새 오류 로그가 없으면 작업을 마치고 별도 플레이 테스트는 사용자 요청 시에만 한다. 오류 로그가 없다는 사실을 전체 게임 동작 검증 완료로 표현하지 않는다.
-- 오류가 있으면 해당 로그를 기준으로 원인을 확인한다. AI가 직접 에디터를 조작하거나 로그를 읽지 못하면 사용자에게 리임포트와 로그 확인을 요청하고, 미검증 상태임을 알린다.
+- Open the AI chat (자비스) from the toolbar beside the Lua editor.
+- `Continue with ChatGPT` logs in through the system browser; the editor connects directly using ChatGPT account access, without a Codex executable or API key. Supports account selection/addition/reauthentication.
+- Settings contains model/approval controls; Account Management contains login controls. Restore saved connections on startup without automatically opening a browser; show account controls if restoration/authentication fails.
+- Model, edit permission and approval mode persist per project. New projects default to editing off and Always Confirm. Changes during a response apply to the next message; the current turn keeps its captured settings.
+- Editing permission alone is not a change request. Automatic mode removes extra confirmation only for requested, permitted operations.
+- `ask_choice` presents one question and 2–5 buttons plus custom text. Continue after the answer; save question/answer in history. Stop/exit cancels waiting. Historical questions are records, not live buttons.
+- Results remain visible; actual saved code diffs are initially collapsed. Failures, stops, timeouts, disconnects and refused/failed tools appear as saved `작업 알림` notices; routine internal system/approval records stay hidden. Failure does not roll back applied changes.
+- Live elapsed time and final total duration include user-answer/approval waits.
+- New Conversation archives local history. Closing the tab preserves it. Editor exit cancels login/HTTP waits; no separate Codex process runs.
+- No fixed tool-round cap. The same tool/target/error repeated 3 times without actual file changes stops stalled work. Normal reads do not increase failure counts; actual mutations reset them. Time limits and user cancellation remain.
 
-## AI 채팅
+## Available tools
 
-- 요청 실패·사용자 중지·시간 초과·연결 종료는 대화 안의 `작업 알림`으로 표시하고 기록에 보관한다. 도구 실행이 실패하거나 거절된 경우에도 알림을 표시한다. 일반 시스템·승인 내부 기록 전체를 노출하는 것은 아니다. 알림에 표시된 실패는 이미 적용된 파일 변경이 자동으로 되돌아갔다는 뜻이 아니다.
-- AI는 `ask_choice` 도구로 질문 하나와 2~5개의 선택지를 버튼으로 제시할 수 있다. 사용자는 버튼을 클릭하거나 직접 답변을 입력할 수 있고, 답변을 받은 뒤 AI가 작업을 이어간다. 질문과 답변은 대화 기록에 남는다. 응답 중지·종료 시 대기를 취소하며, 이전 기록의 질문은 다시 실행되는 버튼이 아니라 기록으로 표시한다.
-- 툴바의 AI Chat 버튼으로 Lua 편집창 옆 AI 채팅 탭을 연다.
-- 'Continue with ChatGPT'로 시스템 브라우저에서 로그인하고 ChatGPT 요금제 사용 권한을 승인한다. Codex 설치나 API 키 입력 없이 에디터가 직접 연결한다. 다른 계정 추가·계정 선택·계정 재인증도 제공한다.
-- 연결 후 로그인·모델·승인 항목은 대화 높이를 차지하지 않는 설정 패널에 둔다. 상단 '설정'에서 모델·승인을 변경하고, 그 안의 '계정 관리'로 로그인 항목을 연다. 저장된 계정은 다음 실행 시 연결 복원을 시도한다. 인증이 만료·철회되었거나 복원에 실패하면 설정의 계정 관리 영역을 보여주고, 사용자 조작 없이 로그인 브라우저를 자동으로 열지는 않는다.
-- '프로젝트 파일 수정 허용' 체크박스와 작업 승인 선택값은 프로젝트별로 즉시 저장하고 다음 실행 시 복원한다. 새 프로젝트의 수정 허용 기본값은 꺼짐이다.
-- 로그인 후 모델 목록에서 선택한다. 모델 변경은 다음 메시지부터 적용되고 프로젝트별로 저장된다.
-- 기본은 읽기 전용이며 프로젝트 파일 수정 허용을 켜도 사용자 요청이 있어야 변경한다.
-- '작업 승인'에서 '항상 확인 요청'(기본값) 또는 '일반 작업 자동 승인'을 선택한다. 응답 중에도 선택할 수 있으며 설정은 프로젝트별로 저장되고 다음 메시지부터 적용된다. 진행 중인 응답은 전송 시점의 설정을 유지한다.
-- 임의 명령 실행·프로그램 설치·빌드 도구는 없으므로 실제 수행했다고 안내하지 않는다. 에디터의 리임포트와 로그 조회는 별도 도구로 제공된다.
-- 수정 허용 상태에서는 Asset 내부 파일·폴더 생성, 수정, 이동·이름 변경, 휴지통 삭제가 가능하다. `delete_asset_file(path, reason)`은 파일 하나를, `delete_asset_folder(path, reason)`는 폴더와 하위 내용을 휴지통으로 이동한다. `move_asset(path, destination, reason)`는 파일·폴더를 정확한 새 경로로 이동하거나 이름을 변경한다. 대상 부모 폴더는 먼저 생성해야 하며 기존 대상을 덮어쓰거나 폴더를 자기 내부로 이동하지 않는다. Asset 자체·Engine·Editor·프로젝트 밖 이동·삭제는 허용하지 않는다. 자동 승인에서는 추가 확인 없이 진행하고 항상 확인 모드에서는 대상·이유·영향을 보여주고 승인받는다. 하위 내용의 정션·민감 파일·미저장 편집 내용 및 변경 여부도 검사한다. 이동 시 열린 에디터 파일 경로와 에셋 탐색기를 갱신하지만, 게임 코드의 참조는 AI가 별도로 확인·수정해야 한다. 결과에 이동·삭제 경로와 휴지통 복구 방법을 알리고 필요한 리임포트를 수행한다.
-- 도구 처리 단계의 고정 횟수 제한은 없다. 같은 도구·대상·오류가 실제 파일 변경 없이 3번 반복되면 진행 정체로 중단하고 사유를 채팅에 표시한다. 정상 조회는 실패 횟수를 늘리지 않고, 실제 파일 변경이 있으면 반복 오류 기록을 초기화한다. 별도의 응답 시간 제한과 사용자 중지는 유지된다.
-- 프로젝트 텍스트 파일 조회와 파일 수정 도구를 제공한다. '항상 확인 요청'이면 파일의 이전·수정 내용을 보여주고 승인받는다. '일반 작업 자동 승인'과 '프로젝트 파일 수정 허용'이 모두 켜져 있으면 요청에 필요한 일반 파일 생성·수정은 승인창 없이 수행한다. 프로젝트 밖·정션·심볼릭 링크·인증 파일 경로와 파일 동시 변경 검사는 두 모드 모두 유지된다.
-- 에셋 도구로 `Asset` 하위 폴더 생성, 프로젝트 이미지·오디오·폰트의 정보 조회와 복사, 사용자가 파일 선택창에서 직접 고른 외부 에셋 가져오기, 간단한 PNG 생성이 가능하다. 외부 폴더 전체를 자동 탐색하거나 사용자 선택 없이 외부 파일을 읽지는 않는다.
-- PNG 생성은 RGBA 색과 사각형을 지정하는 픽셀 그리기 도구다. 1~1024픽셀, 사각형 4096개까지이며 투명 배경을 지원한다. 단순 아이콘·테스트 이미지 제작에 사용하고 생성형 이미지 AI를 사용했다고 표현하지 않는다. 에셋 복사·가져오기는 16MB까지이며 기존 파일은 덮어쓰지 않는다.
-- `.pxm`·`.scene`·Lua·JSON 등 텍스트 에셋은 파일 작성 도구로 생성한다. SVG도 텍스트 저장은 가능하지만 엔진의 SVG 렌더링 지원을 가정하지 않는다. 텍스처가 필요하면 PNG 생성이나 기존 이미지 가져오기를 우선한다.
-- 에셋을 디스크에 저장한 것과 엔진에 등록·표시된 것은 다르다. 등록 API와 로드 흐름을 확인하고, 리임포트나 화면 확인을 하지 않았다면 완료했다고 주장하지 않는다.
-- Lua 변경 후 `reimport_project`를 호출하면 기존 `Reload` 요청을 렌더 스레드에 전달하고, 엔진 프레임에서 `Asset/main.lua`를 다시 읽은 뒤 로그와 커서를 돌려준다. 런타임 상태는 초기화된다. 저장하지 않은 편집 내용·디버거 중단·엔진 미실행 상태에서는 거절한다. 항상 확인 모드는 승인창을 사용하고 자동 승인 모드는 작업 허용 범위에서 진행한다.
-- `read_editor_logs(afterCursor, limit)`로 이후 로그를 추가 조회한다. `cursor`와 `hasMore`로 페이지를 이어 읽고 `truncated`·`cleared` 여부를 확인한다. 리임포트는 기존 로그를 삭제하지 않는다. 완료 응답이나 일부 로그에 오류가 없다는 이유만으로 전체 게임 실행이 정상이라고 단정하지 않는다. 제한 시간 초과·중단 시 이미 실행된 초기화는 되돌리지 않으며 자동 재시도하지 않는다.
-- AI에 파일 수정을 요청하기 전에 편집 중인 파일을 저장한다. 외부 변경은 에디터의 파일 변경 감지로 반영된다.
-- 새 대화는 기존 로컬 대화 기록을 보관한 뒤 새로 시작한다. 응답 중지로 현재 요청을 중단한다.
-- 채팅 탭만 닫으면 대화는 유지된다. 에디터 종료 시 로그인 대기와 HTTP 응답 수신을 취소한다. 별도 Codex 프로세스는 실행하지 않는다.
-- 이 연동은 현재 개인 PC의 로컬 개발용이다. 에디터를 다른 사용자에게 제공하거나 인스톨러로 배포하는 작업을 할 때는 ChatGPT 연동의 배포 자격·조건을 다시 확인하고 사용자에게 알린다. 게임만 배포할 때는 에디터 AI와 인증 정보를 포함하지 않는다.
+- Prefer `read_project_file_lines(path,startLine,lineCount)` for inspection: 1-based lines, 1–200 lines, at most 12000 output characters, whole-file hash, partial/truncated/hasMore flags. Line numbers are not source code. Existing whole-file writes require a current full `read_project_file` in this request; partial reads cannot authorize replacing unseen content.
+- Large transmission context (96 Ki serialized JSON characters, not a token count) is compacted using the selected model and `responses/compact` at closed tool-call boundaries. Canonical compact output replaces only the old prefix without pruning individual items; the latest complete response/tool batch stays verbatim. Full-file edit authorization is retained only for that preserved batch; read older files again before replacement. Application policies are sent separately every time. Display/history records are not deleted. Compaction itself uses a request; unavailable/failed compaction preserves original context, warns once and is not retried in that turn.
+- Project text listing/reading/writing; writes check expected file hashes. Always Confirm previews before/after; Automatic + editing enabled performs in-scope writes without another dialog.
+- Asset folder creation; file/folder moves/renames and Recycle Bin deletion under current approval settings:
+  - `create_asset_folder(path)`
+  - `move_asset(path, destination, reason)`: exact new path; parent must exist; no overwrite or moving a folder into itself.
+  - `delete_asset_file(path, reason)`
+  - `delete_asset_folder(path, reason)`: includes descendants.
+- Asset root/Engine/Editor/outside moves/deletion, permanent deletion, reparse/secret paths, stale contents and unsaved buffers are blocked. Directory operations validate descendants. Moves update open editor paths and Asset browser, but the AI must update game references separately. Report affected paths and recovery.
+- Inspect/copy project image/audio/font assets; import external assets only via the user's file-picker selection. No automatic outside-directory scan or model-supplied external paths. Copy/import limit 16 MB; never overwrite.
+- Procedural PNG creation: RGBA background/rectangles, transparency supported; 1–1024 pixels per dimension, ≤4096 rectangles. For simple placeholders/icons, not generative image AI. Follow the image-choice rule before using it.
+- Create `.pxm`, `.scene`, Lua, JSON and other supported text via file-writing tools. SVG text may be saved, but do not assume SVG rendering; prefer PNG/imported textures.
+- No arbitrary shell, installation, build or new game/editor launch tool. Never claim unsupported actions. Saving an asset does not register it with the engine or prove it renders.
 
-이 문서는 기능 설명이며 운영 규칙의 예외나 추가 실행 권한을 만들지 않는다. 현재 버전과 설명이 다르면 차이를 알리고 실제 구현을 확인한다.
+## Reimport and logs
+
+Follow AIRestrictions.md's save/reimport/fix loop; no additional gameplay testing unless requested.
+- Save accessible editor changes before reimport; report inability to preserve/inspect unsaved changes. Disk changes are detected by the editor.
+- `reimport_project` uses existing Reload on the render thread; the engine rereads Asset/main.lua, resets runtime, and returns captured logs/cursor after the reload frame.
+- Refuses unsaved buffers, debugger break/shutdown or non-running engine. Always Confirm uses a dialog; Automatic follows edit permission.
+- `read_editor_logs(afterCursor, limit)`: continue through cursor/hasMore; account for truncated/cleared history. Reimport does not clear logs.
+- Cleared/partial logs or a completed reload do not prove error-free gameplay. On reload timeout/cancellation, initialization may already have run: do not assume rollback or blindly retry; inspect the cause.
+
+## Distribution
+
+Current ChatGPT integration is for local personal development. Before distributing the editor/installer, recheck integration distribution eligibility/terms and notify the user. A game-only distribution must exclude editor AI and authentication data.

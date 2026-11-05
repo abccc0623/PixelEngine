@@ -33,6 +33,9 @@ namespace PixelTool
         private const int WS_CHILD = 0x40000000;
         private const int HOST_ID = 0x00000002;
         private const int WS_BORDER = 0x00800000;
+        // Without SS_NOTIFY, STATIC returns HTTRANSPARENT: mouse clicks reach WPF,
+        // so the native focus/keyboard isolation path is never activated.
+        private const int SS_NOTIFY = 0x0100;
 
         // 엔진 제어 변수
         private IntPtr _childHwnd;
@@ -87,7 +90,7 @@ namespace PixelTool
 
             // 1. 중계용 자식 창 생성
             _childHwnd = CreateWindowEx(
-                0, "static", "EngineView", WS_CHILD | WS_BORDER,
+                0, "static", "EngineView", WS_CHILD | WS_BORDER | SS_NOTIFY,
                 0, 0, w, h,
                 hwndParent.Handle, (IntPtr)HOST_ID, IntPtr.Zero, 0);
 
@@ -95,6 +98,7 @@ namespace PixelTool
             string root = ProjectPathService.ProjectRootPath.Replace('\\', '/');
             GlobalFunction.CreateMainLuaFile(ProjectPathService.AssetPath);
             PixelEngineNative.EngineInitialize(_childHwnd, w, h, root);
+            PixelEngineNative.SetWindowFocus(false);
             PixelEngineNative.EditorNotify(EditorEventType.ToolInitialize, "");
             ProjectPathService.StartNewProject();
             PixelEngineNative.Asset_Import("./Asset/main.lua");
@@ -156,27 +160,25 @@ namespace PixelTool
             // Only the native render window (or its children) may take engine focus.
             if (_childHwnd == IntPtr.Zero ||
                 (msg.hwnd != _childHwnd && !IsChild(_childHwnd, msg.hwnd))) return;
+            // The game polls GetAsyncKeyState; WPF must not also use these messages
+            // for GridSplitter resizing, tab navigation or another editor's caret.
+            bool closeShortcut = (msg.message == 0x0104 || msg.message == 0x0105) && msg.wParam.ToInt64() == 0x73;
+            if (msg.message >= 0x0100 && msg.message <= 0x0109 && !closeShortcut &&
+                Application.Current.MainWindow is MainWindow main && main.IsSceneGameInputActive)
+            {
+                handled = true;
+                return;
+            }
             const int WM_LBUTTONDOWN = 0x0201;
             const int WM_RBUTTONDOWN = 0x0204;
             const int WM_MBUTTONDOWN = 0x0207;
 
             if (msg.message == WM_LBUTTONDOWN || msg.message == WM_RBUTTONDOWN || msg.message == WM_MBUTTONDOWN)
             {
-                // 주의: DirectlyOver는 HitTest를 발생시켜 UI 스레드 부하를 유발할 수 있습니다.
-                // 성능이 미세하게 떨어진다면 이 부분의 구조를 걷어내는 것을 권장합니다.
-                var mouseOver = System.Windows.Input.Mouse.DirectlyOver;
-
-                if (mouseOver is System.Windows.Controls.MenuItem ||
-                    mouseOver is System.Windows.Controls.ContextMenu ||
-                    System.Windows.Input.Keyboard.FocusedElement is System.Windows.Controls.MenuItem)
-                {
-                    return;
-                }
-
                 this.Focus();
                 SetFocus(_childHwnd);
-
-                _pendingUiChanges.Enqueue(() => PixelEngineNative.SetWindowFocus(true));
+                bool focused = HasNativeKeyboardFocus;
+                _pendingUiChanges.Enqueue(() => PixelEngineNative.SetWindowFocus(focused));
             }
         }
 

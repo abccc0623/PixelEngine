@@ -13,7 +13,8 @@ The generated configuration includes a private bearer token. Do not commit or sh
 
 ## Scope and limits
 
-- Only `get_project_info` is available: project/Asset/Engine/Editor paths and the editor process ID.
+- `get_project_info` returns project/Asset/Engine/Editor paths and the editor process ID.
+- `get_editor_context` returns the current Lua file, caret, selection lines/text and modified state so an AI can inspect the focused code first.
 - No engine commands, file edits, code execution, scene inspection or chat UI.
 - Project data is an immutable startup snapshot. No WPF or engine calls run on HTTP threads.
 - Only one editor can use port 41237 at a time. If startup fails, the editor shows a warning and continues without MCP.

@@ -33,7 +33,6 @@ Source: "{#PublishDir}\*"; DestDir: "{app}"; Excludes: "Asset\*,Assets\*,Editor\
 ; Engine Lua files are generated into the selected project by EditorManager.
 Source: "{#SourceDir}\Engine\*"; DestDir: "{app}\Engine"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 Source: "{#SourceDir}\LSP\*"; DestDir: "{app}\LSP"; Excludes: "log\*,logs\*,*.log,meta\default utf8\CS.lua,meta\default utf8\UnityEngine*.lua"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#SourceDir}\LuaCode\*"; DestDir: "{app}\LuaCode"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 
 [Icons]
 Name: "{group}\PixelTool"; Filename: "{app}\PixelTool.exe"; WorkingDir: "{app}"

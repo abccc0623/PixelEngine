@@ -117,6 +117,8 @@ public partial class AIChatWindow : UserControl
             _client.Approve = (method, p) => Dispatcher.InvokeAsync(() => ConfirmApproval(method, p)).Task;
             _client.PickAsset = () => Dispatcher.InvokeAsync(PickImportAsset).Task;
             _client.ReadEditorLogs = ConsoleWindow.ReadLogsForAi;
+            _client.HighlightLuaLines = (path, first, last) => Dispatcher.InvokeAsync(() =>
+                ((MainWindow)Application.Current.MainWindow).HighlightLuaLines(path, first, last)).Task;
             _client.CanDeleteAssetFile = relative => Dispatcher.InvokeAsync(() => !_disposed && _busy && AllowEdits.IsChecked == true &&
                 GlobalFunction.GetDockedWindow<LuaEditorWindow>()?.HasUnsavedFile(Path.Combine(_project, relative)) != true).Task;
             _client.AskChoice = (question, options, token) => Dispatcher.InvokeAsync(() =>
@@ -336,7 +338,6 @@ public partial class AIChatWindow : UserControl
                     : new { type = "readOnly" },
                 input = new[]
                 {
-                    new { type = "text", text = CommandExecutionPreference.ForTurn(confirmCommands) },
                     new { type = "text", text }
                 }
             });
@@ -392,6 +393,11 @@ public partial class AIChatWindow : UserControl
             return;
         }
         if (p.TryGetProperty("threadId", out var thread) && thread.GetString() != _threadId) return;
+        if (method == "turn/contextCompacted")
+        {
+            StatusText.Text = "전송용 대화 문맥 정리 완료 · 화면의 대화 기록은 유지됩니다.";
+            return;
+        }
         if (method == "turn/toolWarning")
         {
             AddWorkNotice(p.GetProperty("message").GetString() ?? "도구 작업을 완료하지 못했습니다.");

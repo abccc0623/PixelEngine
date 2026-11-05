@@ -11,11 +11,19 @@ namespace PixelTool;
 internal sealed class ChatGptProjectTools(string project)
 {
     private readonly string _root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(project));
+    private readonly Dictionary<string, string> _fullFileReads = new(StringComparer.OrdinalIgnoreCase);
     private static readonly HashSet<string> TextExtensions = new(StringComparer.OrdinalIgnoreCase)
         { ".lua", ".pxm", ".scene", ".json", ".md", ".txt", ".csv", ".xml", ".yaml", ".yml", ".svg" };
     internal static readonly HashSet<string> AssetExtensions = new(StringComparer.OrdinalIgnoreCase)
         { ".png", ".jpg", ".jpeg", ".bmp", ".tga", ".dds", ".wav", ".ogg", ".mp3", ".ttf", ".otf" };
     internal sealed record ImportedAsset(string Name, byte[] Bytes);
+
+    internal void RetainFullFileReads(IEnumerable<string> relativePaths)
+    {
+        var retained = relativePaths.Select(Resolve).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (string path in _fullFileReads.Keys.ToArray())
+            if (!retained.Contains(path)) _fullFileReads.Remove(path);
+    }
 
     internal static object[] Definitions => new object[]
     {
@@ -27,12 +35,22 @@ internal sealed class ChatGptProjectTools(string project)
             new Dictionary<string, object>()),
         Tool("read_editor_logs", "Read captured editor/engine logs newer than afterCursor (0 for recent history). Follow cursor/hasMore for more pages. Check truncated/cleared flags before claiming no errors.",
             new Dictionary<string, object> { ["afterCursor"] = new { type = "integer", minimum = 0 }, ["limit"] = new { type = "integer", minimum = 1, maximum = 100 } }),
+        Tool("highlight_lua_lines", "Open a project Lua file in the editor and highlight a 1-based line range after locating the requested code. path is project-relative. Does not modify file content.",
+            new Dictionary<string, object> { ["path"] = new { type = "string" }, ["startLine"] = new { type = "integer", minimum = 1 },
+                ["endLine"] = new { type = "integer", minimum = 1 } }),
         Tool("list_project_files", "List one project directory. Use a relative path, or . for the root.",
             new Dictionary<string, object> { ["path"] = new { type = "string" } }),
         Tool("read_project_file", "Read a project text file and its SHA256 for safe replacement. Paths are relative to the project.",
             new Dictionary<string, object> { ["path"] = new { type = "string" } }),
+        Tool("read_project_file_lines", "Read a focused range of a project text file. Prefer this for inspection. startLine is 1-based; lineCount is 1 to 200; output is capped at 12000 characters. Includes whole-file SHA256 and explicit partial/truncation flags. A partial read is NOT a complete file: read_project_file before whole-file replacement to preserve unseen content.",
+            new Dictionary<string, object> { ["path"] = new { type = "string" },
+                ["startLine"] = new { type = "integer", minimum = 1 },
+                ["lineCount"] = new { type = "integer", minimum = 1, maximum = 200 } }),
         Tool("write_project_file", "Create or replace one project text file under the current editor approval setting. Read first and supply its expected SHA256. For a new file use an empty expectedHash. Never delete.",
             new Dictionary<string, object> { ["path"] = new { type = "string" }, ["content"] = new { type = "string" }, ["expectedHash"] = new { type = "string" } }),
+        Tool("patch_project_file", "Replace one unique exact text span in an existing project text file. Supply the SHA256 from read_project_file_lines or read_project_file; the whole file is not needed. Fails if the file changed or oldText is absent or repeated.",
+            new Dictionary<string, object> { ["path"] = new { type = "string" }, ["expectedHash"] = new { type = "string" },
+                ["oldText"] = new { type = "string", minLength = 1 }, ["newText"] = new { type = "string" } }),
         Tool("delete_asset_file", "Move ONE existing file strictly inside Asset/ to the Windows Recycle Bin. Never delete folders, Asset itself, Engine, Editor or outside paths. Follow the editor approval setting: automatic mode needs no additional confirmation. Explain references/impact in reason. No permanent-delete fallback.",
             new Dictionary<string, object> { ["path"] = new { type = "string" }, ["reason"] = new { type = "string", minLength = 1, maxLength = 1000 } }),
         Tool("delete_asset_folder", "Recycle ONE folder and all its contents strictly inside Asset/. Never delete Asset itself or outside paths. Reject links, secret paths and unsaved editor buffers anywhere in the subtree. Follow current edit/approval settings.",
@@ -208,11 +226,46 @@ internal sealed class ChatGptProjectTools(string project)
                 note = "디스크에 저장했습니다. 엔진 등록·렌더링·리임포트 성공을 의미하지 않습니다." });
         }
         if (!TextExtensions.Contains(Path.GetExtension(path))) throw new InvalidOperationException("지원하지 않는 프로젝트 텍스트 파일 형식입니다.");
-        if (name == "read_project_file")
+        if (name is "read_project_file" or "read_project_file_lines")
         {
             byte[] bytes = ReadBounded(path);
-            return JsonSerializer.Serialize(new { content = Encoding.UTF8.GetString(bytes).TrimStart('\uFEFF'), sha256 = Hash(bytes) });
+            string text = Encoding.UTF8.GetString(bytes).TrimStart('\uFEFF');
+            if (name == "read_project_file")
+            {
+                _fullFileReads[path] = Hash(bytes);
+                return JsonSerializer.Serialize(new { path = relative, content = text, sha256 = Hash(bytes), partial = false });
+            }
+            int startLine = arguments.GetProperty("startLine").GetInt32();
+            int lineCount = arguments.GetProperty("lineCount").GetInt32();
+            string[] lines = text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+            if (startLine < 1 || startLine > lines.Length || lineCount < 1 || lineCount > 200)
+                throw new InvalidOperationException($"줄 범위가 잘못되었습니다. 전체 {lines.Length}줄이며 시작은 1 이상, 조회 개수는 1~200이어야 합니다.");
+            var selected = new StringBuilder();
+            int endLine = startLine - 1;
+            bool truncated = false;
+            int limit = Math.Min(lines.Length, startLine - 1 + lineCount);
+            for (int index = startLine - 1; index < limit; index++)
+            {
+                string line = $"{index + 1}: {lines[index]}\n";
+                int remaining = 12000 - selected.Length;
+                if (line.Length > remaining)
+                {
+                    selected.Append(line.AsSpan(0, remaining));
+                    truncated = true;
+                    endLine = index + 1;
+                    break;
+                }
+                selected.Append(line);
+                endLine = index + 1;
+            }
+            return JsonSerializer.Serialize(new { path = relative, content = selected.ToString(), sha256 = Hash(bytes),
+                startLine, endLine, totalLines = lines.Length, partial = true, truncated,
+                hasMore = truncated || endLine < lines.Length,
+                note = "부분 조회입니다. 줄번호는 원본 코드가 아닙니다. 잘린 긴 줄이나 전체 파일 교체는 read_project_file로 원문 전체를 확인하세요." });
         }
+        if (name == "patch_project_file")
+            return await PatchProjectFileAsync(relative, path, arguments, allowEdits, confirmChanges,
+                approve, token, savedCode).ConfigureAwait(false);
         if (name != "write_project_file") throw new InvalidOperationException("지원하지 않는 도구입니다.");
         if (!allowEdits) return "파일 수정 허용이 꺼져 있습니다. 파일을 변경하지 않았습니다.";
         string content = arguments.GetProperty("content").GetString() ?? "";
@@ -221,6 +274,8 @@ internal sealed class ChatGptProjectTools(string project)
         string expected = arguments.GetProperty("expectedHash").GetString() ?? "";
         byte[]? original = File.Exists(path) ? ReadBounded(path) : null;
         if (!Matches(original, expected)) return "파일이 변경되었거나 이미 존재합니다. 최신 내용을 다시 읽고 수정해야 합니다.";
+        if (original != null && (!_fullFileReads.TryGetValue(path, out var readHash) || !readHash.Equals(expected, StringComparison.OrdinalIgnoreCase)))
+            return "부분 조회만으로 전체 파일을 교체할 수 없습니다. read_project_file로 현재 원문 전체를 먼저 읽으세요.";
         if (confirmChanges && !await approve(relative, original == null ? "" : Encoding.UTF8.GetString(original), content).ConfigureAwait(false))
             return "사용자가 파일 수정을 승인하지 않았습니다. 변경하지 않았습니다.";
         token.ThrowIfCancellationRequested();
@@ -238,6 +293,42 @@ internal sealed class ChatGptProjectTools(string project)
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
         savedCode?.Invoke(relative, original == null ? "" : Encoding.UTF8.GetString(original).TrimStart('\uFEFF'), content);
+        _fullFileReads[path] = Hash(replacement);
+        return JsonSerializer.Serialize(new { saved = relative, sha256 = Hash(replacement) });
+    }
+
+    private async Task<string> PatchProjectFileAsync(string relative, string path, JsonElement arguments, bool allowEdits,
+        bool confirmChanges, Func<string, string, string, Task<bool>> approve, CancellationToken token,
+        Action<string, string, string>? savedCode)
+    {
+        if (!allowEdits) return "파일 수정이 꺼져 있습니다.";
+        string expected = arguments.GetProperty("expectedHash").GetString() ?? "";
+        string oldText = arguments.GetProperty("oldText").GetString() ?? "";
+        string newText = arguments.GetProperty("newText").GetString() ?? "";
+        if (oldText.Length == 0 || oldText == newText) throw new InvalidOperationException("서로 다른 원문과 수정문이 필요합니다.");
+        byte[] original = ReadBounded(path);
+        if (!Matches(original, expected)) return "파일이 변경되었습니다. 최신 내용을 다시 읽고 수정하세요.";
+        string before = Encoding.UTF8.GetString(original);
+        int offset = before.IndexOf(oldText, StringComparison.Ordinal);
+        if (offset < 0 || before.IndexOf(oldText, offset + 1, StringComparison.Ordinal) >= 0)
+            return "원문이 없거나 두 번 이상 나타납니다. 수정하지 않았습니다.";
+        string after = before[..offset] + newText + before[(offset + oldText.Length)..];
+        byte[] replacement = Encoding.UTF8.GetBytes(after);
+        if (replacement.Length > 256 * 1024) throw new InvalidOperationException("수정 결과는 256KB까지입니다.");
+        if (confirmChanges && !await approve(relative, before, after).ConfigureAwait(false)) return "사용자가 수정을 승인하지 않았습니다.";
+        token.ThrowIfCancellationRequested();
+        Resolve(relative);
+        byte[] latest = ReadBounded(path);
+        if (!Matches(latest, expected)) return "승인 중 파일이 변경되었습니다. 수정하지 않았습니다.";
+        string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            await File.WriteAllBytesAsync(temporary, replacement, token).ConfigureAwait(false);
+            token.ThrowIfCancellationRequested();
+            File.Move(temporary, path, overwrite: true);
+        }
+        finally { if (File.Exists(temporary)) File.Delete(temporary); }
+        savedCode?.Invoke(relative, before.TrimStart('\uFEFF'), after.TrimStart('\uFEFF'));
         return JsonSerializer.Serialize(new { saved = relative, sha256 = Hash(replacement) });
     }
 

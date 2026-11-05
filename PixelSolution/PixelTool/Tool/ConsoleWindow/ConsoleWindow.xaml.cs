@@ -70,6 +70,25 @@ namespace PixelTool
             get { lock (_captureLock) return _logSequence; }
         }
 
+        internal static JsonElement SummarizeLogsForAi(long afterCursor)
+        {
+            var logs = ReadLogsForAi(afterCursor, 100);
+            var entries = logs.GetProperty("entries").EnumerateArray().ToArray();
+            return JsonSerializer.SerializeToElement(new
+            {
+                captured = entries.Length,
+                warnings = entries.Count(entry => entry.GetProperty("level").GetInt32() == 1),
+                errors = entries.Count(entry => entry.GetProperty("level").GetInt32() >= 2),
+                messages = entries.Where(entry => entry.GetProperty("level").GetInt32() >= 1)
+                    .OrderByDescending(entry => entry.GetProperty("level").GetInt32())
+                    .Select(entry => entry.GetProperty("message").GetString()).Distinct().Take(10).ToArray(),
+                cursor = logs.GetProperty("cursor").GetInt64(),
+                hasMore = logs.GetProperty("hasMore").GetBoolean(),
+                cleared = logs.GetProperty("cleared").GetBoolean(),
+                truncated = logs.GetProperty("truncated").GetBoolean()
+            });
+        }
+
         internal static JsonElement ReadLogsForAi(long afterCursor, int limit)
         {
             if (afterCursor < 0 || limit < 1 || limit > 100) throw new ArgumentOutOfRangeException(nameof(limit));
