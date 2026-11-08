@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "texture": "Asset/Image/effects/item_02.png",
+  "regions": [
+    {
+      "name": "Sprite",
+      "kind": "Animation",
+      "x": 192,
+      "y": 168,
+      "width": 24,
+      "height": 24,
+      "frames": 8,
+      "frameSeconds": 0.1,
+      "loop": true
+    },
+    {
+      "name": "Sprite_1",
+      "kind": "Animation",
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 24,
+      "frames": 8,
+      "frameSeconds": 0.1,
+      "loop": true
+    }
+  ]
+}

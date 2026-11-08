@@ -109,7 +109,7 @@
                 <Setter Property="BorderBrush" Value="#394354"/>
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
-                        <Setter Property="BorderBrush" Value="#65B9FF"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource PixelFileTabAccentBrush}"/>
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
@@ -122,12 +122,35 @@
         </Grid.RowDefinitions>
 
         <TabControl x:Name="FileTabs" Grid.Row="0" SelectionChanged="FileTabs_SelectionChanged"
-                    Background="#202630" BorderThickness="0">
+                    Background="{DynamicResource PixelBackgroundBrush}" BorderThickness="0">
+            <TabControl.Template>
+                <ControlTemplate TargetType="TabControl">
+                    <Grid Background="{TemplateBinding Background}" Height="26">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="22"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="22"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Content="‹" Click="ScrollFileTabsLeft" Padding="0" MinHeight="0"
+                                ToolTip="이전 탭 보기" Focusable="False"/>
+                        <ScrollViewer x:Name="FileTabScroller" Grid.Column="1"
+                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False" Focusable="False">
+                            <StackPanel IsItemsHost="True" Orientation="Horizontal"/>
+                        </ScrollViewer>
+                        <Button Grid.Column="2" Content="›" Click="ScrollFileTabsRight" Padding="0" MinHeight="0"
+                                ToolTip="다음 탭 보기" Focusable="False"/>
+                    </Grid>
+                </ControlTemplate>
+            </TabControl.Template>
             <TabControl.Resources>
                 <Style TargetType="TabItem">
-                    <Setter Property="Foreground" Value="#A8B3C5"/>
-                    <Setter Property="Background" Value="#1B2029"/>
-                    <Setter Property="Padding" Value="12,8"/>
+                    <Setter Property="Foreground" Value="{DynamicResource PixelFileTabTextBrush}"/>
+                    <Setter Property="Background" Value="{DynamicResource PixelFileTabBackgroundBrush}"/>
+                    <Setter Property="Padding" Value="6,2"/>
+                    <Setter Property="Width" Value="116"/>
+                    <Setter Property="Height" Value="26"/>
+                    <Setter Property="MinHeight" Value="0"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="TabItem">
@@ -137,12 +160,12 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="TabBorder" Property="Background" Value="#303C4E"/>
+                                        <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource PixelFileTabHoverBrush}"/>
                                     </Trigger>
                                     <Trigger Property="IsSelected" Value="True">
-                                        <Setter TargetName="TabBorder" Property="Background" Value="#254A70"/>
-                                        <Setter TargetName="TabBorder" Property="BorderBrush" Value="#65B9FF"/>
-                                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                                        <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource PixelFileTabSelectedBrush}"/>
+                                        <Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource PixelFileTabAccentBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource PixelWhiteBrush}"/>
                                         <Setter Property="FontWeight" Value="SemiBold"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
@@ -177,7 +200,7 @@
             FontFamily="Consolas"
             FontSize="13pt"
             ShowLineNumbers="True"
-            Background="#202630"
+            Background="{DynamicResource PixelBackgroundBrush}"
             Foreground="#D8DCE8"
             PreviewKeyDown="luaEditor_PreviewKeyDown"
             Grid.Row="2">

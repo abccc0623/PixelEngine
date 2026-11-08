@@ -32,6 +32,7 @@ namespace PixelTool
         private bool _disposed = false;
         private int completionRequestId;
         private bool completionResolveSupported;
+        private static int initializationLogged;
         private readonly HashSet<string> engineApiNames = new HashSet<string>(StringComparer.Ordinal);
 
         public async Task Initialize()
@@ -59,7 +60,6 @@ namespace PixelTool
 }}";
                 File.WriteAllText(luarcPath, luarcContent);
 
-                ConsoleWindow.LogMessage($"[DEBUG] 실행 시도 경로: {serverPath}", 0);
                 if (!File.Exists(serverPath))
                 {
                     ConsoleWindow.LogMessage($"❌ [CRITICAL] 서버 파일 없음: {serverPath}", 2);
@@ -126,6 +126,8 @@ namespace PixelTool
 
                 await _rpc.NotifyAsync(Methods.InitializedName);
                 completionResolveSupported = result["capabilities"]?["completionProvider"]?["resolveProvider"]?.Value<bool>() == true;
+                if (Interlocked.Exchange(ref initializationLogged, 1) == 0)
+                    ConsoleWindow.LogMessage("✅ [LSP] 초기화 완료", 0);
 
                 string engineGeneratePath = ProjectPathService.GetEngineFilePath("EngineGenerate.lua");
                 if (File.Exists(engineGeneratePath))
@@ -189,7 +191,6 @@ namespace PixelTool
             try
             {
                 await _rpc.NotifyWithParameterObjectAsync(Methods.TextDocumentDidOpenName, didOpenParams);
-                ConsoleWindow.LogMessage($"✅ [LSP] 파일 열기 완료: {uri}", 0);
             }
             catch (Exception ex)
             {
@@ -281,7 +282,6 @@ namespace PixelTool
 
                 if (completionItems == null || completionItems.Length == 0)
                 {
-                    ConsoleWindow.LogMessage("⚠️ [LSP] 자동완성 결과 없음", 1);
                     return;
                 }
 

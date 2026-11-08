@@ -64,10 +64,12 @@ function Script:Tick(DTime)
 	end
 end
 
----자원 제거 후 추가 동작을 처리합니다. 삭제된 객체의 컴포넌트는 사용하지 않습니다.
----@param resource table 회수한 자원 데이터. ResourceIndex로 종류를 확인합니다.
+--- 전투 중 회수한 자원으로 가까운 적에게 기본 공격을 발사합니다.
+---@param resource table 회수한 자원 데이터
 function Script:OnReceive(resource)
-
+	if GameFlow.State == "Combat" and not Time.IsPaused() then
+		PlayerManager.Attack(1,resource.ResourceIndex)
+	end
 end
 
 return Script

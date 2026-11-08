@@ -275,6 +275,23 @@ namespace PixelTool
             (Application.Current.MainWindow as MainWindow)?.ShowAIChat();
         }
 
+        private void ChangeProject(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current.MainWindow is MainWindow main) main.ChangeProject();
+        }
+
+        private void OpenArtStudio(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current.MainWindow is MainWindow main)
+                main.OpenFloatingTool("Art Studio", new ArtStudio(), 1060, 680);
+        }
+
+        private void OpenSpriteEditor(object sender, RoutedEventArgs e)
+        {
+            (Application.Current.MainWindow as MainWindow)?.OpenSpriteEditor();
+        }
+
+
         private void OpenLuaDataTable(object sender, RoutedEventArgs e)
         {
             var window = new LuaDataTableWindow

@@ -15,19 +15,23 @@ Editor-selected root:
 - `Engine/`: generated engine APIs/settings. Engine Update refreshes missing/stale APIs; hand edits may be overwritten.
 - `Editor/`: editor-only project data.
 
-Separate by file kind, not mixed feature bundles. Use English file/folder names and consistent existing casing; avoid needless nesting or placeholder names. Do not reorganize an existing project without a request; ask when layout conflicts require changes. Preserve source sheets and do not delete assets whose use is unknown. Check Asset.Import, Entity.Create, Scene.Change, resource references and name-only loading collisions on moves/renames.
+The folders above are examples, not a required layout. For new projects, suggest separating by file kind when helpful. Follow the user's existing structure and casing; avoid needless nesting or placeholder names. Do not reorganize an existing project without a request; ask when layout conflicts require changes. Preserve source sheets and do not delete assets whose use is unknown. Check Asset.Import, Entity.Create, Scene.Change, resource references and name-only loading collisions on moves/renames.
+
+## Game resource organization (optional guidance)
+
+When a user asks how to organize game resources, suggest grouping by asset kind and then by in-game role (for example, images for Player, Monster, Items, effects and UI). Treat this as a starting point, not a required project layout. Keep the project's existing names and folders when they already serve its needs; do not recommend numeric folder prefixes or impose a five-level limit or fixed naming scheme. Add deeper folders only when they make assets easier to find. Name new resources by their role and use when useful, and adapt date or version suffixes to the user's workflow. For unused originals or archived work, suggest a location outside runtime-imported folders only after checking how that project loads assets. Never move, rename or archive existing assets solely to follow this guidance; follow the user's chosen structure and check references before any requested change.
 
 ## Chat and settings
 
-- Open the AI chat (자비스) from the toolbar beside the Lua editor.
-- `Continue with ChatGPT` logs in through the system browser; the editor connects directly using ChatGPT account access, without a Codex executable or API key. Supports account selection/addition/reauthentication.
+- Open the AI chat (AI 자비스) from the toolbar beside the Lua editor. It connects through the installed Codex CLI app-server and its ChatGPT login.
+- `Codex CLI 설치` runs the official installer. `Continue with ChatGPT` uses the CLI's system-browser login; no separate API key is required. Account selection/addition/reauthentication uses CLI sessions, shared with Art Studio.
 - Settings contains model/approval controls; Account Management contains login controls. Restore saved connections on startup without automatically opening a browser; show account controls if restoration/authentication fails.
 - Model, edit permission and approval mode persist per project. New projects default to editing off and Always Confirm. Changes during a response apply to the next message; the current turn keeps its captured settings.
 - Editing permission alone is not a change request. Automatic mode removes extra confirmation only for requested, permitted operations.
 - `ask_choice` presents one question and 2–5 buttons plus custom text. Continue after the answer; save question/answer in history. Stop/exit cancels waiting. Historical questions are records, not live buttons.
 - Results remain visible; actual saved code diffs are initially collapsed. Failures, stops, timeouts, disconnects and refused/failed tools appear as saved `작업 알림` notices; routine internal system/approval records stay hidden. Failure does not roll back applied changes.
 - Live elapsed time and final total duration include user-answer/approval waits.
-- New Conversation archives local history. Closing the tab preserves it. Editor exit cancels login/HTTP waits; no separate Codex process runs.
+- New Conversation archives local history. Closing the tab preserves it. Editor exit cancels pending requests and stops only its own Codex app-server child process. Legacy direct-connection transcripts remain visible but start a new CLI conversation.
 - No fixed tool-round cap. The same tool/target/error repeated 3 times without actual file changes stops stalled work. Normal reads do not increase failure counts; actual mutations reset them. Time limits and user cancellation remain.
 
 ## Available tools

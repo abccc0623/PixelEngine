@@ -10,9 +10,10 @@ namespace PixelTool;
 
 public partial class AIChatWindow : UserControl
 {
+
     private readonly string _project = ProjectPathService.ProjectRootPath;
     private CodexChatHistory _history;
-    private ChatGptChatClient? _client;
+    private CodexEditorClient? _client;
     private string? _threadId;
     private string? _turnId;
     private bool _busy;
@@ -62,11 +63,26 @@ public partial class AIChatWindow : UserControl
     private async void Connect(object sender, RoutedEventArgs e)
         => await ConnectAsync(allowBrowserLogin: true);
 
+    private async void InstallCli(object sender, RoutedEventArgs e)
+    {
+        if (_busy) return;
+        InstallCliButton.IsEnabled = ConnectButton.IsEnabled = false;
+        StatusText.Text = "Codex CLI 설치 중…";
+        using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+        try
+        {
+            await ArtCodexCli.InstallAsync(timeout.Token);
+            await ConnectAsync(allowBrowserLogin: true);
+        }
+        catch (Exception ex) { StatusText.Text = "CLI 설치 실패: " + ex.Message; ConnectButton.IsEnabled = true; }
+        finally { InstallCliButton.IsEnabled = true; }
+    }
+
     private async void RestoreConnection(object sender, RoutedEventArgs e)
     {
         if (_restoreAttempted || _disposed || _client != null) return;
         _restoreAttempted = true;
-        if (ChatGptSignIn.HasSavedAccount) await ConnectAsync(allowBrowserLogin: false);
+        await ConnectAsync(allowBrowserLogin: false);
     }
 
     private void ToggleAccountDetails(object sender, RoutedEventArgs e)
@@ -94,25 +110,26 @@ public partial class AIChatWindow : UserControl
         {
             if (_client != null) await _client.DisposeAsync();
             _threadId = _turnId = null;
-            _client = new ChatGptChatClient();
-            if (_history.ThreadId != null && !_history.ThreadId.StartsWith("chatgpt-"))
+            _client = new CodexEditorClient();
+            if (_history.ThreadId?.StartsWith("chatgpt-", StringComparison.Ordinal) == true)
             {
                 _history.ThreadId = null;
-                _history.Messages.Add(new() { Role = "시스템", Text = "ChatGPT 직접 연결로 변경했습니다. 이전 Codex 대화 기록은 보존되지만 새 연결의 AI 문맥에는 전송되지 않습니다." });
+                _history.Messages.Add(new() { Role = "작업 알림", Text = "Codex CLI 연결로 변경했습니다. 기존 대화는 화면에 보존되며 새 CLI 대화로 시작합니다." });
                 SaveHistory();
                 RenderTranscript();
             }
             _client.Notification += (method, p) => Dispatcher.BeginInvoke(new Action(() => HandleNotification(method, p)));
-            _client.Disconnected += () => Dispatcher.BeginInvoke(new Action(() =>
+            var connectedClient = _client;
+            _client.Disconnected += details => Dispatcher.BeginInvoke(new Action(() =>
             {
-                if (_disposed) return;
+                if (_disposed || !ReferenceEquals(_client, connectedClient)) return;
                 bool wasBusy = _busy;
                 SetBusy(false);
                 SendButton.IsEnabled = RefreshButton.IsEnabled = NewButton.IsEnabled = false;
                 ModelBox.IsEnabled = false;
                 ConnectButton.IsEnabled = true;
-                StatusText.Text = "ChatGPT 연결이 종료되었습니다. 계정 연결을 다시 눌러주세요.";
-                if (wasBusy) AddWorkNotice("연결이 끊겨 요청을 완료하지 못했습니다. 계정 연결을 다시 눌러주세요. 이미 수행한 변경은 유지됩니다.");
+                StatusText.Text = "ChatGPT 연결이 종료되었습니다. 아래 오류 상세를 확인하고 계정 연결을 다시 눌러주세요.";
+                AddWorkNotice((wasBusy ? "연결이 끊겨 요청을 완료하지 못했습니다. 이미 수행한 변경은 유지됩니다." : "ChatGPT 연결이 종료되었습니다.") + "\n" + details);
             }));
             _client.Approve = (method, p) => Dispatcher.InvokeAsync(() => ConfirmApproval(method, p)).Task;
             _client.PickAsset = () => Dispatcher.InvokeAsync(PickImportAsset).Task;
@@ -294,7 +311,8 @@ public partial class AIChatWindow : UserControl
         var thread = result.GetProperty("thread");
         if (thread.TryGetProperty("cwd", out var cwd) && !string.Equals(Path.GetFullPath(cwd.GetString()!), Path.GetFullPath(_project), StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("ChatGPT thread belongs to a different project.");
-        _history.ThreadId = _threadId = thread.GetProperty("id").GetString();
+        // CLI persists a new thread only after its first turn; do not save an empty thread id.
+        _threadId = thread.GetProperty("id").GetString();
     }
 
     private async void RefreshAccount(object sender, RoutedEventArgs e)
@@ -343,6 +361,8 @@ public partial class AIChatWindow : UserControl
             });
             if (_busy)
             {
+                _history.ThreadId = _threadId;
+                SaveHistory();
                 _turnId = result.GetProperty("turn").GetProperty("id").GetString();
                 if (_stopRequested) await _client.RequestAsync("turn/interrupt", new { threadId = _threadId, turnId = _turnId });
             }
@@ -488,7 +508,7 @@ public partial class AIChatWindow : UserControl
             details += "\n\n변경 내용:\n" + changes;
         var window = new Window
         {
-            Title = deleting ? "자비스 파일 삭제 승인 · 휴지통 이동" : method.Contains("fileChange") ? "AI 파일 수정 승인" : "AI 명령 실행 승인",
+            Title = deleting ? "AI 자비스 파일 삭제 승인 · 휴지통 이동" : method.Contains("fileChange") ? "AI 파일 수정 승인" : "AI 명령 실행 승인",
             Owner = Application.Current.MainWindow, Width = 760, Height = 560,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
             Background = (System.Windows.Media.Brush)FindResource("PixelPanelBrush")
@@ -576,7 +596,7 @@ public partial class AIChatWindow : UserControl
             ChoicePanel.Visibility = Visibility.Collapsed;
             ChoiceOptions.ItemsSource = null;
             ChoiceCustomText.Clear();
-            if (!_disposed && _busy) StatusText.Text = "자비스 응답 중…";
+            if (!_disposed && _busy) StatusText.Text = "AI 자비스 응답 중…";
         }
     }
 
@@ -645,7 +665,7 @@ public partial class AIChatWindow : UserControl
         StopButton.Foreground = busy ? System.Windows.Media.Brushes.Black
             : (System.Windows.Media.Brush)FindResource("PixelTextBrush");
         RefreshButton.IsEnabled = !busy && _client != null;
-        if (busy) StatusText.Text = "자비스 응답 중…";
+        if (busy) StatusText.Text = "AI 자비스 응답 중…";
     }
 
     private void UpdateElapsedTime()
@@ -665,7 +685,7 @@ public partial class AIChatWindow : UserControl
         for (int i = 0; i < visibleMessages.Count; i++)
         {
             var message = visibleMessages[i];
-            string role = message.Role == "ChatGPT" ? "자비스" : message.Role;
+            string role = message.Role == "ChatGPT" ? "AI 자비스" : message.Role;
             string text = "[" + role + "]\n" + message.Text;
             var entry = message.Role == "파일 변경" ? ReadCodeChange(message.Text)! :
                 new TranscriptMessage(text, message.Role == "사용자", IsNotice: message.Role == "작업 알림");

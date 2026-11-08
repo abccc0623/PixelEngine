@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace PixelTool;
 
@@ -17,9 +18,35 @@ internal sealed class CodexChatClient : IAsyncDisposable
     private Task? _stderr;
     private long _nextId;
     private bool _closing;
+    private readonly object _diagnosticLock = new();
+    private readonly Queue<string> _errorTail = new();
+    private Task<string>? _disconnectReport;
+    private string? _transportFailure;
     public event Action<string, JsonElement>? Notification;
-    public event Action? Disconnected;
+    public event Action<string>? Disconnected;
     public Func<string, JsonElement, Task<bool>>? Approve { get; set; }
+    public Func<JsonElement, Task<object>>? CallTool { get; set; }
+
+    public async Task ConnectAsync(string projectPath)
+    {
+        var start = ArtCodexCli.Command(projectPath, "app-server");
+        // Native tools stay read-only; mutations use the editor's permission-checked tools.
+        foreach (string value in new[] { "model_provider=\"openai\"", "forced_login_method=\"chatgpt\"",
+            "features.shell_tool=false", "features.apply_patch_freeform=false", "features.codex_hooks=false",
+            "sandbox_mode=\"read-only\"", "approval_policy=\"never\"", "mcp_servers={}" })
+        {
+            start.ArgumentList.Add("-c");
+            start.ArgumentList.Add(value);
+        }
+        StartTransport(start);
+        try
+        {
+            await RequestAsync("initialize", new { clientInfo = new { name = "pixeltool", title = "AI 자비스", version = "0.1.0" },
+                capabilities = new { experimentalApi = true } }).ConfigureAwait(false);
+            await WriteAsync(new { method = "initialized", @params = new { } }).ConfigureAwait(false);
+        }
+        catch { await DisposeAsync().ConfigureAwait(false); throw; }
+    }
 
     public async Task ConnectAsync(string executable, string projectPath, bool connectLocalMcp)
     {
@@ -58,9 +85,7 @@ internal sealed class CodexChatClient : IAsyncDisposable
         // Do not silently use an API key inherited from the editor's environment.
         start.Environment.Remove("OPENAI_API_KEY");
         start.Environment.Remove("CODEX_API_KEY");
-        _process = Process.Start(start) ?? throw new IOException("Could not start Codex.");
-        _reader = ReadAsync(_process.StandardOutput);
-        _stderr = DrainErrorsAsync(_process.StandardError);
+        StartTransport(start);
         try
         {
             await RequestAsync("initialize", new { clientInfo = new { name = "pixeltool", title = "PixelTool AI Chat", version = "0.1.0" } }).ConfigureAwait(false);
@@ -71,6 +96,16 @@ internal sealed class CodexChatClient : IAsyncDisposable
             await DisposeAsync().ConfigureAwait(false);
             throw;
         }
+    }
+
+    private void StartTransport(ProcessStartInfo start)
+    {
+        if (_process != null) throw new InvalidOperationException("Codex is already connected.");
+        start.StandardOutputEncoding = start.StandardErrorEncoding = Encoding.UTF8;
+        _process = Process.Start(start) ?? throw new IOException("Codex CLI를 실행하지 못했습니다.");
+        // Start stderr first so even an immediate startup failure is included in the report.
+        _stderr = DrainErrorsAsync(_process.StandardError);
+        _reader = ReadAsync(_process);
     }
 
     public async Task<JsonElement> RequestAsync(string method, object parameters)
@@ -95,18 +130,28 @@ internal sealed class CodexChatClient : IAsyncDisposable
         try
         {
             var process = _process ?? throw new IOException("Codex is not connected.");
-            await process.StandardInput.WriteLineAsync(JsonSerializer.Serialize(message)).ConfigureAwait(false);
-            await process.StandardInput.FlushAsync().ConfigureAwait(false);
+            try
+            {
+                await process.StandardInput.WriteLineAsync(JsonSerializer.Serialize(message)).ConfigureAwait(false);
+                await process.StandardInput.FlushAsync().ConfigureAwait(false);
+            }
+            catch (Exception exception) when (!_closing && exception is IOException or ObjectDisposedException)
+            {
+                lock (_diagnosticLock) _transportFailure ??= "요청 전송: " + exception.GetType().Name + ": " + SanitizeDiagnostic(exception.Message);
+                throw new IOException(await DisconnectReportAsync(process).ConfigureAwait(false));
+            }
         }
         finally { _writeLock.Release(); }
     }
 
-    private async Task ReadAsync(StreamReader reader)
+    private async Task ReadAsync(Process process)
     {
+        string stage = "CLI 응답 읽기";
         try
         {
-            while (await reader.ReadLineAsync(_transportStop.Token).ConfigureAwait(false) is { } line)
+            while (await process.StandardOutput.ReadLineAsync(_transportStop.Token).ConfigureAwait(false) is { } line)
             {
+                stage = "JSON 응답 해석";
                 using var document = JsonDocument.Parse(line);
                 var root = document.RootElement;
                 if (root.TryGetProperty("method", out var method))
@@ -115,7 +160,10 @@ internal sealed class CodexChatClient : IAsyncDisposable
                     if (root.TryGetProperty("id", out var requestId))
                         _ = RespondAsync(requestId.Clone(), method.GetString()!, parameters);
                     else
+                    {
+                        stage = "CLI 알림 처리: " + method.GetString();
                         Notification?.Invoke(method.GetString()!, parameters);
+                    }
                 }
                 else if (root.TryGetProperty("id", out var id) && id.ValueKind == JsonValueKind.Number && id.TryGetInt64(out long number) && _pending.TryGetValue(number, out var completion))
                 {
@@ -124,16 +172,24 @@ internal sealed class CodexChatClient : IAsyncDisposable
                     else if (root.TryGetProperty("result", out var result))
                         completion.TrySetResult(result.Clone());
                 }
+                stage = "CLI 응답 읽기";
             }
         }
-        catch (Exception exception) when (exception is IOException or ObjectDisposedException or JsonException or OperationCanceledException)
+        catch (Exception exception)
         {
-            // Transport errors are surfaced below, without exposing auth or stderr content.
+            if (!_closing)
+            {
+                // JsonException.Message can contain a fragment of the stdout payload.
+                string message = exception is JsonException json ? $"JSON 형식 오류 (줄 {json.LineNumber}, 바이트 {json.BytePositionInLine})." : exception.Message;
+                string safe = SanitizeDiagnostic(stage + ": " + exception.GetType().Name + ": " + message);
+                lock (_diagnosticLock) _transportFailure = safe.Length > 1500 ? safe[..1500] + "…" : safe;
+            }
         }
         finally
         {
-            foreach (var completion in _pending.Values) completion.TrySetException(new IOException("Codex connection closed."));
-            if (!_closing) Disconnected?.Invoke();
+            string details = _closing ? "Codex connection closed." : await DisconnectReportAsync(process).ConfigureAwait(false);
+            foreach (var completion in _pending.Values) completion.TrySetException(new IOException(details));
+            if (!_closing) Disconnected?.Invoke(details);
         }
     }
 
@@ -142,7 +198,11 @@ internal sealed class CodexChatClient : IAsyncDisposable
         try
         {
             object result;
-            if (method is "item/commandExecution/requestApproval" or "item/fileChange/requestApproval")
+            if (method == "item/tool/call" && CallTool != null)
+            {
+                result = await CallTool(parameters).ConfigureAwait(false);
+            }
+            else if (method is "item/commandExecution/requestApproval" or "item/fileChange/requestApproval")
             {
                 bool accepted = !_closing && Approve != null && await Approve(method, parameters).ConfigureAwait(false);
                 result = new { decision = accepted ? "accept" : "decline" };
@@ -170,9 +230,56 @@ internal sealed class CodexChatClient : IAsyncDisposable
     {
         try
         {
-            while (await reader.ReadLineAsync(_transportStop.Token).ConfigureAwait(false) != null) { }
+            while (await reader.ReadLineAsync(_transportStop.Token).ConfigureAwait(false) is { } line)
+            {
+                string safe = SanitizeDiagnostic(line);
+                if (string.IsNullOrWhiteSpace(safe)) continue;
+                lock (_diagnosticLock)
+                {
+                    _errorTail.Enqueue(safe.Length > 1000 ? safe[..1000] + "…" : safe);
+                    while (_errorTail.Count > 12) _errorTail.Dequeue();
+                }
+            }
         }
         catch (Exception exception) when (exception is IOException or ObjectDisposedException or OperationCanceledException) { }
+    }
+
+    private Task<string> DisconnectReportAsync(Process process)
+    {
+        lock (_diagnosticLock) return _disconnectReport ??= BuildDisconnectReportAsync(process);
+    }
+
+    private async Task<string> BuildDisconnectReportAsync(Process process)
+    {
+        int? exitCode = null;
+        try
+        {
+            if (!process.HasExited)
+                await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+            exitCode = process.ExitCode;
+            if (_stderr != null) await _stderr.WaitAsync(TimeSpan.FromMilliseconds(500)).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is TimeoutException or InvalidOperationException or ObjectDisposedException or System.ComponentModel.Win32Exception) { }
+        string reason, stderr;
+        lock (_diagnosticLock)
+        {
+            reason = _transportFailure ?? "CLI의 표준 출력 연결이 종료되었습니다.";
+            stderr = string.Join("\n", _errorTail);
+        }
+        if (stderr.Length > 4000) stderr = stderr[..4000] + "\n…(오류 출력 일부 생략)";
+        string code = exitCode is int value ? $"{value} (0x{unchecked((uint)value):X8})" : "확인 불가 · 프로세스가 실행 중이거나 종료 상태를 읽을 수 없습니다.";
+        return $"CLI 종료 코드: {code}\n통신 오류: {reason}\nCLI 오류 출력(stderr):\n{(stderr.Length == 0 ? "(출력 없음)" : stderr)}";
+    }
+
+    // Sanitize before retaining any stderr. Never retain stdout payloads or authentication files.
+    internal static string SanitizeDiagnostic(string text)
+    {
+        text = Regex.Replace(text, @"\x1B\[[0-?]*[ -/]*[@-~]", "");
+        text = Regex.Replace(text, @"(?i)\bBearer\s+[^\s""'<>]+", "Bearer [REDACTED]");
+        text = Regex.Replace(text, @"(?im)(authorization|proxy-authorization|cookie|set-cookie)\s*[:=][^\r\n]*", "$1: [REDACTED]");
+        text = Regex.Replace(text, @"(?i)([""']?(?:[a-z0-9_]*api[_-]?key|[a-z0-9_]*token|client[_-]?secret|password)[""']?\s*[:=]\s*)(?:""[^""]*""|'[^']*'|[^\s,;}\]]+)", "$1[REDACTED]");
+        text = Regex.Replace(text, @"\bsk-[A-Za-z0-9_-]+|\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+|\b[a-fA-F0-9]{64}\b", "[REDACTED]");
+        return Regex.Replace(text, @"(?i)https?://[^\s""'<>]+", "[URL REDACTED]");
     }
 
     public async ValueTask DisposeAsync()

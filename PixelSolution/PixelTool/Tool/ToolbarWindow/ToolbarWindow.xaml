@@ -108,6 +108,9 @@
                               Unchecked="EditorPlayToggle_Changed"
                               ToolTip="Current Mode: Editor"/>
 
+                <Button x:Name="ChangeProjectButton" Content="&#xE8DA;" Style="{StaticResource ToolbarActionButton}"
+                        ToolTip="프로젝트 변경 (에디터 재시작)" AutomationProperties.Name="프로젝트 변경" Click="ChangeProject"/>
+
                 <local:ToolbarButton x:Name="CreateToolbarButton" Width="44" Height="44" ButtonIcon=""
                                      ToolHovered="ToolbarButton_Hovered" ToolHoverEnded="ToolbarButton_HoverEnded">
                     <local:ToolbarButton.PopupContent>
@@ -153,7 +156,11 @@
                         Click="OpenLuaDataTable"/>
 
                 <Button Content="&#xE8BD;" Style="{StaticResource ToolbarActionButton}"
-                        ToolTip="자비스 (ChatGPT 연결)" Click="OpenAIChat"/>
+                        ToolTip="AI 자비스 (Codex CLI 연결)" Click="OpenAIChat"/>
+                <Button Content="&#xE790;" Style="{StaticResource ToolbarActionButton}"
+                        ToolTip="Art Studio (Codex CLI)" Click="OpenArtStudio"/>
+                <Button Content="&#xE8B9;" Style="{StaticResource ToolbarActionButton}"
+                        ToolTip="Sprite Editor" Click="OpenSpriteEditor"/>
 
                 <Button Content=""
                         Style="{StaticResource ToolbarActionButton}"

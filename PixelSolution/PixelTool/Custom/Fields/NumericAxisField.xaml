@@ -1,0 +1,27 @@
+<UserControl x:Class="PixelTool.NumericAxisField" x:Name="Root"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" MinWidth="62">
+ <Grid>
+  <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
+  <TextBlock x:Name="AxisLabel" Text="{Binding Axis, ElementName=Root}" VerticalAlignment="Center" Foreground="{DynamicResource PixelTextBrush}"
+   Margin="0,0,5,0" Cursor="SizeWE" Focusable="True" FocusVisualStyle="{x:Null}" ToolTip="좌우로 드래그하여 값을 조정합니다."
+   MouseLeftButtonDown="DragStart" MouseMove="DragMove" MouseLeftButtonUp="DragEnd" LostMouseCapture="DragLostCapture"/>
+  <Border x:Name="InputBorder" Grid.Column="1" Width="64" Height="24" VerticalAlignment="Center" CornerRadius="3" BorderThickness="1" Background="{DynamicResource PixelBackgroundBrush}">
+   <Border.Style><Style TargetType="Border">
+    <Setter Property="BorderBrush" Value="{DynamicResource PixelBorderBrush}"/>
+    <Style.Triggers>
+     <DataTrigger Binding="{Binding IsKeyboardFocusWithin, ElementName=Root}" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource PixelAccentBrush}"/></DataTrigger>
+     <DataTrigger Binding="{Binding IsDragging, ElementName=Root}" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource PixelAccentBrush}"/></DataTrigger>
+     <DataTrigger Binding="{Binding IsEnabled, ElementName=Root}" Value="False"><Setter Property="Opacity" Value="0.5"/></DataTrigger>
+    </Style.Triggers>
+   </Style></Border.Style>
+   <TextBox x:Name="InputBox" Style="{x:Null}" MinWidth="40" Background="Transparent" Foreground="{DynamicResource PixelTextBrush}" CaretBrush="{DynamicResource PixelAccentBrush}"
+    SelectionBrush="{DynamicResource PixelAccentMutedBrush}" BorderThickness="0" Padding="6,2" VerticalContentAlignment="Center"
+    TextChanged="InputChanged" LostKeyboardFocus="InputFinished">
+    <TextBox.Template><ControlTemplate TargetType="TextBox">
+     <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"><ScrollViewer x:Name="PART_ContentHost"/></Border>
+    </ControlTemplate></TextBox.Template>
+   </TextBox>
+  </Border>
+ </Grid>
+</UserControl>

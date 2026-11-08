@@ -3,23 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PixelTool">
     <Application.Resources>
-        <SolidColorBrush x:Key="PixelBackgroundBrush" Color="#202630"/>
-        <SolidColorBrush x:Key="PixelPanelBrush" Color="#29323E"/>
-        <SolidColorBrush x:Key="PixelSurfaceBrush" Color="#343F4D"/>
-        <SolidColorBrush x:Key="PixelAccentBrush" Color="#FFD600"/>
-        <SolidColorBrush x:Key="PixelAccentMutedBrush" Color="#544B16"/>
-        <SolidColorBrush x:Key="PixelBorderBrush" Color="#3C4755"/>
-        <SolidColorBrush x:Key="PixelTextBrush" Color="#E6EAF0"/>
-        <SolidColorBrush x:Key="PixelMutedTextBrush" Color="#A7AFBA"/>
-        <SolidColorBrush x:Key="PixelWhiteBrush" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="PixelDockBorderBrush" Color="#323C49"/>
-
-        <SolidColorBrush x:Key="PixelButtonBrush" Color="#242C36"/>
-        <SolidColorBrush x:Key="PixelButtonHoverBrush" Color="#35404C"/>
-        <SolidColorBrush x:Key="PixelButtonPressedBrush" Color="#FFD600"/>
-        <SolidColorBrush x:Key="PixelButtonTextBrush" Color="#E1E1F0"/>
-        <Color x:Key="PixelBackgroundColor">#202630</Color>
-        <Color x:Key="PixelBorderColor">#3C4755</Color>
+        <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+            <local:EditorColors/>
+            <ResourceDictionary Source="Custom/EditorScrollStyles.xaml"/>
+        </ResourceDictionary.MergedDictionaries>
+        <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource PixelScrollBar}"/>
 
         <Style x:Key="PixelCompletionItem" TargetType="ListBoxItem">
             <Setter Property="Foreground" Value="{DynamicResource PixelTextBrush}"/>
@@ -208,5 +197,6 @@
             <Setter Property="Padding" Value="4"/>
         </Style>
 
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

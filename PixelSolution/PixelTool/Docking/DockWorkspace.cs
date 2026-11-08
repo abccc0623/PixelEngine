@@ -14,6 +14,11 @@ using System.Xml.Linq;
 
 namespace PixelTool;
 
+public interface IDockCloseGuard
+{
+    bool ConfirmClose();
+}
+
 // The layout holds IDs, never scripts, engine objects or copies of a tool's content.
 internal sealed class DockNode
 {
@@ -58,6 +63,7 @@ public sealed class DockWorkspace : Grid, IDisposable
         public bool SuppressReturn, NativeMoving;
     }
     private readonly Dictionary<string, Document> documents = new();
+    private readonly Cursor dragCursor = DockDragCursor.Create();
     private readonly List<Host> hosts = new();
     private readonly Border hint = new()
     {
@@ -66,6 +72,9 @@ public sealed class DockWorkspace : Grid, IDisposable
     };
     // A Popup can draw over HwndHost/DirectX; a WPF child overlay cannot.
     private readonly Popup preview = new() { AllowsTransparency = true, StaysOpen = true, IsHitTestVisible = false, Focusable = false };
+    private readonly Canvas guideOverlay = new() { IsHitTestVisible = false };
+    private readonly Canvas guideIcons = new() { Width = DockGuideLayout.Size, Height = DockGuideLayout.Size, IsHitTestVisible = false };
+    private readonly Dictionary<string, Border> guideButtons = new();
     private Host? main, sourceHost, targetHost;
     private DockNode? sourcePane, targetPane;
     private string? dragId;
@@ -76,11 +85,37 @@ public sealed class DockWorkspace : Grid, IDisposable
 
     public DockWorkspace()
     {
-        preview.Child = hint;
+        guideOverlay.Children.Add(hint);
+        guideOverlay.Children.Add(guideIcons);
+        foreach (string direction in DockGuideLayout.Directions)
+        {
+            var icon = new Grid { Width = 22, Height = 20 };
+            var outline = new Border { BorderThickness = new Thickness(1) };
+            outline.SetResourceReference(Border.BorderBrushProperty, "PixelMutedTextBrush");
+            icon.Children.Add(outline);
+            var region = new Border { Margin = new Thickness(3), Opacity = .8 };
+            region.SetResourceReference(Border.BackgroundProperty, "PixelAccentBrush");
+            if (direction is "Left" or "Right") { region.Width = 7; region.HorizontalAlignment = direction == "Left" ? HorizontalAlignment.Left : HorizontalAlignment.Right; }
+            if (direction is "Top" or "Bottom") { region.Height = 5; region.VerticalAlignment = direction == "Top" ? VerticalAlignment.Top : VerticalAlignment.Bottom; }
+            icon.Children.Add(region);
+            var button = new Border { Width = 32, Height = 32, CornerRadius = new CornerRadius(3), BorderThickness = new Thickness(1), Child = icon };
+            button.SetResourceReference(Border.BackgroundProperty, "PixelPanelBrush");
+            button.SetResourceReference(Border.BorderBrushProperty, "PixelBorderBrush");
+            var bounds = DockGuideLayout.IconBounds(new Rect(0, 0, DockGuideLayout.Size, DockGuideLayout.Size), direction);
+            Canvas.SetLeft(button, bounds.X); Canvas.SetTop(button, bounds.Y);
+            guideButtons.Add(direction, button); guideIcons.Children.Add(button);
+        }
+        preview.Child = guideOverlay;
         SetResourceReference(BackgroundProperty, "PixelBackgroundBrush");
     }
 
     public IEnumerable<FrameworkElement> Contents => documents.Values.Select(d => d.Content);
+    public bool ConfirmCloseTools() => Contents.OfType<IDockCloseGuard>().All(tool => tool.ConfirmClose());
+    public void ActivateContent(FrameworkElement content)
+    {
+        var document = documents.Values.FirstOrDefault(d => ReferenceEquals(d.Content, content));
+        if (document != null) ShowDocument(document.Id);
+    }
     public void Register(string id, string title, FrameworkElement content, bool persistent = true)
         => documents.Add(id, new Document(id, title, content, persistent));
 
@@ -158,6 +193,7 @@ public sealed class DockWorkspace : Grid, IDisposable
 
     private void HideDocument(string id)
     {
+        if (documents.TryGetValue(id, out var closing) && closing.Content is IDockCloseGuard guard && !guard.ConfirmClose()) return;
         CancelDrag();
         foreach (var host in hosts)
             foreach (var pane in Panes(host.Root)) pane.Tabs.Remove(id);
@@ -256,6 +292,7 @@ public sealed class DockWorkspace : Grid, IDisposable
         var window = new Window { Owner = main!.Window, Width = double.IsFinite(state.Width) ? Math.Clamp(state.Width, 240, 4000) : 640,
             Height = double.IsFinite(state.Height) ? Math.Clamp(state.Height, 180, 3000) : 480,
             MinWidth = 240, MinHeight = 180, FontFamily = main.Window.FontFamily, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+        EditorColors.AttachTitleBar(window);
         window.SetResourceReference(Window.BackgroundProperty, "PixelBackgroundBrush");
         window.SetResourceReference(Window.ForegroundProperty, "PixelTextBrush");
         var surface = new Grid(); window.Content = surface;
@@ -267,10 +304,12 @@ public sealed class DockWorkspace : Grid, IDisposable
         { window.WindowStartupLocation = WindowStartupLocation.Manual; window.Left = state.Left; window.Top = state.Top; }
         window.SourceInitialized += (_, _) => ((HwndSource)PresentationSource.FromVisual(window)).AddHook(
             (IntPtr hwnd, int message, IntPtr w, IntPtr l, ref bool handled) => FloatingMessage(host, message));
-        window.Closing += (_, _) =>
+        window.Closing += (_, e) =>
         {
             if (!stopping && !host.SuppressReturn)
             {
+                if (Panes(host.Root).SelectMany(p => p.Tabs).Select(id => documents[id].Content).OfType<IDockCloseGuard>().Any(tool => !tool.ConfirmClose()))
+                { e.Cancel = true; return; }
                 DetachContents();
                 var items = Panes(host.Root).SelectMany(p => p.Tabs).ToArray();
                 Panes(main.Root).First().Tabs.AddRange(items.Where(id => documents[id].Persistent));
@@ -328,19 +367,24 @@ public sealed class DockWorkspace : Grid, IDisposable
             if (!node.Tabs.Contains(node.Selected ?? "")) node.Selected = node.Tabs.FirstOrDefault();
             foreach (string id in node.Tabs)
             {
-                var title = new Button { Content = documents[id].Title, FontSize = 12, FontWeight = FontWeights.Medium,
-                    Padding = new Thickness(12, 5, 8, 5), Focusable = false, BorderThickness = new Thickness(0) };
+                var title = new Button { Content = new TextBlock { Text = documents[id].Title, Width = 102,
+                        TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap },
+                    ToolTip = documents[id].Title, FontSize = 12, FontWeight = FontWeights.Medium,
+                    Width = 118, Height = 24, MinHeight = 0, Padding = new Thickness(8, 2, 8, 2), Focusable = false, BorderThickness = new Thickness(0) };
+                if (documents[id].Content is IDockCloseGuard)
+                    ((TextBlock)title.Content).SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding("Tag")
+                    { Source = documents[id].Content, TargetNullValue = documents[id].Title });
                 title.Background = Brushes.Transparent;
-                title.SetResourceReference(Control.ForegroundProperty, id == activeId ? "PixelAccentBrush" : "PixelMutedTextBrush");
+                title.SetResourceReference(Control.ForegroundProperty, id == activeId ? "PixelTabSelectedTextBrush" : "PixelTabTextBrush");
                 title.PreviewMouseLeftButtonDown += (_, e) => { sourceHost = host; sourcePane = node; dragId = id; dragStart = e.GetPosition(host.Surface); };
                 title.Click += (_, _) => Select(host, node, id);
-                var close = new Button { Content = "×", Padding = new Thickness(4, 0, 6, 0), Focusable = false, Background = Brushes.Transparent, BorderThickness = new Thickness(0) };
+                var close = new Button { Content = "×", Width = 22, Height = 24, MinHeight = 0, Padding = new Thickness(0), Focusable = false, Background = Brushes.Transparent, BorderThickness = new Thickness(0) };
                 close.SetResourceReference(Control.ForegroundProperty, "PixelMutedTextBrush");
                 close.Click += (_, _) => HideDocument(id);
                 var row = new StackPanel { Orientation = Orientation.Horizontal }; row.Children.Add(title); row.Children.Add(close);
-                var tab = new Border { Child = row, MinWidth = 96, Margin = new Thickness(2, 1, 0, 0), BorderThickness = new Thickness(0, 0, 0, 2), Tag = id };
-                tab.SetResourceReference(Border.BorderBrushProperty, id == activeId ? "PixelAccentBrush" : "PixelDockBorderBrush");
-                tab.SetResourceReference(Border.BackgroundProperty, id == activeId ? "PixelPanelBrush" : "PixelBackgroundBrush");
+                var tab = new Border { Child = row, Width = 140, Height = 26, Margin = new Thickness(2, 1, 0, 0), BorderThickness = new Thickness(0, 0, 0, 2), Tag = id };
+                tab.SetResourceReference(Border.BorderBrushProperty, id == activeId ? "PixelTabSelectedBorderBrush" : "PixelTabBorderBrush");
+                tab.SetResourceReference(Border.BackgroundProperty, id == activeId ? "PixelTabSelectedBrush" : "PixelTabBackgroundBrush");
                 bar.Children.Add(tab);
             }
             if (node.Selected != null) node.Presenter.Content = documents[node.Selected].Content;
@@ -402,9 +446,9 @@ public sealed class DockWorkspace : Grid, IDisposable
             foreach (Border tab in bar.Children)
             {
                 bool active = (string)tab.Tag == activeId;
-                tab.SetResourceReference(Border.BorderBrushProperty, active ? "PixelAccentBrush" : "PixelDockBorderBrush");
-                tab.SetResourceReference(Border.BackgroundProperty, active ? "PixelPanelBrush" : "PixelBackgroundBrush");
-                ((Button)((StackPanel)tab.Child).Children[0]).SetResourceReference(Control.ForegroundProperty, active ? "PixelAccentBrush" : "PixelMutedTextBrush");
+                tab.SetResourceReference(Border.BorderBrushProperty, active ? "PixelTabSelectedBorderBrush" : "PixelTabBorderBrush");
+                tab.SetResourceReference(Border.BackgroundProperty, active ? "PixelTabSelectedBrush" : "PixelTabBackgroundBrush");
+                ((Button)((StackPanel)tab.Child).Children[0]).SetResourceReference(Control.ForegroundProperty, active ? "PixelTabSelectedTextBrush" : "PixelTabTextBrush");
             }
         }
     }
@@ -449,14 +493,14 @@ public sealed class DockWorkspace : Grid, IDisposable
         {
             if ((point - dragStart).Length < 6) return;
             if (!sourceHost.Surface.CaptureMouse()) { CancelDrag(); return; }
-            dragging = true; Mouse.OverrideCursor = Cursors.SizeAll;
+            dragging = true; Mouse.OverrideCursor = dragCursor;
         }
         FindTarget(sourceHost.Surface.PointToScreen(point), null);
         e.Handled = true;
     }
     private void FindTarget(Point screenPoint, Host? skip)
     {
-        targetPane = null; targetHost = null; preview.IsOpen = false;
+        targetPane = null; targetHost = null; hint.Visibility = Visibility.Collapsed;
         foreach (var host in hosts.AsEnumerable().Reverse())
         {
             if (host == skip || !host.Window.IsVisible) continue;
@@ -466,19 +510,31 @@ public sealed class DockWorkspace : Grid, IDisposable
                 if (pane.View == null || pane.View.ActualWidth < 1 || pane.View.ActualHeight < 1) continue;
                 var rect = new Rect(pane.View.TranslatePoint(new Point(), host.Surface), pane.View.RenderSize);
                 if (!rect.Contains(point)) continue;
-                targetHost = host; targetPane = pane;
-                double x = (point.X - rect.X) / rect.Width, y = (point.Y - rect.Y) / rect.Height;
-                edge = x < .23 ? "Left" : x > .77 ? "Right" : y < .23 ? "Top" : y > .77 ? "Bottom" : "Tab";
-                if (edge == "Left") rect.Width /= 2;
-                if (edge == "Right") { rect.X += rect.Width / 2; rect.Width /= 2; }
-                if (edge == "Top") rect.Height /= 2;
-                if (edge == "Bottom") { rect.Y += rect.Height / 2; rect.Height /= 2; }
-                hint.Width = rect.Width; hint.Height = rect.Height;
+                if (pane == sourcePane && pane.Tabs.Count == 1) { preview.IsOpen = false; return; }
+                string? direction = DockGuideLayout.HitTest(rect, point);
+                guideOverlay.Width = rect.Width; guideOverlay.Height = rect.Height;
+                double scale = DockGuideLayout.Scale(rect);
+                guideIcons.RenderTransform = new ScaleTransform(scale, scale);
+                Canvas.SetLeft(guideIcons, (rect.Width - DockGuideLayout.Size * scale) / 2);
+                Canvas.SetTop(guideIcons, (rect.Height - DockGuideLayout.Size * scale) / 2);
+                foreach (var button in guideButtons)
+                {
+                    button.Value.SetResourceReference(Border.BorderBrushProperty, button.Key == direction ? "PixelAccentBrush" : "PixelBorderBrush");
+                    button.Value.SetResourceReference(Border.BackgroundProperty, button.Key == direction ? "PixelAccentMutedBrush" : "PixelPanelBrush");
+                }
+                if (direction != null)
+                {
+                    targetHost = host; targetPane = pane; edge = direction;
+                    var bounds = DockGuideLayout.PreviewBounds(new Rect(0, 0, rect.Width, rect.Height), direction);
+                    Canvas.SetLeft(hint, bounds.X); Canvas.SetTop(hint, bounds.Y);
+                    hint.Width = bounds.Width; hint.Height = bounds.Height; hint.Visibility = Visibility.Visible;
+                }
                 preview.Placement = PlacementMode.Relative; preview.PlacementTarget = host.Surface;
                 preview.HorizontalOffset = rect.X; preview.VerticalOffset = rect.Y; preview.IsOpen = true;
                 return;
             }
         }
+        preview.IsOpen = false;
     }
     private void Release(object sender, MouseButtonEventArgs e)
     {
@@ -517,7 +573,7 @@ public sealed class DockWorkspace : Grid, IDisposable
     {
         if (message == 0x0216) // WM_MOVING: resize alone must not trigger docking.
         {
-            host.NativeMoving = true; Mouse.OverrideCursor = Cursors.SizeAll;
+            host.NativeMoving = true; Mouse.OverrideCursor = dragCursor;
             if (GetCursorPos(out var point)) FindTarget(new Point(point.X, point.Y), host);
         }
         else if (message == 0x0232 && host.NativeMoving)
@@ -558,5 +614,6 @@ public sealed class DockWorkspace : Grid, IDisposable
             if (host.Floating) CloseHost(host);
         }
         preview.Child = null;
+        dragCursor.Dispose();
     }
 }

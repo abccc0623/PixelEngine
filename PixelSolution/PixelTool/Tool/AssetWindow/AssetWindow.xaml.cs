@@ -175,6 +175,11 @@ namespace PixelTool
                 findWindow?.OpenFile(selectedFile.FullPath);
                 TexturePreview.Source = null;
             }
+            else if (ext == ".sprite")
+            {
+                (Application.Current.MainWindow as MainWindow)?.OpenSpriteEditor(selectedFile.FullPath);
+                TexturePreview.Source = null;
+            }
             else if (IsImageFile(ext))
             {
                 LoadImagePreview(selectedFile.FullPath);
@@ -322,7 +327,7 @@ namespace PixelTool
         {
             var targetFile = GetFileItemFromSender(sender);
             if (targetFile == null) return;
-            CopyText(targetFile.FullPath);
+            CopyText(Path.GetRelativePath(ProjectPathService.ProjectRootPath, targetFile.FullPath).Replace('\\', '/'));
         }
 
         private void FileItem_OpenExplorer(object sender, RoutedEventArgs e)
@@ -432,7 +437,7 @@ namespace PixelTool
         private void FolderItem_CopyPath(object sender, RoutedEventArgs e)
         {
             if (nowFolder == null) return;
-            CopyText(nowFolder.fullPath);
+            CopyText(Path.GetRelativePath(ProjectPathService.ProjectRootPath, nowFolder.fullPath).Replace('\\', '/'));
         }
 
         private void FolderItem_Paste(object sender, RoutedEventArgs e) => PasteClipboard(nowFolder?.fullPath);

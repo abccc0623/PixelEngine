@@ -18,8 +18,10 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
     private bool _userInterrupted;
     private string _project = "", _threadId = "", _instructions = "", _account = "";
     private List<JsonElement> _input = new();
+    private readonly HashSet<string> _compactionUnavailableModels = new(StringComparer.Ordinal);
     public event Action<string, JsonElement>? Notification;
     public event Action? Disconnected;
+
     public Func<string, JsonElement, Task<bool>>? Approve { get; set; }
     public Func<Task<ChatGptProjectTools.ImportedAsset?>>? PickAsset { get; set; }
     public Func<CancellationToken, Task<JsonElement>>? ReimportProject { get; set; }
@@ -114,7 +116,6 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
             var pending = new List<JsonElement>(_input) { JsonSerializer.SerializeToElement(new { role = "user", content = text }) };
             var tools = new ChatGptProjectTools(_project);
             var repeatedFailures = new Dictionary<string, int>();
-            bool compactionUnavailable = false;
             int nextCompactionSize = 96 * 1024;
             int protectedStart = _input.Count;
             var recentFullFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -122,7 +123,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
             {
                 token.ThrowIfCancellationRequested();
                 int contextSize = pending.Take(protectedStart).Sum(item => item.GetRawText().Length);
-                if (!compactionUnavailable && contextSize >= nextCompactionSize)
+                if (!_compactionUnavailableModels.Contains(model) && contextSize >= nextCompactionSize)
                 {
                     try
                     {
@@ -143,9 +144,9 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                     catch (Exception ex) when (!token.IsCancellationRequested &&
                         (ex is HttpRequestException or IOException or InvalidOperationException or JsonException or OperationCanceledException))
                     {
-                        compactionUnavailable = true;
-                        Emit("turn/toolWarning", new { threadId = _threadId, turnId,
-                            message = "대화 압축을 사용할 수 없어 기존 문맥을 유지합니다. 기록은 삭제하지 않았습니다. 이 요청에서는 압축을 재시도하지 않습니다." });
+                        if (_compactionUnavailableModels.Add(model))
+                            Emit("turn/toolWarning", new { threadId = _threadId, turnId,
+                                message = "대화 압축을 사용할 수 없어 기존 문맥을 유지합니다. 기록은 삭제하지 않았습니다. 에디터를 다시 열기 전까지 이 모델의 압축을 재시도하지 않습니다." });
                     }
                 }
                 string instructions = _instructions + "\nCurrent project: " + _project +
@@ -427,8 +428,32 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
         var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token).ConfigureAwait(false);
         if (response.IsSuccessStatusCode) return response;
         int status = (int)response.StatusCode;
+        string details = "";
+        try
+        {
+            using var errorDocument = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token).ConfigureAwait(false));
+            if (errorDocument.RootElement.TryGetProperty("error", out var error) && error.ValueKind == JsonValueKind.Object)
+                foreach (string key in new[] { "code", "type", "param" })
+                    if (error.TryGetProperty(key, out var field) && field.ValueKind == JsonValueKind.String)
+                    {
+                        string value = field.GetString() ?? "";
+                        // Expose diagnostic identifiers only, never raw response text or credentials.
+                        if (value.Length is > 0 and <= 100 && value.All(c => char.IsAsciiLetterOrDigit(c) || "_.[]-".Contains(c)))
+                            details += $" {key}={value}";
+                    }
+        }
+        catch (JsonException) { }
         response.Dispose();
-        throw new InvalidOperationException($"ChatGPT 요청 실패 (HTTP {status}). 계정 연결·사용 권한·한도를 확인하세요. 자동 재시도하지 않았습니다.");
+        string reason = status switch
+        {
+            400 => "요청 형식 또는 선택한 모델의 기능 지원을 확인해야 합니다.",
+            401 => "인증이 거부되었습니다. 계정을 다시 연결해 주세요.",
+            403 => "이 계정 또는 연결 방식에 해당 기능 사용 권한이 없습니다.",
+            429 => "사용량·요청 속도 또는 결제 한도에 도달했습니다.",
+            >= 500 => "서버에서 요청 처리에 실패했습니다.",
+            _ => "서버가 요청을 거부했습니다."
+        };
+        throw new InvalidOperationException($"ChatGPT 요청 실패 (HTTP {status}, {endpoint}). {reason}{details} 자동 재시도하지 않았습니다.");
     }
 
     private sealed class SavedThread

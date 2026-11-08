@@ -30,7 +30,7 @@
                 <Button Content="설정" Click="ToggleChatSettings"/>
                 <Button x:Name="NewButton" Content="새 대화" Click="NewConversation" IsEnabled="False"/>
             </StackPanel>
-            <TextBlock Text="자비스" Foreground="{DynamicResource PixelAccentBrush}" FontWeight="Bold" Margin="6" VerticalAlignment="Center"/>
+            <TextBlock Text="AI 자비스" Foreground="{DynamicResource PixelAccentBrush}" FontWeight="Bold" Margin="6" VerticalAlignment="Center"/>
             <TextBlock x:Name="AccountSummary" Text="계정 연결 필요" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
                        Foreground="{DynamicResource PixelMutedTextBrush}" Margin="6"/>
         </DockPanel>
@@ -54,6 +54,7 @@
           <StackPanel x:Name="AccountDetails">
             <WrapPanel>
                 <Button x:Name="ConnectButton" Content="Continue with ChatGPT" Click="Connect"/>
+                <Button x:Name="InstallCliButton" Content="Codex CLI 설치" Click="InstallCli"/>
                 <Button x:Name="AddAccountButton" Content="다른 계정 추가" Click="AddAccount" IsEnabled="False"/>
                 <Button x:Name="ReauthorizeButton" Content="계정 재인증" Click="Reauthorize" IsEnabled="False"/>
                 <Button x:Name="RefreshButton" Content="로그인 확인" Click="RefreshAccount" IsEnabled="False"/>
@@ -115,7 +116,7 @@
                                 <Setter Property="Foreground" Value="{DynamicResource PixelMutedTextBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsEnabled, ElementName=StopButton}" Value="True">
-                                        <Setter Property="Text" Value="자비스 응답 중 · 생각하거나 작업하고 있습니다"/>
+                                        <Setter Property="Text" Value="AI 자비스 응답 중 · 생각하거나 작업하고 있습니다"/>
                                         <Setter Property="Foreground" Value="{DynamicResource PixelAccentBrush}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Visibility, ElementName=ChoicePanel}" Value="Visible">
@@ -128,7 +129,7 @@
                     <ProgressBar x:Name="ResponseProgress" Height="5" Margin="0,9,0,0"
                                  IsIndeterminate="{Binding IsEnabled, ElementName=StopButton}"
                                  Foreground="{DynamicResource PixelAccentBrush}" Background="#211E17"
-                                 AutomationProperties.Name="자비스 응답 진행 중">
+                                 AutomationProperties.Name="AI 자비스 응답 진행 중">
                         <ProgressBar.Style>
                             <Style TargetType="ProgressBar">
                                 <Setter Property="Visibility" Value="Collapsed"/>

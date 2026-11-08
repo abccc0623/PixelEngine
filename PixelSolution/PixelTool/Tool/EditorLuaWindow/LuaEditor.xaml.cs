@@ -169,10 +169,13 @@ namespace PixelTool
                     {
                         if (args.PropertyName == nameof(UndoStack.IsOriginalFile)) Dispatcher.InvokeAsync(UpdateFileStatus);
                     };
-                    file.Label = new TextBlock { Text = Path.GetFileName(path), VerticalAlignment = VerticalAlignment.Center };
+                    file.Label = new TextBlock { Text = Path.GetFileName(path), Width = 74,
+                        TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap,
+                        VerticalAlignment = VerticalAlignment.Center };
                     var header = new StackPanel { Orientation = Orientation.Horizontal };
                     header.Children.Add(file.Label);
-                    var close = new Button { Content = "×", Margin = new Thickness(8, 0, 0, 0), Padding = new Thickness(4, 0, 4, 0), ToolTip = "Close file" };
+                    var close = new Button { Content = "×", Width = 22, Height = 19, MinHeight = 0,
+                        Margin = new Thickness(4, 0, 0, 0), Padding = new Thickness(0), ToolTip = "Close file" };
                     var captured = file;
                     close.Click += (_, e) => { e.Handled = true; CloseFile(captured); };
                     header.Children.Add(close);
@@ -237,6 +240,18 @@ namespace PixelTool
             catch (Exception ex) { ConsoleWindow.LogMessage("File move sync failed: " + ex.Message,2); }
         }
 
+        private void ScrollFileTabsLeft(object sender, RoutedEventArgs e)
+        {
+            if (FileTabs.Template.FindName("FileTabScroller", FileTabs) is ScrollViewer scroller)
+                scroller.ScrollToHorizontalOffset(scroller.HorizontalOffset - 116);
+        }
+
+        private void ScrollFileTabsRight(object sender, RoutedEventArgs e)
+        {
+            if (FileTabs.Template.FindName("FileTabScroller", FileTabs) is ScrollViewer scroller)
+                scroller.ScrollToHorizontalOffset(scroller.HorizontalOffset + 116);
+        }
+
         private async void FileTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.Source != FileTabs) return;
@@ -251,6 +266,8 @@ namespace PixelTool
             }
             switchingFile = true;
             activeFile = (FileTabs.SelectedItem as TabItem)?.Tag as FileState;
+            if (activeFile != null)
+                Dispatcher.InvokeAsync(() => activeFile?.Tab.BringIntoView());
             if (activeFile != null) activeFile.DeferredDiskText = null;
             targetPath = activeFile?.Path ?? "";
             LuaEditor.Document = activeFile?.Document ?? new TextDocument();
