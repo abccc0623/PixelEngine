@@ -17,6 +17,10 @@ __pycache__/
 *.pyc
 *.log
 
+# Local engine tests are not published to GitHub.
+/Tests/
+/PixelSolution/Tests/
+
 # Locally installed REA tools and dependencies.
 /Tools/REA/
 

@@ -393,6 +393,17 @@ void LuaManager::Update()
 				std::string errorMsg = err.what();
 				PixelLog::Error(errorMsg.c_str());
 			}
+			// Lua update failed or completed: finish queued deletions after the batch.
+			sol::protected_function flushPendingDestroy = luaManager["FlushPendingDestroy"];
+			if (flushPendingDestroy.valid())
+			{
+				auto flushResult = flushPendingDestroy(luaManager);
+				if (!flushResult.valid())
+				{
+					sol::error err = flushResult;
+					PixelLog::Error(err.what());
+				}
+			}
 		}
 	}
 }
