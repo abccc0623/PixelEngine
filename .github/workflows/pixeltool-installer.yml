@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   installer:
@@ -81,13 +81,15 @@ jobs:
         run: |
           & ./PixelSolution/Installer/Build-Installer.ps1 -SourceDir ./PixelSolution/bin/Release -CompilerPath $env:ISCC_EXE
 
-      - name: Upload installer
-        uses: actions/upload-artifact@v6
-        with:
-          name: PixelTool-Installer-${{ github.run_number }}
-          path: PixelSolution/bin/Installer/PixelTool-Setup-*.exe
-          if-no-files-found: error
-          retention-days: 14
+      - name: Publish installer as a release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $installers = @(Get-ChildItem -LiteralPath PixelSolution/bin/Installer -Filter 'PixelTool-Setup-*.exe' -File)
+          if ($installers.Count -ne 1) { throw "Expected one installer, found $($installers.Count)." }
+          $tag = "pixeltool-installer-$env:GITHUB_RUN_NUMBER-$env:GITHUB_RUN_ATTEMPT"
+          & gh release create $tag $installers[0].FullName --title "PixelTool Installer #$env:GITHUB_RUN_NUMBER" --notes 'Download the PixelTool-Setup .exe file from Assets.' --target $env:GITHUB_SHA --latest
+          if ($LASTEXITCODE -ne 0) { throw "Release publication failed: $LASTEXITCODE" }
 
       - name: Upload build diagnostics on failure
         if: failure()
