@@ -27,8 +27,9 @@ void SceneManager::ReleaseCurrentScene()
 {
     if (nowScene == nullptr) return;
     // Run before the shared Lua/physics managers are destroyed, and outside callbacks.
-    Engine->GetFactory<CoroutineManager>()->Clear();
     nowScene->Release();
+    // Release callbacks may start a coroutine; none may outlive the outgoing scene.
+    Engine->GetFactory<CoroutineManager>()->Clear();
     Engine->GetFactory<LuaManager>()->ResetScene();
     Engine->GetFactory<PhysManager>()->ClearCollisionEvents();
     nowScene.reset();
@@ -38,6 +39,7 @@ void SceneManager::Release()
 {
     pendingScene.clear();
     ReleaseCurrentScene();
+    pendingScene.clear();
     SceneMap.clear();
 }
 
