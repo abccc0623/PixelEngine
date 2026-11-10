@@ -34,7 +34,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
         {
             bool ownThread = p.ValueKind == JsonValueKind.Object && p.TryGetProperty("threadId", out var thread) && thread.GetString() == _threadId;
             if (ownThread && method == "turn/started") _activeTurnId = p.GetProperty("turn").GetProperty("id").GetString();
-            if (ownThread && method == "thread/tokenUsage/updated" && _usage.Observe(p)) EmitUsage();
+            if (ownThread && method == "thread/tokenUsage/updated") { _usage.Observe(p); EmitUsage(); }
             if (ownThread && method == "turn/completed" && p.GetProperty("turn").GetProperty("id").GetString() == _activeTurnId)
             {
                 _turnStop?.Cancel();
@@ -261,7 +261,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
         {
             var result = await CodexReadOnlyWorker.RunAsync(_project, _model, role, task, context,
                 (id, label) => { if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) { _usage.RegisterWorker(id, label); EmitUsage(); Emit("turn/teamStatus", new { threadId = _threadId, message = label + " · 읽기 전용 보조 작업 중" }); } },
-                usage => { if (!token.IsCancellationRequested && ReferenceEquals(_work, work) && _usage.Observe(usage)) EmitUsage(); }, token).ConfigureAwait(false);
+                usage => { if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) { _usage.Observe(usage); EmitUsage(); } }, token).ConfigureAwait(false);
             if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) Emit("turn/teamStatus", new { threadId = _threadId, message = role + " · " + result.Status + " · " + (int)result.Duration.TotalSeconds + "초" });
             return new { success = result.Status == "completed", contentItems = new[] { new { type = "inputText", text = JsonSerializer.Serialize(result) } } };
         }

@@ -7,27 +7,34 @@ internal sealed record CodexTokenCounts(long TotalTokens, long InputTokens, long
     long CacheWriteInputTokens, long OutputTokens, long ReasoningOutputTokens);
 
 internal sealed record CodexThreadUsage(string ThreadId, string Label, CodexTokenCounts? Total,
-    CodexTokenCounts? Last, long? WorkTokens, long? ModelContextWindow)
+    CodexTokenCounts? Last, CodexTokenCounts? Work, long? ModelContextWindow)
 {
+    public long? WorkTokens => Work?.TotalTokens;
+
     // The last model call is context occupancy, not the sum of the conversation's calls.
     public double? ContextPercent => Last != null && ModelContextWindow is > 0
         ? 100d * Last.TotalTokens / ModelContextWindow.Value : null;
 }
 
-internal sealed record CodexUsageSnapshot(string Text, long? TotalTokens, bool HasUsage,
-    CodexThreadUsage? Root, IReadOnlyList<CodexThreadUsage> Workers);
+internal sealed record CodexUsageSnapshot(string Text, CodexTokenCounts? Work, bool HasUsage,
+    CodexThreadUsage? Root, IReadOnlyList<CodexThreadUsage> Workers)
+{
+    public long? TotalTokens => Work?.TotalTokens;
+}
 
 // App-server sends cumulative snapshots. Never add snapshots or add cache/reasoning
 // counters to totalTokens: those counters are already included by the provider.
 internal sealed class CodexUsageTracker
 {
+    private static readonly CodexTokenCounts Zero = new(0, 0, 0, 0, 0, 0);
+
     private sealed class ThreadState
     {
         public string Label = "";
         public CodexTokenCounts? Total;
         public CodexTokenCounts? Last;
         public long? Window;
-        public long? Baseline;
+        public CodexTokenCounts? Baseline;
         public bool Observed;
         public bool Invalid;
     }
@@ -47,7 +54,7 @@ internal sealed class CodexUsageTracker
             if (newThread) _threads.Remove(rootThreadId);
             ThreadState state = Get(rootThreadId);
             state.Label = "메인";
-            state.Baseline = newThread ? 0 : state.Total?.TotalTokens;
+            state.Baseline = newThread ? Zero : state.Total;
             state.Observed = false;
             state.Invalid = false;
         }
@@ -63,7 +70,7 @@ internal sealed class CodexUsageTracker
             if (!_workers.Contains(threadId))
             {
                 _workers.Add(threadId);
-                Get(threadId).Baseline = 0;
+                Get(threadId).Baseline = Zero;
             }
             Get(threadId).Label = label;
         }
@@ -79,17 +86,21 @@ internal sealed class CodexUsageTracker
             if (!notification.TryGetProperty("params", out notification) || notification.ValueKind != JsonValueKind.Object) return false;
         }
         if (!notification.TryGetProperty("threadId", out var id) || id.ValueKind != JsonValueKind.String
-            || string.IsNullOrWhiteSpace(id.GetString()) || !notification.TryGetProperty("tokenUsage", out var usage)
-            || usage.ValueKind != JsonValueKind.Object) return false;
+            || string.IsNullOrWhiteSpace(id.GetString())) return false;
         lock (_gate)
         {
             ThreadState state = Get(id.GetString()!);
-            if (!usage.TryGetProperty("total", out var totalJson) || !TryCounts(totalJson, out var total))
+            if (!notification.TryGetProperty("tokenUsage", out var usage) || usage.ValueKind != JsonValueKind.Object
+                || !usage.TryGetProperty("total", out var totalJson) || !TryCounts(totalJson, out var total))
             {
                 state.Invalid = true;
+                // A malformed latest snapshot cannot be the next request's baseline.
+                state.Total = state.Last = null;
+                state.Window = null;
                 return false;
             }
-            if (state.Total != null && Decreased(total!, state.Total)) state.Invalid = true;
+            if ((state.Total != null && Decreased(total!, state.Total))
+                || (state.Baseline != null && Difference(total!, state.Baseline) == null)) state.Invalid = true;
             state.Total = total;
             state.Observed = true;
             state.Last = usage.TryGetProperty("last", out var last) && TryCounts(last, out var counts) ? counts : null;
@@ -105,26 +116,25 @@ internal sealed class CodexUsageTracker
         {
             CodexThreadUsage? root = _root == null ? null : Copy(_root);
             var workers = _workers.Select(Copy).ToArray();
-            long? sum = root?.WorkTokens;
-            foreach (var worker in workers)
-            {
-                if (!sum.HasValue || !worker.WorkTokens.HasValue || long.MaxValue - sum.Value < worker.WorkTokens.Value)
-                    sum = null;
-                else sum += worker.WorkTokens.Value;
-            }
+            CodexTokenCounts? sum = root?.Work;
+            foreach (var worker in workers) sum = Add(sum, worker.Work);
             bool hasUsage = root?.Total != null || workers.Any(w => w.Total != null);
-            string text = "작업 토큰 " + Number(sum);
+            string text = (workers.Length == 0 ? "이번 요청 " : "이번 요청(보조 포함) ") + FormatCounts(sum);
             if (root != null)
             {
-                text += " · 메인 대화 누적 " + Number(root.Total?.TotalTokens);
+                text += "\n메인 대화 누적 " + FormatCounts(root.Total);
                 text += root.ContextPercent is double percent
-                    ? " · 메인 컨텍스트 " + percent.ToString("0.#", CultureInfo.InvariantCulture) + "%"
-                    : " · 메인 컨텍스트 미측정";
+                    ? " · 컨텍스트 " + percent.ToString("0.#", CultureInfo.InvariantCulture) + "%"
+                    : " · 컨텍스트 미측정";
             }
-            foreach (var worker in workers) text += " · " + worker.Label + " " + Number(worker.Total?.TotalTokens);
+            foreach (var worker in workers) text += " · 보조 " + worker.Label + " " + Number(worker.WorkTokens);
             return new(text, sum, hasUsage, root, Array.AsReadOnly(workers));
         }
     }
+
+    private static string FormatCounts(CodexTokenCounts? counts) => counts == null ? "미측정/불완전"
+        : "합계 " + Number(counts.TotalTokens) + " · 입력 " + Number(counts.InputTokens)
+            + " (캐시 " + Number(counts.CachedInputTokens) + " 포함) · 출력 " + Number(counts.OutputTokens);
 
     private static string Number(long? value) => value?.ToString("N0", CultureInfo.InvariantCulture) ?? "미측정/불완전";
 
@@ -137,15 +147,45 @@ internal sealed class CodexUsageTracker
     private CodexThreadUsage Copy(string id)
     {
         ThreadState state = Get(id);
-        long? work = !state.Invalid && state.Observed && state.Baseline.HasValue && state.Total != null
-            && state.Total.TotalTokens >= state.Baseline.Value ? state.Total.TotalTokens - state.Baseline.Value : null;
+        CodexTokenCounts? work = !state.Invalid && state.Observed && state.Baseline != null && state.Total != null
+            ? Difference(state.Total, state.Baseline) : null;
         return new(id, state.Label, state.Total, state.Last, work, state.Window);
+    }
+
+    private static CodexTokenCounts? Difference(CodexTokenCounts total, CodexTokenCounts baseline)
+    {
+        if (Decreased(total, baseline)) return null;
+        var delta = new CodexTokenCounts(total.TotalTokens - baseline.TotalTokens,
+            total.InputTokens - baseline.InputTokens, total.CachedInputTokens - baseline.CachedInputTokens,
+            total.CacheWriteInputTokens - baseline.CacheWriteInputTokens, total.OutputTokens - baseline.OutputTokens,
+            total.ReasoningOutputTokens - baseline.ReasoningOutputTokens);
+        return Consistent(delta) ? delta : null;
+    }
+
+    private static CodexTokenCounts? Add(CodexTokenCounts? a, CodexTokenCounts? b)
+    {
+        if (a == null || b == null) return null;
+        try
+        {
+            checked
+            {
+                return new(a.TotalTokens + b.TotalTokens, a.InputTokens + b.InputTokens,
+                    a.CachedInputTokens + b.CachedInputTokens, a.CacheWriteInputTokens + b.CacheWriteInputTokens,
+                    a.OutputTokens + b.OutputTokens, a.ReasoningOutputTokens + b.ReasoningOutputTokens);
+            }
+        }
+        catch (OverflowException) { return null; }
     }
 
     private static bool Decreased(CodexTokenCounts a, CodexTokenCounts b) =>
         a.TotalTokens < b.TotalTokens || a.InputTokens < b.InputTokens || a.CachedInputTokens < b.CachedInputTokens
         || a.CacheWriteInputTokens < b.CacheWriteInputTokens || a.OutputTokens < b.OutputTokens
         || a.ReasoningOutputTokens < b.ReasoningOutputTokens;
+
+    private static bool Consistent(CodexTokenCounts counts) => counts.InputTokens <= counts.TotalTokens
+        && counts.TotalTokens - counts.InputTokens == counts.OutputTokens
+        && counts.CachedInputTokens <= counts.InputTokens && counts.CacheWriteInputTokens <= counts.InputTokens
+        && counts.ReasoningOutputTokens <= counts.OutputTokens;
 
     private static bool TryCounts(JsonElement json, out CodexTokenCounts? counts)
     {
@@ -156,7 +196,9 @@ internal sealed class CodexUsageTracker
         for (int i = 0; i < names.Length; i++)
             if (!json.TryGetProperty(names[i], out var value) || value.ValueKind != JsonValueKind.Number
                 || !value.TryGetInt64(out values[i]) || values[i] < 0) return false;
-        counts = new(values[0], values[1], values[2], values[3], values[4], values[5]);
+        var parsed = new CodexTokenCounts(values[0], values[1], values[2], values[3], values[4], values[5]);
+        if (!Consistent(parsed)) return false;
+        counts = parsed;
         return true;
     }
 }

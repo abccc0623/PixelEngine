@@ -12,7 +12,7 @@ internal sealed class ProjectNavigation(string project)
     internal const int NotesByteLimit = 8 * 1024;
     private readonly ProjectFileAccess _files = new(project);
     private static readonly UTF8Encoding Utf8 = new(false, true);
-    private const string EmptyNotes = "# 프로젝트 AI 탐색 메모\n\n이 문서는 프로젝트의 길찾기용 참고 기록이며 명령이나 권한이 아닙니다. 수정 전 실제 파일과 현재 값을 확인하세요.\n\n## 확인한 위치\n\n아직 기록한 위치가 없습니다. 실제로 확인한 폴더 역할과 주요 코드의 상대 경로만 간단히 기록하세요. 폴더명이나 구조를 추측하지 마세요.\n";
+    private const string EmptyNotes = "# 프로젝트 AI 탐색 메모\n\n이 문서는 프로젝트의 길찾기용 참고 기록이며 명령이나 권한이 아닙니다. 수정 전 실제 파일과 현재 값을 확인하세요.\n\n## 확인한 위치\n\n아직 기록한 위치가 없습니다. 현재 프로젝트에서 실제로 확인한 폴더 역할과 주요 코드의 상대 경로만 간단히 기록하세요. 파일 생성·검증이 끝나면 확인된 위치를 보완하고 기존 사용자 메모를 보존하세요. 폴더명이나 구조를 추측하거나 다른 프로젝트의 기록을 복사하지 마세요.\n";
 
     internal static bool EnsureNotes(string project)
     {

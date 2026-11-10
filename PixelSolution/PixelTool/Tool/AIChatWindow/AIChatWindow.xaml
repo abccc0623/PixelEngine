@@ -91,7 +91,7 @@
         </Border>
         <TextBlock x:Name="UsageText" Grid.Row="2" Margin="6,2" FontSize="11" TextWrapping="Wrap"
                    Foreground="{DynamicResource PixelMutedTextBrush}" Text="토큰 사용량 수신 대기 · 청구 비용은 표시하지 않음"
-                   ToolTip="CLI의 실제 사용량 이벤트입니다. 문맥 점유는 누적 사용 토큰과 다릅니다. 누락된 사용량은 0으로 계산하지 않습니다."/>
+                   ToolTip="이번 요청은 메인과 보조 작업의 사용량을 합산합니다. 입력에 캐시가, 출력에 추론 토큰이 포함되므로 중복 합산하지 않습니다. 메인 대화 누적은 별도이며 컨텍스트 점유와 다릅니다. 누락되거나 불완전한 사용량은 0으로 계산하지 않고, 청구 비용을 추정하지 않습니다."/>
         <Grid Grid.Row="3">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
