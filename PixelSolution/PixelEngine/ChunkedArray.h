@@ -3,22 +3,26 @@
 #include <array>
 #include <queue>
 #include <memory>
+#include <cstdint>
+#include <limits>
 
 namespace ECS
 {
 	struct ChunkedID
 	{
-		unsigned int value;
+		static constexpr unsigned int IndexMask = 0xFFFFF;
+		static constexpr unsigned int InvalidValue = (std::numeric_limits<unsigned int>::max)();
+		unsigned int value = InvalidValue;
 		ChunkedID() = default;
 		ChunkedID(unsigned int index, unsigned int version)
 		{
-			value = ((version << 20) | (index & 0xFFFFF));
+			value = ((version << 20) | (index & IndexMask));
 		}
 		ChunkedID(unsigned int value)
 		{
 			this->value = value;
 		}
-		constexpr unsigned int Index() const { return value & 0xFFFFF; }
+		constexpr unsigned int Index() const { return value & IndexMask; }
 		constexpr unsigned int Version() const { return (value >> 20) & 0xFFF; }
 		bool operator==(const ChunkedID& other) const { return value == other.value; }
 		bool operator!=(const ChunkedID& other) const { return value != other.value; }
@@ -36,6 +40,7 @@ namespace ECS
 			// 잘못되었거나 이미 삭제된 ID로 Chunk 메모리에 접근하지 않도록 검사한다.
 			if (index >= static_cast<unsigned int>(currentSize) ||
 				index >= versions.size() ||
+				index >= occupiedSlots.size() || !occupiedSlots[index] ||
 				versions[index] != version)
 			{
 				return nullptr;
@@ -54,27 +59,29 @@ namespace ECS
 
 		ChunkedID Add()
 		{
-			ChunkedID id;
-			if (freeSlots.size() != 0)
+			if (!freeSlots.empty())
 			{
-				//빈곳이 있다면 그곳에 데이터 넣기
-				int outIndex = freeSlots.front();
+				const unsigned int index = freeSlots.front();
 				freeSlots.pop();
-				SetLife(outIndex, true);
-				return ChunkedID(outIndex, versions[outIndex]);
+				occupiedSlots[index] = true;
+				activeSlots[index] = true;
+				return ChunkedID(index, versions[index]);
 			}
 
-			//빈곳이 없다면 뒤부터 순서대로
+			// Do not mask an out-of-range index back onto an existing slot.
+			if (static_cast<unsigned int>(currentSize) > ChunkedID::IndexMask)
+			{
+				return ChunkedID(ChunkedID::InvalidValue);
+			}
 			if (currentSize >= chunks.size() * chunksMaxSize)
 			{
 				chunks.push_back(std::make_unique<std::array<T, chunksMaxSize>>());
 			}
-			unsigned int chunkIndex = currentSize / chunksMaxSize;
-			unsigned int localIndex = currentSize % chunksMaxSize;
-			currentSize++;
+			const unsigned int index = currentSize++;
 			versions.push_back(0);
-			SetLife(currentSize - 1, true);
-			return ChunkedID(currentSize - 1, 0);
+			occupiedSlots.push_back(true);
+			activeSlots.push_back(true);
+			return ChunkedID(index, 0);
 		}
 		size_t GetSize() const
 		{
@@ -97,35 +104,31 @@ namespace ECS
 			}
 
 			*slot = T();
-			freeSlots.push(index);
-			versions[index]++;
-			SetLife(index, false);
+			occupiedSlots[index] = false;
+			activeSlots[index] = false;
+			// Generation 255 is the last lifetime of this slot. Retire it rather
+			// than wrapping back to an ID that a caller may still have saved.
+			if (versions[index] < (std::numeric_limits<uint8_t>::max)())
+			{
+				++versions[index];
+				freeSlots.push(index);
+			}
 		}
 
 		void SetLife(unsigned int index, bool isLife)
 		{
-			if (isLife == true)
-			{
-				if (index >= activeSlots.size()) activeSlots.resize(index + 1, false);
-				activeSlots[index] = true;
-			}
-			else
-			{
-				if (index < activeSlots.size())
-				{
-					activeSlots[index] = false;
-				}
-			}
+			// Activation is independent of ownership: pooled objects remain valid.
+			if (index >= occupiedSlots.size() || !occupiedSlots[index]) return;
+			activeSlots[index] = isLife;
 		}
 
 		template <typename Func>
 		void ForEach(Func callback)
 		{
-			std::string name = typeid(T).name();
 			for (size_t i = 0; i < currentSize; ++i)
 			{
 				// 빈 방(구멍)이면 빛의 속도로 다음 방으로 건너뜀!
-				if (activeSlots[i] == false)
+				if (!occupiedSlots[i] || !activeSlots[i])
 				{
 					continue;
 				}
@@ -141,6 +144,7 @@ namespace ECS
 		std::vector<std::unique_ptr<std::array<T, chunksMaxSize>>> chunks;
 		std::vector<uint8_t> versions;
 		std::queue<unsigned int> freeSlots;
+		std::vector<bool> occupiedSlots;
 		std::vector<bool> activeSlots;
 		int currentSize = 0;
 	};

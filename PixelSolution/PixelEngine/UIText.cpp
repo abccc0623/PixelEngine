@@ -12,11 +12,7 @@ extern PixelEngine* Engine;
 UITextData* UIText_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->Add<UITextData>(id);
-	if (registry->Has<GraphicsData>(id) == false)
-	{
-		registry->Add<GraphicsData>(id);
-	}
+	if (!registry->TryAddComponents<UITextData, GraphicsData>(id)) return nullptr;
 	auto data = registry->Get<UITextData>(id);
 	auto graphicsData = registry->Get<GraphicsData>(id);
 	data->thisID = id;
@@ -85,7 +81,7 @@ void UIText_SetTextSize(unsigned int id, float scale)
 	}
 	else
 	{
-		PixelLog::Error("[Renderer2D][SetTextSize] Not Find Component");
+		PixelLog::Error("[UIText][SetTextSize] Not Find Component");
 	}
 }
 
@@ -130,7 +126,7 @@ void UIText_SetFont(unsigned int id, const char* name)
 	}
 	else
 	{
-		PixelLog::Error("[Renderer2D][SetFont] Not Find Component");
+		PixelLog::Error("[UIText][SetFont] Not Find Component");
 	}
 }
 

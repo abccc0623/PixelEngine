@@ -32,7 +32,11 @@ JPH::ShapeRefC ColliderFactory::CreateBox2D(PVector2* size, PVector2* center)
 		JPH::Ref<JPH::RotatedTranslatedShapeSettings> offsetShape = new JPH::RotatedTranslatedShapeSettings(JPHcenter, JPHrot, box);
 		JPH::ShapeSettings::ShapeResult result = offsetShape->Create();
 
-		if (!result.IsValid()) PixelLog::Info(result.GetError().c_str());
+		if (!result.IsValid())
+		{
+			PixelLog::Error(std::string("[ColliderFactory][CreateBox2D] Failed to create collider: ") + result.GetError().c_str());
+			return nullptr;
+		}
 		auto shape = result.Get();
 		colliderMap.insert({ key, shape });
 		return shape;
@@ -59,7 +63,11 @@ JPH::ShapeRefC ColliderFactory::CreateCircle2D(float radius, PVector2* center)
 
 		JPH::ShapeSettings::ShapeResult result = offsetShape->Create();
 
-		if (!result.IsValid()) PixelLog::Info(result.GetError().c_str());
+		if (!result.IsValid())
+		{
+			PixelLog::Error(std::string("[ColliderFactory][CreateCircle2D] Failed to create collider: ") + result.GetError().c_str());
+			return nullptr;
+		}
 
 		auto shape = result.Get();
 		colliderMap.insert({ key, shape });

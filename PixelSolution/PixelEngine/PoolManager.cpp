@@ -30,12 +30,14 @@ unsigned int ECS::PoolManager::Active(const std::string& scriptName)
 		for (int i = 0; i < data.CreateCount; i++)
 		{
 			auto id = Entity_Create(scriptName.c_str());
+			if (id == UINT32_MAX) break;
 			Register(scriptName, id);
 			Disable(scriptName, id);
 		}
 	}
 
 	//사용하지 않는 데이터에서 하나꺼내옴
+	if (data.InactiveList.empty()) return UINT32_MAX;
 	auto id = data.InactiveList.front();
 	data.InactiveList.pop_front();
 	if (std::find(data.ActiveList.begin(), data.ActiveList.end(), id) == data.ActiveList.end())

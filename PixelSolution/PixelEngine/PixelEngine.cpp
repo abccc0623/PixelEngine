@@ -72,6 +72,9 @@ void PixelEngine::EngineUpdate()
 
 	if (IsClear == true)
 	{
+		// Scene teardown needs both Lua references and the physics world alive.
+		GetFactory<SceneManager>()->Clear();
+		GetFactory<CoroutineManager>()->Clear();
 		for (auto& k : factoryMap)
 		{
 			k.second->Clear();
@@ -79,6 +82,11 @@ void PixelEngine::EngineUpdate()
 		GraphicsClear();
 		Asset_Import("./Asset/main.lua");
 		IsClear = false;
+	}
+	else
+	{
+		// All Lua, Spawn, system, coroutine and collision callbacks have returned.
+		GetFactory<SceneManager>()->ApplyPendingChange();
 	}
 }
 
@@ -101,6 +109,8 @@ std::string PixelEngine::GetEngineRootFolderPath()
 
 void PixelEngine::ReleaseShared()
 {
+	GetFactory<SceneManager>()->Release();
+	GetFactory<CoroutineManager>()->Clear();
 	for (auto it = factoryMap.rbegin(); it != factoryMap.rend(); ++it)
 	{
 		// it은 reverse_iterator이므로 ->를 통해 요소에 접근합니다.

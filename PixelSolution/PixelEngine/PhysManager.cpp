@@ -15,6 +15,7 @@
 #include "Physics2DData.h"
 #include "ColliderFactory.h"
 #include "Asset.h"
+#include <Jolt/Physics/Body/BodyLock.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -121,26 +122,81 @@ void PhysManager::Update()
 
 	for (const auto& ev : mFrameCollisionEvents)
 	{
-		EventMessage eventMessage;
-		eventMessage.Collision.targetIn = ev.isEnter;
+		auto entity1 = FindCollisionEntity(ev.body1);
+		auto entity2 = FindCollisionEntity(ev.body2);
+		if (entity1 == nullptr || entity2 == nullptr) continue;
 
-		auto target1 = static_cast<uint64_t>(mBodyInterface->GetUserData(ev.body1));
-		auto target2 = static_cast<uint64_t>(mBodyInterface->GetUserData(ev.body2));
-
-		ECS::EntityObject* EntityTarget1 = FindEntity(target1);
-		ECS::EntityObject* EntityTarget2 = FindEntity(target2);
-
-		if (ev.isEnter == true)
+		const unsigned int target1 = entity1->GetID();
+		const unsigned int target2 = entity2->GetID();
+		if (ev.isEnter)
 		{
-			EntityTarget1->OnCollisionEnter(target2);
-			EntityTarget2->OnCollisionEnter(target1);
+			entity1->OnCollisionEnter(target2);
 		}
 		else
 		{
-			EntityTarget1->OnCollisionExit(target2);
-			EntityTarget2->OnCollisionExit(target1);
+			entity1->OnCollisionExit(target2);
+		}
+
+		// Lua may destroy either entity (or their parent) in the first callback.
+		// Do not keep body locks or entity pointers across that callback.
+		if (FindCollisionEntity(ev.body1) == nullptr) continue;
+		entity2 = FindCollisionEntity(ev.body2);
+		if (entity2 == nullptr) continue;
+		if (ev.isEnter)
+		{
+			entity2->OnCollisionEnter(target1);
+		}
+		else
+		{
+			entity2->OnCollisionExit(target1);
 		}
 	}
+}
+
+ECS::EntityObject* PhysManager::FindCollisionEntity(JPH::BodyID id)
+{
+	if (id.IsInvalid() || mBodyLockInterface == nullptr) return nullptr;
+
+	unsigned int entityID;
+	{
+		// Removed-contact events can arrive after DestroyBody. Validate the full
+		// BodyID (including its sequence number) before reading any body data.
+		JPH::BodyLockRead lock(*mBodyLockInterface, id);
+		if (!lock.Succeeded()) return nullptr;
+		entityID = static_cast<unsigned int>(lock.GetBody().GetUserData());
+	}
+
+	auto registry = GetRegistry();
+	if (registry == nullptr) return nullptr;
+	auto physics = registry->Get<Physics2DData>(entityID);
+	if (physics == nullptr || physics->bodyID != id) return nullptr;
+	return FindEntity(entityID);
+}
+
+void PhysManager::DestroyRigidbody(Physics2DData* physics)
+{
+	if (physics == nullptr) return;
+	const JPH::BodyID id = physics->bodyID;
+	physics->bodyID = JPH::BodyID();
+	physics->Create = false;
+	if (id.IsInvalid() || mBodyInterface == nullptr || mBodyLockInterface == nullptr) return;
+
+	{
+		JPH::BodyLockRead lock(*mBodyLockInterface, id);
+		if (!lock.Succeeded()) return;
+	}
+	if (mBodyInterface->IsAdded(id))
+	{
+		mBodyInterface->RemoveBody(id);
+	}
+	mBodyInterface->DestroyBody(id);
+}
+
+void PhysManager::ClearCollisionEvents()
+{
+	mFrameCollisionEvents.clear();
+	if (eventListener != nullptr) eventListener->FlushEvents(mFrameCollisionEvents);
+	mFrameCollisionEvents.clear();
 }
 
 void PhysManager::Clear()
@@ -182,6 +238,7 @@ void PhysManager::Clear()
 		mBodyInterface->DestroyBodies(removedBodies.data(), (int)removedBodies.size());
 	}
 
+	ClearCollisionEvents();
 	colliderMap.clear();
 }
 
@@ -322,6 +379,11 @@ void PhysManager::AddForce(JPH::BodyID id, float x, float y, float z)
 
 JPH::BodyID PhysManager::CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DData* physics)
 {
+	if (rigidbody == nullptr || physics == nullptr || physics->colliderRefC == nullptr)
+	{
+		PixelLog::Error("[Rigidbody2D][CreateBody] Missing component or collider.");
+		return JPH::BodyID();
+	}
 	JPH::ObjectLayer objectLayer = FindLayer(physics->layer);
 	JPH::EMotionType eMotionType = JPH::EMotionType::Dynamic;
 	JPH::EActivation active = JPH::EActivation::Activate;
@@ -331,6 +393,11 @@ JPH::BodyID PhysManager::CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DDa
 
 	auto r = GetRegistry();
 	auto transformData = r->Get<TransformData>(rigidbody->thisID);
+	if (transformData == nullptr)
+	{
+		PixelLog::Error("[Rigidbody2D][CreateBody] Missing Transform component. Entity ID: " + std::to_string(rigidbody->thisID));
+		return JPH::BodyID();
+	}
 
 	JPH::Vec3 eulerRadians(transformData->rotation.x * DEG_TO_RAD, transformData->rotation.y * DEG_TO_RAD, transformData->rotation.z * DEG_TO_RAD);
 	JPH::BodyCreationSettings bodySettings
@@ -357,12 +424,22 @@ JPH::BodyID PhysManager::CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DDa
 	if (physics->active == true)
 	{
 		auto id = mBodyInterface->CreateAndAddBody(bodySettings, active);
+		if (id.IsInvalid())
+		{
+			PixelLog::Error("[Rigidbody2D][CreateBody] Failed to allocate physics body. Entity ID: " + std::to_string(rigidbody->thisID));
+			return id;
+		}
 		mBodyInterface->SetUserData(id, static_cast<uint64_t>(rigidbody->thisID));
 		return id;
 	}
 	else
 	{
 		auto body = mBodyInterface->CreateBody(bodySettings);
+		if (body == nullptr)
+		{
+			PixelLog::Error("[Rigidbody2D][CreateBody] Failed to allocate physics body. Entity ID: " + std::to_string(rigidbody->thisID));
+			return JPH::BodyID();
+		}
 		auto id = body->GetID();
 		mBodyInterface->SetUserData(id, static_cast<uint64_t>(rigidbody->thisID));
 		return id;

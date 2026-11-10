@@ -7,13 +7,10 @@
 CameraData* Camera_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	if (registry->Has<CameraData>(id) == false)
+	const bool hadGraphics = registry->Has<GraphicsData>(id);
+	if (!registry->TryAddComponents<CameraData, GraphicsData>(id)) return nullptr;
+	if (!hadGraphics)
 	{
-		registry->Add<CameraData>(id);
-	}
-	if (registry->Has<GraphicsData>(id) == false)
-	{
-		registry->Add<GraphicsData>(id);
 		auto g = registry->Get<GraphicsData>(id);
 		g->renderingData.renderType = RENDER_TYPE::CAMERA;
 	}

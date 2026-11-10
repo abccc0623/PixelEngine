@@ -12,14 +12,22 @@
 extern PixelEngine* Engine;
 namespace
 {
-	bool SetLockedAxes(unsigned int id, bool x, bool y, bool z, bool rotation)
+	Physics2DData* FindPhysicsData(ECS::Registry* registry, unsigned int id, const char* operation)
 	{
-		auto data = GetRegistry()->Get<Physics2DData>(id);
+		auto data = registry->Get<Physics2DData>(id);
 		if (data == nullptr)
 		{
-			PixelLog::Error("[Rigidbody2D][SetLock] Not Find Component");
-			return false;
+			PixelLog::Error(std::string("[Rigidbody2D][") + operation +
+				"] Missing Physics2D component. Entity ID: " + std::to_string(id));
 		}
+		return data;
+	}
+
+	bool SetLockedAxes(unsigned int id, bool x, bool y, bool z, bool rotation)
+	{
+		const char* operation = rotation ? "SetLockRotation" : "SetLockPosition";
+		auto data = FindPhysicsData(GetRegistry(), id, operation);
+		if (data == nullptr) return false;
 		using DOF = JPH::EAllowedDOFs;
 		const DOF axisX = rotation ? DOF::RotationX : DOF::TranslationX;
 		const DOF axisY = rotation ? DOF::RotationY : DOF::TranslationY;
@@ -33,7 +41,7 @@ namespace
 			auto physics = Engine->GetFactory<PhysicsFunction>();
 			if (!physics->SetAllowedDOFs(data->bodyID, allowed, data->Motiontype))
 			{
-				PixelLog::Error("[Rigidbody2D][SetLock] Cannot update body constraints");
+				PixelLog::Error(std::string("[Rigidbody2D][") + operation + "] Cannot update body constraints. Entity ID: " + std::to_string(id));
 				return false;
 			}
 		}
@@ -55,8 +63,7 @@ bool Rigidbody2D_SetLockRotation(unsigned int id, bool x, bool y, bool z)
 Rigidbody2DData* Rigidbody2D_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->Add<Rigidbody2DData>(id);
-	registry->Add<Physics2DData>(id);
+	if (!registry->TryAddComponents<Rigidbody2DData, Physics2DData>(id)) return nullptr;
 	auto data1 = registry->Get<Rigidbody2DData>(id);
 	auto data2 = registry->Get<Physics2DData>(id);
 	data1->thisID = id;
@@ -80,23 +87,30 @@ bool Rigidbody2D_Has(unsigned int id)
 void Rigidbody2D_CreateBoxCollider(unsigned int id, PVector2 size, PVector2 center)
 {
 	auto registry = GetRegistry();
-	auto data1 = registry->Get<Physics2DData>(id);
-	data1->colliderRefC = ColliderFactory::CreateBox2D(&size, &center);
+	auto data1 = FindPhysicsData(registry, id, "CreateBoxCollider");
+	if (data1 == nullptr) return;
+	auto collider = ColliderFactory::CreateBox2D(&size, &center);
+	if (collider == nullptr) return;
+	data1->colliderRefC = collider;
 	data1->colliderType = Physics2DData::BOX;
 }
 
 void Rigidbody2D_CreateCircleCollider(unsigned int id, float radius, PVector2 center)
 {
 	auto registry = GetRegistry();
-	auto data1 = registry->Get<Physics2DData>(id);
-	data1->colliderRefC = ColliderFactory::CreateCircle2D(radius, &center);
+	auto data1 = FindPhysicsData(registry, id, "CreateCircleCollider");
+	if (data1 == nullptr) return;
+	auto collider = ColliderFactory::CreateCircle2D(radius, &center);
+	if (collider == nullptr) return;
+	data1->colliderRefC = collider;
 	data1->colliderType = Physics2DData::CIRCLE;
 }
 
 void Rigidbody2D_SetMotionType(unsigned int id, MotionType motionType)
 {
 	auto registry = GetRegistry();
-	auto data1 = registry->Get<Physics2DData>(id);
+	auto data1 = FindPhysicsData(registry, id, "SetMotionType");
+	if (data1 == nullptr) return;
 
 	switch (motionType)
 	{
@@ -121,13 +135,19 @@ void Rigidbody2D_SetMotionType(unsigned int id, MotionType motionType)
 void Rigidbody2D_SetPosition(unsigned int id, PVector3 position)
 {
 	auto registry = GetRegistry();
-	auto data1 = registry->Get<Physics2DData>(id);
+	auto data1 = FindPhysicsData(registry, id, "SetPosition");
+	if (data1 == nullptr) return;
+	auto transform = registry->Get<TransformData>(id);
+	if (transform == nullptr)
+	{
+		PixelLog::Error("[Rigidbody2D][SetPosition] Missing Transform component. Entity ID: " + std::to_string(id));
+		return;
+	}
 	if (data1->bodyID.IsInvalid() == false)
 	{
 		auto phys = Engine->GetFactory<PhysicsFunction>();
 		phys->SetPosition(data1->bodyID, position.x, position.y, position.z);
 	}
-	auto transform = registry->Get<TransformData>(id);
 	transform->position.x = position.x;
 	transform->position.y = position.y;
 	transform->position.z = position.z;
@@ -136,13 +156,19 @@ void Rigidbody2D_SetPosition(unsigned int id, PVector3 position)
 void Rigidbody2D_SetRotation(unsigned int id, PVector3 rotation)
 {
 	auto registry = GetRegistry();
-	auto data1 = registry->Get<Physics2DData>(id);
+	auto data1 = FindPhysicsData(registry, id, "SetRotation");
+	if (data1 == nullptr) return;
+	auto transform = registry->Get<TransformData>(id);
+	if (transform == nullptr)
+	{
+		PixelLog::Error("[Rigidbody2D][SetRotation] Missing Transform component. Entity ID: " + std::to_string(id));
+		return;
+	}
 	if (data1->bodyID.IsInvalid() == false)
 	{
 		auto phys = Engine->GetFactory<PhysicsFunction>();
 		phys->SetRotation(data1->bodyID, rotation.x, rotation.y, rotation.z);
 	}
-	auto transform = registry->Get<TransformData>(id);
 	transform->rotation.x = rotation.x;
 	transform->rotation.y = rotation.y;
 	transform->rotation.z = rotation.z;
@@ -151,7 +177,8 @@ void Rigidbody2D_SetRotation(unsigned int id, PVector3 rotation)
 void Rigidbody2D_SetVelocity(unsigned int id, PVector3 velocity)
 {
 	auto registry = GetRegistry();
-	auto data1 = registry->Get<Physics2DData>(id);
+	auto data1 = FindPhysicsData(registry, id, "SetVelocity");
+	if (data1 == nullptr) return;
 	if (data1->bodyID.IsInvalid() == false)
 	{
 		auto phys = Engine->GetFactory<PhysicsFunction>();
@@ -161,7 +188,7 @@ void Rigidbody2D_SetVelocity(unsigned int id, PVector3 velocity)
 	{
 		if (data1->Create == true)
 		{
-			PixelLog::Error("[Rigidbody2D][SetVelocity] Not Find Collider");
+			PixelLog::Error("[Rigidbody2D][SetVelocity] Invalid physics body. Entity ID: " + std::to_string(id));
 		}
 	}
 }
@@ -169,7 +196,8 @@ void Rigidbody2D_SetVelocity(unsigned int id, PVector3 velocity)
 void Rigidbody2D_SetGravity(unsigned int id, float gravity)
 {
 	auto registry = GetRegistry();
-	auto data1 = registry->Get<Physics2DData>(id);
+	auto data1 = FindPhysicsData(registry, id, "SetGravity");
+	if (data1 == nullptr) return;
 	if (data1->bodyID.IsInvalid() == false)
 	{
 		auto phys = Engine->GetFactory<PhysicsFunction>();
@@ -194,7 +222,8 @@ void Rigidbody2D_SetFriction(unsigned int id, float restitution)
 void Rigidbody2D_SetLinearDamping(unsigned int id, float linearDamping)
 {
 	auto registry = GetRegistry();
-	auto data1 = registry->Get<Physics2DData>(id);
+	auto data1 = FindPhysicsData(registry, id, "SetLinearDamping");
+	if (data1 == nullptr) return;
 
 	if (data1->bodyID.IsInvalid() == false)
 	{
@@ -210,7 +239,8 @@ void Rigidbody2D_SetLinearDamping(unsigned int id, float linearDamping)
 void Rigidbody2D_SetSensor(unsigned int id, bool sensor)
 {
 	auto registry = GetRegistry();
-	auto data1 = registry->Get<Physics2DData>(id);
+	auto data1 = FindPhysicsData(registry, id, "SetSensor");
+	if (data1 == nullptr) return;
 	if (data1->bodyID.IsInvalid() == false)
 	{
 		auto phys = Engine->GetFactory<PhysicsFunction>();
@@ -222,7 +252,8 @@ void Rigidbody2D_SetSensor(unsigned int id, bool sensor)
 void Rigidbody2D_SetActive(unsigned int id, bool active)
 {
 	auto registry = GetRegistry();
-	auto data1 = registry->Get<Physics2DData>(id);
+	auto data1 = FindPhysicsData(registry, id, "SetActive");
+	if (data1 == nullptr) return;
 	if (data1->bodyID.IsInvalid() == false)
 	{
 		auto phys = Engine->GetFactory<PhysicsFunction>();

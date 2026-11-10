@@ -7,6 +7,28 @@ LuaSceneInfo::LuaSceneInfo(sol::table table)
 	this->table = table;
 }
 
+LuaSceneInfo::LuaSceneInfo(sol::protected_function factory)
+	: factory(std::move(factory))
+{
+}
+
+std::unique_ptr<LuaSceneInfo> LuaSceneInfo::Create()
+{
+	auto result = factory();
+	if (!result.valid())
+	{
+		sol::error error = result;
+		PixelLog::Error("Lua scene creation failed: " + std::string(error.what()));
+		return nullptr;
+	}
+	if (result.return_count() == 0 || !result[0].is<sol::table>())
+	{
+		PixelLog::Error("Lua scene must return a table.");
+		return nullptr;
+	}
+	return std::make_unique<LuaSceneInfo>(result[0].as<sol::table>());
+}
+
 LuaSceneInfo::~LuaSceneInfo()
 {
 

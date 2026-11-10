@@ -1,11 +1,8 @@
 #pragma once
 #include "EngineManager.h";
 #include <string>
-#include <vector>
 #include <unordered_map>
 #include <sol/forward.hpp>
-class BindManager;
-class KeyInputManager;
 class LuaModuleInfo;
 class LuaSceneInfo;
 class LuaManager : public EngineManager
@@ -27,19 +24,15 @@ public:
 	void ReadEngineGenerateFile();
 	void AddEntityID(unsigned int id, sol::table target);
 	void RemoveEntityID(unsigned int id);
+	void ResetScene();
 
 private:
 	sol::state lua;
 	sol::table luaManager;
 
 	sol::protected_function AddFunction;
-	sol::protected_function RemoveFunction;
 	sol::protected_function UpdateFunction;
 
-	std::string SettingKeyEnum();
-private:
-	BindManager* bind = nullptr;
-	KeyInputManager* input = nullptr;
 
 	std::unordered_map<std::string, LuaModuleInfo*> luaModuleTableMap;
 	std::unordered_map<std::string, LuaSceneInfo*> luaSceneTableMap;

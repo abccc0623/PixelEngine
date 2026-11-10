@@ -39,9 +39,12 @@ std::string LuaComponentCreate::CreateBaseFunction(const PixelClassMeta& PClass)
 	std::string content;
 
 	content += "---@param ID number \n";
-	content += "---@return {{CLASS_NAME}}Data \n";
+	content += "---@return {{CLASS_NAME}}Data|nil \n";
 	content += "function {{CLASS_NAME}}.Add(ID) \n";
 	content += "\tlocal data = dll.{{CLASS_NAME}}_Add(ID)\n";
+	content += "\tif data == nil then\n";
+	content += "\t\treturn nil\n";
+	content += "\tend\n";
 	content += "\tdata.thisID = ID\n";
 	content += "\treturn data \n";
 	content += "end \n\n";

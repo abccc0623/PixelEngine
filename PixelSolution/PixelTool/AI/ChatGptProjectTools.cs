@@ -38,6 +38,8 @@ internal sealed class ChatGptProjectTools(string project)
         Tool("highlight_lua_lines", "Open a project Lua file in the editor and highlight a 1-based line range after locating the requested code. path is project-relative. Does not modify file content.",
             new Dictionary<string, object> { ["path"] = new { type = "string" }, ["startLine"] = new { type = "integer", minimum = 1 },
                 ["endLine"] = new { type = "integer", minimum = 1 } }),
+        Tool("get_asset_permissions", "Report this turn's PixelTool editor permission and approval mode for Asset operations. The native Codex read-only sandbox does not determine whether pixeltool Asset tools may edit.",
+            new Dictionary<string, object>()),
         Tool("list_project_files", "List one project directory. Use a relative path, or . for the root.",
             new Dictionary<string, object> { ["path"] = new { type = "string" } }),
         Tool("read_project_file", "Read a project text file and its SHA256 for safe replacement. Paths are relative to the project.",
@@ -88,6 +90,9 @@ internal sealed class ChatGptProjectTools(string project)
         Action<string, string, string>? savedCode = null, Func<string, Task<bool>>? canDeleteAssetFile = null)
     {
         token.ThrowIfCancellationRequested();
+        if (name == "get_asset_permissions")
+            return JsonSerializer.Serialize(new { assetRoot = "Asset/", canRead = true, canEdit = allowEdits,
+                approvalMode = confirmChanges ? "alwaysConfirm" : "automatic" });
         string relative = arguments.GetProperty("path").GetString() ?? "";
         string path = Resolve(relative);
         if (name is "delete_asset_file" or "delete_asset_folder" or "move_asset")

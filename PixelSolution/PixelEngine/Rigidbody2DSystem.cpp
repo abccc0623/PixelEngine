@@ -25,6 +25,11 @@ void ECS::Rigidbody2DSystem::Update(ECS::Registry* registry)
 	Chunked.ForEach([registry, phys](Rigidbody2DData* data, size_t index)
 		{
 			auto physData = registry->Get<Physics2DData>(data->thisID);
+			if (physData == nullptr)
+			{
+				PixelLog::Error("[Rigidbody2D][Update] Missing Physics2D component. Entity ID: " + std::to_string(data->thisID));
+				return;
+			}
 			if (physData->Create == false)
 			{
 				if (physData->colliderRefC == nullptr)
@@ -32,8 +37,10 @@ void ECS::Rigidbody2DSystem::Update(ECS::Registry* registry)
 					PVector2 size{ 1,1 };
 					PVector2 center{ 0,0 };
 					physData->colliderRefC = ColliderFactory::CreateBox2D(&size, &center);
+					if (physData->colliderRefC == nullptr) return;
 				}
 				physData->bodyID = phys->CreateRigidbody(data, physData);
+				if (physData->bodyID.IsInvalid()) return;
 				physData->Create = true;
 			}
 			phys->SyncPhysics(physData->bodyID);

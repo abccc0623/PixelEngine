@@ -73,7 +73,10 @@ internal sealed class CodexEditorClient : IAsyncDisposable
             p["approvalPolicy"] = "never";
             p["developerInstructions"] = (p["developerInstructions"]?.GetValue<string>() ?? "") +
                 "\nYou are AI 자비스 in PixelTool. Use only pixeltool tools for project changes, questions, editor reimport and logs. " +
-                "Native shell/file operations are unavailable. After script changes reimport and fix reported errors. " +
+                "Native shell/file operations are unavailable. Their read-only sandbox does not describe PixelTool editor permissions. " +
+                "For requested Asset reads, writes, moves and renames, use pixeltool tools, which enforce this turn's edit toggle and approval mode. " +
+                "If permission is uncertain, call pixeltool.get_asset_permissions; do not infer that the editor toggle failed from sandbox_mode. " +
+                "After script changes reimport and fix reported errors. " +
                 "Use focused line reads; preserve existing files and use exact patches. End with a short result/change summary; code changes are shown collapsed by the editor.";
             if (method == "thread/start")
             {

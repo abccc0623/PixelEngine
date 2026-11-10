@@ -18,6 +18,7 @@ namespace ECS
 		void OnEvent(const std::string& functionName);
 		void OnEvent(std::string functionName, sol::object event);
 		unsigned int GetID();
+		bool IsSpawnComplete() const;
 		bool GetActive();
 		void SetActive(bool isActive);
 
@@ -30,6 +31,7 @@ namespace ECS
 		void SetValue(const char* memberName, sol::object);
 	private:
 		bool Active;
+		bool spawnComplete = false;
 		std::string scriptName;
 		sol::table instance;
 		sol::protected_function OnCollisionEnterFunc;

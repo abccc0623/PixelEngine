@@ -19,6 +19,7 @@ namespace JPH
 }
 namespace ECS
 {
+	class EntityObject;
 	namespace Collider2D
 	{
 		struct Collider2DData;
@@ -56,12 +57,15 @@ public:
 	void AddForce(JPH::BodyID id, float x, float y, float z);
 
 	JPH::BodyID CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DData* physics);
+	void DestroyRigidbody(Physics2DData* physics);
+	void ClearCollisionEvents();
 
 	void DebugDraw(JPH::BodyID id);
 	void DebugDrawPreview(Rigidbody2DData* rigidbody, Physics2DData* physics);
 	void SyncPhysics(JPH::BodyID id);
 private:
 	JPH::ObjectLayer FindLayer(std::string key);
+	ECS::EntityObject* FindCollisionEntity(JPH::BodyID id);
 
 	ColliderFactory* colliderFactory = nullptr;
 	PhysListener* eventListener = nullptr;

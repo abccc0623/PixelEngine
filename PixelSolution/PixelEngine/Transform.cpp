@@ -6,8 +6,7 @@
 TransformData* Transform_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->Add<TransformData>(id);
-	registry->Add<WorldData>(id);
+	if (!registry->TryAddComponents<TransformData, WorldData>(id)) return nullptr;
 
 	auto data = registry->Get<TransformData>(id);
 	data->thisID = id;

@@ -9,14 +9,7 @@ extern PixelEngine* Engine;
 Renderer2DData* Renderer2D_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	if (registry->Has<Renderer2DData>(id) == false)
-	{
-		registry->Add<Renderer2DData>(id);
-	}
-	if (registry->Has<GraphicsData>(id) == false)
-	{
-		registry->Add<GraphicsData>(id);
-	}
+	if (!registry->TryAddComponents<Renderer2DData, GraphicsData>(id)) return nullptr;
 	auto graphics = registry->Get<GraphicsData>(id);
 	graphics->renderingData.renderType = RENDER_TYPE::QUAD;
 	graphics->renderingData.passType = PASS_TYPE::SCENE;
@@ -42,7 +35,7 @@ Renderer2DData* Renderer2D_Get(unsigned int id)
 	Renderer2DData* data = registry->Get<Renderer2DData>(id);
 	if (data == nullptr)
 	{
-		PixelLog::Error("[Transform][GetComponent] Not Find Component");
+		PixelLog::Error("[Renderer2D][GetComponent] Not Find Component");
 	}
 	return data;
 }

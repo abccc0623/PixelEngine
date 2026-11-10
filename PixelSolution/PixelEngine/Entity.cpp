@@ -35,8 +35,12 @@ unsigned int Entity_CreateEmpty()
 unsigned int Entity_CreateCamera()
 {
 	const auto id = Entity_CreateEmpty();
-	Transform_Add(id);
-	Camera_Add(id);
+	if (id == UINT32_MAX) return id;
+	if (Transform_Add(id) == nullptr || Camera_Add(id) == nullptr)
+	{
+		Entity_Destroy(id);
+		return UINT32_MAX;
+	}
 	return id;
 }
 
@@ -48,8 +52,18 @@ UIImageData* Entity_Create2DImage(const char* textureName)
 		return nullptr;
 	}
 	const auto id = Entity_CreateEmpty();
-	Transform_Add(id);
+	if (id == UINT32_MAX) return nullptr;
+	if (Transform_Add(id) == nullptr)
+	{
+		Entity_Destroy(id);
+		return nullptr;
+	}
 	auto image = UIImage_Add(id);
+	if (image == nullptr)
+	{
+		Entity_Destroy(id);
+		return nullptr;
+	}
 	UIImage_SetTexture(id, textureName);
 	return image;
 }

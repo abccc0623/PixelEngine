@@ -31,6 +31,7 @@ namespace ECS
 			}
 
 			ChunkedID id = chunkedArray.Add();
+			if (id.value == ChunkedID::InvalidValue) return;
 			entityToIndexMap[entityID] = id.value;
 			indexToEntityMap[id.Index()] = entityID;
 		}

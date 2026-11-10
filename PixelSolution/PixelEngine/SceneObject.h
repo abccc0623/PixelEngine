@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <memory>
 #include "ChunkedArray.h"
 #include "EntityObject.h"
 
@@ -40,6 +41,7 @@ public:
 	ECS::EntityObject* FindEntity(uint32_t id);
 	void ActiveEntity(uint32_t id, bool active);
 
+	bool CanDestroyEntity(uint32_t id);
 	void DestroyEntity(uint32_t id);
 	ECS::Registry* GetRegistry();
 
@@ -53,14 +55,14 @@ private:
 
 	std::string sceneName;
 	std::string path;
-	LuaSceneInfo* info;
+	std::unique_ptr<LuaSceneInfo> info;
 private:
 	ECS::ChunkedArray<ECS::EntityObject, 100> Chunked;
-	ECS::Registry* registry;
-	ECS::SystemManager* system;
-	ECS::GroupManager* group;
-	ECS::PoolManager* pool;
-	ECS::EventManager* event;
+	ECS::Registry* registry = nullptr;
+	ECS::SystemManager* system = nullptr;
+	ECS::GroupManager* group = nullptr;
+	ECS::PoolManager* pool = nullptr;
+	ECS::EventManager* event = nullptr;
 	ECS::TweenManager* tween = nullptr;
 };
 

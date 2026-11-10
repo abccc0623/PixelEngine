@@ -27,6 +27,27 @@ namespace ECS
 			}
 			componentArrays[key]->Create(entityID);
 		};
+		// Component APIs often need a primary and a companion component. On capacity
+		// failure, roll back only this call's additions, preserving existing data.
+		template<typename... T>
+		bool TryAddComponents(unsigned int entityID)
+		{
+			if (entityID == ChunkedID::InvalidValue) return false;
+			const std::array<bool, sizeof...(T)> existed{ Has<T>(entityID)... };
+			(Add<T>(entityID), ...);
+			if ((Has<T>(entityID) && ...)) return true;
+			size_t index = 0;
+			([&]
+			{
+				if (!existed[index++])
+				{
+					auto found = componentArrays.find(std::type_index(typeid(T)));
+					if (found != componentArrays.end()) found->second->Destroy(entityID);
+				}
+			}(), ...);
+			return false;
+		}
+
 		template<typename T>
 		T* Get(unsigned int entityID)
 		{

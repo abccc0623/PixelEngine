@@ -10,11 +10,7 @@ extern PixelEngine* Engine;
 UIImageData* UIImage_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->Add<UIImageData>(id);
-	if (registry->Has<GraphicsData>(id) == false)
-	{
-		registry->Add<GraphicsData>(id);
-	}
+	if (!registry->TryAddComponents<UIImageData, GraphicsData>(id)) return nullptr;
 	auto data = registry->Get<UIImageData>(id);
 	auto graphicsData = registry->Get<GraphicsData>(id);
 	data->thisID = id;
@@ -80,7 +76,7 @@ void UIImage_SetTexture(unsigned int id, const char* name)
 	}
 	else
 	{
-		PixelLog::Error("[Renderer2D][SetTexture] Not Find Component");
+		PixelLog::Error("[UIImage][SetTexture] Not Find Component");
 	}
 }
 
@@ -96,7 +92,7 @@ void UIImage_SetTextureSize(unsigned int id, float width, float height)
 	}
 	else
 	{
-		PixelLog::Error("[Renderer2D][SetTextureSize] Not Find Component");
+		PixelLog::Error("[UIImage][SetTextureSize] Not Find Component");
 	}
 }
 
@@ -217,7 +213,7 @@ void UIImage_SetOrder(unsigned int id, int order)
 	}
 	else
 	{
-		PixelLog::Error("[Renderer2D][SetOrder] Not Find Component");
+		PixelLog::Error("[UIImage][SetOrder] Not Find Component");
 	}
 }
 
@@ -240,6 +236,6 @@ void UIImage_SetColor(unsigned int id, float r, float g, float b, float a)
 	}
 	else
 	{
-		PixelLog::Error("[Renderer2D][SetColor] Not Find Component");
+		PixelLog::Error("[UIImage][SetColor] Not Find Component");
 	}
 }

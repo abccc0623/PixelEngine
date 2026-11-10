@@ -170,7 +170,7 @@ namespace PixelTool
 
             // 큐 적체 현상(Queue Buildup)을 막기 위해 1회 최대 500개까지 신속하게 처리
             int processCount = 0;
-            while (_pendingLogs.TryDequeue(out var log) && processCount < 500)
+            while (processCount < 500 && _pendingLogs.TryDequeue(out var log))
             {
                 var key = GetLogKey(log);
                 if (_logIndex.TryGetValue(key, out var existingLog))

@@ -25,8 +25,7 @@ void ApplyAnimationFrame(GraphicsData& graphics, const AnimationFrame& animation
 Animation2DData* Animation2D_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->Add<Animation2DData>(id);
-	registry->Add<Animation2DDList>(id);
+	if (!registry->TryAddComponents<Animation2DData, Animation2DDList>(id)) return nullptr;
 	auto data = registry->Get<Animation2DData>(id);
 	data->thisID = id;
 	return data;

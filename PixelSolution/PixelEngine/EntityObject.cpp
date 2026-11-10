@@ -23,6 +23,14 @@ ECS::EntityObject::~EntityObject()
 }
 void ECS::EntityObject::Create(const std::string& scriptName, unsigned int ID)
 {
+	spawnComplete = false;
+	// Spawn이 없거나 오류로 종료되어도 생성 보호가 영구히 남지 않게 한다.
+	struct SpawnCompletionGuard
+	{
+		bool& complete;
+		~SpawnCompletionGuard() { complete = true; }
+	} completionGuard{ spawnComplete };
+
 	this->scriptName = scriptName;
 	Active = true;
 	this->ID = ID;
@@ -122,6 +130,11 @@ void ECS::EntityObject::OnEvent(std::string functionName, sol::object event)
 		auto coroutine = Engine->GetFactory<CoroutineManager>();
 		coroutine->Start(functionName, luaEvent, instance, event);
 	}
+}
+
+bool ECS::EntityObject::IsSpawnComplete() const
+{
+	return spawnComplete;
 }
 
 unsigned int ECS::EntityObject::GetID()

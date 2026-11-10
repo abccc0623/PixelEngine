@@ -3,6 +3,7 @@
 #include "EngineManager.h"
 #include <unordered_map>
 #include <string>
+#include <memory>
 class SceneObject;
 class GameObject;
 namespace ECS
@@ -28,9 +29,12 @@ public:
 
 	void CreateScene(const std::string& luaPath);
 	void ChangeScene(std::string SceneName);
+	void ApplyPendingChange();
 	SceneObject* GetNowScene();
 private:
-	SceneObject* nowScene = nullptr;
-	std::unordered_map<std::string, SceneObject*> SceneMap;
+	void ReleaseCurrentScene();
+	std::unique_ptr<SceneObject> nowScene;
+	std::unordered_map<std::string, std::string> SceneMap;
+	std::string pendingScene;
 };
 

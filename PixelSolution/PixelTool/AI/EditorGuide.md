@@ -36,6 +36,7 @@ When a user asks how to organize game resources, suggest grouping by asset kind 
 
 ## Available tools
 
+- `get_asset_permissions()` reports whether this turn can edit through PixelTool tools and which editor approval mode applies. Asset reads and permitted changes use those tools even while native Codex file access is read-only.
 - Prefer `read_project_file_lines(path,startLine,lineCount)` for inspection: 1-based lines, 1–200 lines, at most 12000 output characters, whole-file hash, partial/truncated/hasMore flags. Line numbers are not source code. Existing whole-file writes require a current full `read_project_file` in this request; partial reads cannot authorize replacing unseen content.
 - Large transmission context (96 Ki serialized JSON characters, not a token count) is compacted using the selected model and `responses/compact` at closed tool-call boundaries. Canonical compact output replaces only the old prefix without pruning individual items; the latest complete response/tool batch stays verbatim. Full-file edit authorization is retained only for that preserved batch; read older files again before replacement. Application policies are sent separately every time. Display/history records are not deleted. Compaction itself uses a request; unavailable/failed compaction preserves original context, warns once and is not retried in that turn.
 - Project text listing/reading/writing; writes check expected file hashes. Always Confirm previews before/after; Automatic + editing enabled performs in-scope writes without another dialog.

@@ -2,143 +2,122 @@
 #include "SceneManager.h"
 #include "SceneObject.h"
 #include "Log.h"
-#include "JsonManager.h"
 #include "PixelEngine.h"
+#include "LuaManager.h"
+#include "CoroutineManager.h"
+#include "PhysManager.h"
 
 extern PixelEngine* Engine;
-SceneManager::SceneManager()
-{
-	nowScene = nullptr;
-	SceneMap = std::unordered_map<std::string, SceneObject*>();
-}
-
-SceneManager::~SceneManager()
-{
-
-}
+SceneManager::SceneManager() = default;
+SceneManager::~SceneManager() = default;
 
 void SceneManager::Initialize()
 {
-
 }
 
 void SceneManager::Update()
 {
-	if (nowScene != nullptr)
-	{
-		nowScene->Update();
-	}
+    if (nowScene != nullptr)
+    {
+        nowScene->Update();
+    }
+}
+
+void SceneManager::ReleaseCurrentScene()
+{
+    if (nowScene == nullptr) return;
+    // Run before the shared Lua/physics managers are destroyed, and outside callbacks.
+    Engine->GetFactory<CoroutineManager>()->Clear();
+    nowScene->Release();
+    Engine->GetFactory<LuaManager>()->ResetScene();
+    Engine->GetFactory<PhysManager>()->ClearCollisionEvents();
+    nowScene.reset();
 }
 
 void SceneManager::Release()
 {
-	nowScene = nullptr;
-	for (auto K : SceneMap)
-	{
-		K.second->Release();
-	}
-	SceneMap.clear();
+    pendingScene.clear();
+    ReleaseCurrentScene();
+    SceneMap.clear();
 }
 
 void SceneManager::ChangeScene(std::string name)
 {
-	auto it = SceneMap.find(name);
-	if (it != SceneMap.end())
-	{
-		// Release the previous scene before switching.
-		if (nowScene != nullptr)
-		{
-			nowScene->Release();
-		}
-		// Switch to the requested scene.
-		nowScene = SceneMap[name];
+    if (SceneMap.find(name) == SceneMap.end())
+    {
+        PixelLog::Error("Not Find Scene :" + name);
+        return;
+    }
+    // A valid later request replaces an earlier request in this frame.
+    pendingScene = std::move(name);
+}
 
-		nowScene->Start();
-	}
-	else
-	{
-		PixelLog::Error("Not Find Scene :" + name);
-	}
+void SceneManager::ApplyPendingChange()
+{
+    if (pendingScene.empty()) return;
+    std::string name;
+    name.swap(pendingScene);
+    if (nowScene != nullptr && nowScene->GetSceneName() == name) return;
+
+    auto found = SceneMap.find(name);
+    if (found == SceneMap.end()) return;
+    const std::string path = found->second;
+    ReleaseCurrentScene();
+    nowScene = std::make_unique<SceneObject>();
+    nowScene->Initialize(path, name);
+    nowScene->Start();
+    // A request from Initialize/Start is intentionally left for the next frame.
 }
 
 SceneObject* SceneManager::GetNowScene()
 {
-	if (nowScene == nullptr)
-	{
-		static const std::string defaultSceneName = "NewPixelDefaultScene";
-		auto find = SceneMap.find(defaultSceneName);
-		if (find == SceneMap.end())
-		{
-			SceneObject* defaultScene = new SceneObject();
-			defaultScene->Initialize("", defaultSceneName);
-			SceneMap.insert({ defaultSceneName, defaultScene });
-			nowScene = defaultScene;
-		}
-		else
-		{
-			nowScene = find->second;
-		}
-
-		nowScene->Start();
-	}
-	return nowScene;
+    if (nowScene == nullptr)
+    {
+        static const std::string defaultSceneName = "NewPixelDefaultScene";
+        SceneMap.emplace(defaultSceneName, "");
+        nowScene = std::make_unique<SceneObject>();
+        nowScene->Initialize("", defaultSceneName);
+        nowScene->Start();
+    }
+    return nowScene.get();
 }
 
 void SceneManager::Clear()
 {
-	nowScene = nullptr;
-	for (auto K : SceneMap)
-	{
-		K.second->Release();
-	}
-	SceneMap.clear();
+    Release();
 }
 
 uint32_t SceneManager::CreateEntity(const std::string& scriptName)
 {
-	return GetNowScene()->CreateEntity(scriptName);
+    return GetNowScene()->CreateEntity(scriptName);
 }
 
 ECS::EntityObject* SceneManager::FindEntity(uint32_t id)
 {
-	return GetNowScene()->FindEntity(id);
+    return GetNowScene()->FindEntity(id);
 }
 
 void SceneManager::ActiveEntity(uint32_t id, bool active)
 {
-	GetNowScene()->ActiveEntity(id, active);
+    GetNowScene()->ActiveEntity(id, active);
 }
 
 void SceneManager::DestroyEntity(uint32_t id)
 {
-	return GetNowScene()->DestroyEntity(id);
+    GetNowScene()->DestroyEntity(id);
 }
 
 ECS::Registry* SceneManager::GetRegistry()
 {
-	auto scene = GetNowScene();
-	return scene->GetRegistry();
+    return GetNowScene()->GetRegistry();
 }
-
 
 void SceneManager::CreateScene(const std::string& luaPath)
 {
-	std::filesystem::path p(luaPath);
-
-	std::string directory = p.parent_path().string();
-	std::string fileName = p.filename().string();
-	std::string stem = p.stem().string();
-	std::string extension = p.extension().string();
-
-	auto find = SceneMap.find(stem);
-	if (find == SceneMap.end())
-	{
-		SceneObject* newScene = new SceneObject();
-		newScene->Initialize(luaPath, stem);
-		SceneMap.insert({ stem,newScene });
-	}
-	else
-	{
-		PixelLog::Error("This scene name is already in use :" + stem);
-	}
+    const std::filesystem::path path(luaPath);
+    const std::string name = path.stem().string();
+    if (!SceneMap.emplace(name, luaPath).second)
+    {
+        PixelLog::Error("This scene name is already in use :" + name);
+    }
 }

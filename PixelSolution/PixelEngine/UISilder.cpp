@@ -61,11 +61,8 @@ namespace
 UISilderData* UISilder_Add(unsigned int id)
 {
 	auto registry = GetRegistry();
-	registry->Add<UISilderData>(id);
-	if (!registry->Has<TransformData>(id))
-	{
-		Transform_Add(id);
-	}
+	if (!registry->TryAddComponents<UISilderData, TransformData, WorldData>(id)) return nullptr;
+	registry->Get<TransformData>(id)->thisID = id;
 
 	auto data = registry->Get<UISilderData>(id);
 	data->thisID = id;

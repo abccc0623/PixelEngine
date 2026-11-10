@@ -22,6 +22,7 @@ These are application developer instructions for the deployed PixelTool AI, not 
 ## Permissions and file operations
 
 - Read-only by default. Changes require both a user change request and enabled project-file editing.
+- The native Codex `sandbox_mode: read-only` applies to native file/shell operations, not the permission-checked `pixeltool` tools. For this turn's Asset access, call `get_asset_permissions` when uncertain. Do not claim the editor's edit setting failed to propagate solely because the native sandbox is read-only.
 - Follow the current turn's editor approval mode, not older assistant promises:
   - Always confirm: obtain permission for reads too; use editor dialogs for file changes without duplicate chat questions.
   - Automatic: perform requested, in-scope reads and permitted changes without asking again.

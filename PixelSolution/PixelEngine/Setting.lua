@@ -21,6 +21,12 @@ function LuaManager:Add(ID,scriptInstance)
 	end
 end
 
+function LuaManager:ResetScene()
+    self.entities = {}
+    pendingDestroy = {}
+    isUpdating = false
+end
+
 function LuaManager:Remove(ID) 
 	self.entities[ID] = nil
 end
@@ -47,18 +53,20 @@ function LuaManager:FlushPendingDestroy()
 	isUpdating = false
 	for ID in pairs(pendingDestroy) do
 		pendingDestroy[ID] = nil
-		self:Remove(ID)
 		DestroyEntity(ID)
 	end
 end
 
----업데이트 중에는 삭제를 예약하고, 그 밖에는 즉시 삭제한다.
+---생성 중인 객체가 포함된 삭제는 무시하고, 완료 객체만 기존 삭제 규칙을 따른다.
 function Entity.Destroy(ID)
+	if not LuaManager.CanDestroy(ID) then
+		return
+	end
 	if isUpdating or pendingDestroy[ID] then
 		pendingDestroy[ID] = true
 		return
 	end
-	LuaManager:Remove(ID)
+	-- 실제 삭제가 승인된 경우에만 네이티브 경로에서 Lua 등록을 제거한다.
 	return DestroyEntity(ID)
 end
 
