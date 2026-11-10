@@ -267,6 +267,12 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                         if (arguments.RootElement.TryGetProperty("path", out var fullPath) && fullPath.ValueKind == JsonValueKind.String)
                             recentFullFiles.Add(fullPath.GetString()!);
                     }
+                    if (toolName == "read_project_notes" && result.TrimStart().StartsWith('{'))
+                    {
+                        using var notes = JsonDocument.Parse(result);
+                        if (notes.RootElement.TryGetProperty("exists", out var exists) && exists.GetBoolean())
+                            recentFullFiles.Add(ProjectNavigation.NotesPath);
+                    }
                     if (fileChanged || IsAssetMutation(toolName, result))
                     {
                         repeatedFailures.Clear();

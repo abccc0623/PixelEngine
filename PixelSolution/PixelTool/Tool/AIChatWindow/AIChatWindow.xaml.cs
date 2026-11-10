@@ -291,6 +291,14 @@ public partial class AIChatWindow : UserControl
     {
         if (_threadId != null || _client == null) return;
         JsonElement result;
+        if (!string.IsNullOrEmpty(_history.ThreadId) && _history.ToolSchemaVersion < CodexChatHistory.CurrentToolSchemaVersion)
+        {
+            _history.PreviousThreadIds ??= new();
+            if (!_history.PreviousThreadIds.Contains(_history.ThreadId)) _history.PreviousThreadIds.Add(_history.ThreadId);
+            _history.ThreadId = null;
+            AddWorkNotice("새 작업 도구를 적용하려고 새 AI 대화로 연결합니다. 화면의 이전 메시지와 이전 대화 ID는 보관됩니다. 과거 작업은 프로젝트 기억을 검색해 확인합니다.");
+            SaveHistory();
+        }
         if (!string.IsNullOrEmpty(_history.ThreadId))
         {
             // A failed resume never silently discards the old conversation.
@@ -313,6 +321,7 @@ public partial class AIChatWindow : UserControl
             throw new InvalidDataException("ChatGPT thread belongs to a different project.");
         // CLI persists a new thread only after its first turn; do not save an empty thread id.
         _threadId = thread.GetProperty("id").GetString();
+        _history.ToolSchemaVersion = CodexChatHistory.CurrentToolSchemaVersion;
     }
 
     private async void RefreshAccount(object sender, RoutedEventArgs e)
@@ -350,6 +359,7 @@ public partial class AIChatWindow : UserControl
                 model = selected.Model,
                 effort = selected.DefaultEffort,
                 confirmActions = confirmCommands,
+                requirePlan = RequirePlan.IsChecked == true,
                 approvalPolicy = "on-request",
                 sandboxPolicy = AllowEdits.IsChecked == true
                     ? (object)new { type = "workspaceWrite", writableRoots = new[] { _project }, networkAccess = false }
@@ -413,7 +423,22 @@ public partial class AIChatWindow : UserControl
             return;
         }
         if (p.TryGetProperty("threadId", out var thread) && thread.GetString() != _threadId) return;
-        if (method == "turn/contextCompacted")
+        if (method == "turn/usage")
+        {
+            UsageText.Text = p.GetProperty("text").GetString();
+            return;
+        }
+        if (method == "turn/agentDispatch")
+        {
+            AddWorkNotice("관리자 → " + p.GetProperty("role").GetString() + " (읽기 전용)\n지시: " + p.GetProperty("instruction").GetString());
+            return;
+        }
+        if (method == "turn/teamStatus")
+        {
+            StatusText.Text = p.GetProperty("message").GetString();
+            return;
+        }
+        if (method == "turn/contextCompacted" || method == "thread/compacted")
         {
             StatusText.Text = "전송용 대화 문맥 정리 완료 · 화면의 대화 기록은 유지됩니다.";
             return;
@@ -644,6 +669,7 @@ public partial class AIChatWindow : UserControl
         if (busy && !wasBusy)
         {
             _requestClock.Restart();
+            UsageText.Text = "토큰 사용량 수신 대기 · 청구 비용은 표시하지 않음";
             _elapsedTimer.Start();
         }
         else if (!busy && wasBusy)
@@ -653,7 +679,7 @@ public partial class AIChatWindow : UserControl
         }
         if (busy || wasBusy) UpdateElapsedTime();
         if (busy) _stopRequested = false;
-        AllowEdits.IsEnabled = !busy;
+        AllowEdits.IsEnabled = RequirePlan.IsEnabled = !busy;
         AddAccountButton.IsEnabled = !busy && _client != null;
         ReauthorizeButton.IsEnabled = !busy && _client != null;
         AccountBox.IsEnabled = !busy && _client != null;

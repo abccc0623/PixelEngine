@@ -69,6 +69,8 @@
                 <ComboBox x:Name="ModelBox" IsEnabled="False" MinWidth="160" DisplayMemberPath="DisplayName"
                           SelectionChanged="ModelChanged" ToolTip="현재 ChatGPT 계정이 제공하는 모델 목록입니다. 변경은 다음 메시지부터 적용됩니다."/>
             </DockPanel>
+            <CheckBox x:Name="RequirePlan" Content="이번 요청은 계획 승인 후 작업" Foreground="{DynamicResource PixelTextBrush}" Margin="6"
+                      ToolTip="켜면 간단 작업도 계획 승인 전에는 변경할 수 없습니다. 큰 작업·보조 작업자는 자동으로 계획 승인이 필요합니다."/>
             <CheckBox x:Name="AllowEdits" Content="프로젝트 파일 수정 허용" Foreground="{DynamicResource PixelTextBrush}" Margin="6"
                       Checked="AllowEditsChanged" Unchecked="AllowEditsChanged"/>
             <DockPanel Margin="6,3">
@@ -87,6 +89,9 @@
            </StackPanel>
           </ScrollViewer>
         </Border>
+        <TextBlock x:Name="UsageText" Grid.Row="2" Margin="6,2" FontSize="11" TextWrapping="Wrap"
+                   Foreground="{DynamicResource PixelMutedTextBrush}" Text="토큰 사용량 수신 대기 · 청구 비용은 표시하지 않음"
+                   ToolTip="CLI의 실제 사용량 이벤트입니다. 문맥 점유는 누적 사용 토큰과 다릅니다. 누락된 사용량은 0으로 계산하지 않습니다."/>
         <Grid Grid.Row="3">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

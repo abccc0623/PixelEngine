@@ -9,6 +9,9 @@ internal sealed class CodexChatHistory
 {
     public string ProjectPath { get; set; } = "";
     public string? ThreadId { get; set; }
+    public int ToolSchemaVersion { get; set; }
+    public List<string> PreviousThreadIds { get; set; } = new();
+    internal const int CurrentToolSchemaVersion = 2;
     public string Executable { get; set; } = "codex.exe";
     public string? Model { get; set; }
     public bool ConfirmCommands { get; set; } = true;

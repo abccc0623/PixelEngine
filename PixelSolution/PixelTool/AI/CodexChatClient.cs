@@ -33,6 +33,7 @@ internal sealed class CodexChatClient : IAsyncDisposable
         // Native tools stay read-only; mutations use the editor's permission-checked tools.
         foreach (string value in new[] { "model_provider=\"openai\"", "forced_login_method=\"chatgpt\"",
             "features.shell_tool=false", "features.apply_patch_freeform=false", "features.codex_hooks=false",
+            "features.multi_agent=false", "features.multi_agent_v2=false",
             "sandbox_mode=\"read-only\"", "approval_policy=\"never\"", "mcp_servers={}" })
         {
             start.ArgumentList.Add("-c");

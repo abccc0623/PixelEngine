@@ -57,6 +57,7 @@ namespace PixelTool
             Directory.CreateDirectory(Path.Combine(rootPath, "Asset"));
             Directory.CreateDirectory(Path.Combine(rootPath, "Engine"));
             Directory.CreateDirectory(Path.Combine(rootPath, "Editor"));
+            ProjectNavigation.EnsureNotes(rootPath);
 			EnsureLayerMatrix(rootPath);
 
             GenerateProjectFilesPending = true;
@@ -71,6 +72,7 @@ namespace PixelTool
             }
 
             ProjectRootPath = rootPath;
+            ProjectNavigation.EnsureNotes(rootPath);
 			EnsureLayerMatrix(rootPath);
 			GenerateProjectFilesPending |= !File.Exists(Path.Combine(EnginePath, "EngineGenerate.lua")) ||
 				!File.Exists(Path.Combine(EnginePath, "Entity.lua"));

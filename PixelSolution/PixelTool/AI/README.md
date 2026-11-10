@@ -1,4 +1,18 @@
-# PixelTool ChatGPT direct connection
+# PixelTool AI connections
+
+The current editor UI uses `CodexEditorClient` → `CodexChatClient` → Codex CLI app-server. See `EditorGuide.md` for current behavior. Navigation uses `Editor/AINavigation.md`, `read_project_notes` and bounded `search_project_files`, shared with the external MCP adapter. Rebuild/restart to activate changes. The UI migrates older tool-schema conversations to a fresh CLI thread while preserving displayed messages and old thread IDs.
+
+## Host-managed workflow
+
+`CodexWorkflowTools` and `CodexWorkSession` enforce declared paths, planned-work approval, manager-only writes and final log checks. Small tasks stay single-agent. Approved researcher/reviewer calls use real independent ephemeral CLI threads through `CodexReadOnlyWorker`, with read-only tools, strict identity, cancellation and bounded calls. Native automatic delegation is disabled in this editor child process, not the user's global CLI configuration.
+
+`CodexUsageTracker` consumes actual CLI usage events; the UI displays measured tokens/context plus existing elapsed time and actual dispatch instructions without another model call. Missing baselines remain unknown; billing is not inferred.
+
+`ProjectWorkLog` appends concise what/why/observed paths/verification receipts to each project's `Editor/AIWorkLog.md`. Existing navigation and history are preserved. Search/read only relevant notes when later questions refer to past work. No separate memory agent or automatic full-note injection.
+
+## Legacy direct-connection implementation
+
+The following section describes the retained direct-connection code, not the active editor UI.
 
 The AI Chat tab opens beside the Lua editor. **Continue with ChatGPT** uses the official local-personal/open-source Sign in with ChatGPT flow. No installed `codex.exe`, API key, client secret, or partner API key is used. The legacy `CodexChatClient.cs` remains but is not instantiated by the editor UI.
 
