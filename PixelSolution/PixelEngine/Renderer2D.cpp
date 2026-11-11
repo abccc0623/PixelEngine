@@ -35,7 +35,7 @@ Renderer2DData* Renderer2D_Get(unsigned int id)
 	Renderer2DData* data = registry->Get<Renderer2DData>(id);
 	if (data == nullptr)
 	{
-		PixelLog::Error("[Renderer2D][GetComponent] Not Find Component");
+		PixelLog::EntityError(id, "[Renderer2D][GetComponent] Not Find Component");
 	}
 	return data;
 }
@@ -66,7 +66,7 @@ void Renderer2D_SetTexture(unsigned int id, const char* name)
 	}
 	else
 	{
-		PixelLog::Error("[Renderer2D][SetTexture] Not Find Component");
+		PixelLog::EntityError(id, "[Renderer2D][SetTexture] Not Find Component");
 	}
 }
 
@@ -77,7 +77,7 @@ void Renderer2D_SetColor(unsigned int id, float r, float g, float b, float a)
 	auto graphics = registry->Get<GraphicsData>(id);
 	if (renderer == nullptr || graphics == nullptr)
 	{
-		PixelLog::Error("[Renderer2D][SetColor] Not Find Component");
+		PixelLog::EntityError(id, "[Renderer2D][SetColor] Not Find Component");
 		return;
 	}
 
@@ -98,7 +98,7 @@ void Renderer2D_SetTransparent(unsigned int id, bool transparent)
 	auto graphics = registry->Get<GraphicsData>(id);
 	if (graphics == nullptr || !registry->Has<Renderer2DData>(id))
 	{
-		PixelLog::Error("[Renderer2D][SetTransparent] Not Find Component");
+		PixelLog::EntityError(id, "[Renderer2D][SetTransparent] Not Find Component");
 		return;
 	}
 	graphics->renderingData.transparent = transparent;

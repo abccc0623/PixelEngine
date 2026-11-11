@@ -9,6 +9,7 @@ namespace PixelGraphics
 	public:
 		DebugLinePass(GraphicsCore* core, ResourceManager* resourceManager, CameraManager* cameraManager);
 		~DebugLinePass() override;
+		bool IsReady() const override;
 
 		void SetRenderingData(RenderingData& renderingData) override;
 		void Rendering(RenderTarget& renderTarget) override;

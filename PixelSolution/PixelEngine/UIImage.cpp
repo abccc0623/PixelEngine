@@ -39,7 +39,7 @@ UIImageData* UIImage_Get(unsigned int id)
 	UIImageData* data = registry->Get<UIImageData>(id);
 	if (data == nullptr)
 	{
-		PixelLog::Error("[UIImage][GetComponent] Not Find Component");
+		PixelLog::EntityError(id, "[UIImage][GetComponent] Not Find Component");
 	}
 	return data;
 }
@@ -62,7 +62,7 @@ void UIImage_SetTexture(unsigned int id, const char* name)
 {
 	if (name == nullptr)
 	{
-		PixelLog::Error("[UIImage][SetTexture] Texture name is null.");
+		PixelLog::EntityError(id, "[UIImage][SetTexture] Texture name is null.");
 		return;
 	}
 	auto registry = GetRegistry();
@@ -76,7 +76,7 @@ void UIImage_SetTexture(unsigned int id, const char* name)
 	}
 	else
 	{
-		PixelLog::Error("[UIImage][SetTexture] Not Find Component");
+		PixelLog::EntityError(id, "[UIImage][SetTexture] Not Find Component");
 	}
 }
 
@@ -92,7 +92,7 @@ void UIImage_SetTextureSize(unsigned int id, float width, float height)
 	}
 	else
 	{
-		PixelLog::Error("[UIImage][SetTextureSize] Not Find Component");
+		PixelLog::EntityError(id, "[UIImage][SetTextureSize] Not Find Component");
 	}
 }
 
@@ -103,13 +103,13 @@ bool UIImage_SetAspectFit(unsigned int id, float slotWidth, float slotHeight)
 	auto graphics = registry->Get<GraphicsData>(id);
 	if (image == nullptr || graphics == nullptr)
 	{
-		PixelLog::Error("[UIImage][SetAspectFit] Not Find Component");
+		PixelLog::EntityError(id, "[UIImage][SetAspectFit] Not Find Component");
 		return false;
 	}
 
 	if (slotWidth <= 0.0f || slotHeight <= 0.0f)
 	{
-		PixelLog::Error("[UIImage][SetAspectFit] Slot size must be greater than zero");
+		PixelLog::EntityError(id, "[UIImage][SetAspectFit] Slot size must be greater than zero");
 		return false;
 	}
 
@@ -117,7 +117,7 @@ bool UIImage_SetAspectFit(unsigned int id, float slotWidth, float slotHeight)
 	uint32_t textureHeight = 0;
 	if (!GetGraphicsTextureSize(static_cast<uint16_t>(graphics->renderingData.texture_key), &textureWidth, &textureHeight))
 	{
-		PixelLog::Error("[UIImage][SetAspectFit] Cannot get texture size");
+		PixelLog::EntityError(id, "[UIImage][SetAspectFit] Cannot get texture size");
 		return false;
 	}
 
@@ -135,7 +135,7 @@ bool UIImage_SetContentAspectFit(unsigned int id, float slotWidth, float slotHei
 	auto graphics = registry->Get<GraphicsData>(id);
 	if (image == nullptr || graphics == nullptr || slotWidth <= 0.0f || slotHeight <= 0.0f)
 	{
-		PixelLog::Error("[UIImage][SetContentAspectFit] Invalid component or slot size");
+		PixelLog::EntityError(id, "[UIImage][SetContentAspectFit] Invalid component or slot size");
 		return false;
 	}
 	const auto textureID = static_cast<uint16_t>(graphics->renderingData.texture_key);
@@ -164,7 +164,7 @@ void UIImage_SetPivot(unsigned int id, float x, float y)
 	auto graphics = registry->Get<GraphicsData>(id);
 	if (image == nullptr || graphics == nullptr)
 	{
-		PixelLog::Error("[UIImage][SetPivot] Not Find Component");
+		PixelLog::EntityError(id, "[UIImage][SetPivot] Not Find Component");
 		return;
 	}
 
@@ -179,7 +179,7 @@ void UIImage_SetTiling(unsigned int id, float x, float y)
 	auto graphics = registry->Get<GraphicsData>(id);
 	if (image == nullptr || graphics == nullptr)
 	{
-		PixelLog::Error("[UIImage][SetTiling] Not Find Component");
+		PixelLog::EntityError(id, "[UIImage][SetTiling] Not Find Component");
 		return;
 	}
 
@@ -194,7 +194,7 @@ void UIImage_SetOffset(unsigned int id, float x, float y)
 	auto graphics = registry->Get<GraphicsData>(id);
 	if (image == nullptr || graphics == nullptr)
 	{
-		PixelLog::Error("[UIImage][SetOffset] Not Find Component");
+		PixelLog::EntityError(id, "[UIImage][SetOffset] Not Find Component");
 		return;
 	}
 
@@ -213,7 +213,7 @@ void UIImage_SetOrder(unsigned int id, int order)
 	}
 	else
 	{
-		PixelLog::Error("[UIImage][SetOrder] Not Find Component");
+		PixelLog::EntityError(id, "[UIImage][SetOrder] Not Find Component");
 	}
 }
 
@@ -236,6 +236,6 @@ void UIImage_SetColor(unsigned int id, float r, float g, float b, float a)
 	}
 	else
 	{
-		PixelLog::Error("[UIImage][SetColor] Not Find Component");
+		PixelLog::EntityError(id, "[UIImage][SetColor] Not Find Component");
 	}
 }

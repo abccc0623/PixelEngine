@@ -16,15 +16,16 @@ namespace PixelGraphics
 	{
 	public:
 		ForwardRender(GraphicsCore* core, ResourceManager* resourceManager);
-		void PipelineInitialize() override;
+		~ForwardRender() override;
+		bool PipelineInitialize() override;
 		void PipelineRelease() override;
 		void Rendering() override;
 		void SetRenderingData(RenderingData& renderingData) override;
 		bool Resize(int width, int height) override;
 
 	private:
-		CameraManager* cameraManager;
-		PostProcessPass* postProcessPass;
+		CameraManager* cameraManager = nullptr;
+		PostProcessPass* postProcessPass = nullptr;
 		std::vector<PASS*> passList;
 		RenderTarget mainRenderTarget;
 	};

@@ -39,6 +39,7 @@ public:
 
 
 	ECS::EntityObject* FindEntity(uint32_t id);
+	ECS::EntityObject* TryFindEntity(uint32_t id);
 	void ActiveEntity(uint32_t id, bool active);
 
 	bool CanDestroyEntity(uint32_t id);

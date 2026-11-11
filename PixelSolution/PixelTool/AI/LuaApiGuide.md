@@ -115,7 +115,7 @@ Rigidbody2D methods (verify vector types/enums in Engine declarations):
 - 2D: SetLockPosition(false,false,true), SetLockRotation(true,true,false). Prevent character tipping: SetLockRotation(true,true,true). Default is unrestricted; set locks explicitly.
 - All six axes locked internally uses a static body; unlocking restores the configured motion type. These are simulation freedoms, not angle ranges, and do not prohibit explicit SetPosition/SetRotation.
 - If lock APIs are missing, check engine version/Engine Update. Lua declarations alone cannot add exports to an old DLL.
-- Other setters: SetGravity, SetRestitution, SetFriction, SetLinearDamping, SetSensor, SetActive, SetLayer(layerName); GetLayer(). Rigidbody activation is not whole-Entity activation.
+- Other implemented setters: SetGravity, SetLinearDamping, SetSensor, SetActive, SetLayer(layerName); GetLayer(). Rigidbody activation is not whole-Entity activation. SetRestitution/SetFriction are registered but currently empty native functions; see EngineCapabilities.md: Physics and collision. Do not treat declaration presence as working friction/bounce tuning.
 - Callbacks: `Script:OnCollisionEnter(targetID)`, `Script:OnCollisionExit(targetID)` receive the other ID.
 
 ## Vectors, logs and engine settings

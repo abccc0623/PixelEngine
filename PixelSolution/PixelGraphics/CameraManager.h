@@ -12,6 +12,7 @@ namespace PixelGraphics
 	public:
 		CameraManager(GraphicsCore* core, ResourceManager* resourceManager);
 		~CameraManager();
+		bool IsReady() const;
 	public:
 		void ViewPortSetting(RenderingData& r);
 		void Setting(RenderingData& r);
@@ -24,7 +25,7 @@ namespace PixelGraphics
 		ResourceManager* resourceManager = nullptr;
 		ShaderFactory* shaderFactory = nullptr;
 		BufferResources* cameraBufferResource;
-		D3D11_VIEWPORT targetViewport;
+		D3D11_VIEWPORT targetViewport = {};
 
 		DirectX::SimpleMath::Matrix view = DirectX::SimpleMath::Matrix::Identity;
 		DirectX::SimpleMath::Matrix proj = DirectX::SimpleMath::Matrix::Identity;

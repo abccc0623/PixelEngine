@@ -395,7 +395,7 @@ JPH::BodyID PhysManager::CreateRigidbody(Rigidbody2DData* rigidbody, Physics2DDa
 	auto transformData = r->Get<TransformData>(rigidbody->thisID);
 	if (transformData == nullptr)
 	{
-		PixelLog::Error("[Rigidbody2D][CreateBody] Missing Transform component. Entity ID: " + std::to_string(rigidbody->thisID));
+		PixelLog::EntityError(rigidbody->thisID, "[Rigidbody2D][CreateBody] Missing Transform component. Entity ID: " + std::to_string(rigidbody->thisID));
 		return JPH::BodyID();
 	}
 

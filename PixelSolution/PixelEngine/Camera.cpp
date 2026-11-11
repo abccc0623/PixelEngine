@@ -25,7 +25,7 @@ CameraData* Camera_Get(unsigned int id)
 	auto registry = GetRegistry();
 	if (registry->Has<CameraData>(id) == false)
 	{
-		PixelLog::Error("[Camera][GetComponent] Not Find Component");
+		PixelLog::EntityError(id, "[Camera][GetComponent] Not Find Component");
 		return nullptr;
 	}
 

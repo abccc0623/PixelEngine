@@ -56,7 +56,14 @@ bool EngineInitialize(PixelWindowHandle hWnd, int width, int height, const char*
 	Engine = new PixelEngine();
 	clientWindow = static_cast<HWND>(hWnd);
 	requestedWindowWidth = requestedWindowHeight = 0;
-	Engine->Initialize((HWND)hWnd, width, height, std::string(assetPath));
+	if (!Engine->Initialize((HWND)hWnd, width, height, std::string(assetPath)))
+	{
+		Engine->ReleaseShared();
+		delete Engine;
+		Engine = nullptr;
+		clientWindow = nullptr;
+		return false;
+	}
 	return true;
 }
 

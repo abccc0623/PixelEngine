@@ -24,6 +24,11 @@ PixelGraphics::DebugLinePass::DebugLinePass(
 
 PixelGraphics::DebugLinePass::~DebugLinePass() = default;
 
+bool PixelGraphics::DebugLinePass::IsReady() const
+{
+	return PASS::IsReady() && lineBuffer;
+}
+
 void PixelGraphics::DebugLinePass::SetRenderingData(RenderingData& renderingData)
 {
 	if (renderingData.renderType != RENDER_TYPE::LINE || lineList.size() + 2 > MaxVertexCount)

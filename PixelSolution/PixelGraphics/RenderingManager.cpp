@@ -18,14 +18,14 @@ PixelGraphics::RenderingManager::~RenderingManager()
 
 bool PixelGraphics::RenderingManager::Initialize(GraphicsCore* graphicsCore, ResourceManager* resourceManager)
 {
-	if (!graphicsCore || !resourceManager)
+	Release();
+	if (!graphicsCore || !graphicsCore->GetDevice() || !resourceManager)
 	{
 		return false;
 	}
 	core = graphicsCore;
 	resource = resourceManager;
-	ChangePipeline(PipelineType::FORWARD);
-	return true;
+	return ChangePipeline(PipelineType::FORWARD);
 }
 
 void PixelGraphics::RenderingManager::Release()
@@ -70,9 +70,9 @@ void PixelGraphics::RenderingManager::SetRendering(RenderingData& data)
 	}
 }
 
-void PixelGraphics::RenderingManager::ChangePipeline(PipelineType type)
+bool PixelGraphics::RenderingManager::ChangePipeline(PipelineType type)
 {
-	if (pipelineType == type)return;
+	if (pipelineType == type) return targetPipeline != nullptr;
 
 	if (targetPipeline != nullptr)
 	{
@@ -81,15 +81,22 @@ void PixelGraphics::RenderingManager::ChangePipeline(PipelineType type)
 		targetPipeline = nullptr;
 	}
 
+	pipelineType = PipelineType::NONE;
 	switch (type)
 	{
 	case PipelineType::FORWARD:
 		targetPipeline = new ForwardRender(core, resource);
-		targetPipeline->Initialize();
+		if (!targetPipeline->Initialize())
+		{
+			targetPipeline->Release();
+			delete targetPipeline;
+			targetPipeline = nullptr;
+			return false;
+		}
 		break;
 	default:
-		pipelineType = PipelineType::NONE;
-		return;
+		return false;
 	}
 	pipelineType = type;
+	return true;
 }

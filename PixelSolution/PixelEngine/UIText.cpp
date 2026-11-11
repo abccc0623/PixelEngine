@@ -34,7 +34,7 @@ UITextData* UIText_Get(unsigned int id)
 	UITextData* data = registry->Get<UITextData>(id);
 	if (data == nullptr)
 	{
-		PixelLog::Error("[UIText][GetComponent] Not Find Component");
+		PixelLog::EntityError(id, "[UIText][GetComponent] Not Find Component");
 	}
 	return data;
 }
@@ -66,7 +66,7 @@ void UIText_SetText(unsigned int id, const char* text)
 	}
 	else
 	{
-		PixelLog::Error("[UIText][SetText] Not Find Component");
+		PixelLog::EntityError(id, "[UIText][SetText] Not Find Component");
 	}
 }
 
@@ -81,7 +81,7 @@ void UIText_SetTextSize(unsigned int id, float scale)
 	}
 	else
 	{
-		PixelLog::Error("[UIText][SetTextSize] Not Find Component");
+		PixelLog::EntityError(id, "[UIText][SetTextSize] Not Find Component");
 	}
 }
 
@@ -92,7 +92,7 @@ void UIText_SetWrapWidth(unsigned int id, float width)
 	auto graphics = registry->Get<GraphicsData>(id);
 	if (data == nullptr || graphics == nullptr)
 	{
-		PixelLog::Error("[UIText][SetWrapWidth] Not Find Component");
+		PixelLog::EntityError(id, "[UIText][SetWrapWidth] Not Find Component");
 		return;
 	}
 	// 0 이하 또는 유효하지 않은 값은 기존처럼 자동 줄바꿈을 사용하지 않는다.
@@ -106,7 +106,7 @@ void UIText_SetPivot(unsigned int id, float x, float y)
 	auto graphics = registry->Get<GraphicsData>(id);
 	if (registry->Get<UITextData>(id) == nullptr || graphics == nullptr)
 	{
-		PixelLog::Error("[UIText][SetPivot] Not Find Component");
+		PixelLog::EntityError(id, "[UIText][SetPivot] Not Find Component");
 		return;
 	}
 	graphics->renderingData.text.pivotX = (std::clamp)(x, 0.0f, 1.0f);
@@ -126,7 +126,7 @@ void UIText_SetFont(unsigned int id, const char* name)
 	}
 	else
 	{
-		PixelLog::Error("[UIText][SetFont] Not Find Component");
+		PixelLog::EntityError(id, "[UIText][SetFont] Not Find Component");
 	}
 }
 
@@ -137,7 +137,7 @@ void UIText_SetColor(unsigned int id, float r, float g, float b, float a)
 	auto graphics = registry->Get<GraphicsData>(id);
 	if (textData == nullptr || graphics == nullptr)
 	{
-		PixelLog::Error("[UIText][SetColor] Not Find Component");
+		PixelLog::EntityError(id, "[UIText][SetColor] Not Find Component");
 		return;
 	}
 

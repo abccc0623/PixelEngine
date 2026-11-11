@@ -18,6 +18,7 @@ namespace ECS
 		void OnEvent(const std::string& functionName);
 		void OnEvent(std::string functionName, sol::object event);
 		unsigned int GetID();
+		const std::string& GetScriptName() const { return scriptName; }
 		bool IsSpawnComplete() const;
 		bool GetActive();
 		void SetActive(bool isActive);

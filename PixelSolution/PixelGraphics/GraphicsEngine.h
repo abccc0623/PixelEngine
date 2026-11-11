@@ -33,9 +33,10 @@ public:
 	GraphicsEngine();
 	~GraphicsEngine();
 public:
-	void Initialize(HWND WindowHandle, int Width, int Height);
+	bool Initialize(HWND WindowHandle, int Width, int Height);
 	void Release();
-	void Clear();
+	bool Clear();
+	bool IsReady() const { return ready; }
 public:
 	PixelGraphics::ResourceManager* GetResourceManager();
 	PixelGraphics::RenderingManager* GetRenderingManager();
@@ -120,5 +121,6 @@ private:
 	PixelGraphics::GraphicsCore graphicsCore;
 	PixelGraphics::ResourceManager resourceManager;
 	PixelGraphics::RenderingManager renderingManager;
-	DrawDebugLine* mDebugRender;
+	DrawDebugLine* mDebugRender = nullptr;
+	bool ready = false;
 };

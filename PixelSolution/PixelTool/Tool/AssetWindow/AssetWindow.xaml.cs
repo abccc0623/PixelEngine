@@ -149,15 +149,8 @@ namespace PixelTool
         private void ApplySearchFilter()
         {
             FileItems.Clear();
-            var keyword = SearchBox?.Text?.Trim();
-            IEnumerable<FileItem> source = _allFiles;
-
-            if (!string.IsNullOrWhiteSpace(keyword))
-            {
-                source = source.Where(file =>
-                    file.FileName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    file.Extension.Contains(keyword, StringComparison.OrdinalIgnoreCase));
-            }
+            var source = ProjectFileSearch.FilterFileNames(_allFiles,
+                file => file.FileName + file.Extension, SearchBox?.Text);
 
             foreach (var file in source)
                 FileItems.Add(file);

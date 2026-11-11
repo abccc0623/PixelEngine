@@ -89,15 +89,23 @@ namespace PixelTool
             });
         }
 
-        internal static JsonElement ReadLogsForAi(long afterCursor, int limit)
+        internal static JsonElement ReadLogsForAi(long afterCursor, int limit, string level = "all")
         {
             if (afterCursor < 0 || limit < 1 || limit > 100) throw new ArgumentOutOfRangeException(nameof(limit));
+            int minimumLevel = level switch
+            {
+                "all" => int.MinValue,
+                "warnings" => 1,
+                "errors" => 2,
+                _ => throw new ArgumentException("level은 all, warnings, errors 중 하나여야 합니다.", nameof(level))
+            };
             lock (_captureLock)
             {
                 var selected = _capturedLogs.Where(log => log.Sequence > afterCursor).Take(limit).ToArray();
                 return JsonSerializer.SerializeToElement(new
                 {
-                    entries = selected.Select(log => new { sequence = log.Sequence, timestamp = log.Timestamp, level = log.Level,
+                    filter = level, scanned = selected.Length,
+                    entries = selected.Where(log => log.Level >= minimumLevel).Select(log => new { sequence = log.Sequence, timestamp = log.Timestamp, level = log.Level,
                         message = Regex.Replace(Regex.Replace(log.Message, @"(?i)\bBearer\s+[^\s""']+", "Bearer <redacted>"),
                             @"(?i)(access_token|refresh_token|id_token|api_key)\s*[=:]\s*[^\s,;]+", "$1=<redacted>") }),
                     cursor = selected.LastOrDefault()?.Sequence ?? afterCursor, latestCursor = _logSequence,

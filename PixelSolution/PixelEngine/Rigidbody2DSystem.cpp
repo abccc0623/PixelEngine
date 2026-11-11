@@ -27,7 +27,7 @@ void ECS::Rigidbody2DSystem::Update(ECS::Registry* registry)
 			auto physData = registry->Get<Physics2DData>(data->thisID);
 			if (physData == nullptr)
 			{
-				PixelLog::Error("[Rigidbody2D][Update] Missing Physics2D component. Entity ID: " + std::to_string(data->thisID));
+				PixelLog::EntityError(data->thisID, "[Rigidbody2D][Update] Missing Physics2D component. Entity ID: " + std::to_string(data->thisID));
 				return;
 			}
 			if (physData->Create == false)

@@ -19,9 +19,22 @@ PixelGraphics::ForwardRender::ForwardRender(GraphicsCore* graphicsCore, Resource
 	passList.push_back(new UIPass(graphicsCore, resources, cameraManager));
 	postProcessPass = new PostProcessPass(graphicsCore, resources, cameraManager);
 }
-void PixelGraphics::ForwardRender::PipelineInitialize()
+PixelGraphics::ForwardRender::~ForwardRender()
 {
-	core->CreateRenderTarget(GraphicsCore::VirtualWidth, GraphicsCore::VirtualHeight, mainRenderTarget);
+	PipelineRelease();
+}
+
+bool PixelGraphics::ForwardRender::PipelineInitialize()
+{
+	if (!cameraManager || !cameraManager->IsReady() || !postProcessPass || !postProcessPass->IsReady())
+	{
+		return false;
+	}
+	for (const auto* pass : passList)
+	{
+		if (!pass || !pass->IsReady()) return false;
+	}
+	return core->CreateRenderTarget(GraphicsCore::VirtualWidth, GraphicsCore::VirtualHeight, mainRenderTarget);
 }
 
 bool PixelGraphics::ForwardRender::Resize(int width, int height)

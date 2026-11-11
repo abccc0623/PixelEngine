@@ -21,4 +21,4 @@ PICNIC_GRAPHICS_DLL bool GetGraphicsTextureSize(uint16_t textureID, uint32_t* wi
 PICNIC_GRAPHICS_DLL bool GetGraphicsTextureContentRect(uint16_t textureID, float* x, float* y, float* width, float* height);
 PICNIC_GRAPHICS_DLL uint16_t LoadGraphicsFont(const char* filePath);
 PICNIC_GRAPHICS_DLL uint16_t LoadGraphicsMaterial(const char* filePath);
-PICNIC_GRAPHICS_DLL void GraphicsClear();
+PICNIC_GRAPHICS_DLL bool GraphicsClear();

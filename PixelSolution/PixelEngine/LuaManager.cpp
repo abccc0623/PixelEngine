@@ -26,6 +26,40 @@ extern PixelEngine* Engine;
 
 namespace
 {
+	int LuaDebugLogError(lua_State* state)
+	{
+		lua_getglobal(state, "tostring");
+		lua_pushvalue(state, 1);
+		lua_call(state, 1, 1);
+		const char* message = lua_tostring(state, -1);
+		std::string log = message ? message : "";
+		lua_pop(state, 1);
+
+		lua_Debug caller{};
+		std::string fileName = "Unknown";
+		if (lua_getstack(state, 1, &caller) && lua_getinfo(state, "S", &caller) &&
+			caller.source && caller.source[0] == '@')
+		{
+			fileName = std::filesystem::path(caller.source + 1).filename().string();
+		}
+		PixelLog::Error("FileName : [" + fileName + "]\nLog : " + log);
+		return 0;
+	}
+
+	bool RegisterLuaDebugLogError(lua_State* state)
+	{
+		lua_getglobal(state, "Debug");
+		if (!lua_istable(state, -1))
+		{
+			lua_pop(state, 1);
+			return false;
+		}
+		lua_pushcfunction(state, LuaDebugLogError);
+		lua_setfield(state, -2, "LogError");
+		lua_pop(state, 1);
+		return true;
+	}
+
 	int LuaEntityCreate(lua_State* state)
 	{
 		const char* scriptName = luaL_checkstring(state, 1);
@@ -284,10 +318,10 @@ void LuaManager::ReadEngineGenerateFile()
 	if (!result.valid())
 	{
 		sol::error err = result;
-		std::string test = err.what();
 		Debug_LogError(err.what());
 		return;
 	}
+	RegisterLuaDebugLogError(lua.lua_state());
 	// 최초 생성 후에는 초기화 때 건너뛴 네이티브 진입점과 LuaManager도 준비한다.
 	if (!UpdateFunction.valid())
 	{

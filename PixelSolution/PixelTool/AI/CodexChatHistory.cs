@@ -11,10 +11,13 @@ internal sealed class CodexChatHistory
     public string? ThreadId { get; set; }
     public int ToolSchemaVersion { get; set; }
     public List<string> PreviousThreadIds { get; set; } = new();
-    internal const int CurrentToolSchemaVersion = 4;
+    internal const int CurrentToolSchemaVersion = 11;
     public string Executable { get; set; } = "codex.exe";
     public string? Model { get; set; }
-    public bool ConfirmCommands { get; set; } = true;
+    public string? ProgrammerModel { get; set; }
+    public string? ProgrammerEffort { get; set; }
+    // New/missing preferences use automatic approval; saved choices still override this default.
+    public bool ConfirmCommands { get; set; } = false;
     public bool AllowEdits { get; set; }
     public List<CodexChatMessage> Messages { get; set; } = new();
 
@@ -43,6 +46,18 @@ internal sealed class CodexChatHistory
         File.WriteAllText(temporary, JsonSerializer.Serialize(this), new UTF8Encoding(false));
         File.Move(temporary, path, overwrite: true);
     }
+
+    internal CodexChatHistory Snapshot() => new()
+    {
+        ProjectPath = ProjectPath, ThreadId = ThreadId, ToolSchemaVersion = ToolSchemaVersion,
+        PreviousThreadIds = new List<string>(PreviousThreadIds), Executable = Executable,
+        Model = Model, ProgrammerModel = ProgrammerModel, ProgrammerEffort = ProgrammerEffort,
+        ConfirmCommands = ConfirmCommands, AllowEdits = AllowEdits,
+        Messages = Messages.Select(m => new CodexChatMessage
+        {
+            Role = m.Role, Text = m.Text, ItemId = m.ItemId, Details = m.Details
+        }).ToList()
+    };
 }
 
 internal sealed class CodexChatMessage
@@ -50,4 +65,5 @@ internal sealed class CodexChatMessage
     public string Role { get; set; } = "";
     public string Text { get; set; } = "";
     public string? ItemId { get; set; }
+    public string? Details { get; set; }
 }

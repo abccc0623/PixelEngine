@@ -36,6 +36,13 @@ PixelGraphics::PASS::~PASS()
 	contextObjectBuffer = nullptr;
 }
 
+bool PixelGraphics::PASS::IsReady() const
+{
+	return core && core->GetDevice() && core->GetDeviceContext() && shaderFactory && textureFactory &&
+		modelFactory && materialFactory && rasterizerStateFactory && contextObjectBuffer &&
+		contextObjectBuffer->buffer && samplerState;
+}
+
 void PixelGraphics::PASS::BindObjectBuffer(RenderingData& r)
 {
 	ObjectBuffer mbuffer = {};
@@ -65,6 +72,38 @@ void PixelGraphics::PASS::BindObjectBuffer(RenderingData& r)
 	core->GetDeviceContext()->UpdateSubresource(objectBuffer, 0, nullptr, &mbuffer, 0, 0);
 	core->GetDeviceContext()->VSSetConstantBuffers(1, 1, &(objectBuffer));
 	core->GetDeviceContext()->PSSetConstantBuffers(1, 1, &(objectBuffer));
+}
+
+void PixelGraphics::PASS::BindDrawResources(RenderingData& r)
+{
+	if (previousMeshKey != r.mash_key)
+	{
+		meshIndexCount = BindMesh(r);
+		previousMeshKey = r.mash_key;
+	}
+	// Texture and shader may change even when the material key stays the same.
+	if (previousTextureKey != r.texture_key)
+	{
+		BindTexture(r);
+		previousTextureKey = r.texture_key;
+	}
+	if (previousShaderKey != r.shader_key)
+	{
+		BindShader(r);
+		previousShaderKey = r.shader_key;
+	}
+	if (previousMaterialKey != r.material_key)
+	{
+		BindRasterizer(r);
+		previousMaterialKey = r.material_key;
+	}
+}
+
+void PixelGraphics::PASS::BindSampler()
+{
+	ID3D11SamplerState* sampler = samplerState.Get();
+	core->GetDeviceContext()->PSSetSamplers(0, 1, &sampler);
+	core->GetDeviceContext()->VSSetSamplers(0, 1, &sampler);
 }
 
 void PixelGraphics::PASS::BindTexture(RenderingData& r)

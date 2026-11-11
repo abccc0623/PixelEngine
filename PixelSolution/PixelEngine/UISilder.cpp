@@ -84,7 +84,7 @@ UISilderData* UISilder_Get(unsigned int id)
 	auto data = FindUISilder(id);
 	if (data == nullptr)
 	{
-		PixelLog::Error("[UISilder][GetComponent] Not Find Component");
+		PixelLog::EntityError(id, "[UISilder][GetComponent] Not Find Component");
 	}
 	return data;
 }
@@ -99,7 +99,7 @@ void UISilder_SetRange(unsigned int id, float minValue, float maxValue)
 	auto data = FindUISilder(id);
 	if (data == nullptr || maxValue <= minValue)
 	{
-		PixelLog::Error("[UISilder][SetRange] Invalid Component Or Range");
+		PixelLog::EntityError(id, "[UISilder][SetRange] Invalid Component Or Range");
 		return;
 	}
 	data->minValue = minValue;
@@ -113,7 +113,7 @@ void UISilder_SetValue(unsigned int id, float value)
 	auto data = FindUISilder(id);
 	if (data == nullptr)
 	{
-		PixelLog::Error("[UISilder][SetValue] Not Find Component");
+		PixelLog::EntityError(id, "[UISilder][SetValue] Not Find Component");
 		return;
 	}
 	data->value = (std::clamp)(value, data->minValue, data->maxValue);
@@ -125,7 +125,7 @@ void UISilder_SetSize(unsigned int id, float width, float height)
 	auto data = FindUISilder(id);
 	if (data == nullptr || width < 0.0f || height < 0.0f)
 	{
-		PixelLog::Error("[UISilder][SetSize] Invalid Component Or Size");
+		PixelLog::EntityError(id, "[UISilder][SetSize] Invalid Component Or Size");
 		return;
 	}
 	data->width = width;

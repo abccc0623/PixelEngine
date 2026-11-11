@@ -11,14 +11,12 @@ PixelGraphics::Pipeline::Pipeline(GraphicsCore* graphicsCore, ResourceManager* r
 
 bool PixelGraphics::Pipeline::Initialize()
 {
-	PipelineInitialize();
-	return true;
+	return PipelineInitialize();
 }
 
 void PixelGraphics::Pipeline::Release()
 {
-
-
+	PipelineRelease();
 }
 
 void PixelGraphics::Pipeline::SetBackgroundColor(float r, float g, float b)

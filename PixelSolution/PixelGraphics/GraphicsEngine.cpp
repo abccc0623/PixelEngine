@@ -23,25 +23,22 @@ GraphicsEngine::GraphicsEngine()
 
 GraphicsEngine::~GraphicsEngine()
 {
-
+	Release();
 }
 
-void GraphicsEngine::Initialize(HWND WindowHandle, int Width, int Height)
+bool GraphicsEngine::Initialize(HWND WindowHandle, int Width, int Height)
 {
+	Release();
 	if (!graphicsCore.Initialize(WindowHandle))
 	{
-		return;
+		return false;
 	}
-
-	if (!resourceManager.Initialize(&graphicsCore))
+	if (!Clear())
 	{
-		return;
+		Release();
+		return false;
 	}
-
-	if (!renderingManager.Initialize(&graphicsCore, &resourceManager))
-	{
-		return;
-	}
+	return true;
 
 	//if (!resourceManager.Initialize(&graphicsCore))
 	//{
@@ -70,13 +67,33 @@ void GraphicsEngine::Initialize(HWND WindowHandle, int Width, int Height)
 
 void GraphicsEngine::Release()
 {
+	ready = false;
+	if (auto context = graphicsCore.GetDeviceContext()) context->ClearState();
 	renderingManager.Release();
 	resourceManager.Release();
 	graphicsCore.Release();
 }
-void GraphicsEngine::Clear()
+
+bool GraphicsEngine::Clear()
 {
-	resourceManager.Clear();
+	// Called at a frame boundary after the old scene has released its handles.
+	ready = false;
+	if (auto context = graphicsCore.GetDeviceContext()) context->ClearState();
+	renderingManager.Release();
+	resourceManager.Release();
+	if (!graphicsCore.GetDevice() || !graphicsCore.GetDeviceContext() || !graphicsCore.GetSwapChain())
+	{
+		return false;
+	}
+	if (!resourceManager.Initialize(&graphicsCore)) return false;
+	if (!renderingManager.Initialize(&graphicsCore, &resourceManager))
+	{
+		renderingManager.Release();
+		resourceManager.Release();
+		return false;
+	}
+	ready = true;
+	return true;
 }
 
 PixelGraphics::RenderingManager* GraphicsEngine::GetRenderingManager()

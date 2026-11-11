@@ -5,11 +5,14 @@
 extern GraphicsEngine* mEngine = nullptr;
 bool PixelGraphicsInitialize(HWND hwnd, int Width, int Height)
 {
-	if (mEngine == nullptr)
+	if (mEngine != nullptr) return mEngine->IsReady();
+	auto engine = new GraphicsEngine();
+	if (!engine->Initialize(hwnd, Width, Height))
 	{
-		mEngine = new GraphicsEngine();
-		mEngine->Initialize(hwnd, Width, Height);
+		delete engine;
+		return false;
 	}
+	mEngine = engine;
 	return true;
 }
 
@@ -25,7 +28,7 @@ void PixelGraphicsRelease()
 
 void PixelGraphicsRendering()
 {
-	if (mEngine != nullptr)
+	if (mEngine != nullptr && mEngine->IsReady())
 	{
 		mEngine->GetRenderingManager()->Rendering();
 	}
@@ -56,7 +59,7 @@ void PixelGraphicsBackgroundColor(int R, int G, int B)
 
 void SetRenderingData(RenderingData& mData)
 {
-	if (mEngine != nullptr)
+	if (mEngine != nullptr && mEngine->IsReady())
 	{
 		mEngine->GetRenderingManager()->SetRendering(mData);
 	}
@@ -64,7 +67,7 @@ void SetRenderingData(RenderingData& mData)
 
 void DrawLine(float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b)
 {
-	if (mEngine == nullptr)
+	if (mEngine == nullptr || !mEngine->IsReady())
 	{
 		return;
 	}
@@ -125,7 +128,7 @@ void DrawCircle2D(float x, float y, float z, float radius, float r, float g, flo
 
 uint16_t LoadGraphicsTexture(const char* filePath)
 {
-	if (mEngine != nullptr)
+	if (mEngine != nullptr && mEngine->IsReady())
 	{
 		return mEngine->GetResourceManager()->Load(PixelGraphics::ResourceType::TEXTURE, filePath);
 	}
@@ -134,7 +137,7 @@ uint16_t LoadGraphicsTexture(const char* filePath)
 
 bool GetGraphicsTextureSize(uint16_t textureID, uint32_t* width, uint32_t* height)
 {
-	if (mEngine == nullptr || width == nullptr || height == nullptr)
+	if (mEngine == nullptr || !mEngine->IsReady() || width == nullptr || height == nullptr)
 	{
 		return false;
 	}
@@ -164,7 +167,7 @@ bool GetGraphicsTextureSize(uint16_t textureID, uint32_t* width, uint32_t* heigh
 
 bool GetGraphicsTextureContentRect(uint16_t textureID, float* x, float* y, float* width, float* height)
 {
-	if (mEngine == nullptr || x == nullptr || y == nullptr || width == nullptr || height == nullptr) return false;
+	if (mEngine == nullptr || !mEngine->IsReady() || x == nullptr || y == nullptr || width == nullptr || height == nullptr) return false;
 	auto resources = mEngine->GetResourceManager();
 	auto factory = resources ? resources->GetFactory<PixelGraphics::TextureFactory>(PixelGraphics::ResourceType::TEXTURE) : nullptr;
 	auto texture = factory ? factory->Get(textureID) : nullptr;
@@ -178,7 +181,7 @@ bool GetGraphicsTextureContentRect(uint16_t textureID, float* x, float* y, float
 
 uint16_t LoadGraphicsFont(const char* filePath)
 {
-	if (mEngine != nullptr)
+	if (mEngine != nullptr && mEngine->IsReady())
 	{
 		return mEngine->GetResourceManager()->Load(PixelGraphics::ResourceType::FONT, filePath);
 	}
@@ -196,9 +199,10 @@ ObjectID CreateDebugModel(Vertex_Debug* Vertex, int VertexSize, int* IndexList, 
 	//return mEngine->Model_Debug(Vertex, VertexSize, IndexList, IndexSize);
 	return 0;
 }
-void GraphicsClear()
+bool GraphicsClear()
 {
-	//mEngine->Clear();
+	// Headless engine sessions have no graphics state to rebuild.
+	return mEngine == nullptr || mEngine->Clear();
 }
 
 

@@ -39,6 +39,7 @@ void PixelGraphics::ScenePass::Rendering(RenderTarget& renderTarget)
 			return leftView.z > rightView.z;
 		});
 	PreviousKeyReset();
+	BindSampler();
 
 
 	core->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -56,41 +57,7 @@ void PixelGraphics::ScenePass::Rendering(RenderTarget& renderTarget)
 			core->GetDeviceContext()->OMSetDepthStencilState(core->GetDepthReadOnlyState(), 0);
 		}
 		BindObjectBuffer(renderingList[i]);
-
-		if (previousMeshKey != renderingList[i].mash_key)
-		{
-			meshIndexCount = BindMesh(renderingList[i]);
-			previousMeshKey = renderingList[i].mash_key;
-		}
-
-		if (previousTextureKey != renderingList[i].texture_key)
-		{
-			BindTexture(renderingList[i]);
-			previousTextureKey = renderingList[i].texture_key;
-		}
-		if (previousMaterialKey != renderingList[i].material_key)
-		{
-
-			if (previousShaderKey != renderingList[i].shader_key)
-			{
-				BindShader(renderingList[i]);
-				previousShaderKey = renderingList[i].shader_key;
-			}
-
-
-			ID3D11SamplerState* sampler = samplerState.Get();
-			core->GetDeviceContext()->PSSetSamplers(0, 1, &sampler);
-			core->GetDeviceContext()->VSSetSamplers(0, 1, &sampler);
-
-			BindRasterizer(renderingList[i]);
-			previousMaterialKey = renderingList[i].material_key;
-		}
-		// Depth sorting can change shader order independently of the material key.
-		if (previousShaderKey != renderingList[i].shader_key)
-		{
-			BindShader(renderingList[i]);
-			previousShaderKey = renderingList[i].shader_key;
-		}
+		BindDrawResources(renderingList[i]);
 
 		core->GetDeviceContext()->DrawIndexed(meshIndexCount, 0, 0);
 	}

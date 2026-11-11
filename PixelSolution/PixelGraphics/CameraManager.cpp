@@ -16,12 +16,20 @@ PixelGraphics::CameraManager::CameraManager(GraphicsCore* core, ResourceManager*
 	this->resourceManager = resourceManager;
 	shaderFactory = resourceManager->GetFactory<ShaderFactory>(ResourceType::SHADER);
 	cameraBufferResource = shaderFactory->GetBuffer("CameraBuffer");
+	targetViewport.Width = static_cast<float>(GraphicsCore::VirtualWidth);
+	targetViewport.Height = static_cast<float>(GraphicsCore::VirtualHeight);
+	targetViewport.MaxDepth = 1.0f;
 }
 
 PixelGraphics::CameraManager::~CameraManager()
 {
 	this->core = nullptr;
 	this->resourceManager = nullptr;
+}
+
+bool PixelGraphics::CameraManager::IsReady() const
+{
+	return core && core->GetDeviceContext() && cameraBufferResource && cameraBufferResource->buffer;
 }
 
 void PixelGraphics::CameraManager::Setting(RenderingData& r)

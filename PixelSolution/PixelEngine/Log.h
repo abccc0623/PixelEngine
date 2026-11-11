@@ -9,6 +9,7 @@ public:
 	static void Info(const std::string& msg);
 	static void Warn(const std::string& msg);
 	static void Error(const std::string& msg);
+	static void EntityError(unsigned int id, const std::string& msg);
 
 	static void LogMemory(const char* file, int line, const std::string& msg)
 	{

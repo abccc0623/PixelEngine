@@ -17,7 +17,7 @@ namespace
 		auto data = registry->Get<Physics2DData>(id);
 		if (data == nullptr)
 		{
-			PixelLog::Error(std::string("[Rigidbody2D][") + operation +
+			PixelLog::EntityError(id, std::string("[Rigidbody2D][") + operation +
 				"] Missing Physics2D component. Entity ID: " + std::to_string(id));
 		}
 		return data;
@@ -41,7 +41,7 @@ namespace
 			auto physics = Engine->GetFactory<PhysicsFunction>();
 			if (!physics->SetAllowedDOFs(data->bodyID, allowed, data->Motiontype))
 			{
-				PixelLog::Error(std::string("[Rigidbody2D][") + operation + "] Cannot update body constraints. Entity ID: " + std::to_string(id));
+				PixelLog::EntityError(id, std::string("[Rigidbody2D][") + operation + "] Cannot update body constraints. Entity ID: " + std::to_string(id));
 				return false;
 			}
 		}
@@ -140,7 +140,7 @@ void Rigidbody2D_SetPosition(unsigned int id, PVector3 position)
 	auto transform = registry->Get<TransformData>(id);
 	if (transform == nullptr)
 	{
-		PixelLog::Error("[Rigidbody2D][SetPosition] Missing Transform component. Entity ID: " + std::to_string(id));
+		PixelLog::EntityError(id, "[Rigidbody2D][SetPosition] Missing Transform component. Entity ID: " + std::to_string(id));
 		return;
 	}
 	if (data1->bodyID.IsInvalid() == false)
@@ -161,7 +161,7 @@ void Rigidbody2D_SetRotation(unsigned int id, PVector3 rotation)
 	auto transform = registry->Get<TransformData>(id);
 	if (transform == nullptr)
 	{
-		PixelLog::Error("[Rigidbody2D][SetRotation] Missing Transform component. Entity ID: " + std::to_string(id));
+		PixelLog::EntityError(id, "[Rigidbody2D][SetRotation] Missing Transform component. Entity ID: " + std::to_string(id));
 		return;
 	}
 	if (data1->bodyID.IsInvalid() == false)
@@ -188,7 +188,7 @@ void Rigidbody2D_SetVelocity(unsigned int id, PVector3 velocity)
 	{
 		if (data1->Create == true)
 		{
-			PixelLog::Error("[Rigidbody2D][SetVelocity] Invalid physics body. Entity ID: " + std::to_string(id));
+			PixelLog::EntityError(id, "[Rigidbody2D][SetVelocity] Invalid physics body. Entity ID: " + std::to_string(id));
 		}
 	}
 }
@@ -268,7 +268,7 @@ void Rigidbody2D_SetLayer(unsigned int id, const char* layerName)
 	auto data1 = registry->Get<Physics2DData>(id);
 	if (data1 == nullptr || layerName == nullptr)
 	{
-		PixelLog::Error("[Rigidbody2D][SetLayer] Invalid Component Or LayerName");
+		PixelLog::EntityError(id, "[Rigidbody2D][SetLayer] Invalid Component Or LayerName");
 		return;
 	}
 	if (data1->bodyID.IsInvalid() == false)
@@ -284,7 +284,7 @@ const char* Rigidbody2D_GetLayer(unsigned int id)
 	auto data = GetRegistry()->Get<Physics2DData>(id);
 	if (data == nullptr)
 	{
-		PixelLog::Error("[Rigidbody2D][GetLayer] Not Find Component");
+		PixelLog::EntityError(id, "[Rigidbody2D][GetLayer] Not Find Component");
 		return "";
 	}
 	return data->layer.c_str();

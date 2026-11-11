@@ -24,7 +24,7 @@ class PixelEngine
 public:
 	PixelEngine() = default;
 	~PixelEngine() = default;
-	void Initialize(HWND hWnd, int width, int height, std::string assetPath);
+	bool Initialize(HWND hWnd, int width, int height, std::string assetPath);
 	void Update();
 	void ReleaseShared();
 	void Resize(int width, int height);
@@ -68,6 +68,7 @@ public:
 private:
 	std::map<std::type_index, EngineManager*> factoryMap;
 	std::string EngineRootFolderPath;
+	bool graphicsReloadFailed = false;
 
 };
 

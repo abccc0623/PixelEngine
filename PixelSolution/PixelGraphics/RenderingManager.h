@@ -36,7 +36,7 @@ namespace PixelGraphics
 
 		void SetBackgroundColor(float r, float g, float b);
 		void SetRendering(RenderingData& data);
-		void ChangePipeline(PipelineType type);
+		bool ChangePipeline(PipelineType type);
 	private:
 		GraphicsCore* core = nullptr;
 		ResourceManager* resource = nullptr;

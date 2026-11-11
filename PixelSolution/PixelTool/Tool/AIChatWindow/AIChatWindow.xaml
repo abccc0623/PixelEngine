@@ -65,12 +65,24 @@
             </DockPanel>
           </StackPanel>
             <DockPanel Margin="6,3">
-                <TextBlock Text="모델" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="매니저 모델" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <ComboBox x:Name="ModelBox" IsEnabled="False" MinWidth="160" DisplayMemberPath="DisplayName"
                           SelectionChanged="ModelChanged" ToolTip="현재 ChatGPT 계정이 제공하는 모델 목록입니다. 변경은 다음 메시지부터 적용됩니다."/>
             </DockPanel>
+            <DockPanel Margin="6,3">
+                <TextBlock Text="프로그래머 모델" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="ProgrammerModelBox" IsEnabled="False" MinWidth="160" DisplayMemberPath="DisplayName"
+                          SelectionChanged="ProgrammerModelChanged" ToolTip="코드 분석·수정을 맡는 프로그래머의 독립 모델입니다. 다음 요청부터 적용됩니다."/>
+            </DockPanel>
+            <DockPanel Margin="6,3">
+                <TextBlock Text="프로그래머 추론" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="ProgrammerEffortBox" IsEnabled="False" MinWidth="160"
+                          SelectionChanged="ProgrammerEffortChanged" ToolTip="선택한 모델이 제공하는 추론 강도입니다."/>
+            </DockPanel>
+            <TextBlock x:Name="ProgrammerModelWarning" Visibility="Collapsed" TextWrapping="Wrap" Margin="6,3"
+                       Foreground="{DynamicResource PixelAccentBrush}"/>
             <CheckBox x:Name="RequirePlan" Content="이번 요청은 계획 승인 후 작업" Foreground="{DynamicResource PixelTextBrush}" Margin="6"
-                      ToolTip="켜면 간단 작업도 계획 승인 전에는 변경할 수 없습니다. 큰 작업·보조 작업자는 자동으로 계획 승인이 필요합니다."/>
+                      ToolTip="켜면 간단 작업도 계획 승인 전에는 변경할 수 없습니다. 큰 작업·선택적 조사/검토 작업은 계획 승인이 필요하며, 일반 프로그래머 작업은 기존 승인 설정을 따릅니다."/>
             <CheckBox x:Name="AllowEdits" Content="프로젝트 파일 수정 허용" Foreground="{DynamicResource PixelTextBrush}" Margin="6"
                       Checked="AllowEditsChanged" Unchecked="AllowEditsChanged"/>
             <DockPanel Margin="6,3">
@@ -228,6 +240,22 @@
                                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                                      ContextMenu="{Binding ContextMenu, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
                         </Expander>
+                        <Expander Header="승인 범위·제약·검증 상세 보기" IsExpanded="False" Margin="8,0"
+                                  Foreground="{DynamicResource PixelMutedTextBrush}">
+                            <Expander.Style>
+                                <Style TargetType="Expander">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasDetails}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Expander.Style>
+                            <TextBox Text="{Binding Details, Mode=OneWay}" IsReadOnly="True" IsUndoEnabled="False"
+                                     AcceptsReturn="True" TextWrapping="Wrap" MaxHeight="360"
+                                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"/>
+                        </Expander>
                       </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -239,6 +267,13 @@
                     <StackPanel>
                         <TextBlock x:Name="ChoiceQuestion" TextWrapping="Wrap" FontWeight="Bold"
                                    Foreground="{DynamicResource PixelTextBrush}" Margin="0,0,0,6"/>
+                        <Expander x:Name="ChoiceDetails" Header="승인 범위·제약·검증 상세 보기"
+                                  IsExpanded="False" Visibility="Collapsed" Margin="0,0,0,6"
+                                  Foreground="{DynamicResource PixelMutedTextBrush}">
+                            <TextBox x:Name="ChoiceDetailsText" IsReadOnly="True" IsUndoEnabled="False"
+                                     AcceptsReturn="True" TextWrapping="Wrap" MaxHeight="180"
+                                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"/>
+                        </Expander>
                         <ItemsControl x:Name="ChoiceOptions">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -259,9 +294,11 @@
         </Grid>
         <TextBox x:Name="PromptBox" Grid.Row="4" Margin="0,6,0,0" MinHeight="56" MaxHeight="120" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" PreviewKeyDown="PromptKeyDown" ToolTip="Ctrl+Enter: 전송"
                  IsReadOnly="{Binding IsEnabled, ElementName=StopButton}"/>
-        <DockPanel Grid.Row="5">
-            <Button x:Name="StopButton" Content="응답 중지" Click="Stop" IsEnabled="False"/>
-            <Button x:Name="SendButton" Content="전송 (Ctrl+Enter)" Click="Send" IsEnabled="False" HorizontalAlignment="Right"/>
-        </DockPanel>
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="StopButton" Content="요청 중지" Click="Stop" IsEnabled="False"
+                    AutomationProperties.Name="현재 AI 요청 중지"
+                    ToolTip="진행 중인 요청과 보조 작업을 중지합니다. 이미 수행한 변경은 되돌리지 않습니다."/>
+            <Button x:Name="SendButton" Content="전송 (Ctrl+Enter)" Click="Send" IsEnabled="False"/>
+        </StackPanel>
     </Grid>
 </UserControl>

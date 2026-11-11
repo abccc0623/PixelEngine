@@ -1,13 +1,13 @@
 #pragma once
 #include "PASS.h"
+#include "TextRenderer.h"
 namespace PixelGraphics
 {
-	class TextRenderer;
 	class UIPass : public PASS
 	{
 	public:
 		UIPass(GraphicsCore* core, ResourceManager* resourceManager, CameraManager* cameraManager);
-		virtual ~UIPass();
+		~UIPass() override;
 
 		void SetRenderingData(RenderingData& renderingData) override;
 		void Rendering(RenderTarget& renderTarget) override;
@@ -16,7 +16,7 @@ namespace PixelGraphics
 		void BindObjectBuffer(RenderingData& renderingData) override;
 	private:
 		std::vector<RenderingData> renderingList;
-		TextRenderer* textRenderer = nullptr;
+		TextRenderer textRenderer;
 	};
 }
 

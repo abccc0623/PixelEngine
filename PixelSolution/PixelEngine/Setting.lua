@@ -36,10 +36,16 @@ function LuaManager:Update(DTime)
 	
 	if not self.entities then return end
 	isUpdating = true
+	local currentFrame = {}
+	for id, entityData in pairs(self.entities) do
+		currentFrame[#currentFrame + 1] = {id = id, data = entityData}
+	end
 
 	--루아의 기본 함수 업데이트 호출
-	for id, entityData in pairs(self.entities) do
-		if entityData.Update then
+	for _, entry in ipairs(currentFrame) do
+		local id = entry.id
+		local entityData = entry.data
+		if self.entities[id] == entityData and not pendingDestroy[id] and entityData.Update then
 			if Entity.GetActive(id) then
 				entityData.EntityTable:Update(DTime)
 			end

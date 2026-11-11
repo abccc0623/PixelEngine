@@ -138,13 +138,18 @@ uint32_t SceneObject::CreatePoolEntity(const std::string& scriptName)
 
 ECS::EntityObject* SceneObject::FindEntity(uint32_t id)
 {
-	ECS::EntityObject* entity = Chunked.Get(id);
+	ECS::EntityObject* entity = TryFindEntity(id);
 	if (entity != nullptr)
 	{
 		return entity;
 	}
 	PixelLog::Error("[SceneObject][FindEntity] Invalid or stale Entity ID: " + std::to_string(id));
 	return nullptr;
+}
+
+ECS::EntityObject* SceneObject::TryFindEntity(uint32_t id)
+{
+	return Chunked.Get(id);
 }
 
 void SceneObject::ActiveEntity(uint32_t id, bool active)

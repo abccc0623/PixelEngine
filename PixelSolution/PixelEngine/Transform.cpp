@@ -19,7 +19,7 @@ TransformData* Transform_Get(unsigned int id)
 	TransformData* data = registry->Get<TransformData>(id);
 	if (data == nullptr)
 	{
-		PixelLog::Error("[Transform][GetComponent] Not Find Component");
+		PixelLog::EntityError(id, "[Transform][GetComponent] Not Find Component");
 	}
 	return data;
 }
@@ -43,7 +43,7 @@ void Transform_SetParent(unsigned int id, unsigned int ParentID)
 	auto thisEntity = FindEntity(id);
 	if (thisEntity == nullptr)
 	{
-		PixelLog::Error("[Transform][SetParent] Not Find This EntityID: " + std::to_string(id));
+		PixelLog::EntityError(id, "[Transform][SetParent] Not Find This EntityID: " + std::to_string(id));
 		return;
 	}
 	thisEntity->SetParent(ParentID);
@@ -54,7 +54,7 @@ void Transform_SetChild(unsigned int id, unsigned int ChildID)
 	auto thisEntity = FindEntity(id);
 	if (thisEntity == nullptr)
 	{
-		PixelLog::Error("[Transform][SetChild] Not Find This EntityID: " + std::to_string(id));
+		PixelLog::EntityError(id, "[Transform][SetChild] Not Find This EntityID: " + std::to_string(id));
 		return;
 	}
 	thisEntity->SetChild(ChildID);

@@ -31,6 +31,7 @@ public:
 	void ChangeScene(std::string SceneName);
 	void ApplyPendingChange();
 	SceneObject* GetNowScene();
+	SceneObject* PeekNowScene() const { return nowScene.get(); }
 private:
 	void ReleaseCurrentScene();
 	std::unique_ptr<SceneObject> nowScene;

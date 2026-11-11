@@ -11,7 +11,7 @@ namespace PixelGraphics
 		virtual ~Pipeline() = default;
 		bool Initialize();
 		void Release();
-		virtual void PipelineInitialize() = 0;
+		virtual bool PipelineInitialize() = 0;
 		virtual void PipelineRelease() = 0;
 		virtual void Rendering() = 0;
 		virtual void SetRenderingData(RenderingData& renderingData) = 0;

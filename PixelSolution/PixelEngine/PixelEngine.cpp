@@ -25,7 +25,7 @@
 #include "EntityObject.h"
 #include "Asset.h"
 
-void PixelEngine::Initialize(HWND hWnd, int width, int height, std::string assetPath)
+bool PixelEngine::Initialize(HWND hWnd, int width, int height, std::string assetPath)
 {
 	BindFactory<KeyInputManager>();
 	BindFactory<TimeManager>();
@@ -43,13 +43,15 @@ void PixelEngine::Initialize(HWND hWnd, int width, int height, std::string asset
 	EngineRootFolderPath = assetPath;
 	if (hWnd != nullptr)
 	{
-		PixelGraphicsInitialize(hWnd, width, height);
+		graphicsReloadFailed = !PixelGraphicsInitialize(hWnd, width, height);
 	}
 
 	for (auto& k : factoryMap)
 	{
 		k.second->Initialize();
 	}
+	if (graphicsReloadFailed) PixelLog::Error("[Graphics] Initialization failed.");
+	return !graphicsReloadFailed;
 }
 
 void PixelEngine::Update()
@@ -64,14 +66,20 @@ void PixelEngine::ClientUpdate()
 
 void PixelEngine::EngineUpdate()
 {
-	for (auto& k : factoryMap)
+	if (!graphicsReloadFailed)
 	{
-		k.second->Update();
+		for (auto& k : factoryMap)
+		{
+			k.second->Update();
+		}
+		PixelGraphicsRendering();
 	}
-	PixelGraphicsRendering();
 
 	if (IsClear == true)
 	{
+		// Clear runs only after this frame's callbacks and draws have returned.
+		IsClear = false;
+		graphicsReloadFailed = true;
 		// Scene teardown needs both Lua references and the physics world alive.
 		GetFactory<SceneManager>()->Clear();
 		GetFactory<CoroutineManager>()->Clear();
@@ -79,11 +87,15 @@ void PixelEngine::EngineUpdate()
 		{
 			k.second->Clear();
 		}
-		GraphicsClear();
+		if (!GraphicsClear())
+		{
+			PixelLog::Error("[Graphics] Resource reload failed. Rendering is paused; reload again to retry.");
+			return;
+		}
 		Asset_Import("./Asset/main.lua");
-		IsClear = false;
+		graphicsReloadFailed = false;
 	}
-	else
+	else if (!graphicsReloadFailed)
 	{
 		// All Lua, Spawn, system, coroutine and collision callbacks have returned.
 		GetFactory<SceneManager>()->ApplyPendingChange();

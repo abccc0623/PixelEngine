@@ -1,6 +1,12 @@
 #include "pch.h"
 #include "Export/PixelEngineAPI.h"
 #include "Log.h"
+#include "PixelEngine.h"
+#include "SceneManager.h"
+#include "SceneObject.h"
+#include "EntityObject.h"
+
+extern PixelEngine* Engine;
 
 extern LogCallbackFunc g_logCallback;
 void PixelLog::Init(const std::string& filename)
@@ -18,6 +24,22 @@ void PixelLog::Warn(const std::string& msg)
 void PixelLog::Error(const std::string& msg)
 {
 	Print(LogLevel::ERR, msg, "\033[31m"); // Red
+}
+
+void PixelLog::EntityError(unsigned int id, const std::string& msg)
+{
+	std::string fileName = "Unknown";
+	if (Engine)
+	{
+		auto sceneManager = Engine->GetFactory<SceneManager>();
+		auto scene = sceneManager ? sceneManager->PeekNowScene() : nullptr;
+		auto entity = scene ? scene->TryFindEntity(id) : nullptr;
+		if (entity && !entity->GetScriptName().empty())
+		{
+			fileName = entity->GetScriptName() + ".pxm";
+		}
+	}
+	Error("FileName : [" + fileName + "]\nLog : " + msg);
 }
 
 std::ofstream& PixelLog::GetFileStream()

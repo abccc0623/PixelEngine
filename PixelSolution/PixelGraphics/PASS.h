@@ -16,9 +16,12 @@ namespace PixelGraphics
 	public:
 		PASS(GraphicsCore* core, ResourceManager* resourceManager, CameraManager* cameraManager);
 		virtual ~PASS();
+		virtual bool IsReady() const;
 		virtual void SetRenderingData(RenderingData& renderingData) = 0;
 		virtual void Rendering(RenderTarget& renderTarget) = 0;
 
+		void BindDrawResources(RenderingData& r);
+		void BindSampler();
 		virtual void BindObjectBuffer(RenderingData& r);
 		virtual void BindTexture(RenderingData& r);
 		virtual void BindShader(RenderingData& r);
