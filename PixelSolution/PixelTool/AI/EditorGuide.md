@@ -85,7 +85,7 @@ When a user asks how to organize game resources, suggest grouping by asset kind 
 
 Follow AIRestrictions.md's save/reimport/fix loop; no additional gameplay testing unless requested.
 - Save accessible editor changes before reimport; report inability to preserve/inspect unsaved changes. Disk changes are detected by the editor.
-- `reimport_project` uses existing Reload on the render thread; the engine rereads Asset/main.lua, resets runtime, and returns captured logs/cursor after the reload frame.
+- `reimport_project` clears the current log window/history, then uses existing Reload on the render thread; the engine rereads Asset/main.lua, resets runtime, and returns new logs/cursor after the reload frame. Manual `Ctrl+R` does not automatically clear logs.
 - Refuses unsaved buffers, debugger break/shutdown or non-running engine. Always Confirm uses a dialog; Automatic follows edit permission.
 - `read_editor_logs(afterCursor, limit)`: continue through cursor/hasMore; account for truncated/cleared history. Reimport does not clear logs.
 - Cleared/partial logs or a completed reload do not prove error-free gameplay. On reload timeout/cancellation, initialization may already have run: do not assume rollback or blindly retry; inspect the cause.

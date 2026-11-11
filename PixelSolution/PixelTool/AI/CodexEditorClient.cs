@@ -29,6 +29,9 @@ internal sealed class CodexEditorClient : IAsyncDisposable
     public Func<Task<ChatGptProjectTools.ImportedAsset?>>? PickAsset { get; set; }
     public Func<CancellationToken, Task<JsonElement>>? ReimportProject { get; set; }
     public Func<long, int, JsonElement>? ReadEditorLogs { get; set; }
+    public Func<Task<long>>? ClearEditorLogs { get; set; }
+    public Func<string, int, CancellationToken, Task<JsonElement>>? TestGameKey { get; set; }
+    public Func<string, Task<JsonElement>>? SetEditorMode { get; set; }
     public Func<string, int, int, Task<string>>? HighlightLuaLines { get; set; }
     public Func<string, Task<bool>>? CanDeleteAssetFile { get; set; }
     public Func<string, string[], CancellationToken, Task<string>>? AskChoice { get; set; }
@@ -385,6 +388,18 @@ internal sealed class CodexEditorClient : IAsyncDisposable
             else if (name == "read_editor_logs")
                 result = (ReadEditorLogs ?? throw new InvalidOperationException("로그 도구가 연결되지 않았습니다."))(
                     args.GetProperty("afterCursor").GetInt64(), args.GetProperty("limit").GetInt32()).GetRawText();
+            else if (name == "clear_editor_logs")
+            {
+                if (ClearEditorLogs == null) throw new InvalidOperationException("로그 삭제 도구가 연결되지 않았습니다.");
+                long cursor = await ClearEditorLogs().WaitAsync(token).ConfigureAwait(false);
+                result = JsonSerializer.Serialize(new { cleared = true, afterCursor = cursor });
+            }
+            else if (name == "test_game_key")
+                result = (await (TestGameKey ?? throw new InvalidOperationException("게임 입력 도구가 연결되지 않았습니다."))(
+                    args.GetProperty("key").GetString()!, args.GetProperty("frames").GetInt32(), token).WaitAsync(token).ConfigureAwait(false)).GetRawText();
+            else if (name == "set_editor_mode")
+                result = (await (SetEditorMode ?? throw new InvalidOperationException("모드 전환 도구가 연결되지 않았습니다."))(
+                    args.GetProperty("mode").GetString()!).WaitAsync(token).ConfigureAwait(false)).GetRawText();
             else if (name == "highlight_lua_lines")
                 result = JsonSerializer.Serialize(new { result = await (HighlightLuaLines ?? throw new InvalidOperationException("에디터 표시 도구가 없습니다."))(
                     args.GetProperty("path").GetString()!, args.GetProperty("startLine").GetInt32(), args.GetProperty("endLine").GetInt32()).WaitAsync(token).ConfigureAwait(false) });

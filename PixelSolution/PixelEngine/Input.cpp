@@ -84,6 +84,11 @@ bool Input_KeyUp(Keycode key)
 	return key != Keycode::None && input->GetKeyUp(ToVirtualKey(key));
 }
 
+bool Input_QueueVirtualKey(unsigned char virtualKey, int frames)
+{
+	return Engine->GetFactory<KeyInputManager>()->QueueTestKey(virtualKey, frames);
+}
+
 int Input_GetMousePositionX()
 {
 	auto input = Engine->GetFactory<KeyInputManager>();

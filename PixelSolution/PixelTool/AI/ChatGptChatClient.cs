@@ -26,6 +26,9 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
     public Func<Task<ChatGptProjectTools.ImportedAsset?>>? PickAsset { get; set; }
     public Func<CancellationToken, Task<JsonElement>>? ReimportProject { get; set; }
     public Func<long, int, JsonElement>? ReadEditorLogs { get; set; }
+    public Func<Task<long>>? ClearEditorLogs { get; set; }
+    public Func<string, int, CancellationToken, Task<JsonElement>>? TestGameKey { get; set; }
+    public Func<string, Task<JsonElement>>? SetEditorMode { get; set; }
     public Func<string, int, int, Task<string>>? HighlightLuaLines { get; set; }
     public Func<string, Task<bool>>? CanDeleteAssetFile { get; set; }
     public Func<string, string[], CancellationToken, Task<string>>? AskChoice { get; set; }
@@ -154,7 +157,8 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                         "Prefer read_project_file_lines for focused inspection. Use patch_project_file with its SHA256 for a unique exact change; read_project_file before whole-file replacement. Partial content and numbered lines must never replace a whole file. " +
                         "Project tools can list/read/write text, highlight located Lua lines in the editor, create Asset folders, inspect/copy existing assets, import a user-picked external asset, and draw simple PNGs. " +
                         "For a requested simple placeholder or pixel graphic, use create_png_asset, not an unsupported-format excuse. SVG text can be saved but engine SVG rendering support must not be assumed; prefer PNG for textures. " +
-                        "PNG drawing is procedural, not an image-generation AI. Reimport and editor-log tools are available: after script changes use reimport_project and inspect its summary, then read_editor_logs only if details are needed. " +
+                        "PNG drawing is procedural, not an image-generation AI. After script changes use reimport_project, which clears old logs before reload; inspect its new-log summary, then read_editor_logs only if details are needed. Do not call clear_editor_logs separately for reimport. " +
+                        "For gameplay changes, define observable events and use temporary [AI_TEST] logs at real event sites when useful. After reimport, call set_editor_mode(play), use bounded test_game_key and inspect new log order, entity IDs and errors. Return to editor mode afterward if this turn changed the mode. Remove temporary test logs, reimport and check errors again before finishing. If mode switch or input is unavailable, report that gameplay was not exercised. Logs do not prove visual correctness. " +
                         "Reimport resets runtime; it is not a build or a new game/editor process. Asset file/folder creation, moves/renames and recycle-bin deletion are available under current edit/approval settings. Never move/delete Asset itself or Engine/Editor/outside paths. Automatic mode needs no extra confirmation. No arbitrary command execution, permanent deletion, network, build or game launch tool exists. " +
                         "Never claim those actions were performed. Ask the user to perform them when needed. " +
                         CommandExecutionPreference.ForTurn(confirmActions) +
@@ -222,6 +226,22 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                         {
                             if (ReadEditorLogs == null) throw new InvalidOperationException("로그 조회 도구가 연결되지 않았습니다.");
                             result = ReadEditorLogs(args.RootElement.GetProperty("afterCursor").GetInt64(), args.RootElement.GetProperty("limit").GetInt32()).GetRawText();
+                        }
+                        else if (name == "clear_editor_logs")
+                        {
+                            if (ClearEditorLogs == null) throw new InvalidOperationException("로그 삭제 도구가 연결되지 않았습니다.");
+                            result = JsonSerializer.Serialize(new { cleared = true, afterCursor = await ClearEditorLogs().WaitAsync(token).ConfigureAwait(false) });
+                        }
+                        else if (name == "test_game_key")
+                        {
+                            if (TestGameKey == null) throw new InvalidOperationException("게임 입력 도구가 연결되지 않았습니다.");
+                            result = (await TestGameKey(args.RootElement.GetProperty("key").GetString()!,
+                                args.RootElement.GetProperty("frames").GetInt32(), token).WaitAsync(token).ConfigureAwait(false)).GetRawText();
+                        }
+                        else if (name == "set_editor_mode")
+                        {
+                            if (SetEditorMode == null) throw new InvalidOperationException("모드 전환 도구가 연결되지 않았습니다.");
+                            result = (await SetEditorMode(args.RootElement.GetProperty("mode").GetString()!).WaitAsync(token).ConfigureAwait(false)).GetRawText();
                         }
                         else if (name == "highlight_lua_lines")
                         {

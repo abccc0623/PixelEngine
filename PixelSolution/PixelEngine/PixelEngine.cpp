@@ -68,8 +68,12 @@ void PixelEngine::EngineUpdate()
 {
 	if (!graphicsReloadFailed)
 	{
+		// Input.KeyDown must be ready before Lua and gameplay managers run.
+		auto input = GetFactory<KeyInputManager>();
+		input->Update();
 		for (auto& k : factoryMap)
 		{
+			if (k.second == input) continue;
 			k.second->Update();
 		}
 		PixelGraphicsRendering();

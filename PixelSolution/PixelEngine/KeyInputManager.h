@@ -23,6 +23,7 @@ public:
 	bool GetKey(byte keyNumber);
 	bool GetKeyDown(byte keyNumber);
 	bool GetKeyUp(byte keyNumber);
+	bool QueueTestKey(byte keyNumber, int frames);
 	int MousePosition_X();
 	int MousePosition_Y();
 
@@ -33,6 +34,7 @@ private:
 	bool pastFocus = true;
 	static constexpr int arraySize = 256;
 	unsigned char keyStates[arraySize];
+	int testKeyFrames[arraySize]{};
 
 	EventManager* event;
 };

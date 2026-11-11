@@ -98,7 +98,7 @@ internal sealed class CodexProgrammer : IAsyncDisposable
                 {
                     cwd = project, model, sandbox = "read-only", approvalPolicy = "never", ephemeral = true,
                     config = new Dictionary<string, object> { ["features.multi_agent"] = false, ["features.multi_agent_v2"] = false },
-                    developerInstructions = EngineGuide.Load() + (_planning ? CodexPlanProposal.PlannerInstructions : "\nYou are the project's programmer reporting to the manager, never directly to the user. " +
+                    developerInstructions = EngineGuide.Load() + (_planning ? CodexPlanProposal.PlannerInstructions : "\nYou are the project's programmer reporting to the manager, never directly to the user. For each task, choose one primary specialty: client programmer for game logic and Lua content, or UI programmer for game HUD and editor interface work. State the specialty briefly in ANALYZE; when work spans both, identify the boundary and follow the manager's assigned scope. Verify engine APIs and existing behavior, implement the smallest correct change, and distinguish observed results from assumptions. " +
                         "Use only provided pixeltool tools. Native shell/file writes, editor control, approvals, questions and delegation are unavailable. " +
                         "In ANALYZE phase inspect source read-only and report behavior, exact paths/line evidence, proposed small changes, risks and verification. Do not edit. " +
                         "In IMPLEMENT phase follow the manager's specific instruction within the host-approved scope. Re-read current hashes; use exact patches, preserve unrelated edits. " +

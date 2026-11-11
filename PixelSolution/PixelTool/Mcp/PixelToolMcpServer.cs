@@ -350,6 +350,45 @@ public sealed class PixelToolProjectTools
     public static string ReadEditorLogs(long afterCursor = 0, int limit = 50, string level = "all")
         => ConsoleWindow.ReadLogsForAi(afterCursor, limit, level).GetRawText();
 
+    [McpServerTool(Name = "clear_editor_logs", ReadOnly = false, Destructive = true, OpenWorld = false),
+     Description("Clear the currently displayed PixelTool log window and its captured log history. Use only when the user explicitly requests clearing logs. Returns the cursor to use as afterCursor for subsequent read_editor_logs calls; cleared history cannot be checked afterward.")]
+    public static async Task<string> ClearEditorLogs()
+    {
+        var app = Application.Current;
+        if (app == null) return "PixelTool 에디터가 실행 중이지 않습니다.";
+        long cursor = await app.Dispatcher.InvokeAsync(() =>
+            app.MainWindow is MainWindow window
+                ? window.ClearEditorLogsForAi()
+                : throw new InvalidOperationException("PixelTool 메인 창을 찾을 수 없습니다.")).Task.ConfigureAwait(false);
+        return JsonSerializer.Serialize(new { cleared = true, afterCursor = cursor });
+    }
+
+    [McpServerTool(Name = "test_game_key", ReadOnly = false, Destructive = false, OpenWorld = false),
+     Description("In PixelTool play mode, send one game key (A-Z, Space, Enter, Left, Up, Right, Down) for 1-120 engine frames. Returns only new log summary after those frames; use read_editor_logs for details. Does not modify project files. Use for bounded gameplay checks after reimport.")]
+    public static async Task<string> TestGameKey(string key, int frames = 1)
+    {
+        var app = Application.Current;
+        if (app == null) return "PixelTool 에디터가 실행 중이지 않습니다.";
+        var result = await app.Dispatcher.InvokeAsync(() =>
+            app.MainWindow is MainWindow window
+                ? window.TestGameKeyForAiAsync(key, frames, CancellationToken.None)
+                : throw new InvalidOperationException("PixelTool 메인 창을 찾을 수 없습니다.")).Task.Unwrap().ConfigureAwait(false);
+        return result.GetRawText();
+    }
+
+    [McpServerTool(Name = "set_editor_mode", ReadOnly = false, Destructive = false, OpenWorld = false),
+     Description("Set the PixelTool toolbar mode to play or editor using its existing toggle. Returns the resulting mode and whether it changed. In play mode, test_game_key can drive gameplay.")]
+    public static async Task<string> SetEditorMode(string mode)
+    {
+        var app = Application.Current;
+        if (app == null) return "PixelTool 에디터가 실행 중이지 않습니다.";
+        var result = await app.Dispatcher.InvokeAsync(() =>
+            app.MainWindow is MainWindow window
+                ? window.SetEditorModeForAi(mode)
+                : throw new InvalidOperationException("PixelTool 메인 창을 찾을 수 없습니다.")).Task.ConfigureAwait(false);
+        return result.GetRawText();
+    }
+
     [McpServerTool(Name = "highlight_lua_lines", ReadOnly = false, Destructive = false, OpenWorld = false),
      Description("Open a project Lua file in the PixelTool Lua editor and highlight a 1-based line range. Use after locating the requested code. path is relative to the open project, e.g. Asset/Script/main.lua. Selects the current in-memory document, including unsaved edits. Does not change file content.")]
     public static async Task<string> HighlightLuaLines(string path, int startLine, int endLine)

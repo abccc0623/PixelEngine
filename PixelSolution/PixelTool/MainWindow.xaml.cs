@@ -71,6 +71,12 @@ namespace PixelTool
             ConsolePanel.ClearLogs();
         }
 
+        internal long ClearEditorLogsForAi()
+        {
+            ConsolePanel.ClearLogs();
+            return ConsoleWindow.LogCursor;
+        }
+
         private void MainWindow_Closing(object? sender, CancelEventArgs e)
         {
             if (!dockManager.ConfirmCloseTools()) { e.Cancel = true; return; }
@@ -113,6 +119,7 @@ namespace PixelTool
                 return System.Text.Json.JsonSerializer.SerializeToElement(new { reimportCompleted = false, reason = "저장하지 않은 Lua 편집 내용이 있습니다. 먼저 저장해 주세요." });
             if (LuaDebugSession.IsInspecting || LuaDebugSession.IsShuttingDown)
                 return System.Text.Json.JsonSerializer.SerializeToElement(new { reimportCompleted = false, reason = "Lua 디버거가 중단 또는 종료 상태입니다. 계속 실행한 뒤 다시 요청하세요." });
+            long clearedThroughCursor = ClearEditorLogsForAi();
             long cursor;
             try { cursor = await GraphicsWindow.RequestReimportAsync(token); }
             catch (OperationCanceledException) when (!token.IsCancellationRequested)
@@ -122,8 +129,53 @@ namespace PixelTool
             }
             return System.Text.Json.JsonSerializer.SerializeToElement(new
             {
-                reimportCompleted = true, afterCursor = cursor, logs = ConsoleWindow.SummarizeLogsForAi(cursor),
+                reimportCompleted = true, logsCleared = true, clearedThroughCursor, afterCursor = cursor, logs = ConsoleWindow.SummarizeLogsForAi(cursor),
                 note = "리임포트 프레임 처리가 끝났습니다. 반환된 로그와 이후 로그를 확인하세요. 오류가 없는 전체 실행을 보장하지 않습니다."
+            });
+        }
+
+        internal async Task<System.Text.Json.JsonElement> TestGameKeyForAiAsync(string key, int frames, CancellationToken token)
+        {
+            Dispatcher.VerifyAccess();
+            if (!EditorToolbar.IsPlayMode || LuaDebugSession.IsInspecting)
+                throw new InvalidOperationException("게임 테스트는 플레이 모드이며 디버거가 중단되지 않았을 때만 가능합니다.");
+            string normalized = key.Trim().ToUpperInvariant();
+            byte virtualKey = normalized switch
+            {
+                "SPACE" => 0x20, "ENTER" => 0x0D, "LEFT" => 0x25, "UP" => 0x26,
+                "RIGHT" => 0x27, "DOWN" => 0x28,
+                _ when normalized.Length == 1 && normalized[0] is >= 'A' and <= 'Z' => (byte)normalized[0],
+                _ => throw new ArgumentException("지원 키: A-Z, Space, Enter, Left, Up, Right, Down", nameof(key))
+            };
+            long cursor = await GraphicsWindow.RequestTestKeyAsync(virtualKey, frames, token);
+            var page = ConsoleWindow.ReadLogsForAi(cursor, 100);
+            var events = page.GetProperty("entries").EnumerateArray()
+                .Where(entry => (entry.GetProperty("message").GetString() ?? "").StartsWith("[AI_TEST]", StringComparison.Ordinal))
+                .Select(entry => new { sequence = entry.GetProperty("sequence").GetInt64(), message = entry.GetProperty("message").GetString() })
+                .Take(20).ToArray();
+            return System.Text.Json.JsonSerializer.SerializeToElement(new
+            {
+                key = normalized, frames, afterCursor = cursor, events, logs = ConsoleWindow.SummarizeLogsForAi(cursor)
+            });
+        }
+
+        internal System.Text.Json.JsonElement SetEditorModeForAi(string mode)
+        {
+            Dispatcher.VerifyAccess();
+            if (LuaDebugSession.IsInspecting || LuaDebugSession.IsShuttingDown)
+                throw new InvalidOperationException("Lua 디버거가 중단 또는 종료 중입니다. 계속 실행한 뒤 모드를 변경하세요.");
+            bool play = mode.ToLowerInvariant() switch
+            {
+                "play" => true,
+                "editor" => false,
+                _ => throw new ArgumentException("mode는 play 또는 editor여야 합니다.", nameof(mode))
+            };
+            bool before = EditorToolbar.IsPlayMode;
+            bool actual = EditorToolbar.SetPlayMode(play);
+            if (actual != play) throw new InvalidOperationException("요청한 에디터 모드로 전환하지 못했습니다.");
+            return System.Text.Json.JsonSerializer.SerializeToElement(new
+            {
+                mode = actual ? "play" : "editor", changed = before != actual
             });
         }
 

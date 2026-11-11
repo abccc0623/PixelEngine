@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows.Interop;
 using System.Windows;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 // System.Windows.Media 제거됨 (CompositionTarget 사용 안 함)
 
 namespace PixelTool
@@ -54,6 +55,30 @@ namespace PixelTool
         private readonly object _engineLock = new object(); // C++ Native 호출 동기화 락
         private readonly ConcurrentQueue<Action> _pendingUiChanges = new ConcurrentQueue<Action>();
         private readonly ConcurrentQueue<Action> _afterFrameActions = new();
+        private readonly List<(int Remaining, long Cursor, TaskCompletionSource<long> Completion, CancellationToken Token)> _testKeys = new();
+
+        [DllImport("PixelEngine.dll", CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        private static extern bool Input_QueueVirtualKey(byte virtualKey, int frames);
+
+        internal async Task<long> RequestTestKeyAsync(byte virtualKey, int frames, CancellationToken token)
+        {
+            if (!_isRunning) throw new InvalidOperationException("Scene View 엔진이 실행 중이 아닙니다.");
+            if (frames is < 1 or > 120) throw new ArgumentOutOfRangeException(nameof(frames));
+            var completion = new TaskCompletionSource<long>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _pendingUiChanges.Enqueue(() =>
+            {
+                if (token.IsCancellationRequested || !_isRunning) { completion.TrySetCanceled(token); return; }
+                try
+                {
+                    long cursor = ConsoleWindow.LogCursor;
+                    if (!Input_QueueVirtualKey(virtualKey, frames)) throw new InvalidOperationException("게임 키 입력을 예약하지 못했습니다.");
+                    _testKeys.Add((frames + 1, cursor, completion, token));
+                }
+                catch (Exception ex) { completion.TrySetException(ex); }
+            });
+            return await completion.Task.WaitAsync(token).ConfigureAwait(false);
+        }
 
         internal async Task<long> RequestReimportAsync(CancellationToken token)
         {
@@ -131,6 +156,14 @@ namespace PixelTool
                     while (_pendingUiChanges.TryDequeue(out var change)) change();
                     PixelEngineNative.UpdateEngine();
                     while (_afterFrameActions.TryDequeue(out var finished)) finished();
+                    for (int i = _testKeys.Count - 1; i >= 0; --i)
+                    {
+                        var pending = _testKeys[i];
+                        if (pending.Token.IsCancellationRequested) { pending.Completion.TrySetCanceled(pending.Token); _testKeys.RemoveAt(i); continue; }
+                        if (pending.Remaining > 1) { _testKeys[i] = (pending.Remaining - 1, pending.Cursor, pending.Completion, pending.Token); continue; }
+                        pending.Completion.TrySetResult(pending.Cursor);
+                        _testKeys.RemoveAt(i);
+                    }
                 }
             }
         }

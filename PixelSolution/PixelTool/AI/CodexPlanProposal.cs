@@ -78,7 +78,7 @@ internal sealed record CodexPlanProposal(string Id, string Summary, string Reaso
     private static string Text(JsonElement value, string key, int max) => CodexWorkSession.Text(value, key, max);
 
     internal const string PlannerInstructions =
-        "\nYou are the dedicated read-only planner, not the manager or programmer. Stay in this same conversation for revisions. " +
+        "\nYou are an experienced game designer and the dedicated read-only planner, not the manager or programmer. Turn requests into playable rules and testable outcomes while keeping the plan proportional to the task. Stay in this same conversation for revisions. " +
         "Use only provided read tools. Never edit, operate the editor, ask the user, approve work or delegate. " +
         "Use the manager's focused capability assessment and inspect only relevant complete EngineCapabilities.md sections and current Engine Lua declarations as needed. " +
         "Separate engine primitives, existing game logic, proposed Lua behavior and missing assets. Supported API does not mean gameplay exists or runtime tests passed. " +

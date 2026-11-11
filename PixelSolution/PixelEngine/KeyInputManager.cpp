@@ -18,6 +18,7 @@ void KeyInputManager::Initialize()
 	for (int i = 0; i < arraySize; i++)
 	{
 		keyStates[i] = KeyState::KEY_NONE;
+		testKeyFrames[i] = 0;
 	}
 }
 
@@ -29,13 +30,13 @@ void KeyInputManager::Update()
 		{
 			keyStates[i] = KEY_NONE;
 		}
-		return;
+		pastFocus = Focus;
 	}
-	if (Focus == false)return;
 
 	for (int i = 0; i < arraySize; i++)
 	{
-		bool isCurrentPressed = (GetAsyncKeyState(i) & 0x8000) != 0;
+		bool isCurrentPressed = (Focus && (GetAsyncKeyState(i) & 0x8000) != 0) || testKeyFrames[i] > 0;
+		if (testKeyFrames[i] > 0) --testKeyFrames[i];
 		bool wasPressed = (keyStates[i] & PRESSED) != 0;
 
 		if (isCurrentPressed)
@@ -68,11 +69,16 @@ void KeyInputManager::Release()
 	for (int i = 0; i < arraySize; i++)
 	{
 		keyStates[i] = KeyState::KEY_NONE;
+		testKeyFrames[i] = 0;
 	}
 }
 void KeyInputManager::Clear()
 {
-
+	for (int i = 0; i < arraySize; ++i)
+	{
+		keyStates[i] = KEY_NONE;
+		testKeyFrames[i] = 0;
+	}
 }
 
 bool KeyInputManager::GetKey(byte keyNumber)
@@ -88,6 +94,13 @@ bool KeyInputManager::GetKeyDown(byte keyNumber)
 bool KeyInputManager::GetKeyUp(byte keyNumber)
 {
 	return (keyStates[keyNumber] & UP) ? true : false;
+}
+
+bool KeyInputManager::QueueTestKey(byte keyNumber, int frames)
+{
+	if (keyNumber == 0 || frames < 1 || frames > 120) return false;
+	testKeyFrames[keyNumber] = frames;
+	return true;
 }
 
 int KeyInputManager::MousePosition_X()

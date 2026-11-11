@@ -153,6 +153,12 @@ public partial class AIChatWindow : UserControl
             _client.Approve = (method, p) => Dispatcher.InvokeAsync(() => ConfirmApprovalAsync(method, p)).Task.Unwrap();
             _client.PickAsset = () => Dispatcher.InvokeAsync(PickImportAsset).Task;
             _client.ReadEditorLogs = (afterCursor, limit) => ConsoleWindow.ReadLogsForAi(afterCursor, limit);
+            _client.ClearEditorLogs = () => Dispatcher.InvokeAsync(() =>
+                ((MainWindow)Application.Current.MainWindow).ClearEditorLogsForAi()).Task;
+            _client.TestGameKey = (key, frames, token) => Dispatcher.InvokeAsync(() =>
+                ((MainWindow)Application.Current.MainWindow).TestGameKeyForAiAsync(key, frames, token)).Task.Unwrap();
+            _client.SetEditorMode = mode => Dispatcher.InvokeAsync(() =>
+                ((MainWindow)Application.Current.MainWindow).SetEditorModeForAi(mode)).Task;
             _client.HighlightLuaLines = (path, first, last) => Dispatcher.InvokeAsync(() =>
                 ((MainWindow)Application.Current.MainWindow).HighlightLuaLines(path, first, last)).Task;
             _client.CanDeleteAssetFile = relative => Dispatcher.InvokeAsync(() => !_disposed && _busy && !_stopRequested && AllowEdits.IsChecked == true &&

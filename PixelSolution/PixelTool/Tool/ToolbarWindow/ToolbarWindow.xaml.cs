@@ -53,6 +53,12 @@ namespace PixelTool
             }
         }
 
+        internal bool SetPlayMode(bool play)
+        {
+            if (EditorPlayToggle.IsChecked != play) EditorPlayToggle.IsChecked = play;
+            return IsPlayMode;
+        }
+
         private void ToolbarButton_Hovered(object sender, RoutedEventArgs e)
         {
             if (sender is ToolbarButton button)
