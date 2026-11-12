@@ -36,7 +36,7 @@ internal sealed class CodexWorkSession(string project, long? logCursor, bool req
         var plan = new Plan(Text(args, "mode", 20), Text(args, "summary", 500), Text(args, "reason", 500),
             Text(args, "plan", 3000), args.GetProperty("paths").EnumerateArray().Select(p => Canonical(p.GetString() ?? "")).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(),
             args.GetProperty("roles").EnumerateArray().Select(p => p.GetString() ?? "").Distinct().ToArray());
-        if (plan.Mode is not ("simple" or "middle" or "scoped" or "planned") || plan.Paths.Length > 20 || plan.Roles.Any(r => r is not ("researcher" or "reviewer" or "programmer")))
+        if (plan.Mode is not ("simple" or "middle" or "scoped" or "planned") || plan.Paths.Length > 20 || plan.Roles.Any(r => r is not ("researcher" or "reviewer" or "artist" or "programmer")))
             throw new InvalidOperationException("작업 유형·대상 파일·담당 역할을 확인하세요.");
         if (plan.Mode == "simple" && (_planRequired || _scopeApprovalRequired || plan.Roles.Length != 0 || plan.Paths.Any(p => Directory.Exists(_files.Resolve(p)))))
             throw new InvalidOperationException("기획 결정이 남거나 사용자가 기획을 요청하면 planned를 사용하세요. 명확한 폴더·추가 역할 작업은 scoped 범위 승인이 필요합니다.");
@@ -237,7 +237,7 @@ internal sealed class CodexWorkSession(string project, long? logCursor, bool req
     {
         lock (_gate)
         {
-            if (_canceled || !_declared || !_scopeApproved || _finished || role is not ("researcher" or "reviewer") || !_roles.Contains(role))
+            if (_canceled || !_declared || !_scopeApproved || _finished || role is not ("researcher" or "reviewer" or "artist") || !_roles.Contains(role))
                 throw new InvalidOperationException("이 역할은 승인된 범위에 없습니다. scoped 범위 승인 또는 planned 기획 승인 후 필요한 보조 작업만 요청하세요.");
             if (_mutating || _programmerRunning) throw new InvalidOperationException("수정 또는 프로그래머 작업이 끝난 뒤 보조 작업을 시작하세요.");
             if (_workers >= 2 || _workerCalls >= 4) throw new InvalidOperationException("동시 보조 작업은 두 개, 요청당 호출은 네 번까지입니다. 결과를 정리해 관리자가 결과를 정리하세요.");

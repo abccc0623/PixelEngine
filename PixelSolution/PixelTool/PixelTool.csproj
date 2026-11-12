@@ -77,9 +77,42 @@
   <ItemGroup>
     <EmbeddedResource Include="AI\AIRestrictions.md" LogicalName="PixelTool.AI.AIRestrictions.md" />
     <EmbeddedResource Include="AI\EditorGuide.md" LogicalName="PixelTool.AI.EditorGuide.md" />
-    <EmbeddedResource Include="AI\LuaApiGuide.md" LogicalName="PixelTool.AI.LuaApiGuide.md" />
+    <EmbeddedResource Include="AI\EditorWorkflowGuide.md" LogicalName="PixelTool.AI.EditorWorkflowGuide.md" />
+    <EmbeddedResource Include="AI\EditorQuickEditGuide.md" LogicalName="PixelTool.AI.EditorQuickEditGuide.md" />
+    <EmbeddedResource Include="AI\EditorProjectGuide.md" LogicalName="PixelTool.AI.EditorProjectGuide.md" />
+    <EmbeddedResource Include="AI\EditorChatGuide.md" LogicalName="PixelTool.AI.EditorChatGuide.md" />
+    <EmbeddedResource Include="AI\EditorToolsGuide.md" LogicalName="PixelTool.AI.EditorToolsGuide.md" />
+    <EmbeddedResource Include="AI\EditorScopeGuide.md" LogicalName="PixelTool.AI.EditorScopeGuide.md" />
+    <EmbeddedResource Include="AI\EditorRefactorGuide.md" LogicalName="PixelTool.AI.EditorRefactorGuide.md" />
+    <EmbeddedResource Include="AI\Doc\LuaConceptGuide.md" LogicalName="PixelTool.AI.LuaConceptGuide.md" />
+    <EmbeddedResource Include="AI\Doc\LuaApiIndex.md" LogicalName="PixelTool.AI.LuaApiIndex.md" />
+    <EmbeddedResource Include="AI\Doc\Component\Transform.md" LogicalName="PixelTool.AI.Doc/Component/Transform.md" />
+    <EmbeddedResource Include="AI\Doc\Component\Camera.md" LogicalName="PixelTool.AI.Doc/Component/Camera.md" />
+    <EmbeddedResource Include="AI\Doc\Component\Renderer2D.md" LogicalName="PixelTool.AI.Doc/Component/Renderer2D.md" />
+    <EmbeddedResource Include="AI\Doc\Component\Rigidbody2D.md" LogicalName="PixelTool.AI.Doc/Component/Rigidbody2D.md" />
+    <EmbeddedResource Include="AI\Doc\Component\Animation2D.md" LogicalName="PixelTool.AI.Doc/Component/Animation2D.md" />
+    <EmbeddedResource Include="AI\Doc\Component\UIImage.md" LogicalName="PixelTool.AI.Doc/Component/UIImage.md" />
+    <EmbeddedResource Include="AI\Doc\Component\UIText.md" LogicalName="PixelTool.AI.Doc/Component/UIText.md" />
+    <EmbeddedResource Include="AI\Doc\Component\UISilder.md" LogicalName="PixelTool.AI.Doc/Component/UISilder.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Entity.md" LogicalName="PixelTool.AI.Doc/Other/Entity.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Scene.md" LogicalName="PixelTool.AI.Doc/Other/Scene.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Asset.md" LogicalName="PixelTool.AI.Doc/Other/Asset.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Input.md" LogicalName="PixelTool.AI.Doc/Other/Input.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Event.md" LogicalName="PixelTool.AI.Doc/Other/Event.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Time.md" LogicalName="PixelTool.AI.Doc/Other/Time.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Tween.md" LogicalName="PixelTool.AI.Doc/Other/Tween.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Pool.md" LogicalName="PixelTool.AI.Doc/Other/Pool.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Group.md" LogicalName="PixelTool.AI.Doc/Other/Group.md" />
+    <EmbeddedResource Include="AI\Doc\Other\PVector2.md" LogicalName="PixelTool.AI.Doc/Other/PVector2.md" />
+    <EmbeddedResource Include="AI\Doc\Other\PVector3.md" LogicalName="PixelTool.AI.Doc/Other/PVector3.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Debug.md" LogicalName="PixelTool.AI.Doc/Other/Debug.md" />
+    <EmbeddedResource Include="AI\Doc\Other\Engine.md" LogicalName="PixelTool.AI.Doc/Other/Engine.md" />
     <EmbeddedResource Include="AI\Ponytail.md" LogicalName="PixelTool.AI.Ponytail.md" />
     <EmbeddedResource Include="AI\EngineCapabilities.md" LogicalName="PixelTool.AI.EngineCapabilities.md" />
+    <EmbeddedResource Include="AI\Skills\change-workflow\SKILL.md" LogicalName="PixelTool.AI.change-workflow/SKILL.md" />
+    <EmbeddedResource Include="AI\Skills\file-search-edit\SKILL.md" LogicalName="PixelTool.AI.file-search-edit/SKILL.md" />
+    <EmbeddedResource Include="AI\Skills\game-feature-test\SKILL.md" LogicalName="PixelTool.AI.game-feature-test/SKILL.md" />
+    <EmbeddedResource Include="AI\Skills\engine-feasibility\SKILL.md" LogicalName="PixelTool.AI.engine-feasibility/SKILL.md" />
     <EmbeddedResource Include="Tool\EditorLuaWindow\Lua.xshd" />
   </ItemGroup>
 

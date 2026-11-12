@@ -13,7 +13,15 @@ internal static class EngineGuide
     internal const int MaxBatchPages = 8;
     internal const int MaxBatchLength = 16000;
     private static readonly JsonSerializerOptions GuideJson = new() { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) };
-    internal static readonly string[] Names = { "AIRestrictions.md", "EditorGuide.md", "LuaApiGuide.md", "Ponytail.md", "EngineCapabilities.md" };
+    internal static readonly string[] Names = { "AIRestrictions.md", "EditorGuide.md", "EditorWorkflowGuide.md", "EditorQuickEditGuide.md",
+        "EditorProjectGuide.md", "EditorChatGuide.md", "EditorToolsGuide.md", "EditorScopeGuide.md", "EditorRefactorGuide.md",
+        "LuaConceptGuide.md", "LuaApiIndex.md", "Doc/Component/Transform.md", "Doc/Component/Camera.md", "Doc/Component/Renderer2D.md",
+        "Doc/Component/Rigidbody2D.md", "Doc/Component/Animation2D.md", "Doc/Component/UIImage.md", "Doc/Component/UIText.md", "Doc/Component/UISilder.md",
+        "Doc/Other/Entity.md", "Doc/Other/Scene.md", "Doc/Other/Asset.md", "Doc/Other/Input.md", "Doc/Other/Event.md",
+        "Doc/Other/Time.md", "Doc/Other/Tween.md", "Doc/Other/Pool.md", "Doc/Other/Group.md", "Doc/Other/PVector2.md",
+        "Doc/Other/PVector3.md", "Doc/Other/Debug.md", "Doc/Other/Engine.md",
+        "Ponytail.md", "EngineCapabilities.md",
+        "change-workflow/SKILL.md", "file-search-edit/SKILL.md", "game-feature-test/SKILL.md", "engine-feasibility/SKILL.md" };
     private static readonly Lazy<Dictionary<string, string>> Documents = new(() => Names.ToDictionary(name => name, name =>
     {
         using var stream = typeof(EngineGuide).Assembly.GetManifestResourceStream("PixelTool.AI." + name)
@@ -36,15 +44,17 @@ internal static class EngineGuide
         "Before acting or answering on a topic, read its complete relevant sections with read_engine_guide, not just search snippets. " +
         "Read all of a document when unsure which sections apply. If retrieval fails, stop the affected work and report the blocker. " +
         "Reuse current sections already present in context; retrieve again if missing after compaction.\n" +
-        "For a clear existing-value edit in at most two exact files, with no new APIs, structure, creation, deletion or refactoring, read EditorGuide.md: Small existing-value edits instead of the general editor/Lua sections. If inspection reveals wider work, load the applicable full sections below before proceeding. This shortcut never changes restrictions, approval, hash or validation gates. " +
-        "Otherwise, EditorGuide.md: before project inspection read Project navigation notes and search; before changes also read Project layout, Available tools, Reimport and logs, and 관리자 작업 흐름과 프로젝트 기억. " +
-        "Read Request scope and engine capabilities for broad/abstract game requests or uncertain engine feasibility before implementation task breakdown or begin_project_work. Then read EngineCapabilities.md: Reading and status rules plus only relevant capability sections as the canonical engine-provided support baseline. The catalog describes primitives and known limits, not completed game logic or verified installed DLL behavior. " +
-        "Read Refactoring workflow before refactoring, simplifying or removing supposedly unused code; Chat and settings before chat/settings advice, Distribution before distribution work, and other sections when applicable.\n" +
-        "Ponytail.md: read the entire document before coding, fixing, reviewing or designing code; its instructions remain active as specified there.\n" +
-        "Unless the small existing-value workflow applies, LuaApiGuide.md: before Lua work read Verify before use and Loading, data and code style, plus every section relevant to the affected runtime/API. " +
+        "EditorGuide.md is a short task-to-document index. The document names and section offsets below locate each guide directly; do not search project files for guides. " +
+        "For a clear existing-value edit in at most two exact files, with no new APIs, structure, creation, deletion or refactoring, read EditorQuickEditGuide.md instead of general editor/Lua sections. If inspection reveals wider work, load the applicable guides below. EditorQuickEditGuide.md is the complete Small workflow: do not additionally read change-workflow/SKILL.md, file-search-edit/SKILL.md or Ponytail.md for this literal-only case. This shortcut never changes restrictions, approval, hash or validation gates. " +
+        "For read-only capability questions, first read EngineCapabilities.md: Reading and status rules and only matching capability sections. Confirm APIs in matching Engine declarations only when needed to support a positive implementation route or resolve uncertainty. For catalog-confirmed unsupported capabilities, report the catalog limit without scanning game files. Do not load scope, workflow, Ponytail or project navigation guides for support-only questions; inspect Asset logic only if the question depends on that project. Otherwise, before project inspection read EditorProjectGuide.md: Project navigation notes and search. Before changes, read its Project layout section and EditorToolsGuide.md: Available tools and Reimport and logs. Read EditorWorkflowGuide.md only for phase details not already covered by change-workflow/SKILL.md. " +
+        "For broad/abstract implementation requests, read EditorScopeGuide.md before implementation task breakdown or begin_project_work. Then read EngineCapabilities.md: Reading and status rules plus only relevant capability sections. The catalog describes primitives and known limits, not completed gameplay or verified installed DLL behavior. " +
+        "Read EditorRefactorGuide.md before refactoring; EditorChatGuide.md for chat/settings or distribution questions.\n" +
+        "Ponytail.md: read the entire document before coding, fixing, reviewing or designing code except the literal-only Small workflow above; its instructions remain active as specified there.\n" +
+        "For Lua API questions or work, read LuaApiIndex.md to locate the name and document. Read only the matching Doc/Component or Doc/Other document, plus relevant LuaConceptGuide.md sections for shared behavior rules. Do not load every API document. " +
         "Then verify actual names, signatures and returns in the current project's Engine/*.lua: find the file with search_project_files scoped to Engine, then search its declarations with search_file_content (or the embedded chat's project content search). Embedded guides do not establish that an API exists in the installed version.\n" +
         "The index gives zero-based UTF-16 character offsets and section lengths, not token counts. " +
         "Batch independent required pages in one read_engine_guide requests array (1-8 pages). Oversized requests are paged automatically: at most 16000 returned characters total and 6000 per page. Follow each continuation to finish the requested section; nextOffset/hasMore also locate the rest of the document. " +
+        "For project changes other than literal-only Small edits covered by EditorQuickEditGuide.md, read change-workflow/SKILL.md before creating work items. For assigned file changes, read file-search-edit/SKILL.md; before gameplay checks in the test phase, read game-feature-test/SKILL.md; for broad implementation requests, read engine-feasibility/SKILL.md. Support-only questions use the catalog-first route above. Read only the applicable skill through read_engine_guide before that phase, and keep AIRestrictions.md and relevant guides authoritative. These are embedded on-demand workflows, not project files or extra worker agents. " +
         "For whole documents follow hasMore. Guide tools only read fixed embedded resources, never project or external files.\n\n" +
         string.Join("\n", Names.Skip(1).Select(name => name + " (" + Documents.Value[name].Length + " characters):\n" +
             string.Join("\n", Sections(Documents.Value[name]).Select(s => $"  {s.Title}: offset={s.Offset}, length={s.Length}")))));
@@ -52,7 +62,7 @@ internal static class EngineGuide
     internal static string Load() => Content.Value;
 
     private static string Document(string name) => Documents.Value.TryGetValue(name, out var text) ? text
-        : throw new ArgumentException("Unknown embedded guide. Use AIRestrictions.md, EditorGuide.md, LuaApiGuide.md, Ponytail.md or EngineCapabilities.md.");
+        : throw new ArgumentException("Unknown embedded guide or skill. Use a document name from the read_engine_guide schema.");
 
     private static IEnumerable<(string Title, int Offset, int Length)> Sections(string text)
     {
@@ -97,14 +107,28 @@ internal static class EngineGuide
     {
         if (requests.ValueKind != JsonValueKind.Array || requests.GetArrayLength() is < 1 or > MaxBatchPages)
             throw new ArgumentException("Use 1 to 8 guide pages.");
-        // Share the output budget, not the requested lengths. Every valid page makes progress.
-        int contentLimit = Math.Min(MaxReadLength, MaxBatchLength / requests.GetArrayLength());
-        var pages = new List<JsonElement>();
-        foreach (var request in requests.EnumerateArray())
+        // Validate first, then redistribute unused short-page budget before paging long documents.
+        var input = requests.EnumerateArray().ToArray();
+        var pages = new JsonElement[input.Length];
+        var sizes = new int[input.Length];
+        for (int i = 0; i < input.Length; i++)
         {
-            using var page = JsonDocument.Parse(ReadPage(request.GetProperty("document").GetString() ?? "",
-                request.GetProperty("offset").GetInt32(), request.GetProperty("length").GetInt32(), contentLimit));
-            pages.Add(page.RootElement.Clone());
+            using var page = JsonDocument.Parse(ReadPage(input[i].GetProperty("document").GetString() ?? "",
+                input[i].GetProperty("offset").GetInt32(), input[i].GetProperty("length").GetInt32(), MaxReadLength));
+            pages[i] = page.RootElement.Clone();
+            sizes[i] = pages[i].GetProperty("length").GetInt32();
+        }
+        int budget = MaxBatchLength, remaining = input.Length;
+        foreach (int i in Enumerable.Range(0, input.Length).OrderBy(i => sizes[i]))
+        {
+            int limit = Math.Min(sizes[i], budget / remaining--);
+            if (limit < sizes[i])
+            {
+                using var page = JsonDocument.Parse(ReadPage(input[i].GetProperty("document").GetString() ?? "",
+                    input[i].GetProperty("offset").GetInt32(), input[i].GetProperty("length").GetInt32(), limit));
+                pages[i] = page.RootElement.Clone();
+            }
+            budget -= pages[i].GetProperty("length").GetInt32();
         }
         return JsonSerializer.Serialize(new { pages }, GuideJson);
     }

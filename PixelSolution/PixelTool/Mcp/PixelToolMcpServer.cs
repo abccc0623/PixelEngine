@@ -162,12 +162,12 @@ public sealed class PixelToolProjectTools
     }
 
     [McpServerTool(Name = "read_engine_guide", ReadOnly = true, Destructive = false, OpenWorld = false),
-     Description("Read an exact page of AIRestrictions.md, EditorGuide.md, LuaApiGuide.md, Ponytail.md or EngineCapabilities.md embedded in PixelTool. Guides explain rules and API usage, not the installed API declarations. offset is zero-based UTF-16 characters; positive length requests are automatically capped at 6000 returned characters. Follow continuation to finish the requested range, or nextOffset/hasMore for the rest of the document. To verify an API, search_project_files with path=Engine, then search_file_content on the found Engine/*.lua file.")]
+     Description("Read an exact page of a registered AI guide or skill embedded in PixelTool. LuaApiIndex.md locates Lua API documents; LuaConceptGuide.md explains shared behavior. Guides explain rules and API usage, not the installed API declarations. offset is zero-based UTF-16 characters; positive length requests are automatically capped at 6000 returned characters. Follow continuation to finish the requested range, or nextOffset/hasMore for the rest of the document. To verify an API, search_project_files with path=Engine, then search_file_content on the found Engine/*.lua file.")]
     public static string ReadEngineGuide(string document, int offset = 0, int length = 6000)
         => EngineGuide.Read(document, offset, length);
 
     [McpServerTool(Name = "search_engine_guide", ReadOnly = true, Destructive = false, OpenWorld = false),
-     Description("Find literal case-insensitive text in a fixed embedded guide: AIRestrictions.md, EditorGuide.md, LuaApiGuide.md, Ponytail.md or EngineCapabilities.md. Query is 1 to 200 characters; limit is 1 to 20. Returns bounded snippets and offsets, not complete instructions. Read complete relevant sections before acting.")]
+     Description("Find literal case-insensitive text in a registered embedded AI guide or skill. Use LuaApiIndex.md to locate Lua API documents. Query is 1 to 200 characters; limit is 1 to 20. Returns bounded snippets and offsets, not complete instructions. Read complete relevant sections before acting.")]
     public static string SearchEngineGuide(string document, string query, int limit = 10)
         => EngineGuide.Search(document, query, limit);
 
@@ -197,7 +197,7 @@ public sealed class PixelToolProjectTools
             : new ProjectNavigation(project.ProjectPath).SearchFileContent(path, query, limit, cancellationToken);
 
     [McpServerTool(Name = "create_script_file", ReadOnly = false, Destructive = false, OpenWorld = false),
-     Description("Create one new .lua or .pxm file inside the open project's Asset folder. Pass the complete file content in one call; for a functional .pxm retain the bundled object's Script table, Spawn/Update methods and return Script. Empty .pxm content uses PixelTool's bundled Module.lua object template, while empty .lua content creates an empty file. Never overwrites an existing file. Inspect get_asset_layout and choose an established or appropriate category folder first. Obeys the editor AI edit and confirmation settings; Engine and Editor are read-only.")]
+     Description("Create one new .lua or .pxm file inside the open project's Asset folder. Pass the complete file content in one call; for a functional .pxm retain the bundled object's Script table, Spawn/Update methods and return Script. Empty .pxm content uses PixelTool's bundled Module.lua object template, while empty .lua content creates an empty file. Never overwrites an existing file. Inspect get_asset_layout and choose an established or appropriate category folder first. Engine and Editor are read-only.")]
     public static async Task<string> CreateScriptFile(PixelToolProjectInfo project, string path, string content = "")
     {
         var app = Application.Current;
@@ -208,8 +208,6 @@ public sealed class PixelToolProjectTools
     private static string CreateScriptFileOnEditor(PixelToolProjectInfo project, string path, string content)
     {
         content ??= "";
-        var chat = GlobalFunction.GetDockedWindow<AIChatWindow>();
-        if (chat?.AllowsMcpEdits != true) throw new InvalidOperationException("에디터 AI 채팅에서 파일 수정을 허용해야 합니다.");
         var files = new ProjectFileAccess(project.ProjectPath);
         string fullPath = files.Resolve(path);
         string relative = Path.GetRelativePath(files.Root, fullPath).Replace('\\', '/');
@@ -230,15 +228,11 @@ public sealed class PixelToolProjectTools
         }
         byte[] bytes = new UTF8Encoding(false).GetBytes(content);
         if (bytes.Length > 256 * 1024) throw new InvalidOperationException("파일 내용은 256KB를 넘을 수 없습니다.");
-        if (chat.ConfirmsMcpChanges && PixelMessageBox.Show(
-            $"AI가 다음 파일을 만들려고 합니다.\n\n{relative}\n\n{content}",
-            "AI 파일 생성 승인", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
-            return JsonSerializer.Serialize(new { created = false, path = relative });
         files.Resolve(relative); // 승인 중 경로가 바뀌었는지 다시 확인한다.
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
         using (var stream = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
             stream.Write(bytes);
-        GlobalFunction.GetDockedWindow<AssetWindow>()?.Refresh();
+        GlobalFunction.GetDockedWindow<AssetWindow>()?.RefreshAfterAiChange();
         return JsonSerializer.Serialize(new { created = true, path = relative,
             sha256 = Convert.ToHexString(SHA256.HashData(bytes)) });
     }
@@ -286,7 +280,7 @@ public sealed class PixelToolProjectTools
     }
 
     [McpServerTool(Name = "patch_project_file", ReadOnly = false, Destructive = false, OpenWorld = false),
-     Description("Replace one exact unique oldText span in an existing Asset text file or Editor/AINavigation.md. Supply the whole-file SHA256 from read_project_file_lines; rejects stale hashes, missing/repeated text and unsaved Lua editor buffers. Preserves all other bytes and never creates a file. Engine and Editor/AIWorkLog.md are read-only. Obeys the editor AI edit and confirmation settings.")]
+     Description("Replace one exact unique oldText span in an existing Asset text file or Editor/AINavigation.md. Supply the whole-file SHA256 from read_project_file_lines; rejects stale hashes, missing/repeated text and unsaved Lua editor buffers. Preserves all other bytes and never creates a file. Engine and Editor/AIWorkLog.md are read-only.")]
     public static async Task<string> PatchProjectFile(PixelToolProjectInfo project, string path, string expectedHash,
         string oldText, string newText)
     {
@@ -300,8 +294,6 @@ public sealed class PixelToolProjectTools
     {
         expectedHash ??= "";
         newText ??= "";
-        var chat = GlobalFunction.GetDockedWindow<AIChatWindow>();
-        if (chat?.AllowsMcpEdits != true) throw new InvalidOperationException("에디터 AI 채팅에서 파일 수정을 허용해야 합니다.");
         var files = new ProjectFileAccess(project.ProjectPath);
         string fullPath = files.Resolve(path);
         string relative = Path.GetRelativePath(files.Root, fullPath).Replace('\\', '/');
@@ -326,10 +318,6 @@ public sealed class PixelToolProjectTools
         byte[] replacement = new UTF8Encoding(false, true).GetBytes(after);
         if (replacement.Length > 256 * 1024) throw new InvalidOperationException("수정 결과는 256KB까지입니다.");
         ProjectNavigation.CheckNotesSize(relative, replacement.Length);
-        if (chat.ConfirmsMcpChanges && PixelMessageBox.Show(
-            $"AI가 다음 파일을 수정하려고 합니다.\n\n{relative}\n\n기존 문구:\n{oldText}\n\n새 문구:\n{newText}",
-            "AI 파일 수정 승인", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
-            return JsonSerializer.Serialize(new { saved = false, path = relative });
         files.Resolve(relative);
         if (GlobalFunction.GetDockedWindow<LuaEditorWindow>()?.HasUnsavedFile(fullPath) == true ||
             !Convert.ToHexString(SHA256.HashData(ProjectFileAccess.ReadBounded(fullPath))).Equals(expectedHash, StringComparison.OrdinalIgnoreCase))

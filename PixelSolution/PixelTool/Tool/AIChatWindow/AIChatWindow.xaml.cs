@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -10,9 +11,6 @@ namespace PixelTool;
 
 public partial class AIChatWindow : UserControl
 {
-    internal bool AllowsMcpEdits => !_disposed && AllowEdits.IsChecked == true;
-    internal bool ConfirmsMcpChanges => _history.ConfirmCommands;
-
     private readonly string _project = ProjectPathService.ProjectRootPath;
     private CodexChatHistory _history;
     private CodexEditorClient? _client;
@@ -33,14 +31,21 @@ public partial class AIChatWindow : UserControl
     private bool _restoringPreferences = true;
     private bool _restoreAttempted;
     private bool _scrollToEndQueued;
+    private readonly ConcurrentQueue<(CodexEditorClient Client, string Method, JsonElement Parameters)> _notifications = new();
+    private int _notificationDrainQueued;
+    private readonly object _notificationGate = new();
+    private bool _notificationsClosed;
     private sealed record TranscriptMessage(string Text, bool IsUser, bool IsCodeChange = false, string Header = "", bool IsNotice = false, string Details = "")
     {
         public bool HasDetails => Details.Length > 0;
     }
     private readonly ObservableCollection<TranscriptMessage> _transcript = new();
+    private readonly Dictionary<CodexChatMessage, (string Role, string Text, string? Details, TranscriptMessage? Entry)> _transcriptCache = new();
     private sealed record ChatAccount(string Id, string Label);
     private sealed record ChatModel(string Model, string DisplayName, bool IsDefault, string? DefaultEffort, string[] SupportedEfforts);
     private readonly Dictionary<string, string> _fileChanges = new();
+    private readonly HashSet<string> _changedPaths = new(StringComparer.OrdinalIgnoreCase);
+    private CodexChatMessage? _stageNotice;
     private TaskCompletionSource<string>? _choiceAnswer;
     private readonly Stopwatch _requestClock = new();
     private readonly System.Windows.Threading.DispatcherTimer _transcriptRenderTimer =
@@ -66,8 +71,6 @@ public partial class AIChatWindow : UserControl
             _history = new() { ProjectPath = _project };
             StatusText.Text = "기존 대화 기록을 읽지 못했습니다. 연결 시 새 대화로 시작합니다.";
         }
-        CommandApprovalBox.SelectedIndex = _history.ConfirmCommands ? 0 : 1;
-        AllowEdits.IsChecked = _history.AllowEdits;
         _restoringPreferences = false;
         RenderTranscript();
         Loaded += RestoreConnection;
@@ -110,17 +113,11 @@ public partial class AIChatWindow : UserControl
         SettingsPanel.Visibility = SettingsPanel.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    private void AllowEditsChanged(object sender, RoutedEventArgs e)
-    {
-        if (_restoringPreferences || _history == null) return;
-        _history.AllowEdits = AllowEdits.IsChecked == true;
-        SaveHistory();
-    }
-
     private async Task ConnectAsync(bool allowBrowserLogin)
     {
         ConnectButton.IsEnabled = false;
         ProgrammerModelBox.IsEnabled = ProgrammerEffortBox.IsEnabled = false;
+        PlannerModelBox.IsEnabled = PlannerEffortBox.IsEnabled = ArtistModelBox.IsEnabled = ArtistEffortBox.IsEnabled = false;
         ModelBox.IsEnabled = SendButton.IsEnabled = NewButton.IsEnabled = false;
         try
         {
@@ -135,22 +132,9 @@ public partial class AIChatWindow : UserControl
                 RenderTranscript();
             }
             var connectedClient = _client;
-            _client.Notification += (method, p) => Dispatcher.BeginInvoke(new Action(() =>
-            {
-                if (ReferenceEquals(_client, connectedClient)) HandleNotification(method, p);
-            }));
-            _client.Disconnected += details => Dispatcher.BeginInvoke(new Action(() =>
-            {
-                if (_disposed || !ReferenceEquals(_client, connectedClient)) return;
-                bool wasBusy = _busy;
-                SetBusy(false);
-                SendButton.IsEnabled = RefreshButton.IsEnabled = NewButton.IsEnabled = false;
-                ProgrammerModelBox.IsEnabled = ProgrammerEffortBox.IsEnabled = ModelBox.IsEnabled = false;
-                ConnectButton.IsEnabled = true;
-                StatusText.Text = "ChatGPT 연결이 종료되었습니다. 아래 오류 상세를 확인하고 계정 연결을 다시 눌러주세요.";
-                AddWorkNotice((wasBusy ? "연결이 끊겨 요청을 완료하지 못했습니다. 이미 수행한 변경은 유지됩니다." : "ChatGPT 연결이 종료되었습니다.") + "\n" + details);
-            }));
-            _client.Approve = (method, p) => Dispatcher.InvokeAsync(() => ConfirmApprovalAsync(method, p)).Task.Unwrap();
+            _client.Notification += (method, p) => QueueNotification(connectedClient, method, p);
+            _client.Disconnected += details => QueueNotification(connectedClient, "connection/disconnected", JsonSerializer.SerializeToElement(details));
+            _client.Approve = (_, _) => Task.FromResult(false);
             _client.PickAsset = () => Dispatcher.InvokeAsync(PickImportAsset).Task;
             _client.ReadEditorLogs = (afterCursor, limit) => ConsoleWindow.ReadLogsForAi(afterCursor, limit);
             _client.ClearEditorLogs = () => Dispatcher.InvokeAsync(() =>
@@ -161,7 +145,7 @@ public partial class AIChatWindow : UserControl
                 ((MainWindow)Application.Current.MainWindow).SetEditorModeForAi(mode)).Task;
             _client.HighlightLuaLines = (path, first, last) => Dispatcher.InvokeAsync(() =>
                 ((MainWindow)Application.Current.MainWindow).HighlightLuaLines(path, first, last)).Task;
-            _client.CanDeleteAssetFile = relative => Dispatcher.InvokeAsync(() => !_disposed && _busy && !_stopRequested && AllowEdits.IsChecked == true &&
+            _client.CanDeleteAssetFile = relative => Dispatcher.InvokeAsync(() => !_disposed && _busy && !_stopRequested &&
                 GlobalFunction.GetDockedWindow<LuaEditorWindow>()?.HasUnsavedFile(Path.Combine(_project, relative)) != true).Task;
             _client.AskChoice = (question, options, token) => Dispatcher.InvokeAsync(() =>
                 AskChoiceAsync(question, options, token)).Task.Unwrap();
@@ -219,6 +203,7 @@ public partial class AIChatWindow : UserControl
             Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
             _threadId = _history.ThreadId = null;
             ProgrammerModelBox.IsEnabled = ProgrammerEffortBox.IsEnabled = false;
+        PlannerModelBox.IsEnabled = PlannerEffortBox.IsEnabled = ArtistModelBox.IsEnabled = ArtistEffortBox.IsEnabled = false;
             SendButton.IsEnabled = NewButton.IsEnabled = ModelBox.IsEnabled = false;
             StatusText.Text = "브라우저에서 새 ChatGPT 계정을 연결하세요. 기존 대화 기록은 유지됩니다.";
         }
@@ -254,7 +239,7 @@ public partial class AIChatWindow : UserControl
         StatusText.Text = "ChatGPT 계정 연결됨 · " + plan + " · " + _project;
         NewButton.IsEnabled = true;
         UpdateProgrammerSelection();
-        if (!ProgrammerSelectionValid) SettingsPanel.Visibility = Visibility.Visible;
+        if (!ProgrammerSelectionValid || !PlannerSelectionValid || !ArtistSelectionValid) SettingsPanel.Visibility = Visibility.Visible;
         ConnectButton.IsEnabled = false;
         SaveHistory();
         return true;
@@ -264,6 +249,7 @@ public partial class AIChatWindow : UserControl
     {
         if (_loadingAccounts || _busy || _client == null || AccountBox.SelectedItem is not ChatAccount selected) return;
         ProgrammerModelBox.IsEnabled = ProgrammerEffortBox.IsEnabled = false;
+        PlannerModelBox.IsEnabled = PlannerEffortBox.IsEnabled = ArtistModelBox.IsEnabled = ArtistEffortBox.IsEnabled = false;
         SendButton.IsEnabled = NewButton.IsEnabled = ModelBox.IsEnabled = AccountBox.IsEnabled = false;
         try
         {
@@ -278,6 +264,7 @@ public partial class AIChatWindow : UserControl
     private async Task LoadModelsAsync()
     {
         ProgrammerModelBox.IsEnabled = ProgrammerEffortBox.IsEnabled = false;
+        PlannerModelBox.IsEnabled = PlannerEffortBox.IsEnabled = ArtistModelBox.IsEnabled = ArtistEffortBox.IsEnabled = false;
         ModelBox.IsEnabled = SendButton.IsEnabled = NewButton.IsEnabled = false;
         var models = new List<ChatModel>();
         var cursors = new HashSet<string>();
@@ -307,18 +294,37 @@ public partial class AIChatWindow : UserControl
         _loadingProgrammerModels = true;
         try
         {
+            PlannerModelBox.ItemsSource = models;
+            ArtistModelBox.ItemsSource = models;
+            PlannerModelBox.SelectedItem = models.FirstOrDefault(m => m.Model == _history.PlannerModel)
+                ?? (string.IsNullOrWhiteSpace(_history.PlannerModel) ? ModelBox.SelectedItem : null);
+            ArtistModelBox.SelectedItem = models.FirstOrDefault(m => m.Model == _history.ArtistModel)
+                ?? (string.IsNullOrWhiteSpace(_history.ArtistModel) ? ModelBox.SelectedItem : null);
             ProgrammerModelBox.ItemsSource = models;
             string? saved = _history.ProgrammerModel;
             ProgrammerModelBox.SelectedItem = !string.IsNullOrWhiteSpace(saved)
                 ? models.FirstOrDefault(m => m.Model == saved)
                 : models.FirstOrDefault(m => m.Model.StartsWith("gpt-5.", StringComparison.OrdinalIgnoreCase) && m.Model.Contains("codex", StringComparison.OrdinalIgnoreCase))
-                    ?? models.FirstOrDefault(m => m.Model.StartsWith("gpt-5.", StringComparison.OrdinalIgnoreCase));
+                    ?? models.FirstOrDefault(m => m.Model.StartsWith("gpt-5.", StringComparison.OrdinalIgnoreCase))
+                    ?? models.FirstOrDefault(m => m.IsDefault) ?? models[0];
             if (ProgrammerModelBox.SelectedItem is ChatModel programmer)
             {
                 _history.ProgrammerModel = programmer.Model;
                 LoadProgrammerEfforts(programmer, _history.ProgrammerEffort);
             }
             else ProgrammerEffortBox.ItemsSource = null;
+            if (PlannerModelBox.SelectedItem is ChatModel planner)
+            {
+                _history.PlannerModel = planner.Model;
+                LoadRoleEfforts(PlannerEffortBox, planner, _history.PlannerEffort, effort => _history.PlannerEffort = effort);
+            }
+            else PlannerEffortBox.ItemsSource = null;
+            if (ArtistModelBox.SelectedItem is ChatModel artist)
+            {
+                _history.ArtistModel = artist.Model;
+                LoadRoleEfforts(ArtistEffortBox, artist, _history.ArtistEffort, effort => _history.ArtistEffort = effort);
+            }
+            else ArtistEffortBox.ItemsSource = null;
         }
         finally { _loadingProgrammerModels = false; }
         SaveHistory();
@@ -337,28 +343,44 @@ public partial class AIChatWindow : UserControl
 
     private void LoadProgrammerEfforts(ChatModel model, string? saved)
     {
-        ProgrammerEffortBox.ItemsSource = new[] { ProgrammerDefaultEffort }.Concat(model.SupportedEfforts).ToArray();
-        // null means unset; an empty string is an explicitly saved model-default choice.
+        LoadRoleEfforts(ProgrammerEffortBox, model, saved, effort => _history.ProgrammerEffort = effort);
+    }
+
+    private static void LoadRoleEfforts(ComboBox box, ChatModel model, string? saved, Action<string> save)
+    {
+        box.ItemsSource = new[] { ProgrammerDefaultEffort }.Concat(model.SupportedEfforts).ToArray();
         string selected = saved ?? model.DefaultEffort ?? "";
-        ProgrammerEffortBox.SelectedItem = selected.Length == 0 ? ProgrammerDefaultEffort : selected;
-        _history.ProgrammerEffort = selected;
+        box.SelectedItem = selected.Length == 0 ? ProgrammerDefaultEffort : selected;
+        save(selected);
     }
 
     private bool ProgrammerSelectionValid => ProgrammerModelBox.SelectedItem is ChatModel model &&
         (string.IsNullOrWhiteSpace(_history.ProgrammerEffort) || model.SupportedEfforts.Contains(_history.ProgrammerEffort));
+
+    private bool PlannerSelectionValid => PlannerModelBox.SelectedItem is ChatModel model &&
+        (string.IsNullOrWhiteSpace(_history.PlannerEffort) || model.SupportedEfforts.Contains(_history.PlannerEffort));
+
+    private bool ArtistSelectionValid => ArtistModelBox.SelectedItem is ChatModel model &&
+        (string.IsNullOrWhiteSpace(_history.ArtistEffort) || model.SupportedEfforts.Contains(_history.ArtistEffort));
 
     private void UpdateProgrammerSelection()
     {
         bool ready = !_busy && _threadId != null;
         ProgrammerModelBox.IsEnabled = !_busy && ProgrammerModelBox.Items.Count > 0;
         ProgrammerEffortBox.IsEnabled = !_busy && ProgrammerModelBox.SelectedItem is ChatModel && ProgrammerEffortBox.Items.Count > 0;
-        ProgrammerModelWarning.Visibility = ProgrammerSelectionValid ? Visibility.Collapsed : Visibility.Visible;
-        ProgrammerModelWarning.Text = ProgrammerModelBox.SelectedItem is not ChatModel
+        PlannerModelBox.IsEnabled = !_busy && PlannerModelBox.Items.Count > 0;
+        PlannerEffortBox.IsEnabled = !_busy && PlannerModelBox.SelectedItem is ChatModel && PlannerEffortBox.Items.Count > 0;
+        ArtistModelBox.IsEnabled = !_busy && ArtistModelBox.Items.Count > 0;
+        ArtistEffortBox.IsEnabled = !_busy && ArtistModelBox.SelectedItem is ChatModel && ArtistEffortBox.Items.Count > 0;
+        ProgrammerModelWarning.Visibility = ProgrammerSelectionValid && PlannerSelectionValid && ArtistSelectionValid ? Visibility.Collapsed : Visibility.Visible;
+        ProgrammerModelWarning.Text = !PlannerSelectionValid ? "기획자 모델과 추론 강도를 선택하세요."
+            : !ArtistSelectionValid ? "아티스트 모델과 추론 강도를 선택하세요."
+            : ProgrammerModelBox.SelectedItem is not ChatModel
             ? string.IsNullOrWhiteSpace(_history.ProgrammerModel)
-                ? "사용 가능한 5.x 기본 모델이 없습니다. 프로그래머 모델을 직접 선택하세요."
-                : $"저장된 프로그래머 모델 '{_history.ProgrammerModel}'을 사용할 수 없습니다. 모델을 선택하세요."
-            : $"저장된 추론 강도 '{_history.ProgrammerEffort}'를 사용할 수 없습니다. 추론 강도를 선택하세요.";
-        SendButton.IsEnabled = ready && ModelBox.SelectedItem is ChatModel && ProgrammerSelectionValid;
+                ? "플머 모델을 선택하세요."
+                : $"저장된 플머 모델 '{_history.ProgrammerModel}'을 사용할 수 없습니다. 모델을 선택하세요."
+            : $"저장된 플머 추론 강도 '{_history.ProgrammerEffort}'를 사용할 수 없습니다. 추론 강도를 선택하세요.";
+        SendButton.IsEnabled = ready && ModelBox.SelectedItem is ChatModel && ProgrammerSelectionValid && PlannerSelectionValid && ArtistSelectionValid;
     }
 
     private void ProgrammerModelChanged(object sender, SelectionChangedEventArgs e)
@@ -383,17 +405,46 @@ public partial class AIChatWindow : UserControl
         UpdateProgrammerSelection();
     }
 
+    private void PlannerModelChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loadingProgrammerModels || PlannerModelBox.SelectedItem is not ChatModel model) return;
+        _loadingProgrammerModels = true;
+        try { _history.PlannerModel = model.Model; LoadRoleEfforts(PlannerEffortBox, model, null, effort => _history.PlannerEffort = effort); }
+        finally { _loadingProgrammerModels = false; }
+        SaveHistory();
+        UpdateProgrammerSelection();
+    }
+
+    private void PlannerEffortChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loadingProgrammerModels || PlannerEffortBox.SelectedItem is not string effort) return;
+        _history.PlannerEffort = effort == ProgrammerDefaultEffort ? "" : effort;
+        SaveHistory();
+        UpdateProgrammerSelection();
+    }
+
+    private void ArtistModelChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loadingProgrammerModels || ArtistModelBox.SelectedItem is not ChatModel model) return;
+        _loadingProgrammerModels = true;
+        try { _history.ArtistModel = model.Model; LoadRoleEfforts(ArtistEffortBox, model, null, effort => _history.ArtistEffort = effort); }
+        finally { _loadingProgrammerModels = false; }
+        SaveHistory();
+        UpdateProgrammerSelection();
+    }
+
+    private void ArtistEffortChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loadingProgrammerModels || ArtistEffortBox.SelectedItem is not string effort) return;
+        _history.ArtistEffort = effort == ProgrammerDefaultEffort ? "" : effort;
+        SaveHistory();
+        UpdateProgrammerSelection();
+    }
+
     private void ModelChanged(object sender, SelectionChangedEventArgs e)
     {
         if (ModelBox.SelectedItem is not ChatModel selected) return;
         _history.Model = selected.Model;
-        SaveHistory();
-    }
-
-    private void CommandApprovalChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_restoringPreferences || _history == null || CommandApprovalBox.SelectedIndex < 0) return;
-        _history.ConfirmCommands = CommandApprovalBox.SelectedIndex == 0;
         SaveHistory();
     }
 
@@ -443,16 +494,16 @@ public partial class AIChatWindow : UserControl
 
     private async void Send(object sender, RoutedEventArgs e)
     {
-        if (_busy || !ProgrammerSelectionValid || _client == null || _threadId == null || ModelBox.SelectedItem is not ChatModel selected || string.IsNullOrWhiteSpace(PromptBox.Text)) return;
-        bool confirmCommands = _history.ConfirmCommands;
+        if (_busy || !ProgrammerSelectionValid || !PlannerSelectionValid || !ArtistSelectionValid || _client == null || _threadId == null || ModelBox.SelectedItem is not ChatModel selected || string.IsNullOrWhiteSpace(PromptBox.Text)) return;
         string text = PromptBox.Text;
+        _changedPaths.Clear();
+        _stageNotice = null;
         SetBusy(true);
         var request = _requestStop!;
         var client = _client;
         PromptBox.Clear();
         _history.Messages.Add(new() { Role = "사용자", Text = text });
-        SaveHistory();
-        RenderTranscript();
+        SetPipelineStage("요청 분석");
         try
         {
             var auth = await client.RequestAsync("account/read", new { refreshToken = false }).WaitAsync(request.Token);
@@ -467,12 +518,13 @@ public partial class AIChatWindow : UserControl
                 effort = selected.DefaultEffort,
                 programmerModel = _history.ProgrammerModel,
                 programmerEffort = string.IsNullOrEmpty(_history.ProgrammerEffort) ? null : _history.ProgrammerEffort,
-                confirmActions = confirmCommands,
+                plannerModel = _history.PlannerModel,
+                plannerEffort = string.IsNullOrEmpty(_history.PlannerEffort) ? null : _history.PlannerEffort,
+                artistModel = _history.ArtistModel,
+                artistEffort = string.IsNullOrEmpty(_history.ArtistEffort) ? null : _history.ArtistEffort,
                 requirePlan = RequirePlan.IsChecked == true,
                 approvalPolicy = "on-request",
-                sandboxPolicy = AllowEdits.IsChecked == true
-                    ? (object)new { type = "workspaceWrite", writableRoots = new[] { _project }, networkAccess = false }
-                    : new { type = "readOnly" },
+                sandboxPolicy = new { type = "workspaceWrite", writableRoots = new[] { _project }, networkAccess = false },
                 input = new[]
                 {
                     new { type = "text", text }
@@ -505,6 +557,63 @@ public partial class AIChatWindow : UserControl
             SaveHistory();
             RenderTranscript();
         }
+    }
+
+    private void QueueNotification(CodexEditorClient client, string method, JsonElement parameters)
+    {
+        // CLI reasoning/tool progress that has no presentation must never flood the UI dispatcher.
+        if (_disposed || method is not ("account/login/completed" or "turn/usage" or "turn/pipelineStage" or
+            "turn/contextCompacted" or "thread/compacted" or "turn/toolWarning" or "turn/started" or
+            "item/started" or "item/completed" or "item/agentMessage/delta" or "turn/completed" or "connection/disconnected")) return;
+        lock (_notificationGate)
+        {
+            if (_notificationsClosed) return;
+            _notifications.Enqueue((client, method, parameters));
+        }
+        ScheduleNotificationDrain();
+    }
+
+    private void ScheduleNotificationDrain()
+    {
+        if (Interlocked.CompareExchange(ref _notificationDrainQueued, 1, 0) == 0)
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(DrainNotifications));
+    }
+
+    private void DrainNotifications()
+    {
+        try
+        {
+            if (_disposed) { _notifications.Clear(); return; }
+            var clock = Stopwatch.StartNew();
+            // Preserve event order (including file receipts before completion), but yield to input/rendering.
+            for (int count = 0; count < 64 && clock.ElapsedMilliseconds < 4 && _notifications.TryDequeue(out var pending); count++)
+            {
+                if (!ReferenceEquals(_client, pending.Client)) continue;
+                if (pending.Method == "connection/disconnected") HandleDisconnected(pending.Parameters.GetString()!);
+                else HandleNotification(pending.Method, pending.Parameters);
+            }
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _notificationDrainQueued, 0);
+            if (!_notifications.IsEmpty) ScheduleNotificationDrain();
+        }
+    }
+
+    private void HandleDisconnected(string details)
+    {
+        bool wasBusy = _busy;
+        SetBusy(false);
+        SendButton.IsEnabled = RefreshButton.IsEnabled = NewButton.IsEnabled = false;
+        ProgrammerModelBox.IsEnabled = ProgrammerEffortBox.IsEnabled = ModelBox.IsEnabled = false;
+        ConnectButton.IsEnabled = true;
+        StatusText.Text = "ChatGPT 연결이 종료되었습니다. 아래 오류 상세를 확인하고 계정 연결을 다시 눌러주세요.";
+        AddWorkNotice((wasBusy ? "연결이 끊겨 요청을 완료하지 못했습니다. 이미 수행한 변경은 유지됩니다." : "ChatGPT 연결이 종료되었습니다.") + "\n" + details);
+    }
+
+    private void QueueTranscriptRender()
+    {
+        if (!_transcriptRenderTimer.IsEnabled) _transcriptRenderTimer.Start();
     }
 
     private async void HandleNotification(string method, JsonElement p)
@@ -553,12 +662,15 @@ public partial class AIChatWindow : UserControl
         }
         if (method == "turn/agentDispatch")
         {
-            AddWorkNotice(p.TryGetProperty("message", out var dispatch) ? dispatch.GetString() ?? "작업 시작" : "작업 시작");
+            return;
+        }
+        if (method == "turn/pipelineStage")
+        {
+            SetPipelineStage(p.GetProperty("stage").GetString() ?? "작업 중");
             return;
         }
         if (method == "turn/teamStatus")
         {
-            StatusText.Text = p.GetProperty("message").GetString();
             return;
         }
         if (method == "turn/contextCompacted" || method == "thread/compacted")
@@ -568,11 +680,14 @@ public partial class AIChatWindow : UserControl
         }
         if (method == "turn/toolWarning")
         {
-            AddWorkNotice(p.GetProperty("message").GetString() ?? "도구 작업을 완료하지 못했습니다.");
+            StatusText.Text = "도구 오류 · Editor/AIToolFailures.md 확인";
             return;
         }
         if (method == "turn/started" && p.TryGetProperty("turn", out var started))
+        {
             _turnId = started.GetProperty("id").GetString();
+            return;
+        }
         if (method is "item/started" or "item/completed")
         {
             var item = p.GetProperty("item");
@@ -583,17 +698,22 @@ public partial class AIChatWindow : UserControl
                 _fileChanges[id] = item.GetRawText();
                 if (method == "item/completed")
                 {
+                    if (item.TryGetProperty("path", out var changedPath) && changedPath.ValueKind == JsonValueKind.String)
+                        _changedPaths.Add(changedPath.GetString()!);
                     _history.Messages.Add(new() { Role = "파일 변경", Text = item.GetRawText() });
                     if (item.TryGetProperty("result", out var result) && result.ValueKind == JsonValueKind.String &&
                         (result.GetString() ?? "").TrimStart().StartsWith('{'))
                     {
                         using var change = JsonDocument.Parse(result.GetString()!);
                         var data = change.RootElement;
+                        foreach (string key in new[] { "saved", "created", "moved", "destination", "deleted" })
+                            if (data.TryGetProperty(key, out var changed) && changed.ValueKind == JsonValueKind.String)
+                                _changedPaths.Add(changed.GetString()!);
                         if (data.TryGetProperty("moved", out var moved) && data.TryGetProperty("destination", out var destination))
                             GlobalFunction.GetDockedWindow<LuaEditorWindow>()?.UpdateMovedFilePaths(
                                 Path.Combine(_project, moved.GetString()!), Path.Combine(_project, destination.GetString()!));
                         if (data.TryGetProperty("moved", out _) || data.TryGetProperty("deleted", out _) || data.TryGetProperty("created", out _))
-                            GlobalFunction.GetDockedWindow<AssetWindow>()?.Refresh();
+                            GlobalFunction.GetDockedWindow<AssetWindow>()?.RefreshAfterAiChange();
                     }
                 }
             }
@@ -603,6 +723,8 @@ public partial class AIChatWindow : UserControl
                 if (message == null) _history.Messages.Add(new() { Role = "ChatGPT", ItemId = id, Text = item.GetProperty("text").GetString() ?? "" });
                 else message.Text = item.GetProperty("text").GetString() ?? "";
             }
+            if (method == "item/completed" && type is ("fileChange" or "agentMessage")) QueueTranscriptRender();
+            return;
         }
         if (method == "item/agentMessage/delta")
         {
@@ -614,7 +736,7 @@ public partial class AIChatWindow : UserControl
                 _history.Messages.Add(message);
             }
             message.Text += p.GetProperty("delta").GetString();
-            if (!_transcriptRenderTimer.IsEnabled) _transcriptRenderTimer.Start();
+            QueueTranscriptRender();
             return;
         }
         if (method == "turn/completed")
@@ -640,73 +762,16 @@ public partial class AIChatWindow : UserControl
                     reason += "\n" + detail.GetString();
                 AddWorkNotice(reason + "\n" + ElapsedTimeText.Text + " · 이미 수행한 변경은 자동으로 되돌리지 않습니다.");
             }
+            if (_changedPaths.Count > 0)
+                AddWorkNotice("변경된 파일\n" + string.Join("\n", _changedPaths.Order(StringComparer.OrdinalIgnoreCase).Select(path => "- " + path)));
             SaveHistory();
+            RenderTranscript();
         }
-        RenderTranscript();
-    }
-
-    private async Task<bool> ConfirmApprovalAsync(string method, JsonElement parameters)
-    {
-        var request = _requestStop;
-        if (_disposed || !_busy || _stopRequested || request == null || request.IsCancellationRequested) return false;
-        if (parameters.TryGetProperty("turnId", out var approvalTurn) && approvalTurn.GetString() != _turnId) return false;
-        if (parameters.TryGetProperty("threadId", out var thread) && thread.GetString() != _threadId) return false;
-        if (AllowEdits.IsChecked != true) return false;
-        bool deleting = parameters.TryGetProperty("operation", out var operation) && operation.GetString() is "delete_asset_file" or "delete_asset_folder";
-        if (deleting && parameters.TryGetProperty("path", out var deletePath) &&
-            GlobalFunction.GetDockedWindow<LuaEditorWindow>()?.HasUnsavedFile(Path.Combine(_project, deletePath.GetString()!)) == true)
-        {
-            StatusText.Text = "삭제 대상에 저장되지 않은 편집 내용이 있어 삭제를 거부했습니다.";
-            return false;
-        }
-        string details = JsonSerializer.Serialize(parameters, new JsonSerializerOptions { WriteIndented = true });
-        if (parameters.TryGetProperty("itemId", out var id) && _fileChanges.TryGetValue(ItemKey(parameters, id.GetString()!), out var changes))
-            details += "\n\n변경 내용:\n" + changes;
-        var window = new Window
-        {
-            Title = deleting ? "AI 자비스 파일 삭제 승인 · 휴지통 이동" : method.Contains("fileChange") ? "AI 파일 수정 승인" : "AI 명령 실행 승인",
-            Owner = Application.Current.MainWindow, Width = 760, Height = 560,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            Background = (System.Windows.Media.Brush)FindResource("PixelPanelBrush")
-        };
-        var grid = new Grid { Margin = new Thickness(12) };
-        grid.RowDefinitions.Add(new RowDefinition());
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        grid.Children.Add(new TextBox
-        {
-            Text = "프로젝트: " + _project + "\n이번 요청만 승인합니다. 아래 파일·명령과 경로를 확인하세요.\n\n" + details,
-            IsReadOnly = true, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            Background = (System.Windows.Media.Brush)FindResource("PixelBackgroundBrush"),
-            Foreground = (System.Windows.Media.Brush)FindResource("PixelTextBrush")
-        });
-        var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
-        var decline = new Button { Content = "거절", Padding = new Thickness(18, 7, 18, 7), Margin = new Thickness(5) };
-        var accept = new Button { Content = "이번 요청 승인", Padding = new Thickness(18, 7, 18, 7), Margin = new Thickness(5) };
-        var decision = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        decline.Click += (_, _) => decision.TrySetResult(false);
-        accept.Click += (_, _) => decision.TrySetResult(true);
-        window.Closed += (_, _) => decision.TrySetResult(false);
-        window.PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape) { decision.TrySetResult(false); e.Handled = true; } };
-        buttons.Children.Add(decline); buttons.Children.Add(accept);
-        Grid.SetRow(buttons, 1); grid.Children.Add(buttons); window.Content = grid;
-        bool accepted;
-        try
-        {
-            // Non-modal so the request Stop button remains accessible during approval.
-            window.Show();
-            accepted = await decision.Task.WaitAsync(request.Token);
-        }
-        catch (OperationCanceledException) { accepted = false; }
-        finally { window.Close(); }
-        if (_disposed || !ReferenceEquals(_requestStop, request) || _stopRequested || request.IsCancellationRequested) return false;
-        _history.Messages.Add(new() { Role = "승인", Text = (accepted ? "승인: " : "거절: ") + method });
-        SaveHistory();
-        return accepted;
     }
 
     private ChatGptProjectTools.ImportedAsset? PickImportAsset()
     {
-        if (_disposed || !_busy || _stopRequested || AllowEdits.IsChecked != true) return null;
+        if (_disposed || !_busy || _stopRequested) return null;
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
             Title = "AI가 Asset으로 가져올 파일을 직접 선택하세요",
@@ -836,6 +901,7 @@ public partial class AIChatWindow : UserControl
         }
         _history.ThreadId = _threadId = null;
         _history.Messages.Clear();
+        _transcriptCache.Clear();
         _requestClock.Reset();
         ElapsedTimeText.Visibility = Visibility.Collapsed;
         SaveHistory();
@@ -872,7 +938,7 @@ public partial class AIChatWindow : UserControl
         }
         if (busy || wasBusy) UpdateElapsedTime();
         if (busy) _stopRequested = false;
-        AllowEdits.IsEnabled = RequirePlan.IsEnabled = !busy;
+        RequirePlan.IsEnabled = !busy;
         AddAccountButton.IsEnabled = !busy && _client != null;
         ReauthorizeButton.IsEnabled = !busy && _client != null;
         AccountBox.IsEnabled = !busy && _client != null;
@@ -899,28 +965,49 @@ public partial class AIChatWindow : UserControl
 
     private void RenderTranscript()
     {
-        // Keep diagnostics hidden, but retain successful code changes as collapsed entries.
-        var visibleMessages = _history.Messages.Where(m => m.Role is "사용자" or "ChatGPT" or "작업 알림" ||
-            (m.Role == "파일 변경" && ReadCodeChange(m.Text) != null)).ToList();
-        // Keep existing containers intact while streaming; only changed messages notify WPF.
-        for (int i = 0; i < visibleMessages.Count; i++)
+        int index = 0;
+        bool changed = false;
+        foreach (var message in _history.Messages)
         {
-            var message = visibleMessages[i];
-            string role = message.Role == "ChatGPT" ? "AI 자비스" : message.Role;
-            string text = message.Role == "작업 알림" ? message.Text : "[" + role + "]\n" + message.Text;
-            var entry = message.Role == "파일 변경" ? ReadCodeChange(message.Text)! :
-                new TranscriptMessage(text, message.Role == "사용자", IsNotice: message.Role == "작업 알림", Details: message.Details ?? "");
-            if (i == _transcript.Count) _transcript.Add(entry);
-            else if (_transcript[i] != entry) _transcript[i] = entry;
+            // Historic text and before/after diffs are immutable between updates. Do not rebuild
+            // them for every streamed token; a collapsed diff can contain an entire source file.
+            if (!_transcriptCache.TryGetValue(message, out var cached) || cached.Role != message.Role ||
+                !ReferenceEquals(cached.Text, message.Text) || !ReferenceEquals(cached.Details, message.Details))
+            {
+                TranscriptMessage? entry = null;
+                if (message.Role == "파일 변경") entry = ReadCodeChange(message.Text);
+                else if (message.Role is "사용자" or "ChatGPT" or "작업 알림")
+                {
+                    string role = message.Role == "ChatGPT" ? "AI 자비스" : message.Role;
+                    string text = message.Role == "작업 알림" ? message.Text : "[" + role + "]\n" + message.Text;
+                    entry = new TranscriptMessage(text, message.Role == "사용자", IsNotice: message.Role == "작업 알림", Details: message.Details ?? "");
+                }
+                cached = (message.Role, message.Text, message.Details, entry);
+                _transcriptCache[message] = cached;
+            }
+            if (cached.Entry == null) continue;
+            if (index == _transcript.Count) { _transcript.Add(cached.Entry); changed = true; }
+            else if (_transcript[index] != cached.Entry) { _transcript[index] = cached.Entry; changed = true; }
+            index++;
         }
-        while (_transcript.Count > visibleMessages.Count)
-            _transcript.RemoveAt(_transcript.Count - 1);
-        ScrollTranscriptToEnd();
+        while (_transcript.Count > index) { _transcript.RemoveAt(_transcript.Count - 1); changed = true; }
+        if (changed) ScrollTranscriptToEnd();
     }
 
     private void AddWorkNotice(string text)
     {
         _history.Messages.Add(new() { Role = "작업 알림", Text = text });
+        SaveHistory();
+        RenderTranscript();
+    }
+
+    private void SetPipelineStage(string stage)
+    {
+        if (_stageNotice?.Text == "진행 단계: " + stage) return;
+        _stageNotice ??= new CodexChatMessage { Role = "작업 알림" };
+        if (!_history.Messages.Contains(_stageNotice)) _history.Messages.Add(_stageNotice);
+        _stageNotice.Text = "진행 단계: " + stage;
+        StatusText.Text = _stageNotice.Text;
         SaveHistory();
         RenderTranscript();
     }
@@ -1010,6 +1097,14 @@ public partial class AIChatWindow : UserControl
 
     public void DisposeChat()
     {
+        // Stop admitting events, then persist everything already received before closing.
+        lock (_notificationGate) _notificationsClosed = true;
+        while (_notifications.TryDequeue(out var pending))
+        {
+            if (!ReferenceEquals(_client, pending.Client)) continue;
+            if (pending.Method == "connection/disconnected") HandleDisconnected(pending.Parameters.GetString()!);
+            else HandleNotification(pending.Method, pending.Parameters);
+        }
         _disposed = true;
         _requestStop?.Cancel();
         _elapsedTimer.Stop();

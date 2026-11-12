@@ -70,32 +70,42 @@
                           SelectionChanged="ModelChanged" ToolTip="현재 ChatGPT 계정이 제공하는 모델 목록입니다. 변경은 다음 메시지부터 적용됩니다."/>
             </DockPanel>
             <DockPanel Margin="6,3">
-                <TextBlock Text="프로그래머 모델" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <ComboBox x:Name="ProgrammerModelBox" IsEnabled="False" MinWidth="160" DisplayMemberPath="DisplayName"
-                          SelectionChanged="ProgrammerModelChanged" ToolTip="코드 분석·수정을 맡는 프로그래머의 독립 모델입니다. 다음 요청부터 적용됩니다."/>
+                <TextBlock Text="기획자 모델" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="PlannerModelBox" IsEnabled="False" MinWidth="160" DisplayMemberPath="DisplayName"
+                          SelectionChanged="PlannerModelChanged" ToolTip="기획안 작성에 사용할 모델입니다. 다음 요청부터 적용됩니다."/>
             </DockPanel>
             <DockPanel Margin="6,3">
-                <TextBlock Text="프로그래머 추론" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="기획자 추론" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="PlannerEffortBox" IsEnabled="False" MinWidth="160"
+                          SelectionChanged="PlannerEffortChanged" ToolTip="기획자 모델의 추론 강도입니다."/>
+            </DockPanel>
+            <DockPanel Margin="6,3">
+                <TextBlock Text="플머 모델" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="ProgrammerModelBox" IsEnabled="False" MinWidth="160" DisplayMemberPath="DisplayName"
+                          SelectionChanged="ProgrammerModelChanged" ToolTip="코드 분석·수정을 맡는 플머의 독립 모델입니다. 다음 요청부터 적용됩니다."/>
+            </DockPanel>
+            <DockPanel Margin="6,3">
+                <TextBlock Text="플머 추론" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <ComboBox x:Name="ProgrammerEffortBox" IsEnabled="False" MinWidth="160"
                           SelectionChanged="ProgrammerEffortChanged" ToolTip="선택한 모델이 제공하는 추론 강도입니다."/>
+            </DockPanel>
+            <DockPanel Margin="6,3">
+                <TextBlock Text="아티스트 모델" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="ArtistModelBox" IsEnabled="False" MinWidth="160" DisplayMemberPath="DisplayName"
+                          SelectionChanged="ArtistModelChanged" ToolTip="아티스트 작업에 사용할 모델입니다. 다음 요청부터 적용됩니다."/>
+            </DockPanel>
+            <DockPanel Margin="6,3">
+                <TextBlock Text="아티스트 추론" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="ArtistEffortBox" IsEnabled="False" MinWidth="160"
+                          SelectionChanged="ArtistEffortChanged" ToolTip="아티스트 모델의 추론 강도입니다."/>
             </DockPanel>
             <TextBlock x:Name="ProgrammerModelWarning" Visibility="Collapsed" TextWrapping="Wrap" Margin="6,3"
                        Foreground="{DynamicResource PixelAccentBrush}"/>
             <CheckBox x:Name="RequirePlan" Content="이번 요청은 계획 승인 후 작업" Foreground="{DynamicResource PixelTextBrush}" Margin="6"
-                      ToolTip="켜면 간단 작업도 계획 승인 전에는 변경할 수 없습니다. 큰 작업·선택적 조사/검토 작업은 계획 승인이 필요하며, 일반 프로그래머 작업은 기존 승인 설정을 따릅니다."/>
-            <CheckBox x:Name="AllowEdits" Content="프로젝트 파일 수정 허용" Foreground="{DynamicResource PixelTextBrush}" Margin="6"
-                      Checked="AllowEditsChanged" Unchecked="AllowEditsChanged"/>
-            <DockPanel Margin="6,3">
-                <TextBlock Text="작업 승인" Foreground="{DynamicResource PixelTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <ComboBox x:Name="CommandApprovalBox" SelectionChanged="CommandApprovalChanged" MinWidth="170"
-                          ToolTip="언제든 변경할 수 있습니다. 변경한 설정은 다음 메시지부터 적용됩니다.">
-                    <ComboBoxItem Content="항상 확인 요청"/>
-                    <ComboBoxItem Content="일반 작업 자동 승인"/>
-                </ComboBox>
-            </DockPanel>
-            <TextBlock Text="자동 승인에서는 요청에 필요한 조회·파일 수정·Asset 파일 및 폴더 생성·이동·삭제를 다시 묻지 않습니다. 변경에는 ‘프로젝트 파일 수정 허용’이 필요합니다. 설치·커밋·푸시는 별도 확인 대상입니다."
+                      ToolTip="켜면 간단 작업도 계획 승인 전에는 변경할 수 없습니다. 큰 작업과 선택적 보조 작업은 계획 또는 범위 승인이 필요합니다."/>
+            <TextBlock Text="요청 범위의 파일 변경은 별도 확인 없이 진행합니다. Middle·Big 계획과 추가 작업 범위는 승인받습니다. 파일 경로·해시·미저장 편집 검사는 유지됩니다."
                        TextWrapping="Wrap" Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="11" Margin="6,0,6,6"/>
-            <TextBlock Text="수정 허용 전에는 읽기 전용입니다. 수정할 파일은 먼저 저장하세요. API 키 로그인은 사용하지 않습니다." TextWrapping="Wrap" Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="11" Margin="6,0,6,6"/>
+            <TextBlock Text="수정할 파일은 먼저 저장하세요. API 키 로그인은 사용하지 않습니다." TextWrapping="Wrap" Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="11" Margin="6,0,6,6"/>
             <TextBlock Text="직접 연결: 코드·에셋·Asset 파일 및 폴더 생성·이동·휴지통 삭제·리임포트·로그 조회 지원. 리임포트는 실행 상태를 초기화합니다. 임의 명령·빌드는 지원하지 않습니다."
                        TextWrapping="Wrap" Foreground="{DynamicResource PixelMutedTextBrush}" FontSize="11" Margin="6,0,6,6"/>
            </StackPanel>

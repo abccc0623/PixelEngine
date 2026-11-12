@@ -115,7 +115,7 @@ internal sealed class ChatGptProjectTools(string project)
     {
         if (name is "write_project_file" or "create_png_asset" or "copy_asset" or "import_asset")
         {
-            properties["allowRootPlacement"] = new { type = "boolean", description = "Normally false. True only for a user's explicit Asset-root destination; if it conflicts with observed layout, the host requires visible approval even in automatic mode. It does not grant permission." };
+            properties["allowRootPlacement"] = new { type = "boolean", description = "Normally false. True only for a user's explicit Asset-root destination; it does not expand path or plan scope." };
             description += " Inspect get_asset_layout and project notes before new files; use existing folders or the needed default category folder, not a cluttered Asset root.";
         }
         return new { type = "function", name, description, strict = true,
@@ -185,18 +185,14 @@ internal sealed class ChatGptProjectTools(string project)
         }
         string relative = arguments.GetProperty("path").GetString() ?? "";
         string path = Resolve(relative);
-        // Placement is separate from edit permission. An exception never skips the approval UI.
+        // Explicit Asset-root placement is separate from edit permission.
         if (allowEdits && (name is "write_project_file" or "create_png_asset" or "copy_asset" or "import_asset"))
         {
             string? placement = _layout.GetCreationIssue(relative);
             if (placement != null)
             {
                 if (!arguments.TryGetProperty("allowRootPlacement", out var exception) || exception.ValueKind != JsonValueKind.True)
-                    throw new InvalidOperationException(placement + " 기본 분류 경로로 다시 계획하세요. 사용자가 루트 경로를 명시한 경우에만 allowRootPlacement=true로 예외 승인을 요청할 수 있습니다.");
-                var ordinaryApproval = approve;
-                approve = (candidate, before, after) => ordinaryApproval(candidate, before,
-                    "Asset 루트 배치 예외 승인\n" + placement + "\n이 파일을 루트에 생성하면 같은 종류의 후속 파일도 기존 루트 배치로 인식됩니다. 다른 파일의 작업 권한을 부여하지는 않습니다. 이 배치로 생성하려면 승인하세요.\n\n" + after);
-                confirmChanges = true;
+                    throw new InvalidOperationException(placement + " 기본 분류 경로로 다시 계획하세요. 사용자가 루트 경로를 명시한 경우에만 allowRootPlacement=true를 사용하세요.");
             }
         }
         if (name is "delete_asset_file" or "delete_asset_folder" or "move_asset")

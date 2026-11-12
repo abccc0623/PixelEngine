@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -14,7 +15,12 @@ namespace PixelTool
         private AssetBrowserState _browserState = new();
         private bool _restoringTree;
         private FileSystemWatcher? _watcher;
+        private FileSystemWatcher? _directoryWatcher;
         private DispatcherTimer? _refreshTimer;
+        private readonly object _refreshLock = new();
+        private readonly HashSet<string> _changedAssetPaths = new(StringComparer.OrdinalIgnoreCase);
+        private bool _fullRefreshPending;
+        private bool _refreshDispatchPending;
         private Point _folderDragStart;
         private FolderItem? _draggedFolder;
         private string BrowserStatePath => ProjectPathService.GetEditorFilePath("AssetBrowser.json");
@@ -51,24 +57,42 @@ namespace PixelTool
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine("Asset browser state: " + ex.Message); }
         }
 
+        internal void RefreshAfterAiChange()
+        {
+            // Watchers batch updates while loaded. Preserve manual receipts if setup failed.
+            if (IsLoaded && _watcher == null) Refresh();
+        }
+
         private void StartWatcher()
         {
             if (_watcher != null || !Directory.Exists(ProjectPathService.AssetPath)) return;
-            _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
-            _refreshTimer.Tick += (_, _) => { if (_isDragging) return; _refreshTimer.Stop(); Refresh(); };
+            _refreshTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(250) };
+            _refreshTimer.Tick += (_, _) => RefreshChangedAssets();
             try
             {
                 _watcher = new FileSystemWatcher(ProjectPathService.AssetPath)
                 {
                     IncludeSubdirectories = true,
-                    NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite | NotifyFilters.Size
+                    NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size
                 };
                 _watcher.Created += AssetChanged;
                 _watcher.Deleted += AssetChanged;
                 _watcher.Changed += AssetChanged;
                 _watcher.Renamed += AssetRenamed;
                 _watcher.Error += (_, _) => QueueRefresh();
+                // A separate directory-only stream distinguishes deleted folders from files
+                // without probing paths that no longer exist (including atomic-save temp files).
+                _directoryWatcher = new FileSystemWatcher(ProjectPathService.AssetPath)
+                {
+                    IncludeSubdirectories = true,
+                    NotifyFilter = NotifyFilters.DirectoryName
+                };
+                _directoryWatcher.Created += DirectoryChanged;
+                _directoryWatcher.Deleted += DirectoryChanged;
+                _directoryWatcher.Renamed += AssetRenamed;
+                _directoryWatcher.Error += (_, _) => QueueRefresh();
                 _watcher.EnableRaisingEvents = true;
+                _directoryWatcher.EnableRaisingEvents = true;
             }
             catch (Exception ex) { StopWatcher(); System.Diagnostics.Debug.WriteLine("Asset watcher: " + ex.Message); }
         }
@@ -76,32 +100,93 @@ namespace PixelTool
         private void StopWatcher()
         {
             _refreshTimer?.Stop();
-            _watcher?.Dispose();
-            _watcher = null;
+            var watcher = _watcher;
+            var directoryWatcher = _directoryWatcher;
+            lock (_refreshLock)
+            {
+                _watcher = null;
+                _directoryWatcher = null;
+                _changedAssetPaths.Clear();
+                _fullRefreshPending = false;
+                _refreshDispatchPending = false;
+            }
+            watcher?.Dispose();
+            directoryWatcher?.Dispose();
             SaveBrowserState();
         }
 
-        private void AssetChanged(object sender, FileSystemEventArgs e) => QueueRefresh();
+        private void AssetChanged(object sender, FileSystemEventArgs e)
+        {
+            if (ReferenceEquals(sender, _watcher)) QueueRefresh(e.FullPath);
+        }
+
+        private void DirectoryChanged(object sender, FileSystemEventArgs e)
+        {
+            if (ReferenceEquals(sender, _directoryWatcher)) QueueRefresh();
+        }
 
         private void AssetRenamed(object sender, RenamedEventArgs e)
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                if (_watcher == null) return;
+                if (_watcher == null || (!ReferenceEquals(sender, _watcher) && !ReferenceEquals(sender, _directoryWatcher))) return;
                 UpdateMovedPaths(e.OldFullPath,e.FullPath);
-                QueueRefresh();
-            }));
+                if (ReferenceEquals(sender, _directoryWatcher)) QueueRefresh();
+                else
+                {
+                    QueueRefresh(e.OldFullPath);
+                    QueueRefresh(e.FullPath);
+                }
+            }), DispatcherPriority.Background);
         }
 
-        private void QueueRefresh()
+        private void QueueRefresh(string? changedPath = null)
         {
             if (Dispatcher.HasShutdownStarted) return;
+            FileSystemWatcher watcher;
+            lock (_refreshLock)
+            {
+                if (_watcher == null) return;
+                watcher = _watcher;
+                if (changedPath == null) _fullRefreshPending = true;
+                else _changedAssetPaths.Add(changedPath);
+                // Coalesce before posting so a burst cannot flood the render dispatcher.
+                if (_refreshDispatchPending) return;
+                _refreshDispatchPending = true;
+            }
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                if (_watcher == null || _refreshTimer == null) return;
+                lock (_refreshLock)
+                {
+                    if (!ReferenceEquals(watcher, _watcher)) return;
+                    _refreshDispatchPending = false;
+                }
+                if (_refreshTimer == null) return;
                 _refreshTimer.Stop();
                 _refreshTimer.Start();
-            }));
+            }), DispatcherPriority.Background);
+        }
+
+        private void RefreshChangedAssets()
+        {
+            if (_isDragging) return;
+            _refreshTimer?.Stop();
+            bool fullRefresh;
+            string[] changedPaths;
+            lock (_refreshLock)
+            {
+                fullRefresh = _fullRefreshPending;
+                changedPaths = _changedAssetPaths.ToArray();
+                _fullRefreshPending = false;
+                _changedAssetPaths.Clear();
+            }
+            if (fullRefresh) { Refresh(); return; }
+            // File writes, creations, deletions and atomic replacements do not change folders.
+            if (nowFolder == null || !changedPaths.Any(path =>
+                string.Equals(Path.GetDirectoryName(path), nowFolder.fullPath, StringComparison.OrdinalIgnoreCase))) return;
+            var selectedFiles = GetSelectedFiles().Select(file => file.FullPath).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            SelectFolder(nowFolder.fullPath);
+            foreach (var file in FileItems.Where(file => selectedFiles.Contains(file.FullPath))) FileView.SelectedItems.Add(file);
         }
 
         private void UpdateMovedPaths(string oldPath, string newPath)

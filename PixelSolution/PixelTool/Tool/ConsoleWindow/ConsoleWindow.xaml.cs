@@ -99,22 +99,29 @@ namespace PixelTool
                 "errors" => 2,
                 _ => throw new ArgumentException("level은 all, warnings, errors 중 하나여야 합니다.", nameof(level))
             };
+            CapturedLog[] selected;
+            long latestCursor;
+            bool cleared, truncated;
             lock (_captureLock)
             {
-                var selected = _capturedLogs.Where(log => log.Sequence > afterCursor).Take(limit).ToArray();
-                return JsonSerializer.SerializeToElement(new
-                {
-                    filter = level, scanned = selected.Length,
-                    entries = selected.Where(log => log.Level >= minimumLevel).Select(log => new { sequence = log.Sequence, timestamp = log.Timestamp, level = log.Level,
-                        message = Regex.Replace(Regex.Replace(log.Message, @"(?i)\bBearer\s+[^\s""']+", "Bearer <redacted>"),
-                            @"(?i)(access_token|refresh_token|id_token|api_key)\s*[=:]\s*[^\s,;]+", "$1=<redacted>") }),
-                    cursor = selected.LastOrDefault()?.Sequence ?? afterCursor, latestCursor = _logSequence,
-                    hasMore = selected.Length > 0 && selected[^1].Sequence < _logSequence,
-                    cleared = afterCursor < _clearedThroughCursor,
-                    truncated = _capturedLogs.Count > 0 && afterCursor < _capturedLogs.Peek().Sequence - 1
-                });
+                selected = _capturedLogs.Where(log => log.Sequence > afterCursor).Take(limit).ToArray();
+                latestCursor = _logSequence;
+                cleared = afterCursor < _clearedThroughCursor;
+                truncated = _capturedLogs.Count > 0 && afterCursor < _capturedLogs.Peek().Sequence - 1;
             }
+            // Native frame logging shares this lock. Redaction and JSON work must not hold it.
+            return JsonSerializer.SerializeToElement(new
+            {
+                filter = level, scanned = selected.Length,
+                entries = selected.Where(log => log.Level >= minimumLevel).Select(log => new { sequence = log.Sequence, timestamp = log.Timestamp, level = log.Level,
+                    message = Regex.Replace(Regex.Replace(log.Message, @"(?i)\bBearer\s+[^\s""']+", "Bearer <redacted>"),
+                        @"(?i)(access_token|refresh_token|id_token|api_key)\s*[=:]\s*[^\s,;]+", "$1=<redacted>") }),
+                cursor = selected.LastOrDefault()?.Sequence ?? afterCursor, latestCursor,
+                hasMore = selected.Length > 0 && selected[^1].Sequence < latestCursor,
+                cleared, truncated
+            });
         }
+
         private readonly ObservableCollection<LogEntry> _logItems = new ObservableCollection<LogEntry>();
         private readonly Dictionary<string, LogEntry> _logIndex = new Dictionary<string, LogEntry>();
         private readonly DispatcherTimer _uiUpdateTimer;

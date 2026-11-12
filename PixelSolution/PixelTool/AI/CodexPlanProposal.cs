@@ -43,7 +43,7 @@ internal sealed record CodexPlanProposal(string Id, string Summary, string Reaso
             if (!sections.Select(s => s.Number).SequenceEqual(Enumerable.Range(1, sections.Length)))
                 throw new InvalidOperationException("첫 기획안 항목 번호는 1부터 순서대로 작성하세요.");
             string[] roles = root.GetProperty("roles").EnumerateArray().Select(r => r.GetString() ?? "").Distinct().ToArray();
-            if (roles.Any(r => r is not ("programmer" or "researcher" or "reviewer")))
+            if (roles.Any(r => r is not ("programmer" or "researcher" or "reviewer" or "artist")))
                 throw new InvalidOperationException("기획안의 구현·검토 역할을 확인하세요.");
             proposal = new(Guid.NewGuid().ToString("N"), Text(root, "summary", 500), Text(root, "reason", 500), roles, sections);
         }
@@ -86,7 +86,7 @@ internal sealed record CodexPlanProposal(string Id, string Summary, string Reaso
         "Include applicable input, movement/physics, camera, presentation and data as separate numbered sections only when relevant. " +
         "Cite real guide sections or source paths/lines; references must be inspected or user-supplied. Say '확인한 참고 자료 없음' when absent, never invent links or observations. " +
         "Return ONLY JSON within 22000 characters, no prose or fences. First draft schema: " +
-        "{summary:string,reason:string,roles:[programmer|researcher|reviewer],sections:[{number:1,title:string,capability:string,design:string,evidence:string,verification:string,references:string,paths:[exact project relative paths]}]}. " +
+        "{summary:string,reason:string,roles:[programmer|researcher|reviewer|artist],sections:[{number:1,title:string,capability:string,design:string,evidence:string,verification:string,references:string,paths:[exact project relative paths]}]}. " +
         "Use Korean with normal word spacing. Summary is one or two short sentences. Each title names the work, for example 이동 구현. Start each design with one short standalone sentence describing the resulting observable behavior, preferably within 120 characters; put detailed rules, dependencies and constraints on following lines in the SAME design field. The approval list shows number. title: first design line, for example 1. 이동 구현: 방향키로 이동하고 벽에 닿으면 멈춥니다. Keep full behavior, constraints and checks in the complete fields; the short first line must accurately represent them. Maximum 12 sections numbered consecutively from 1; union of paths at most 20; combined readable field content at most 16000 characters. " +
         "Field limits: summary/reason 500, title 100, capability/evidence 600, design 1200, verification 500, references 400 characters. " +
         "On REVISION return ONLY {sections:[...]}, containing exactly the host-specified section numbers. Preserve all other sections: the host merges them unchanged. " +

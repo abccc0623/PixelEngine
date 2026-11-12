@@ -11,14 +11,15 @@ internal sealed class CodexChatHistory
     public string? ThreadId { get; set; }
     public int ToolSchemaVersion { get; set; }
     public List<string> PreviousThreadIds { get; set; } = new();
-    internal const int CurrentToolSchemaVersion = 11;
+    internal const int CurrentToolSchemaVersion = 20;
     public string Executable { get; set; } = "codex.exe";
     public string? Model { get; set; }
     public string? ProgrammerModel { get; set; }
     public string? ProgrammerEffort { get; set; }
-    // New/missing preferences use automatic approval; saved choices still override this default.
-    public bool ConfirmCommands { get; set; } = false;
-    public bool AllowEdits { get; set; }
+    public string? PlannerModel { get; set; }
+    public string? PlannerEffort { get; set; }
+    public string? ArtistModel { get; set; }
+    public string? ArtistEffort { get; set; }
     public List<CodexChatMessage> Messages { get; set; } = new();
 
     internal static string PathFor(string project)
@@ -52,7 +53,7 @@ internal sealed class CodexChatHistory
         ProjectPath = ProjectPath, ThreadId = ThreadId, ToolSchemaVersion = ToolSchemaVersion,
         PreviousThreadIds = new List<string>(PreviousThreadIds), Executable = Executable,
         Model = Model, ProgrammerModel = ProgrammerModel, ProgrammerEffort = ProgrammerEffort,
-        ConfirmCommands = ConfirmCommands, AllowEdits = AllowEdits,
+        PlannerModel = PlannerModel, PlannerEffort = PlannerEffort, ArtistModel = ArtistModel, ArtistEffort = ArtistEffort,
         Messages = Messages.Select(m => new CodexChatMessage
         {
             Role = m.Role, Text = m.Text, ItemId = m.ItemId, Details = m.Details
