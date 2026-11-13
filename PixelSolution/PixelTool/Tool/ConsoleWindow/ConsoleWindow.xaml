@@ -19,7 +19,6 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
@@ -28,10 +27,9 @@
             <Button x:Name="WarnLogButton" Content="Warn" Grid.Column="2" Margin="0,4,3,4" Style="{StaticResource PixelFilterButton}" Click="FilterLogs" Tag="1"/>
             <Button x:Name="ErrorLogButton" Content="Error" Grid.Column="3" Margin="0,4,6,4" Style="{StaticResource PixelFilterButton}" Click="FilterLogs" Tag="2"/>
             <Button x:Name="AiLogButton" Content="AI" Grid.Column="4" Margin="0,4,3,4" Style="{StaticResource PixelFilterButton}" Click="FilterLogs" Tag="3"/>
-            <Button Content="AILog 저장" Grid.Column="5" Margin="0,4,6,4" Click="SaveAiLogs_Click"/>
-            <TextBox x:Name="LogSearchBox" Grid.Column="6" Margin="0,4,6,4" Style="{StaticResource PixelTextBox}"
+            <TextBox x:Name="LogSearchBox" Grid.Column="5" Margin="0,4,6,4" Style="{StaticResource PixelTextBox}"
                      ToolTip="Search logs" TextChanged="LogSearchBox_TextChanged"/>
-            <Button Content="" Grid.Column="7" Margin="0,4,6,4" Style="{StaticResource PixelIconButton}" ToolTip="Clear logs" Click="Clear"/>
+            <Button Content="" Grid.Column="6" Margin="0,4,6,4" Style="{StaticResource PixelIconButton}" ToolTip="Clear logs" Click="Clear"/>
         </Grid>
         
         <ListBox x:Name="EngineLogView" Grid.Row="1" Background="{StaticResource PixelBackgroundBrush}"

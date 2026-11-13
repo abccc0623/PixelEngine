@@ -72,3 +72,41 @@ internal sealed class ProjectCodeReadBudget
         if (_files.TryGetValue(path, out var state)) _files[path] = (state.Hash, state.Remaining - characters);
     }
 }
+
+internal static class ProjectTextPatch
+{
+    // Line reads use LF, while files may contain CRLF. Match either form without changing unrelated text.
+    internal static bool TryReplace(string source, string oldText, string newText, out string result, out int occurrences)
+    {
+        string normalized = Normalize(oldText);
+        string content = Normalize(source);
+        int start = content.IndexOf(normalized, StringComparison.Ordinal);
+        occurrences = start < 0 ? 0 : content.IndexOf(normalized, start + 1, StringComparison.Ordinal) < 0 ? 1 : 2;
+        if (occurrences != 1)
+        {
+            result = source;
+            return false;
+        }
+
+        int sourceStart = SourceOffset(source, start);
+        int sourceEnd = SourceOffset(source, start + normalized.Length);
+        bool crlf = source[sourceStart..sourceEnd].Contains("\r\n", StringComparison.Ordinal) || source.Contains("\r\n", StringComparison.Ordinal);
+        string replacement = Normalize(newText);
+        if (crlf) replacement = replacement.Replace("\n", "\r\n", StringComparison.Ordinal);
+        result = source[..sourceStart] + replacement + source[sourceEnd..];
+        return true;
+    }
+
+    private static string Normalize(string text) => text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
+
+    private static int SourceOffset(string source, int normalizedOffset)
+    {
+        int offset = 0;
+        for (int i = 0; i < normalizedOffset; i++)
+        {
+            if (source[offset] == '\r' && offset + 1 < source.Length && source[offset + 1] == '\n') offset++;
+            offset++;
+        }
+        return offset;
+    }
+}

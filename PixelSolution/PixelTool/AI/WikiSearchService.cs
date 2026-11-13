@@ -15,8 +15,12 @@ internal sealed class WikiSearchService
     private readonly object gate = new();
     private Dictionary<string, Entry> cache = new(StringComparer.OrdinalIgnoreCase);
     private const int MaxBytes = 1024 * 1024, MaxFiles = 10000;
-    private static readonly string[] Categories = ["API", "Skills", "Rules", "Knowledge"];
-    internal WikiSearchService(string root) => this.root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
+    private readonly string[] categories;
+    internal WikiSearchService(string root, string[]? categories = null)
+    {
+        this.root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
+        this.categories = categories ?? ["API", "Skills", "Rules", "Knowledge"];
+    }
 
     internal Result Search(string query, int limit = 20, CancellationToken cancellation = default)
     {
@@ -96,7 +100,7 @@ internal sealed class WikiSearchService
         if (!document.StartsWith("wiki/", StringComparison.Ordinal)) throw new ArgumentException("Invalid wiki document.");
         string relative = document[5..];
         string[] parts = relative.Split('/', '\\');
-        if (parts.Length < 2 || !Categories.Contains(parts[0]) || parts.Any(p => p is "" or "." or ".." || p.Contains(':')))
+        if (parts.Length < 2 || !categories.Contains(parts[0]) || parts.Any(p => p is "" or "." or ".." || p.Contains(':')))
             throw new ArgumentException("Invalid wiki document.");
         string path = Path.GetFullPath(Path.Combine(root, relative));
         if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) || !Supported(path))
@@ -122,7 +126,7 @@ internal sealed class WikiSearchService
     {
         if (!Directory.Exists(root)) yield break;
         if (IsLink(root)) { warnings.Add("연결된 위키 폴더는 검색하지 않습니다."); yield break; }
-        var pending = new Stack<string>(Categories.Select(c => Path.Combine(root, c)).Where(Directory.Exists).Reverse());
+        var pending = new Stack<string>(categories.Select(c => Path.Combine(root, c)).Where(Directory.Exists).Reverse());
         while (pending.TryPop(out var directory))
         {
             token.ThrowIfCancellationRequested();

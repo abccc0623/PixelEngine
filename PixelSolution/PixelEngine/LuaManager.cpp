@@ -289,7 +289,15 @@ void LuaManager::ImportLua(const std::string& filePath, const std::string filena
 				sol::table blueprint = result;
 				luaModuleTableMap.insert({ filename, new LuaModuleInfo(blueprint) });
 			}
-			else { /* 에러 처리 */ }
+			else if (!result.valid())
+			{
+				sol::error err = result;
+				PixelLog::Error("Lua script load failed: " + filePath + "\n" + err.what());
+			}
+			else
+			{
+				PixelLog::Error("Lua script must return a table: " + filePath);
+			}
 		}
 		else if (ext == ".lua")
 		{

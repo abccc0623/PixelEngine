@@ -24,12 +24,21 @@ public partial class WikiWindow : UserControl
         search = source;
         string query = Query.Text.Trim();
         preview?.Cancel(); Results.ItemsSource = null; Preview.Clear();
-        if (query.Length == 0) { Status.Text = "검색어를 입력하세요. API · Skills · Rules · Knowledge"; source.Dispose(); search = null; return; }
+        if (query.Length == 0) { Status.Text = "검색어를 입력하세요. 공통 문서 · 현재 프로젝트 일감"; source.Dispose(); search = null; return; }
         Status.Text = "검색 중…";
         try
         {
             if (debounce) await Task.Delay(200, source.Token);
-            var result = await Task.Run(() => WikiSearchService.Shared.Search(query, 100, source.Token), source.Token);
+            var result = await Task.Run(() =>
+            {
+                var common = WikiSearchService.Shared.Search(query, 100, source.Token);
+                if (string.IsNullOrWhiteSpace(ProjectPathService.ProjectRootPath)) return common;
+                var project = new ProjectWorkItemWiki(ProjectPathService.ProjectRootPath).Search(query, 100, source.Token);
+                return new WikiSearchService.Result(common.Matches.Concat(project.Matches)
+                    .OrderByDescending(h => h.Score).ThenBy(h => h.Document, StringComparer.Ordinal).Take(100).ToArray(),
+                    common.ElapsedMs + project.ElapsedMs, common.Documents + project.Documents,
+                    common.Truncated || project.Truncated, common.Warnings.Concat(project.Warnings).ToArray());
+            }, source.Token);
             if (current != revision || !IsLoaded) return;
             Results.ItemsSource = result.Matches;
             Status.Text = $"검색 결과 {result.Matches.Length}개 · {result.ElapsedMs:F1} ms · 문서 {result.Documents}개" +
@@ -49,7 +58,9 @@ public partial class WikiWindow : UserControl
         Preview.Text = "문서 읽는 중…";
         try
         {
-            string text = await Task.Run(() => WikiSearchService.Shared.Read(hit.Document), source.Token);
+            string text = await Task.Run(() => hit.Document.StartsWith("project-wiki/", StringComparison.Ordinal)
+                ? new ProjectWorkItemWiki(ProjectPathService.ProjectRootPath).Read(hit.Document)
+                : WikiSearchService.Shared.Read(hit.Document), source.Token);
             if (text.Length > 24000)
             {
                 int end = char.IsHighSurrogate(text[23999]) ? 23999 : 24000;

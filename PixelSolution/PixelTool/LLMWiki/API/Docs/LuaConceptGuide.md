@@ -1,6 +1,6 @@
 ﻿# Lua API 개념과 동작 규칙
 
-이 문서는 배포된 PixelTool AI가 Lua API의 공통 동작을 이해할 때 읽는다. API 이름과 문서 위치는 `LuaApiIndex.md`에서 찾는다. 정확한 매개변수·반환값은 Tool 설치 경로의 `LLMWiki/API/Lua/*.lua` (`read_engine_guide` / `Editor_LuaGuide_Read`: `Lua/<module>.lua`) 선언으로 확인한다. 선언, 성공한 리임포트, 실제 실행 검증은 서로 다르다. 엔진 DLL 내부를 추측하거나 수정하지 않는다.
+이 문서는 배포된 PixelTool AI가 Lua API의 공통 동작을 이해할 때 읽는다. API 문서는 위키 검색으로 찾는다. 정확한 매개변수·반환값은 Tool 설치 경로의 `LLMWiki/API/Lua/*.lua` 선언으로 확인한다. 선언, 성공한 리임포트, 실제 실행 검증은 서로 다르다. 엔진 DLL 내부를 추측하거나 수정하지 않는다.
 
 ## 실행 흐름과 객체 수명
 

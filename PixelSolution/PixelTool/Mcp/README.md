@@ -14,7 +14,6 @@ The generated configuration includes a private bearer token. Do not commit or sh
 ## Tools and boundaries
 
 - `Editor_Project_Info`: the currently opened project root and the three folder access rules. Reconnect after opening a different project.
-- `Editor_ProjectNotes_Read`: reads `Editor/AINavigation.md` as untrusted navigation hints; never creates it.
 - `Asset_File_Search`: finds project file and folder names; an empty query lists one directory. Default path is Asset.
 - `Asset_FileContent_Search`: searches one saved project text file for a literal phrase and returns 1-based line and column positions.
 - Wiki lookup: `Editor_Wiki_Search(document="*", query="Entity", limit=10)` searches Tool-owned API, skills, rules and knowledge. Read a returned `wiki/...` ID with `Editor_Wiki_Read(document=ID, offset=0, length=6000)`. Actual generated declarations live at Tool `LLMWiki/API/Lua`, readable as `Lua/Entity.lua`. Never look for engine declarations under project Asset/Engine.
@@ -22,14 +21,14 @@ The generated configuration includes a private bearer token. Do not commit or sh
 - `Asset_File_Create`: creates one new `Asset/` `.lua` or `.pxm` file. Empty `.pxm` uses the bundled `Module.lua` template; a different extension is a different filename.
 - `Asset_File_Delete`: moves one `Asset/` file to the Windows Recycle Bin. It rejects unsaved Lua buffers and checks for changes during the call; optional `expectedHash` guards a previously inspected file.
 - `Asset_File_ReadLines`: reads bounded saved text lines and the whole-file SHA256. Follow `nextStartLine`/`nextStartColumn` when truncated.
-- `Asset_File_Patch`: replaces one unique exact text span using that SHA256. It retains the existing `Editor/AINavigation.md` exception.
+- `Asset_File_Patch`: replaces one unique exact text span using that SHA256.
 - `Editor_Log_Read` and `Editor_Log_Clear`: inspect filtered log pages or explicitly clear the log window and captured history.
 - `Editor_Game_PlayMode`, `Editor_Game_EditorMode`, `Editor_Game_KeyInput`: change toolbar mode or send bounded game key input.
 - `Editor_Lua_Highlight`: opens a Lua/PXM file and highlights a line range without changing content.
 
 Every tool returns `success:true` with a `data` object on success, or `success:false` with `error` and `message` on expected failure. File mutation failures also include `path`. The returned `data` keeps each tool's original fields. Unexpected transport or process failures may be reported by MCP itself.
 
-Project paths are an immutable startup snapshot. AI file operations resolve against that root. Engine is AI read-only. Editor is read-only except hash-checked edits to `Editor/AINavigation.md` and host-managed append-only records in `Editor/AIWorkLog.md`. Editor internals may still maintain their own state. Editor context/logs are thread-safe captures; highlighting, file creation, patching and Recycle Bin deletion dispatch to WPF. HTTP handlers never call the native engine. MCP does not expose arbitrary code execution or scene inspection.
+Project paths are an immutable startup snapshot. AI file operations resolve against that root. Engine and Editor are AI read-only; the editor itself manages work items and logs under `Editor/`. Editor context/logs are thread-safe captures; highlighting, file creation, patching and Recycle Bin deletion dispatch to WPF. HTTP handlers never call the native engine. MCP does not expose arbitrary code execution or scene inspection.
 
 Only one editor can use port 41237. Startup failure shows a warning and lets the editor continue without MCP. Closing the editor stops the endpoint. Unauthenticated and browser-origin requests are rejected.
 
@@ -37,11 +36,11 @@ Release installers include ASP.NET Core through the self-contained publish. Fram
 
 ## Navigation workflow
 
-`Editor_ProjectNotes_Read` → `Asset_File_Search` under Asset → `Asset_FileContent_Search` on the chosen file → verify the definition before a change. Scripts may be anywhere inside Asset. Example path lookup: `query="Player", path="Asset", extensions=".lua,.pxm", limit=20`; then exact-file lookup: `path="Asset/Script/Player.lua", query="Player.Speed"` (only if that path was actually found).
+`Asset_File_Search` under Asset → `Asset_FileContent_Search` on the chosen file → verify the definition before a change. Scripts may be anywhere inside Asset. Example path lookup: `query="Player", path="Asset", extensions=".lua,.pxm", limit=20`; then exact-file lookup: `path="Asset/Script/Player.lua", query="Player.Speed"` (only if that path was actually found).
 
 Path search returns relative paths and `file`/`folder` kinds. File content search returns 1-based line and character column, snippets and incomplete flags. Empty extensions selects supported text files; `*` allows all file names without reading contents. File content search is literal/case-insensitive, not regex. Binary content, secret/hidden paths and symlinks/junctions are excluded. Engine is omitted from broad root searches unless path explicitly starts with Engine. Limits: 50 matches, 240 characters per snippet, 12000 combined path/snippet characters, 5000 entries, 4 MiB read, 3 seconds and 256 KiB per file. Check `truncated`, `stopReason`, `skippedFiles` and `snippetTruncated`; narrow incomplete searches.
 
-PixelTool creates `Editor/AINavigation.md` only when missing on project creation/open, preserving existing notes. Its 8 KiB cap keeps it concise. The embedded CLI AI can maintain verified hints through existing permission/approval/hash-checked file tools; MCP only reads the note. Rebuild/restart the editor, reconnect MCP and start a new embedded AI conversation to register new dynamic tools.
+Rebuild/restart the editor, reconnect MCP and start a new embedded AI conversation to register the updated tools.
 
 ## Verification
 
@@ -65,6 +64,6 @@ The old `Editor_LuaGuide_Read/Search` MCP names were replaced, not aliased. Reco
 
 - Source files (`.lua`, `.pxm`, `.scene` and recognized programming-language extensions) are never returned whole, even when small. AI chat `read_project_file` rejects code; existing code uses hash-checked exact patches instead of whole replacement. New files remain supported.
 - `read_project_file_lines` and `Asset_File_ReadLines` retain their line/character caps and additionally share at most half the file's non-newline characters per response. Repeated paths in one batch share this budget. Separate focused follow-up requests are allowed; this is not a cumulative confidentiality restriction.
-- Code content search returns positions without source snippets. Wiki Lua references follow the same partial-only policy, including aliases in a batch. Non-code documentation keeps bounded normal reading.
+- Code content search returns positions without source snippets. Wiki Lua declarations up to 6000 characters can be read in one response; larger code documents retain the shared partial-read budget. Non-code documentation keeps bounded normal reading.
 - Files up to 4 MiB can be searched, range-read and patched locally; source output budgets do not grow with file size. Invalid UTF-8, stale hashes, ambiguous replacements and disallowed paths remain rejected. Empty or indivisible code returns an explicit limitation, never a full-source fallback.
 - Large patch preparation and range reads run off the UI thread. The external MCP's final unsaved-buffer check and file replacement remain serialized on the editor thread.

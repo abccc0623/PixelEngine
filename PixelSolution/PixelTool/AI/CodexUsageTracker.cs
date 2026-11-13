@@ -17,7 +17,7 @@ internal sealed record CodexThreadUsage(string ThreadId, string Label, CodexToke
 }
 
 internal sealed record CodexUsageSnapshot(string Text, CodexTokenCounts? Work, bool HasUsage,
-    CodexThreadUsage? Root, IReadOnlyList<CodexThreadUsage> Workers)
+    CodexThreadUsage? Root)
 {
     public long? TotalTokens => Work?.TotalTokens;
 }
@@ -41,7 +41,6 @@ internal sealed class CodexUsageTracker
 
     private readonly object _gate = new();
     private readonly Dictionary<string, ThreadState> _threads = new(StringComparer.Ordinal);
-    private readonly List<string> _workers = new();
     private string? _root;
 
     public void BeginWork(string rootThreadId, bool newThread)
@@ -50,29 +49,12 @@ internal sealed class CodexUsageTracker
         lock (_gate)
         {
             _root = rootThreadId;
-            _workers.Clear();
             if (newThread) _threads.Remove(rootThreadId);
             ThreadState state = Get(rootThreadId);
             state.Label = "메인";
             state.Baseline = newThread ? Zero : state.Total;
             state.Observed = false;
             state.Invalid = false;
-        }
-    }
-
-    // Call only for newly created worker threads. Repeated registration is idempotent.
-    public void RegisterWorker(string threadId, string label)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(threadId);
-        lock (_gate)
-        {
-            if (threadId == _root) return;
-            if (!_workers.Contains(threadId))
-            {
-                _workers.Add(threadId);
-                Get(threadId).Baseline = Zero;
-            }
-            Get(threadId).Label = label;
         }
     }
 
@@ -89,6 +71,7 @@ internal sealed class CodexUsageTracker
             || string.IsNullOrWhiteSpace(id.GetString())) return false;
         lock (_gate)
         {
+            if (id.GetString() != _root) return false;
             ThreadState state = Get(id.GetString()!);
             if (!notification.TryGetProperty("tokenUsage", out var usage) || usage.ValueKind != JsonValueKind.Object
                 || !usage.TryGetProperty("total", out var totalJson) || !TryCounts(totalJson, out var total))
@@ -115,11 +98,9 @@ internal sealed class CodexUsageTracker
         lock (_gate)
         {
             CodexThreadUsage? root = _root == null ? null : Copy(_root);
-            var workers = _workers.Select(Copy).ToArray();
             CodexTokenCounts? sum = root?.Work;
-            foreach (var worker in workers) sum = Add(sum, worker.Work);
-            bool hasUsage = root?.Total != null || workers.Any(w => w.Total != null);
-            string text = (workers.Length == 0 ? "이번 요청 " : "이번 요청(보조 포함) ") + FormatCounts(sum);
+            bool hasUsage = root?.Total != null;
+            string text = "이번 요청 " + FormatCounts(sum);
             if (root != null)
             {
                 text += "\n메인 대화 누적 " + FormatCounts(root.Total);
@@ -127,8 +108,7 @@ internal sealed class CodexUsageTracker
                     ? " · 컨텍스트 " + percent.ToString("0.#", CultureInfo.InvariantCulture) + "%"
                     : " · 컨텍스트 미측정";
             }
-            foreach (var worker in workers) text += " · 보조 " + worker.Label + " " + Number(worker.WorkTokens);
-            return new(text, sum, hasUsage, root, Array.AsReadOnly(workers));
+            return new(text, sum, hasUsage, root);
         }
     }
 
@@ -160,21 +140,6 @@ internal sealed class CodexUsageTracker
             total.CacheWriteInputTokens - baseline.CacheWriteInputTokens, total.OutputTokens - baseline.OutputTokens,
             total.ReasoningOutputTokens - baseline.ReasoningOutputTokens);
         return Consistent(delta) ? delta : null;
-    }
-
-    private static CodexTokenCounts? Add(CodexTokenCounts? a, CodexTokenCounts? b)
-    {
-        if (a == null || b == null) return null;
-        try
-        {
-            checked
-            {
-                return new(a.TotalTokens + b.TotalTokens, a.InputTokens + b.InputTokens,
-                    a.CachedInputTokens + b.CachedInputTokens, a.CacheWriteInputTokens + b.CacheWriteInputTokens,
-                    a.OutputTokens + b.OutputTokens, a.ReasoningOutputTokens + b.ReasoningOutputTokens);
-            }
-        }
-        catch (OverflowException) { return null; }
     }
 
     private static bool Decreased(CodexTokenCounts a, CodexTokenCounts b) =>

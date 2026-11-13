@@ -35,12 +35,20 @@ internal sealed class CodexChatClient : IAsyncDisposable
             "features.shell_tool=false", "features.apply_patch_freeform=false", "features.codex_hooks=false",
             "features.multi_agent=false", "features.multi_agent_v2=false",
             // Keep human decisions as pending protocol calls, outside code-mode exec/wait polling.
-            "features.code_mode.direct_only_tool_namespaces=[\"pixeltool\"]",
-            "sandbox_mode=\"read-only\"", "approval_policy=\"never\"", "mcp_servers={}" })
+            "features.code_mode.direct_only_tool_namespaces=[\"pixeltool\",\"pixeltool_assets\"]",
+            "sandbox_mode=\"read-only\"", "approval_policy=\"never\"", "mcp_servers={}",
+            "mcp_servers.pixeltool_assets.enabled=true",
+            "mcp_servers.pixeltool_assets.enabled_tools=[\"Asset_File_Search\",\"Asset_FileContent_Search\"]",
+            $"mcp_servers.pixeltool_assets.url=\"http://127.0.0.1:{PixelToolMcpServer.Port}/mcp\"",
+            "mcp_servers.pixeltool_assets.bearer_token_env_var=\"PIXELTOOL_MCP_TOKEN\"" })
         {
             start.ArgumentList.Add("-c");
             start.ArgumentList.Add(value);
         }
+        string tokenPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PixelTool", "Mcp", "token.txt");
+        string token = File.ReadAllText(tokenPath);
+        if (token.Length != 64 || !token.All(Uri.IsHexDigit)) throw new InvalidDataException("PixelTool MCP token is invalid.");
+        start.Environment["PIXELTOOL_MCP_TOKEN"] = token;
         StartTransport(start);
         try
         {

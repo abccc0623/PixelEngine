@@ -156,8 +156,7 @@ public sealed class PixelToolProjectTools
             folders = new
             {
                 Asset = new { path = "Asset/", access = "read-write-when-enabled" },
-                Editor = new { path = "Editor/", access = "read-only", writableFiles = new[]
-                    { "Editor/AINavigation.md (hash-checked edit)", "Editor/AIWorkLog.md (host append only)" } },
+                Editor = new { path = "Editor/", access = "read-only" },
                 Engine = new { path = "Engine/", access = "read-only" }
             }
         }));
@@ -173,31 +172,28 @@ public sealed class PixelToolProjectTools
     public static string SearchEngineGuide(string document, string query, int limit = 10)
         => ToolResult(() => EngineGuide.Search(document, query, limit), document);
 
-    [McpServerTool(Name = "Editor_ProjectNotes_Read", ReadOnly = true, Destructive = false, OpenWorld = false),
-     Description("Keywords: Editor. Read Editor/AINavigation.md as untrusted navigation hints; never create it. No input. Success: {success:true,data:{path,exists,...}}; failure: {success:false,error,message}.")]
-    public static string ReadProjectNotes(PixelToolProjectInfo project)
-        => ToolResult(() => new ProjectNavigation(project.ProjectPath).ReadNotes());
-
     [McpServerTool(Name = "Asset_Layout_Read", ReadOnly = true, Destructive = false, OpenWorld = false),
      Description("Keywords: Asset. Inspect bounded Asset folders and file kinds. No input. Success: {success:true,data:{categories,complete,truncated,...}}; failure: {success:false,error,message}. Observations never create files or grant placement exceptions.")]
     public static string GetAssetLayout(PixelToolProjectInfo project)
         => ToolResult(() => new ProjectAssetLayout(project.ProjectPath).GetInfo());
 
     [McpServerTool(Name = "Asset_File_Search", ReadOnly = true, Destructive = false, OpenWorld = false),
-     Description("Keywords: Asset. Find project files and folders by literal name. Input: query, path, extensions, limit. Empty query lists one directory; path=Engine is allowed for Lua declaration lookup. Success: {success:true,data:{entries, truncated,...}}; failure: {success:false,error,message}.")]
+     Description("Keywords: Asset. Find project files and folders by literal name. Input: query, path, extensions, limit. Empty query lists one directory; an exact file path returns that file. Path=Engine is allowed for Lua declaration lookup. Success: {success:true,data:{entries or matches, truncated,...}}; failure: {success:false,error,message}.")]
     public static string SearchProjectFiles(PixelToolProjectInfo project, string query = "", string path = "Asset",
         [Description("Optional file extensions, such as .lua,.pxm; matching folders are always included. Empty selects supported text file types; * selects all file names.")] string extensions = "", int limit = 20, CancellationToken cancellationToken = default)
         => ToolResult(() => string.IsNullOrWhiteSpace(query)
-            ? new ProjectNavigation(project.ProjectPath).ListDirectory(path, limit)
-            : new ProjectNavigation(project.ProjectPath).Search(query, path, "filename", extensions, limit, cancellationToken), path);
+            ? new ProjectNavigation(project.ProjectPath).ListDirectory(path, BoundedSearchLimit(limit))
+            : new ProjectNavigation(project.ProjectPath).Search(query, path, "filename", extensions, BoundedSearchLimit(limit), cancellationToken), path);
 
     [McpServerTool(Name = "Asset_FileContent_Search", ReadOnly = true, Destructive = false, OpenWorld = false),
-     Description("Keywords: Asset. Search one saved project text file for a literal phrase. Input: exact path, query, limit. Use Editor_Wiki_Read for engine API declarations. Success: {success:true,data:{matches,...}} with 1-based line and column; failure: {success:false,error,message}.")]
+     Description("Keywords: Asset. Search one saved project text file for a literal phrase. Input: exact file path found with Asset_File_Search, query, limit. Never pass a folder such as Asset or Asset/Script. Use Editor_Wiki_Read for engine API declarations. Success: {success:true,data:{matches,...}} with 1-based line and column; failure: {success:false,error,message}.")]
     public static string SearchFileContent(PixelToolProjectInfo project, string path, string query = "", int limit = 20,
         CancellationToken cancellationToken = default)
         => ToolResult(() => string.IsNullOrWhiteSpace(query)
             ? ToolFailure("missing_query", "파일 내용 검색에는 검색어가 필요합니다. 파일을 읽으려면 Asset_File_ReadLines를 사용하세요.")
-            : new ProjectNavigation(project.ProjectPath).SearchFileContent(path, query, limit, cancellationToken), path);
+            : new ProjectNavigation(project.ProjectPath).SearchFileContent(path, query, BoundedSearchLimit(limit), cancellationToken), path);
+
+    private static int BoundedSearchLimit(int limit) => limit < 1 ? 20 : Math.Min(limit, 50);
 
     [McpServerTool(Name = "Asset_File_Create", ReadOnly = false, Destructive = false, OpenWorld = false),
      Description("Keywords: Asset. Create one new .lua or .pxm under Asset/. Input: project-relative path and optional complete content. Different extensions are distinct filenames. Success: {success:true,data:{path,sha256}}; failure: {success:false,path,error,message}. Empty .pxm uses Module.lua; supplied .pxm content must use the Script table with Spawn, Update and return Script, never the filename as table name. Empty .lua stays empty. Never overwrite an exact filename.")]
@@ -427,7 +423,7 @@ public sealed class PixelToolProjectTools
     }
 
     [McpServerTool(Name = "Asset_File_Patch", ReadOnly = false, Destructive = false, OpenWorld = false),
-     Description("Keywords: Asset. Replace one exact unique oldText span in an existing Asset text file; the prior Editor/AINavigation.md exception is preserved. Input: path, expectedHash (whole-file SHA256), oldText, newText. Success: {success:true,data:{path,sha256}}; failure: {success:false,path,error,message}. Reject stale hashes, missing/repeated text and unsaved Lua buffers; preserve other bytes.")]
+     Description("Keywords: Asset. Replace one exact unique oldText span in an existing Asset text file. Input: path, expectedHash (whole-file SHA256), oldText, newText. Success: {success:true,data:{path,sha256}}; failure: {success:false,path,error,message}. Reject stale hashes, missing/repeated text and unsaved Lua buffers; preserve other bytes.")]
     public static async Task<string> PatchProjectFile(PixelToolProjectInfo project, string path, string expectedHash,
         string oldText, string newText)
     {
@@ -448,8 +444,7 @@ public sealed class PixelToolProjectTools
         var files = new ProjectFileAccess(project.ProjectPath);
         string fullPath = files.Resolve(path);
         string relative = Path.GetRelativePath(files.Root, fullPath).Replace('\\', '/');
-        if (!relative.StartsWith("Asset/", StringComparison.OrdinalIgnoreCase) &&
-            !relative.Equals(ProjectNavigation.NotesPath, StringComparison.OrdinalIgnoreCase))
+        if (!relative.StartsWith("Asset/", StringComparison.OrdinalIgnoreCase))
             return FileFailure(path, "outside_asset", ProjectFileAccess.AssetMutationDenied);
         if (!ProjectFileAccess.TextExtensions.Contains(Path.GetExtension(fullPath)))
             return FileFailure(relative, "unsupported_extension", "지원하는 텍스트 파일만 수정할 수 있습니다.");
@@ -463,13 +458,11 @@ public sealed class PixelToolProjectTools
         if (!actualHash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
             return FileFailure(relative, "stale_hash", "파일이 변경되었습니다. 다시 읽고 수정하세요.");
         string before = new UTF8Encoding(false, true).GetString(original);
-        int offset = before.IndexOf(oldText, StringComparison.Ordinal);
-        if (offset < 0 || before.IndexOf(oldText, offset + 1, StringComparison.Ordinal) >= 0)
-            return FileFailure(relative, "ambiguous_text", "기존 문구가 없거나 두 번 이상 나옵니다.");
-        string after = before[..offset] + newText + before[(offset + oldText.Length)..];
+        if (!ProjectTextPatch.TryReplace(before, oldText, newText, out string after, out int occurrences))
+            return FileFailure(relative, occurrences == 0 ? "old_text_not_found" : "old_text_ambiguous",
+                occurrences == 0 ? "원문이 없습니다. 읽은 줄의 문구를 그대로 사용하세요." : "원문이 두 번 이상 나타납니다. 더 긴 고유 문구를 사용하세요.");
         byte[] replacement = new UTF8Encoding(false, true).GetBytes(after);
         if (replacement.Length > ProjectFileAccess.MaxEditableFileBytes) return FileFailure(relative, "content_too_large", "수정 결과는 4MiB까지입니다.");
-        ProjectNavigation.CheckNotesSize(relative, replacement.Length);
         files.Resolve(relative);
         string temporary = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try

@@ -7,14 +7,22 @@ namespace PixelTool;
 internal static class AiActionLog
 {
     private static readonly AsyncLocal<string?> RequestId = new();
+    private static string? _activeRequestId;
     private static long _eventId;
-    internal static string? CurrentRequestId => RequestId.Value;
+    internal static string? CurrentRequestId => RequestId.Value ?? Volatile.Read(ref _activeRequestId);
 
     internal static string BeginRequest(string text)
     {
         string id = Guid.NewGuid().ToString("N");
+        ConsoleWindow.BeginAiLogEntry();
+        Volatile.Write(ref _activeRequestId, id);
         using (Enter(id)) ConsoleWindow.LogAi("사용자 요청: " + text);
         return id;
+    }
+
+    internal static void EndRequest(string? id)
+    {
+        if (id != null) Interlocked.CompareExchange(ref _activeRequestId, null, id);
     }
 
     internal static IDisposable Enter(string? id)
@@ -45,13 +53,28 @@ internal static class AiActionLog
         return clean.Length > 4000 ? clean[..4000] + " [truncated]" : clean;
     }
 
-    internal static string Target(JsonElement args)
+    internal static string Target(string operation, JsonElement args)
     {
         if (args.ValueKind != JsonValueKind.Object) return "";
         var parts = new List<string>();
         foreach (string key in new[] { "path", "source", "destination", "sourcePath", "destinationPath", "document", "mode", "key", "startLine", "lineCount" })
             if (args.TryGetProperty(key, out var value) && value.ValueKind is JsonValueKind.String or JsonValueKind.Number)
                 parts.Add(key + "=" + value.ToString());
+        if (operation == "read_wiki" && args.TryGetProperty("requests", out var requests) && requests.ValueKind == JsonValueKind.Array)
+        {
+            int count = 0;
+            foreach (var request in requests.EnumerateArray())
+            {
+                if (++count > EngineGuide.MaxBatchPages) { parts.Add("additionalPages=omitted"); break; }
+                if (request.ValueKind != JsonValueKind.Object) continue;
+                string document = request.TryGetProperty("document", out var id) && id.ValueKind == JsonValueKind.String
+                    ? Clean(id.GetString()) : "?";
+                if (document.Length > 160) document = document[..160] + "…";
+                string offset = request.TryGetProperty("offset", out var start) && start.ValueKind == JsonValueKind.Number ? start.ToString() : "?";
+                string length = request.TryGetProperty("length", out var size) && size.ValueKind == JsonValueKind.Number ? size.ToString() : "?";
+                parts.Add($"page{count}={document} offset={offset} length={length}");
+            }
+        }
         return string.Join(", ", parts);
     }
 

@@ -11,4 +11,4 @@ local pressed = Input.KeyDown(Keycode.W)
 ```
 
 ### 주의사항
-- 키 이름은 현재 프로젝트의 `Keycode`를 확인합니다. 문자열 `"W"`나 Windows 가상 키 번호를 대신 쓰지 마세요.
+- 사용 가능한 키 상수는 `Lua/Enum.lua`의 `Keycode` 선언에서 확인합니다. 문자열 `"W"`나 Windows 가상 키 번호를 대신 쓰지 마세요.

@@ -75,39 +75,33 @@
   </ItemGroup>                       
 
   <ItemGroup>
-    <EmbeddedResource Include="AI\Doc\LuaConceptGuide.md" LogicalName="PixelTool.AI.LuaConceptGuide.md" />
-    <EmbeddedResource Include="AI\Doc\LuaApiIndex.md" LogicalName="PixelTool.AI.LuaApiIndex.md" />
-    <EmbeddedResource Include="AI\Doc\Component\Transform.md" LogicalName="PixelTool.AI.Doc/Component/Transform.md" />
-    <EmbeddedResource Include="AI\Doc\Component\Camera.md" LogicalName="PixelTool.AI.Doc/Component/Camera.md" />
-    <EmbeddedResource Include="AI\Doc\Component\Renderer2D.md" LogicalName="PixelTool.AI.Doc/Component/Renderer2D.md" />
-    <EmbeddedResource Include="AI\Doc\Component\Rigidbody2D.md" LogicalName="PixelTool.AI.Doc/Component/Rigidbody2D.md" />
-    <EmbeddedResource Include="AI\Doc\Component\Animation2D.md" LogicalName="PixelTool.AI.Doc/Component/Animation2D.md" />
-    <EmbeddedResource Include="AI\Doc\Component\UIImage.md" LogicalName="PixelTool.AI.Doc/Component/UIImage.md" />
-    <EmbeddedResource Include="AI\Doc\Component\UIText.md" LogicalName="PixelTool.AI.Doc/Component/UIText.md" />
-    <EmbeddedResource Include="AI\Doc\Component\UISilder.md" LogicalName="PixelTool.AI.Doc/Component/UISilder.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Entity.md" LogicalName="PixelTool.AI.Doc/Other/Entity.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Scene.md" LogicalName="PixelTool.AI.Doc/Other/Scene.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Asset.md" LogicalName="PixelTool.AI.Doc/Other/Asset.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Input.md" LogicalName="PixelTool.AI.Doc/Other/Input.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Event.md" LogicalName="PixelTool.AI.Doc/Other/Event.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Time.md" LogicalName="PixelTool.AI.Doc/Other/Time.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Tween.md" LogicalName="PixelTool.AI.Doc/Other/Tween.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Pool.md" LogicalName="PixelTool.AI.Doc/Other/Pool.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Group.md" LogicalName="PixelTool.AI.Doc/Other/Group.md" />
-    <EmbeddedResource Include="AI\Doc\Other\PVector2.md" LogicalName="PixelTool.AI.Doc/Other/PVector2.md" />
-    <EmbeddedResource Include="AI\Doc\Other\PVector3.md" LogicalName="PixelTool.AI.Doc/Other/PVector3.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Debug.md" LogicalName="PixelTool.AI.Doc/Other/Debug.md" />
-    <EmbeddedResource Include="AI\Doc\Other\Engine.md" LogicalName="PixelTool.AI.Doc/Other/Engine.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\LuaConceptGuide.md" LogicalName="PixelTool.AI.LuaConceptGuide.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Component\Transform.md" LogicalName="PixelTool.AI.Doc/Component/Transform.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Component\Camera.md" LogicalName="PixelTool.AI.Doc/Component/Camera.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Component\Renderer2D.md" LogicalName="PixelTool.AI.Doc/Component/Renderer2D.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Component\Rigidbody2D.md" LogicalName="PixelTool.AI.Doc/Component/Rigidbody2D.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Component\Animation2D.md" LogicalName="PixelTool.AI.Doc/Component/Animation2D.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Component\UIImage.md" LogicalName="PixelTool.AI.Doc/Component/UIImage.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Component\UIText.md" LogicalName="PixelTool.AI.Doc/Component/UIText.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Component\UISilder.md" LogicalName="PixelTool.AI.Doc/Component/UISilder.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Entity.md" LogicalName="PixelTool.AI.Doc/Other/Entity.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Scene.md" LogicalName="PixelTool.AI.Doc/Other/Scene.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Asset.md" LogicalName="PixelTool.AI.Doc/Other/Asset.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Input.md" LogicalName="PixelTool.AI.Doc/Other/Input.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Event.md" LogicalName="PixelTool.AI.Doc/Other/Event.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Time.md" LogicalName="PixelTool.AI.Doc/Other/Time.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Tween.md" LogicalName="PixelTool.AI.Doc/Other/Tween.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Pool.md" LogicalName="PixelTool.AI.Doc/Other/Pool.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Group.md" LogicalName="PixelTool.AI.Doc/Other/Group.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\PVector2.md" LogicalName="PixelTool.AI.Doc/Other/PVector2.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\PVector3.md" LogicalName="PixelTool.AI.Doc/Other/PVector3.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Debug.md" LogicalName="PixelTool.AI.Doc/Other/Debug.md" />
+    <EmbeddedResource Include="LLMWiki\API\Docs\Other\Engine.md" LogicalName="PixelTool.AI.Doc/Other/Engine.md" />
     <EmbeddedResource Include="Tool\EditorLuaWindow\Lua.xshd" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="LLMWiki\**\*.md;LLMWiki\**\*.txt;LLMWiki\**\*.lua">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="AI\Doc\**\*.md">
-      <Link>LLMWiki\API\Docs\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

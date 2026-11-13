@@ -12,7 +12,6 @@ using System.Windows.Threading;
 using System.Text.Json;
 using System.IO;
 using System.Text;
-using Microsoft.Win32;
 using System.Text.RegularExpressions;
 
 namespace PixelTool
@@ -64,6 +63,7 @@ namespace PixelTool
 
         // 고성능 처리를 위한 스레드 안전 큐 및 바인딩 컬렉션
         private static readonly ConcurrentQueue<LogEntry> _pendingLogs = new ConcurrentQueue<LogEntry>();
+        private static readonly object _aiLogFileLock = new();
         private sealed record CapturedLog(long Sequence, string Timestamp, int Level, string Message);
         private static readonly object _captureLock = new();
         private static readonly Queue<CapturedLog> _capturedLogs = new();
@@ -180,33 +180,44 @@ namespace PixelTool
         }
 
         // AI activity is a category, not an engine error severity. Keep it out of game validation.
-        public static void LogAi(string message) => LogMessage(AiActionLog.Clean(AiActionLog.Prefix(message)), AiLogLevel);
-
-        public static int SaveAiLogs(string filePath)
+        public static void LogAi(string message)
         {
-            string[] lines;
-            lock (_captureLock)
-                lines = _capturedAiLogs
-                    .Select(log => $"[{log.Timestamp}][{log.Message}]").ToArray();
-            // Write outside the native logging lock; export every captured event, not UI grouping.
-            File.WriteAllLines(filePath, lines, new UTF8Encoding(false));
-            return lines.Length;
+            string timestamp = DateTime.Now.ToString("HH:mm:ss");
+            string entry = AiActionLog.Clean(AiActionLog.Prefix(message));
+            LogMessage(entry, AiLogLevel);
+            try
+            {
+                string editorPath = ProjectPathService.EditorPath;
+                if (string.IsNullOrWhiteSpace(editorPath)) return;
+                lock (_aiLogFileLock)
+                {
+                    Directory.CreateDirectory(editorPath);
+                    File.AppendAllText(Path.Combine(editorPath, "AILog.txt"), $"[{timestamp}][{entry}]{Environment.NewLine}", new UTF8Encoding(false));
+                }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+            {
+                System.Diagnostics.Debug.WriteLine("AILog save failed: " + ex.Message);
+            }
         }
 
-        private async void SaveAiLogs_Click(object sender, RoutedEventArgs e)
+        public static void BeginAiLogEntry()
         {
-            var dialog = new SaveFileDialog
+            try
             {
-                FileName = "AILog.txt", DefaultExt = ".txt", Filter = "Text file (*.txt)|*.txt",
-                InitialDirectory = Directory.Exists(ProjectPathService.EditorPath)
-                    ? ProjectPathService.EditorPath : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-            };
-            if (dialog.ShowDialog() != true) return;
-            if (sender is Button button) button.IsEnabled = false;
-            try { await System.Threading.Tasks.Task.Run(() => SaveAiLogs(dialog.FileName)); }
+                string editorPath = ProjectPathService.EditorPath;
+                if (string.IsNullOrWhiteSpace(editorPath)) return;
+                lock (_aiLogFileLock)
+                {
+                    string path = Path.Combine(editorPath, "AILog.txt");
+                    if (File.Exists(path) && new FileInfo(path).Length > 0)
+                        File.AppendAllText(path, Environment.NewLine, new UTF8Encoding(false));
+                }
+            }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
-            { LogAi("AILog 저장 실패: " + ex.Message); }
-            finally { if (sender is Button done) done.IsEnabled = true; }
+            {
+                System.Diagnostics.Debug.WriteLine("AILog separator save failed: " + ex.Message);
+            }
         }
 
         // 2. C++ 엔진 네이티브 스레드에서 콜백으로 들어오는 지점
