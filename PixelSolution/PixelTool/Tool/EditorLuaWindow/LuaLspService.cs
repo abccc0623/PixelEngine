@@ -49,7 +49,7 @@ namespace PixelTool
                 string finalRootUri = new Uri(ProjectPathService.ProjectRootPath).AbsoluteUri;
 
                 // .luarc.json 자동 생성
-                string enginePath = ProjectPathService.EnginePath.Replace("\\", "/");
+                string enginePath = ProjectPathService.ApiLuaPath.Replace("\\", "/");
                 LoadEngineApiNames(enginePath);
                 string luarcPath = ProjectPathService.GetEditorFilePath(".luarc.json");
                 string luarcContent = $@"{{
@@ -129,7 +129,7 @@ namespace PixelTool
                 if (Interlocked.Exchange(ref initializationLogged, 1) == 0)
                     ConsoleWindow.LogMessage("✅ [LSP] 초기화 완료", 0);
 
-                string engineGeneratePath = ProjectPathService.GetEngineFilePath("EngineGenerate.lua");
+                string engineGeneratePath = Path.Combine(ProjectPathService.ApiLuaPath, "EngineGenerate.lua");
                 if (File.Exists(engineGeneratePath))
                 {
                     var content = File.ReadAllText(engineGeneratePath);

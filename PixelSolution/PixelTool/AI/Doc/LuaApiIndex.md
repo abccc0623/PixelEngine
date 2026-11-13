@@ -1,6 +1,6 @@
-# Lua API 문서 색인
+﻿# Lua API 문서 색인
 
-API 이름이나 컴포넌트를 여기서 찾은 뒤 필요한 문서만 읽는다. 정확한 이름·인수·반환값은 현재 열린 프로젝트의 `Engine/*.lua`에서 다시 확인한다. 이 색인은 설치된 엔진 버전의 API 존재를 보장하지 않는다.
+API 이름이나 컴포넌트를 여기서 찾은 뒤 필요한 문서만 읽는다. 정확한 이름·인수·반환값은 Tool 설치 경로의 `LLMWiki/API/Lua/*.lua` (`read_engine_guide` / `Editor_LuaGuide_Read`: `Lua/<module>.lua`)에서 다시 확인한다. 이 색인은 설치된 엔진 버전의 API 존재를 보장하지 않는다.
 
 ## 컴포넌트
 
@@ -15,7 +15,7 @@ API 이름이나 컴포넌트를 여기서 찾은 뒤 필요한 문서만 읽는
 | `UIText` | 화면 글자 | `Doc/Component/UIText.md` |
 | `UISilder` | UI 슬라이더 | `Doc/Component/UISilder.md` |
 
-`UISilder`는 현재 등록된 철자다. 컴포넌트 선언은 선택한 프로젝트에서 해당 이름의 `Engine/*.lua` 파일을 찾아 확인한다.
+`UISilder`는 현재 등록된 철자다. 컴포넌트 선언은 선택한 Tool 설치 경로에서 해당 이름의 `LLMWiki/API/Lua/*.lua` (`read_engine_guide` / `Editor_LuaGuide_Read`: `Lua/<module>.lua`) 파일을 찾아 확인한다.
 
 ## 그 밖의 Lua API
 

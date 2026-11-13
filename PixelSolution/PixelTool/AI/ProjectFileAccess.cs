@@ -5,6 +5,7 @@ namespace PixelTool;
 // One path policy for chat tools, project navigation and the local MCP adapter.
 internal sealed class ProjectFileAccess(string project)
 {
+    internal const string AssetMutationDenied = "Asset폴더외에 파일및 폴더수정은 불가능합니다.";
     internal string Root { get; } = Path.TrimEndingDirectorySeparator(Path.GetFullPath(project));
     internal static readonly HashSet<string> TextExtensions = new(StringComparer.OrdinalIgnoreCase)
         { ".lua", ".pxm", ".scene", ".json", ".md", ".txt", ".csv", ".xml", ".yaml", ".yml", ".svg" };

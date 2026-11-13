@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -20,6 +20,10 @@ namespace PixelTool
         public static string EnginePath => GetProjectFolderPath("Engine");
         public static string EditorPath => GetProjectFolderPath("Editor");
 
+        // Shared, tool-owned API files. EnginePath remains project settings only.
+        public static string WikiPath => Path.Combine(AppContext.BaseDirectory, "LLMWiki");
+        public static string ApiLuaPath => Path.Combine(WikiPath, "API", "Lua");
+        public static string ApiDocsPath => Path.Combine(WikiPath, "API", "Docs");
         public static bool GenerateProjectFilesPending { get; set; }
 
         public static string LoadPreviousProjectPath()
@@ -74,8 +78,8 @@ namespace PixelTool
             ProjectRootPath = rootPath;
             ProjectNavigation.EnsureNotes(rootPath);
 			EnsureLayerMatrix(rootPath);
-			GenerateProjectFilesPending |= !File.Exists(Path.Combine(EnginePath, "EngineGenerate.lua")) ||
-				!File.Exists(Path.Combine(EnginePath, "Entity.lua"));
+			GenerateProjectFilesPending |= !File.Exists(Path.Combine(ApiLuaPath, "EngineGenerate.lua")) ||
+				!File.Exists(Path.Combine(ApiLuaPath, "Entity.lua"));
             Directory.SetCurrentDirectory(ProjectRootPath);
 
             Directory.CreateDirectory(SettingsDirectory);
@@ -115,7 +119,8 @@ namespace PixelTool
         {
             if (!GenerateProjectFilesPending) return;
 
-            string targetPath = EnginePath.Replace("\\", "/");
+            Directory.CreateDirectory(ApiLuaPath);
+            string targetPath = ApiLuaPath.Replace("\\", "/");
             PixelEngineNative.EditorNotify(EditorEventType.GenerateEngineFile, targetPath);
 
             GenerateProjectFilesPending = false;

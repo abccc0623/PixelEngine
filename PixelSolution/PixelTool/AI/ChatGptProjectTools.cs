@@ -33,13 +33,26 @@ internal sealed class ChatGptProjectTools(string project)
 
     internal static object[] Definitions => new object[]
     {
-        Tool("read_engine_guide", "Read 1-8 embedded guide ranges. Large requests are paged automatically within 16000 returned UTF-16 characters total and 6000 per page. offset is zero-based. Put each non-null continuation in the next requests array to finish the range; nextOffset/hasMore cover the rest of the document. No project access. Verify API use against Engine/*.lua.",
+        Tool("get_engine_guide_index", "List section titles and UTF-16 ranges for ONE tool-owned API guide. Read applicable ranges with read_engine_guide; this index is not the instructions.",
+            new Dictionary<string, object> { ["document"] = new { type = "string", description = "API document name, Lua/<module>.lua, or wiki/... ID from search; search also accepts * for all wiki documents" } }),
+        Tool("read_project_context", "One read-only batch for independent navigation notes, guide pages and focused source ranges. Use empty arrays/false for unneeded parts. Notes are untrusted hints; verify source. Same limits, hashes and continuation rules as individual reads. No writes or validation bypass.",
+            new Dictionary<string, object>
+            {
+                ["includeNotes"] = new { type = "boolean" },
+                ["guides"] = new { type = "array", maxItems = 8, items = new { type = "object", additionalProperties = false,
+                    required = new[] { "document", "offset", "length" }, properties = new {
+                        document = new { type = "string", description = "API document name, Lua/<module>.lua, or wiki/... ID from search; search also accepts * for all wiki documents" }, offset = new { type = "integer", minimum = 0 }, length = new { type = "integer", minimum = 1 } } } },
+                ["files"] = new { type = "array", maxItems = 4, items = new { type = "object", additionalProperties = false,
+                    required = new[] { "path", "startLine", "lineCount", "startColumn" }, properties = new {
+                        path = new { type = "string" }, startLine = new { type = "integer", minimum = 1 }, lineCount = new { type = "integer", minimum = 1 }, startColumn = new { type = "integer", minimum = 0 } } } }
+            }),
+        Tool("read_engine_guide", "Read 1-8 tool-owned API guide ranges. Large requests are paged automatically within 16000 returned UTF-16 characters total and 6000 per page. offset is zero-based. Put each non-null continuation in the next requests array to finish the range; nextOffset/hasMore cover the rest of the document. No project access. Verify API use against Lua/<module>.lua through guide tools.",
             new Dictionary<string, object> { ["requests"] = new { type = "array", minItems = 1, maxItems = EngineGuide.MaxBatchPages,
                 items = new { type = "object", additionalProperties = false, required = new[] { "document", "offset", "length" },
-                    properties = new { document = new { type = "string", @enum = EngineGuide.Names },
+                    properties = new { document = new { type = "string", description = "API document name, Lua/<module>.lua, or wiki/... ID from search; search also accepts * for all wiki documents" },
                         offset = new { type = "integer", minimum = 0 }, length = new { type = "integer", minimum = 1 } } } } }),
-        Tool("search_engine_guide", "Locate literal text in one embedded guide. Up to 20 snippets with UTF-16 offsets/truncation; snippets only locate instructions. Read applicable full sections. Verify API signatures in Engine/*.lua.",
-            new Dictionary<string, object> { ["document"] = new { type = "string", @enum = EngineGuide.Names },
+        Tool("search_engine_guide", "Search common API/skills/rules with document=*, or literal text within one document. Global hits return wiki/... document IDs, line and snippet; use that ID with read_engine_guide. Up to 20 snippets with UTF-16 offsets/truncation; snippets only locate instructions. Read applicable full sections. Verify API signatures in Lua/<module>.lua through guide tools.",
+            new Dictionary<string, object> { ["document"] = new { type = "string", description = "API document name, Lua/<module>.lua, or wiki/... ID from search; search also accepts * for all wiki documents" },
                 ["query"] = new { type = "string", minLength = 1, maxLength = 200 }, ["limit"] = new { type = "integer", minimum = 1, maximum = EngineGuide.MaxSearchResults } }),
         Tool("ask_choice", "Ask the user one concrete question with 2 to 5 clickable options. Wait for their selection or custom text before continuing. Use for meaningful choices, not approvals or decisions already clear from project code.",
             new Dictionary<string, object> { ["question"] = new { type = "string", minLength = 1, maxLength = 500 },
@@ -80,7 +93,7 @@ internal sealed class ChatGptProjectTools(string project)
                 items = new { type = "object", additionalProperties = false, required = new[] { "path", "startLine", "lineCount", "startColumn" },
                     properties = new { path = new { type = "string" }, startLine = new { type = "integer", minimum = 1 },
                         lineCount = new { type = "integer", minimum = 1 }, startColumn = new { type = "integer", minimum = 0 } } } } }),
-        Tool("write_project_file", "Create or replace one project text file under the current editor approval setting. Read first and supply its expected SHA256. For a new file use an empty expectedHash. Never delete.",
+        Tool("write_project_file", "Create or replace one project text file. Read first and supply its expected SHA256; for a new file use an empty expectedHash. A new .pxm uses local Script = {}, Script:Spawn(), Script:Update(DTime), and return Script; never use its filename as the Lua table name. Empty new .pxm content gets the bundled template. Never delete.",
             new Dictionary<string, object> { ["path"] = new { type = "string" }, ["content"] = new { type = "string" }, ["expectedHash"] = new { type = "string" } }),
         Tool("patch_project_file", "Replace one unique exact span, with current whole-file SHA256 from a full or focused read. Rejects stale hashes and absent/repeated oldText. Whole-file reading is unnecessary for this patch.",
             new Dictionary<string, object> { ["path"] = new { type = "string" }, ["expectedHash"] = new { type = "string" },
@@ -116,7 +129,7 @@ internal sealed class ChatGptProjectTools(string project)
         if (name is "write_project_file" or "create_png_asset" or "copy_asset" or "import_asset")
         {
             properties["allowRootPlacement"] = new { type = "boolean", description = "Normally false. True only for a user's explicit Asset-root destination; it does not expand path or plan scope." };
-            description += " Inspect get_asset_layout and project notes before new files; use existing folders or the needed default category folder, not a cluttered Asset root.";
+            description += " Use the user-specified destination. Inspect layout only when a destination must be chosen; a new file does not require reading project notes.";
         }
         return new { type = "function", name, description, strict = true,
             parameters = new { type = "object", properties, required = properties.Keys.ToArray(), additionalProperties = false } };
@@ -127,6 +140,30 @@ internal sealed class ChatGptProjectTools(string project)
         Action<string, string, string>? savedCode = null, Func<string, Task<bool>>? canDeleteAssetFile = null)
     {
         token.ThrowIfCancellationRequested();
+        if (name == "get_engine_guide_index") return EngineGuide.Index(arguments.GetProperty("document").GetString() ?? "");
+        if (name == "read_project_context")
+        {
+            bool notes = arguments.GetProperty("includeNotes").GetBoolean();
+            var guides = arguments.GetProperty("guides");
+            var files = arguments.GetProperty("files");
+            if (guides.ValueKind != JsonValueKind.Array || guides.GetArrayLength() > EngineGuide.MaxBatchPages ||
+                files.ValueKind != JsonValueKind.Array || files.GetArrayLength() > 4 ||
+                (!notes && guides.GetArrayLength() == 0 && files.GetArrayLength() == 0))
+                throw new ArgumentException("Select notes, up to 8 guide pages and/or up to 4 source ranges.");
+            foreach (var range in files.EnumerateArray()) ValidateReadRange(range);
+            var results = new Dictionary<string, JsonElement>();
+            async Task Add(string key, string tool, object args)
+            {
+                using var doc = JsonDocument.Parse(await InvokeAsync(tool, JsonSerializer.SerializeToElement(args),
+                    allowEdits, confirmChanges, approve, token).ConfigureAwait(false));
+                results[key] = doc.RootElement.Clone();
+            }
+            if (guides.GetArrayLength() > 0) await Add("guides", "read_engine_guide", new { requests = guides });
+            if (files.GetArrayLength() > 0) await Add("files", "read_project_file_lines", new { requests = files });
+            if (notes) await Add("notes", "read_project_notes", new { });
+            return Json(new { results, canRead = true, canEdit = allowEdits,
+                approvalMode = confirmChanges ? "alwaysConfirm" : "automatic" });
+        }
         if (name == "read_engine_guide")
         {
             if (arguments.TryGetProperty("requests", out var pages)) return EngineGuide.ReadBatch(pages);
@@ -150,8 +187,8 @@ internal sealed class ChatGptProjectTools(string project)
                 approvalMode = confirmChanges ? "alwaysConfirm" : "automatic" });
         }
         if (name == "search_engine_guide")
-            return EngineGuide.Search(arguments.GetProperty("document").GetString() ?? "",
-                arguments.GetProperty("query").GetString() ?? "", arguments.GetProperty("limit").GetInt32());
+            return await Task.Run(() => EngineGuide.Search(arguments.GetProperty("document").GetString() ?? "",
+                arguments.GetProperty("query").GetString() ?? "", arguments.GetProperty("limit").GetInt32(), token), token).ConfigureAwait(false);
         if (name == "get_asset_layout") return _layout.GetInfo();
         if (name == "get_asset_permissions")
             return Json(new { assetRoot = "Asset/", canRead = true, canEdit = allowEdits,
@@ -172,7 +209,7 @@ internal sealed class ChatGptProjectTools(string project)
             string extensions = arguments.GetProperty("extensions").GetString() ?? "";
             int limit = arguments.GetProperty("limit").GetInt32();
             if (string.IsNullOrWhiteSpace(query) && mode == "filename") return _navigation.ListDirectory(scope, limit);
-            if (string.IsNullOrWhiteSpace(query)) return "내용 검색에는 검색어가 필요합니다. 파일을 읽으려면 read_project_file_lines를 사용하세요.";
+            if (string.IsNullOrWhiteSpace(query)) return Json(new { success = false, message = "내용 검색에는 검색어가 필요합니다. 파일을 읽으려면 read_project_file_lines를 사용하세요." });
             return await Task.Run(() => _navigation.Search(query, scope, mode, extensions, limit, token), token).ConfigureAwait(false);
         }
         if (name == "search_file_content")
@@ -180,7 +217,7 @@ internal sealed class ChatGptProjectTools(string project)
             string query = arguments.GetProperty("query").GetString() ?? "";
             string file = arguments.GetProperty("path").GetString() ?? "";
             int limit = arguments.GetProperty("limit").GetInt32();
-            if (string.IsNullOrWhiteSpace(query)) return "파일 내용 검색에는 검색어가 필요합니다. 파일을 읽으려면 read_project_file_lines를 사용하세요.";
+            if (string.IsNullOrWhiteSpace(query)) return Json(new { success = false, message = "파일 내용 검색에는 검색어가 필요합니다. 파일을 읽으려면 read_project_file_lines를 사용하세요." });
             return await Task.Run(() => _navigation.SearchFileContent(file, query, limit, token), token).ConfigureAwait(false);
         }
         string relative = arguments.GetProperty("path").GetString() ?? "";
@@ -197,7 +234,7 @@ internal sealed class ChatGptProjectTools(string project)
         }
         if (name is "delete_asset_file" or "delete_asset_folder" or "move_asset")
         {
-            if (!allowEdits) return "파일 수정 허용이 꺼져 있습니다. 변경하지 않았습니다.";
+            if (!allowEdits) return Json(new { success = false, message = "파일 수정 허용이 꺼져 있습니다. 변경하지 않았습니다." });
             path = ResolveAsset(relative);
             bool directory = Directory.Exists(path);
             if ((!directory && !File.Exists(path)) || (name == "delete_asset_file" && directory) ||
@@ -221,22 +258,22 @@ internal sealed class ChatGptProjectTools(string project)
             if (string.IsNullOrWhiteSpace(reason) || reason.Length > 1000)
                 throw new InvalidOperationException("변경 이유와 영향을 1000자 이내로 설명해야 합니다.");
             if (canDeleteAssetFile == null || !await canDeleteAssetFile(relative).ConfigureAwait(false))
-                return "저장되지 않은 편집 내용 또는 에디터 상태 때문에 삭제하지 않았습니다.";
+                return Json(new { success = false, message = "저장되지 않은 편집 내용 또는 에디터 상태 때문에 삭제하지 않았습니다." });
             string expectedHash = await HashAssetPathAsync(relative, token).ConfigureAwait(false);
             string action = destination == null ? "휴지통 삭제" : "이동·이름 변경 → " + destinationRelative;
             string details = $"{action}: {relative}\n하위 내용 포함: {directory}\n이유·영향: {reason}\nSHA256: {expectedHash}";
             if (confirmChanges && !await approve(relative, details, action).ConfigureAwait(false))
-                return "사용자가 변경을 승인하지 않았습니다. 변경하지 않았습니다.";
+                return Json(new { success = false, message = "사용자가 변경을 승인하지 않았습니다. 변경하지 않았습니다." });
             token.ThrowIfCancellationRequested();
             path = ResolveAsset(relative);
             if (Directory.Exists(path) != directory || (!directory && !File.Exists(path)) ||
                 await HashAssetPathAsync(relative, token).ConfigureAwait(false) != expectedHash)
-                return "승인 중 대상 또는 하위 내용이 변경되었습니다. 변경하지 않았습니다.";
+                return Json(new { success = false, message = "승인 중 대상 또는 하위 내용이 변경되었습니다. 변경하지 않았습니다." });
             CheckDestination();
             token.ThrowIfCancellationRequested();
             ResolveAsset(relative);
             if (!await canDeleteAssetFile(relative).ConfigureAwait(false))
-                return "에디터 편집 상태가 변경되어 삭제하지 않았습니다.";
+                return Json(new { success = false, message = "에디터 편집 상태가 변경되어 삭제하지 않았습니다." });
             token.ThrowIfCancellationRequested();
             ResolveAsset(relative);
             CheckDestination();
@@ -275,17 +312,17 @@ internal sealed class ChatGptProjectTools(string project)
         }
         if (name is "create_asset_folder" or "copy_asset" or "import_asset" or "create_png_asset")
         {
-            if (!allowEdits) return "파일 수정 허용이 꺼져 있습니다. 에셋을 생성하지 않았습니다.";
+            if (!allowEdits) return Json(new { success = false, message = "파일 수정 허용이 꺼져 있습니다. 에셋을 생성하지 않았습니다." });
             ResolveAsset(relative);
             if (name == "create_asset_folder")
             {
-                if (Directory.Exists(path)) return "폴더가 이미 존재합니다. 변경하지 않았습니다.";
-                if (confirmChanges && !await approve(relative, "", "에셋 폴더 생성").ConfigureAwait(false)) return "폴더 생성을 승인하지 않았습니다.";
+                if (Directory.Exists(path)) return Json(new { success = false, message = "폴더가 이미 존재합니다. 변경하지 않았습니다." });
+                if (confirmChanges && !await approve(relative, "", "에셋 폴더 생성").ConfigureAwait(false)) return Json(new { success = false, message = "폴더 생성을 승인하지 않았습니다." });
                 token.ThrowIfCancellationRequested();
                 Directory.CreateDirectory(ResolveAsset(relative));
                 return Json(new { created = relative });
             }
-            if (File.Exists(path) || Directory.Exists(path)) return "대상이 이미 존재합니다. 에셋은 자동으로 덮어쓰지 않습니다.";
+            if (File.Exists(path) || Directory.Exists(path)) return Json(new { success = false, message = "대상이 이미 존재합니다. 에셋은 자동으로 덮어쓰지 않습니다." });
             CheckAssetExtension(path);
             byte[] asset;
             string description;
@@ -305,16 +342,16 @@ internal sealed class ChatGptProjectTools(string project)
             }
             else
             {
-                if (pickAsset == null) return "사용자 파일 선택 기능을 사용할 수 없습니다.";
+                if (pickAsset == null) return Json(new { success = false, message = "사용자 파일 선택 기능을 사용할 수 없습니다." });
                 var chosen = await pickAsset().WaitAsync(token).ConfigureAwait(false);
-                if (chosen == null) return "사용자가 가져오기를 취소했습니다.";
+                if (chosen == null) return Json(new { success = false, message = "사용자가 가져오기를 취소했습니다." });
                 CheckAssetExtension(chosen.Name);
                 if (chosen.Bytes.Length > 16 * 1024 * 1024 || !Path.GetExtension(chosen.Name).Equals(Path.GetExtension(path), StringComparison.OrdinalIgnoreCase))
                     throw new InvalidOperationException("선택한 에셋의 크기나 대상 확장자가 맞지 않습니다.");
                 asset = chosen.Bytes;
                 description = "사용자가 직접 선택한 에셋 가져오기: " + Path.GetFileName(chosen.Name);
             }
-            if (confirmChanges && !await approve(relative, "", description).ConfigureAwait(false)) return "에셋 생성을 승인하지 않았습니다.";
+            if (confirmChanges && !await approve(relative, "", description).ConfigureAwait(false)) return Json(new { success = false, message = "에셋 생성을 승인하지 않았습니다." });
             token.ThrowIfCancellationRequested();
             path = ResolveAsset(relative);
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
@@ -347,22 +384,24 @@ internal sealed class ChatGptProjectTools(string project)
         }
         if (name != "write_project_file") throw new InvalidOperationException("지원하지 않는 도구입니다.");
         RequireWritableTextPath(path);
-        if (!allowEdits) return "파일 수정 허용이 꺼져 있습니다. 파일을 변경하지 않았습니다.";
+        if (!allowEdits) return Json(new { success = false, message = "파일 수정 허용이 꺼져 있습니다. 파일을 변경하지 않았습니다." });
         string content = arguments.GetProperty("content").GetString() ?? "";
+        if (!File.Exists(path) && Path.GetExtension(path).Equals(".pxm", StringComparison.OrdinalIgnoreCase))
+            content = LuaFileManager.PrepareNewPxmContent(content);
         byte[] replacement = Encoding.UTF8.GetBytes(content);
         ProjectNavigation.CheckNotesSize(Path.GetRelativePath(_root, path), replacement.Length);
         if (replacement.Length > 256 * 1024) throw new InvalidOperationException("한 번에 수정할 수 있는 파일은 256KB까지입니다.");
         string expected = arguments.GetProperty("expectedHash").GetString() ?? "";
         byte[]? original = File.Exists(path) ? ReadBounded(path) : null;
-        if (!Matches(original, expected)) return "파일이 변경되었거나 이미 존재합니다. 최신 내용을 다시 읽고 수정해야 합니다.";
+        if (!Matches(original, expected)) return Json(new { success = false, message = "파일이 변경되었거나 이미 존재합니다. 최신 내용을 다시 읽고 수정해야 합니다." });
         if (original != null && (!_fullFileReads.TryGetValue(path, out var readHash) || !readHash.Equals(expected, StringComparison.OrdinalIgnoreCase)))
-            return "부분 조회만으로 전체 파일을 교체할 수 없습니다. read_project_file로 현재 원문 전체를 먼저 읽으세요.";
+            return Json(new { success = false, message = "부분 조회만으로 전체 파일을 교체할 수 없습니다. read_project_file로 현재 원문 전체를 먼저 읽으세요." });
         if (confirmChanges && !await approve(relative, original == null ? "" : Encoding.UTF8.GetString(original), content).ConfigureAwait(false))
-            return "사용자가 파일 수정을 승인하지 않았습니다. 변경하지 않았습니다.";
+            return Json(new { success = false, message = "사용자가 파일 수정을 승인하지 않았습니다. 변경하지 않았습니다." });
         token.ThrowIfCancellationRequested();
         Resolve(relative); // Recheck parent/reparse points after approval.
         byte[]? latest = File.Exists(path) ? ReadBounded(path) : null;
-        if (!Matches(latest, expected)) return "승인 중 파일이 바뀌었습니다. 변경하지 않았습니다.";
+        if (!Matches(latest, expected)) return Json(new { success = false, message = "승인 중 파일이 바뀌었습니다. 변경하지 않았습니다." });
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         // Do not truncate an existing file until the full replacement has been written.
         string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
@@ -444,26 +483,26 @@ internal sealed class ChatGptProjectTools(string project)
         bool confirmChanges, Func<string, string, string, Task<bool>> approve, CancellationToken token,
         Action<string, string, string>? savedCode)
     {
-        if (!allowEdits) return "파일 수정이 꺼져 있습니다.";
+        if (!allowEdits) return Json(new { success = false, message = "파일 수정이 꺼져 있습니다." });
         string expected = arguments.GetProperty("expectedHash").GetString() ?? "";
         string oldText = arguments.GetProperty("oldText").GetString() ?? "";
         string newText = arguments.GetProperty("newText").GetString() ?? "";
         if (oldText.Length == 0 || oldText == newText) throw new InvalidOperationException("서로 다른 원문과 수정문이 필요합니다.");
         byte[] original = ReadBounded(path);
-        if (!Matches(original, expected)) return "파일이 변경되었습니다. 최신 내용을 다시 읽고 수정하세요.";
+        if (!Matches(original, expected)) return Json(new { success = false, message = "파일이 변경되었습니다. 최신 내용을 다시 읽고 수정하세요." });
         string before = Encoding.UTF8.GetString(original);
         int offset = before.IndexOf(oldText, StringComparison.Ordinal);
         if (offset < 0 || before.IndexOf(oldText, offset + 1, StringComparison.Ordinal) >= 0)
-            return "원문이 없거나 두 번 이상 나타납니다. 수정하지 않았습니다.";
+            return Json(new { success = false, message = "원문이 없거나 두 번 이상 나타납니다. 수정하지 않았습니다." });
         string after = before[..offset] + newText + before[(offset + oldText.Length)..];
         byte[] replacement = Encoding.UTF8.GetBytes(after);
         ProjectNavigation.CheckNotesSize(Path.GetRelativePath(_root, path), replacement.Length);
         if (replacement.Length > 256 * 1024) throw new InvalidOperationException("수정 결과는 256KB까지입니다.");
-        if (confirmChanges && !await approve(relative, before, after).ConfigureAwait(false)) return "사용자가 수정을 승인하지 않았습니다.";
+        if (confirmChanges && !await approve(relative, before, after).ConfigureAwait(false)) return Json(new { success = false, message = "사용자가 수정을 승인하지 않았습니다." });
         token.ThrowIfCancellationRequested();
         Resolve(relative);
         byte[] latest = ReadBounded(path);
-        if (!Matches(latest, expected)) return "승인 중 파일이 변경되었습니다. 수정하지 않았습니다.";
+        if (!Matches(latest, expected)) return Json(new { success = false, message = "승인 중 파일이 변경되었습니다. 수정하지 않았습니다." });
         string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
@@ -473,7 +512,8 @@ internal sealed class ChatGptProjectTools(string project)
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
         savedCode?.Invoke(relative, before.TrimStart('\uFEFF'), after.TrimStart('\uFEFF'));
-        return Json(new { saved = relative, sha256 = Hash(replacement) });
+        return Json(new { saved = relative, sha256 = Hash(replacement), previousSha256 = expected,
+            exactPatch = new { occurrences = 1, replacedCharacters = oldText.Length, insertedCharacters = newText.Length, unrelatedTextPreserved = true } });
     }
 
     private string Resolve(string relative) => _files.Resolve(relative);
@@ -482,7 +522,7 @@ internal sealed class ChatGptProjectTools(string project)
         string relative = Path.GetRelativePath(_root, path).Replace('\\', '/');
         if (!relative.StartsWith("Asset/", StringComparison.OrdinalIgnoreCase) &&
             !relative.Equals(ProjectNavigation.NotesPath, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("AI 파일 수정은 Asset 내부와 Editor/AINavigation.md에서만 가능합니다. Editor/AIWorkLog.md는 작업 완료 도구로만 추가합니다. Engine은 읽기 전용입니다.");
+            throw new InvalidOperationException(ProjectFileAccess.AssetMutationDenied);
     }
     private static bool Blocked(string name) => ProjectFileAccess.Blocked(name);
 
@@ -491,7 +531,7 @@ internal sealed class ChatGptProjectTools(string project)
         string path = Path.TrimEndingDirectorySeparator(Resolve(relative));
         string assetRoot = Path.Combine(_root, "Asset");
         if (!path.StartsWith(assetRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("에셋 작업은 Asset 폴더 하위에서만 가능합니다.");
+            throw new InvalidOperationException(ProjectFileAccess.AssetMutationDenied);
         return path;
     }
     private async Task<string> HashAssetPathAsync(string relative, CancellationToken token)

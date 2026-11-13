@@ -94,7 +94,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                 _userInterrupted = false;
                 string turnId = Guid.NewGuid().ToString("N");
                 bool edits = p.GetProperty("sandboxPolicy").GetProperty("type").GetString() == "workspaceWrite";
-                bool confirmActions = !p.TryGetProperty("confirmActions", out var confirm) || confirm.GetBoolean();
+                bool confirmActions = false;
                 var input = p.GetProperty("input").EnumerateArray().Select(i => i.GetProperty("text").GetString()).ToArray();
                 string model = p.GetProperty("model").GetString()!;
                 // Freeze data before running the background stream, so UI selection changes cannot alter this turn.
@@ -157,10 +157,10 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                         "Prefer read_project_file_lines for focused inspection. Use patch_project_file with its SHA256 for a unique exact change; read_project_file before whole-file replacement. Partial content and numbered lines must never replace a whole file. " +
                         "Project tools can list/read/write text, highlight located Lua lines in the editor, create Asset folders, inspect/copy existing assets, import a user-picked external asset, and draw simple PNGs. " +
                         "For a requested simple placeholder or pixel graphic, use create_png_asset, not an unsupported-format excuse. SVG text can be saved but engine SVG rendering support must not be assumed; prefer PNG for textures. " +
-                        "PNG drawing is procedural, not an image-generation AI. After script changes use reimport_project, which clears old logs before reload; inspect its new-log summary, then read_editor_logs only if details are needed. Do not call clear_editor_logs separately for reimport. " +
-                        "For gameplay changes, define observable events and use temporary [AI_TEST] logs at real event sites when useful. After reimport, call set_editor_mode(play), use bounded test_game_key and inspect new log order, entity IDs and errors. Return to editor mode afterward if this turn changed the mode. Remove temporary test logs, reimport and check errors again before finishing. If mode switch or input is unavailable, report that gameplay was not exercised. Logs do not prove visual correctness. " +
+                        "PNG drawing is procedural, not an image-generation AI. Do not automatically reimport or inspect logs after script changes. When validation is requested, reimport_project clears old logs before reload; inspect new logs and remaining pages. Do not call clear_editor_logs separately for reimport. " +
+                        "Only for requested gameplay validation, use observable events and temporary [AI_TEST] logs when useful. Reimport, call set_editor_mode(play), use bounded test_game_key and inspect log order, entity IDs and errors. Return to editor mode afterward if this turn changed the mode. Remove temporary test logs and reimport again. Report unavailable checks honestly. Logs do not prove visual correctness. " +
                         "Reimport resets runtime; it is not a build or a new game/editor process. Asset file/folder creation, moves/renames and recycle-bin deletion are available under current edit/approval settings. Never move/delete Asset itself or Engine/Editor/outside paths. Automatic mode needs no extra confirmation. No arbitrary command execution, permanent deletion, network, build or game launch tool exists. " +
-                        "Never claim those actions were performed. Ask the user to perform them when needed. " +
+                        "Never claim those actions were performed. If a file or folder creation/edit is blocked because it targets outside Asset, reply with only this sentence: " + ProjectFileAccess.AssetMutationDenied + " Do not suggest manual creation, right-click steps, alternate locations, or a workaround. For other unavailable actions, ask the user when needed. " +
                         CommandExecutionPreference.ForTurn(confirmActions) +
                         "\nThis is the current editor setting, including for file/list/read tools. Previous assistant promises to always ask do not override this setting. " +
                         (allowEdits ? "Project file edits are enabled for this turn." : "Read-only mode: do not request file writes.");
@@ -272,13 +272,14 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                     catch (OperationCanceledException) { throw; }
                     catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException or FormatException or OverflowException)
                     {
-                        result = "도구 실행 실패: " + (ex is InvalidOperationException ? ex.Message
+                        result = ex.Message == ProjectFileAccess.AssetMutationDenied ? ex.Message : "도구 실행 실패: " + (ex is InvalidOperationException ? ex.Message
                             : ex is UnauthorizedAccessException ? "파일 접근 권한이 없습니다."
                             : "파일 경로·크기·변경 여부와 접근 권한을 확인해 주세요. (" + ex.GetType().Name + ")");
                     }
                     if (!result.TrimStart().StartsWith('{'))
                         Emit("turn/toolWarning", new { threadId = _threadId, turnId,
-                            message = "도구 작업을 완료하지 못했습니다: " + call.GetProperty("name").GetString() + "\n" + result });
+                            message = result == ProjectFileAccess.AssetMutationDenied ? result :
+                                "도구 작업을 완료하지 못했습니다: " + call.GetProperty("name").GetString() + "\n" + result });
                     pending.Add(JsonSerializer.SerializeToElement(new { type = "function_call_output", call_id = call.GetProperty("call_id").GetString(), output = result }));
                     string toolName = call.GetProperty("name").GetString() ?? "";
                     if ((toolName is "read_project_file" or "write_project_file") && result.TrimStart().StartsWith('{'))

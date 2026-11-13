@@ -466,7 +466,7 @@ namespace PixelTool
                     return;
                 }
 
-                File.WriteAllText(newPath, "");
+                File.WriteAllText(newPath, extension == ".pxm" ? LuaFileManager.PrepareNewPxmContent("") : "");
                 SelectFolder(nowFolder.fullPath);
             }
             catch (Exception ex) { PixelMessageBox.Show($"Create file failed: {ex.Message}"); }

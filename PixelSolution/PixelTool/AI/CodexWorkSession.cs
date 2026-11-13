@@ -313,7 +313,7 @@ internal sealed class CodexWorkSession(string project, long? logCursor, bool req
         if (string.IsNullOrWhiteSpace(path) || path.Length > 240) throw new InvalidOperationException("짧고 정확한 프로젝트 상대 경로가 필요합니다.");
         string value = Path.GetRelativePath(_files.Root, _files.Resolve(path)).Replace('\\', '/');
         if (!value.StartsWith("Asset/", StringComparison.OrdinalIgnoreCase) && !value.Equals(ProjectNavigation.NotesPath, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("작업 범위는 Asset 내부 또는 Editor/AINavigation.md만 지정할 수 있습니다.");
+            throw new InvalidOperationException(ProjectFileAccess.AssetMutationDenied);
         return value;
     }
     internal static string Text(JsonElement args, string key, int max)

@@ -1,0 +1,25 @@
+<UserControl x:Class="PixelTool.WikiWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Background="{DynamicResource PixelPanelBrush}" Foreground="{DynamicResource PixelTextBrush}">
+ <Grid Margin="12">
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+  <DockPanel>
+   <Button Style="{DynamicResource PixelToolButton}" Content="검색 / 새로고침" DockPanel.Dock="Right" Margin="8,0,0,0" Padding="10,4" Click="Refresh_Click"/>
+   <TextBox x:Name="Query" Style="{DynamicResource PixelTextBox}" TextChanged="Query_Changed" ToolTip="API, 스킬, 규칙 검색. 별칭은 문서 상단 aliases: 이동, movement 형식으로 등록합니다."/>
+  </DockPanel>
+  <TextBlock x:Name="Status" Grid.Row="1" Margin="0,6,0,10" FontSize="11" Foreground="{DynamicResource PixelMutedTextBrush}" Text="검색어를 입력하세요. API · Skills · Rules · Knowledge" TextWrapping="Wrap"/>
+  <Grid Grid.Row="2">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="3*"/></Grid.ColumnDefinitions>
+   <ListBox x:Name="Results" SelectionChanged="Result_Selected" Background="{DynamicResource PixelBackgroundBrush}" Foreground="{DynamicResource PixelTextBrush}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+    <ListBox.ItemTemplate><DataTemplate><StackPanel Margin="4,6">
+     <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+     <TextBlock Text="{Binding Document}" FontSize="11" Foreground="{DynamicResource PixelMutedTextBrush}" TextWrapping="Wrap"/>
+     <TextBlock Text="{Binding Snippet}" Margin="0,4,0,0" TextWrapping="Wrap" MaxHeight="80"/>
+    </StackPanel></DataTemplate></ListBox.ItemTemplate>
+   </ListBox>
+   <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center"/>
+   <TextBox x:Name="Preview" Grid.Column="2" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Background="{DynamicResource PixelBackgroundBrush}" Foreground="{DynamicResource PixelTextBrush}" Padding="8"/>
+  </Grid>
+ </Grid>
+</UserControl>

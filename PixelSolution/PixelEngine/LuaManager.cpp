@@ -26,6 +26,66 @@ extern PixelEngine* Engine;
 
 namespace
 {
+	std::filesystem::path EngineApiDirectory()
+	{
+		std::wstring executable(32768, L'\0');
+		const DWORD length = GetModuleFileNameW(nullptr, executable.data(), static_cast<DWORD>(executable.size()));
+		if (length == 0 || length >= executable.size())
+			throw std::runtime_error("Cannot determine executable path for engine Lua API.");
+		executable.resize(length);
+		return std::filesystem::path(executable).parent_path() / "LLMWiki" / "API" / "Lua";
+	}
+
+	std::string Utf8Path(const std::filesystem::path& path)
+	{
+		const auto utf8 = path.generic_u8string();
+		return std::string(utf8.begin(), utf8.end());
+	}
+
+	// LuaJIT's default file loader uses narrow fopen on Windows. Read shared API
+	// modules with a native filesystem path so Unicode installation paths work.
+	int LoadEngineApiModule(lua_State* state)
+	{
+		const char* name = luaL_checkstring(state, 1);
+		bool loadFailed = false;
+		{
+			const std::string moduleName(name);
+			if (moduleName.empty() || moduleName.find_first_not_of(
+				"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_") != std::string::npos)
+			{
+				lua_pushliteral(state, "\n\tNot a shared engine API module");
+				return 1;
+			}
+			const auto path = EngineApiDirectory() / (moduleName + ".lua");
+			std::ifstream file(path, std::ios::binary);
+			if (!file)
+			{
+				lua_pushliteral(state, "\n\tNo matching shared engine API module");
+				return 1;
+			}
+			const std::string source((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+			const std::string chunkName = "@" + Utf8Path(path);
+			loadFailed = luaL_loadbuffer(state, source.data(), source.size(), chunkName.c_str()) != 0;
+		}
+		// Destroy C++ locals before Lua raises a load error.
+		if (loadFailed) return lua_error(state);
+		return 1;
+	}
+
+	void RegisterEngineApiLoader(lua_State* state)
+	{
+		lua_getglobal(state, "package");
+		lua_getfield(state, -1, "loaders"); // LuaJIT / Lua 5.1
+		const int count = static_cast<int>(lua_objlen(state, -1));
+		for (int index = count; index >= 2; --index)
+		{
+			lua_rawgeti(state, -1, index);
+			lua_rawseti(state, -2, index + 1);
+		}
+		lua_pushcfunction(state, LoadEngineApiModule);
+		lua_rawseti(state, -2, 2); // Keep package.preload first, ahead of project modules.
+		lua_pop(state, 2);
+	}
 	int LuaDebugLogError(lua_State* state)
 	{
 		lua_getglobal(state, "tostring");
@@ -136,15 +196,11 @@ void LuaManager::Initialize()
 		sol::lib::jit,     // [추가됨] LuaJIT 컨트롤 (jit.on, jit.off, 최적화 옵션 등)
 		sol::lib::ffi
 	);
-	const std::string projectRootPath = Engine->GetEngineRootFolderPath();
-	const std::u8string projectRootPathUtf8(projectRootPath.begin(), projectRootPath.end());
-	const std::filesystem::path scriptRoot =
-		(std::filesystem::path(projectRootPathUtf8) / "Engine").lexically_normal();
-
-	const std::string scriptRootStr = scriptRoot.generic_string();
-
-	std::string packagePathSetup = "package.path = package.path .. ';" + scriptRootStr + "/?.lua'";
-	lua.script(packagePathSetup);
+	const std::filesystem::path scriptRoot = EngineApiDirectory();
+	sol::table package = lua["package"];
+	const std::string packagePath = package["path"];
+	package["path"] = Utf8Path(scriptRoot) + "/?.lua;" + packagePath;
+	RegisterEngineApiLoader(lua.lua_state());
 
 	//BindAll_GeneratedLuaModules(lua);
 	// 새 프로젝트는 Engine Update로 API가 생성된 뒤 런타임을 준비한다.
@@ -295,17 +351,15 @@ void LuaManager::CreateLuaManager()
 
 void LuaManager::ReadEngineGenerateFile()
 {
-	const std::string projectRootPath = Engine->GetEngineRootFolderPath();
-	const std::u8string projectRootPathUtf8(projectRootPath.begin(), projectRootPath.end());
-	const std::filesystem::path scriptPath =
-		(std::filesystem::path(projectRootPathUtf8) / "Engine" / "EngineGenerate.lua").lexically_normal();
-	if (!std::filesystem::exists(scriptPath))
+	const std::filesystem::path scriptPath = EngineApiDirectory() / "EngineGenerate.lua";
+	std::ifstream file(scriptPath, std::ios::binary);
+	if (!file)
 	{
+		PixelLog::Error("Cannot read shared engine Lua API: " + Utf8Path(scriptPath));
 		return;
 	}
-
-	const std::string scriptPathString = scriptPath.generic_string();
-	auto loadResult = lua.load_file(scriptPathString);
+	const std::string source((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	auto loadResult = lua.load(source, "@" + Utf8Path(scriptPath));
 	if (!loadResult.valid())
 	{
 		sol::error err = loadResult;

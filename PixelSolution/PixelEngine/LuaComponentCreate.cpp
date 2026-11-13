@@ -27,8 +27,9 @@ void LuaComponentCreate::Generate(const std::string& outPath, std::map<std::stri
 		content += CreateBaseFunction(meta.second);
 
 		content += "return " + meta.second.name;
-		std::filesystem::create_directories(outPath);
-		std::ofstream file(outPath + "/" + meta.second.name + ".lua");
+		const std::filesystem::path outputDirectory(std::u8string(outPath.begin(), outPath.end()));
+		std::filesystem::create_directories(outputDirectory);
+		std::ofstream file(outputDirectory / (meta.second.name + ".lua"));
 		file << content;
 		file.close();
 	}

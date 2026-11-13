@@ -1,4 +1,4 @@
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -276,6 +276,8 @@ namespace PixelTool
             }
         }
 
+        private void OpenWiki(object sender, RoutedEventArgs e) => (Application.Current.MainWindow as MainWindow)?.ShowWiki();
+
         private void OpenAIChat(object sender, RoutedEventArgs e)
         {
             (Application.Current.MainWindow as MainWindow)?.ShowAIChat();
@@ -309,13 +311,14 @@ namespace PixelTool
 
         private void UpdateEngineFiles(object sender, RoutedEventArgs e)
         {
-            string EnginePath = ProjectPathService.EnginePath;
+            string EnginePath = ProjectPathService.ApiLuaPath;
             if (string.IsNullOrWhiteSpace(EnginePath))
             {
                 PixelMessageBox.Show("Engine path is not configured.");
                 return;
             }
 
+            Directory.CreateDirectory(EnginePath);
             string targetPath = EnginePath.Replace("\\", "/");
             PixelEngineNative.EditorNotify(EditorEventType.GenerateEngineFile, targetPath);
             PixelMessageBox.Show("Engine update completed. PixelTool will restart.", "Engine Update");
@@ -358,6 +361,8 @@ namespace PixelTool
                     return;
                 }
 
+                if (!File.Exists(System.IO.Path.Combine(ProjectPathService.ApiLuaPath, "EngineGenerate.lua")))
+                    throw new FileNotFoundException("Engine API Lua is missing. Run Engine Update before Build Play.");
                 Directory.CreateDirectory(outputPath);
                 File.Copy(clientSourcePath, System.IO.Path.Combine(outputPath, "Client.exe"), true);
 
@@ -369,6 +374,9 @@ namespace PixelTool
 
                 CopyDirectory(ProjectPathService.AssetPath, System.IO.Path.Combine(outputPath, "Asset"));
                 CopyDirectory(ProjectPathService.EnginePath, System.IO.Path.Combine(outputPath, "Engine"));
+                // Ship the runtime bindings with the game; no installed Tool is required.
+                CopyDirectory(ProjectPathService.ApiLuaPath,
+                    System.IO.Path.Combine(outputPath, "LLMWiki", "API", "Lua"));
 
                 Process.Start(new ProcessStartInfo
                 {

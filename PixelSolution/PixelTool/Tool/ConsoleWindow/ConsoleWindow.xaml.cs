@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +10,9 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Text.Json;
+using System.IO;
+using System.Text;
+using Microsoft.Win32;
 using System.Text.RegularExpressions;
 
 namespace PixelTool
@@ -39,16 +42,18 @@ namespace PixelTool
         {
             0 => Brushes.White,   // INFO
             1 => Brushes.Yellow,  // WARN
+            3 => Brushes.LightSkyBlue, // AI
             2 => Brushes.Red,     // ERR
             _ => Brushes.Gray
         };
-        public string Tag => Level == 0 ? "[INFO]" : (Level == 1 ? "[WARN]" : "[ERR ]");
+        public string Tag => Level == ConsoleWindow.AiLogLevel ? "[AI]" : Level == 0 ? "[INFO]" : (Level == 1 ? "[WARN]" : "[ERR ]");
         public event PropertyChangedEventHandler? PropertyChanged;
         public override string ToString() => $"[{Timestamp}]{Tag} {Message}" + (Count > 1 ? $" {CountText}" : "");
     }
 
     public partial class ConsoleWindow : UserControl
     {
+        public const int AiLogLevel = 3;
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate void LogDelegate([MarshalAs(UnmanagedType.LPUTF8Str)] string message, int level);
 
@@ -62,6 +67,7 @@ namespace PixelTool
         private sealed record CapturedLog(long Sequence, string Timestamp, int Level, string Message);
         private static readonly object _captureLock = new();
         private static readonly Queue<CapturedLog> _capturedLogs = new();
+        private static readonly Queue<CapturedLog> _capturedAiLogs = new();
         private static long _logSequence;
         private static long _clearedThroughCursor;
 
@@ -104,8 +110,8 @@ namespace PixelTool
             bool cleared, truncated;
             lock (_captureLock)
             {
-                selected = _capturedLogs.Where(log => log.Sequence > afterCursor).Take(limit).ToArray();
-                latestCursor = _logSequence;
+                selected = _capturedLogs.Where(log => log.Sequence > afterCursor && log.Level != AiLogLevel).Take(limit).ToArray();
+                latestCursor = _capturedLogs.LastOrDefault(log => log.Level != AiLogLevel)?.Sequence ?? afterCursor;
                 cleared = afterCursor < _clearedThroughCursor;
                 truncated = _capturedLogs.Count > 0 && afterCursor < _capturedLogs.Peek().Sequence - 1;
             }
@@ -158,9 +164,11 @@ namespace PixelTool
         {
             lock (_captureLock)
             {
-                _capturedLogs.Enqueue(new(++_logSequence, DateTime.Now.ToString("HH:mm:ss"), level,
+                // Local activity must not alter model-facing engine cursors, retention or pagination.
+                var queue = level == AiLogLevel ? _capturedAiLogs : _capturedLogs;
+                queue.Enqueue(new(level == AiLogLevel ? 0 : ++_logSequence, DateTime.Now.ToString("HH:mm:ss"), level,
                     message.Length > 4000 ? message[..4000] + " [truncated]" : message));
-                while (_capturedLogs.Count > MAX_LOG_COUNT) _capturedLogs.Dequeue();
+                while (queue.Count > MAX_LOG_COUNT) queue.Dequeue();
             }
             // 어느 스레드에서 호출하든 안전하게 큐에 적재
             _pendingLogs.Enqueue(new LogEntry
@@ -169,6 +177,36 @@ namespace PixelTool
                 Message = message,
                 Level = level
             });
+        }
+
+        // AI activity is a category, not an engine error severity. Keep it out of game validation.
+        public static void LogAi(string message) => LogMessage(AiActionLog.Clean(AiActionLog.Prefix(message)), AiLogLevel);
+
+        public static int SaveAiLogs(string filePath)
+        {
+            string[] lines;
+            lock (_captureLock)
+                lines = _capturedAiLogs
+                    .Select(log => $"[{log.Timestamp}][{log.Message}]").ToArray();
+            // Write outside the native logging lock; export every captured event, not UI grouping.
+            File.WriteAllLines(filePath, lines, new UTF8Encoding(false));
+            return lines.Length;
+        }
+
+        private async void SaveAiLogs_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog
+            {
+                FileName = "AILog.txt", DefaultExt = ".txt", Filter = "Text file (*.txt)|*.txt",
+                InitialDirectory = Directory.Exists(ProjectPathService.EditorPath)
+                    ? ProjectPathService.EditorPath : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            };
+            if (dialog.ShowDialog() != true) return;
+            if (sender is Button button) button.IsEnabled = false;
+            try { await System.Threading.Tasks.Task.Run(() => SaveAiLogs(dialog.FileName)); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+            { LogAi("AILog 저장 실패: " + ex.Message); }
+            finally { if (sender is Button done) done.IsEnabled = true; }
         }
 
         // 2. C++ 엔진 네이티브 스레드에서 콜백으로 들어오는 지점
@@ -188,7 +226,7 @@ namespace PixelTool
             while (processCount < 500 && _pendingLogs.TryDequeue(out var log))
             {
                 var key = GetLogKey(log);
-                if (_logIndex.TryGetValue(key, out var existingLog))
+                if (log.Level != AiLogLevel && _logIndex.TryGetValue(key, out var existingLog))
                 {
                     existingLog.Count++;
                     processCount++;
@@ -202,7 +240,7 @@ namespace PixelTool
                     _logItems.RemoveAt(0); // 가장 오래된 로그 삭제
                 }
                 _logItems.Add(log);
-                _logIndex[key] = log;
+                if (log.Level != AiLogLevel) _logIndex[key] = log;
                 processCount++;
             }
 
@@ -220,7 +258,7 @@ namespace PixelTool
 
 		public void ClearLogs()
         {
-            lock (_captureLock) { _capturedLogs.Clear(); _clearedThroughCursor = _logSequence; }
+            lock (_captureLock) { _capturedLogs.Clear(); _capturedAiLogs.Clear(); _clearedThroughCursor = _logSequence; }
             _logItems.Clear();
             _logIndex.Clear();
             while (_pendingLogs.TryDequeue(out _)) { } // 잔여 큐 완전히 비우기
@@ -238,7 +276,7 @@ namespace PixelTool
 
         private void UpdateFilterButtons()
         {
-            Button[] buttons = { AllLogButton, InfoLogButton, WarnLogButton, ErrorLogButton };
+            Button[] buttons = { AllLogButton, InfoLogButton, WarnLogButton, ErrorLogButton, AiLogButton };
             foreach (Button button in buttons)
             {
                 bool isActive = int.TryParse(button.Tag?.ToString(), out int level) && level == _selectedLogLevel;

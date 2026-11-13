@@ -180,6 +180,13 @@ namespace PixelTool
         }
 
 
+        public void ShowWiki()
+        {
+            var wiki = DockContents.OfType<WikiWindow>().FirstOrDefault();
+            if (wiki == null) { wiki = new WikiWindow(); OpenFloatingTool("LLM Wiki", wiki, 1000, 700); }
+            dockManager.ActivateContent(wiki);
+        }
+
         public void ResetDockLayout() => dockManager.ResetLayout();
 
         public void ShowAIChat(bool activate = true, bool placeBesideLua = false)

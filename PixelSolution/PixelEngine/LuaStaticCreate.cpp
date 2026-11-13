@@ -34,8 +34,9 @@ void LuaStaticCreate::Generate(const std::string& outPath, std::map<std::string,
 		content += meta.second.name + " = " + meta.second.name + " or {}\n\n";
 		content += CreateFunction(meta.second);
 		content += "return " + meta.second.name;
-		std::filesystem::create_directories(outPath);
-		std::ofstream file(outPath + "/" + meta.second.name + ".lua");
+		const std::filesystem::path outputDirectory(std::u8string(outPath.begin(), outPath.end()));
+		std::filesystem::create_directories(outputDirectory);
+		std::ofstream file(outputDirectory / (meta.second.name + ".lua"));
 		file << content;
 		file.close();
 	}

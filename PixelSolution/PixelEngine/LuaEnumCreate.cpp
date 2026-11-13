@@ -36,8 +36,9 @@ void LuaEnumCreate::Generate(const std::string& outPath, std::map<std::string, P
 	}
 	content += "}\n";
 
-	std::filesystem::create_directories(outPath);
-	std::ofstream file(outPath + "/Enum.lua");
+	const std::filesystem::path outputDirectory(std::u8string(outPath.begin(), outPath.end()));
+	std::filesystem::create_directories(outputDirectory);
+	std::ofstream file(outputDirectory / "Enum.lua");
 	file << content;
 	file.close();
 }
@@ -56,8 +57,9 @@ void LuaEnumCreate::GenerateLua(const std::string& outPath, const PixelEnumMeta&
 	content += CreateEnumTable(meta);
 	content += "\n\nreturn " + meta.name + "\n";
 
-	std::filesystem::create_directories(outPath);
-	std::ofstream file(outPath + "/" + meta.name + ".lua");
+	const std::filesystem::path outputDirectory(std::u8string(outPath.begin(), outPath.end()));
+	std::filesystem::create_directories(outputDirectory);
+	std::ofstream file(outputDirectory / (meta.name + ".lua"));
 	file << content;
 	file.close();
 }

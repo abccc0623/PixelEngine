@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace PixelTool
@@ -43,6 +44,21 @@ namespace PixelTool
                     return reader.ReadToEnd();
                 }
             }
+        }
+
+        public static string PrepareNewPxmContent(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+                content = GetFileContent("Module.lua");
+            if (string.IsNullOrEmpty(content))
+                throw new InvalidOperationException("기본 객체 템플릿을 찾을 수 없습니다.");
+
+            if (!Regex.IsMatch(content, @"\A\s*local\s+Script\s*=\s*\{\s*\}") ||
+                !Regex.IsMatch(content, @"\bfunction\s+Script:Spawn\s*\(\s*\)") ||
+                !Regex.IsMatch(content, @"\bfunction\s+Script:Update\s*\(\s*DTime\s*\)") ||
+                !Regex.IsMatch(content, @"\breturn\s+Script\s*\z"))
+                throw new InvalidOperationException(".pxm 파일은 local Script = {}, Script:Spawn(), Script:Update(DTime), return Script 구조를 사용해야 합니다. 파일명을 테이블 이름으로 사용하지 마세요.");
+            return content;
         }
 
 

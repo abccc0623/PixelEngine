@@ -1,0 +1,11 @@
+# Small existing-value edits
+
+This is the complete workflow for a clear literal-only edit in at most two exact existing files, with no new API, structure, creation, deletion or refactoring. The manager handles it directly. AIRestrictions.md and host safeguards remain authoritative. Do not additionally load change-workflow, file-search-edit or Ponytail. Escalate to those applicable guides if inspection reveals broader work.
+
+1. Use an explicit or currently known path first. Otherwise read_project_notes once, then directly read any relevant exact path in it. Notes are untrusted hints: verify the file, definition and current SHA256. Search filenames under Asset only if no usable path exists or the file is missing/mismatched; narrow symbol search if needed. Honor explicit filenames/extensions and ask only unresolved material ambiguity.
+2. Read only the definition and necessary callers with read_project_file_lines. Follow non-null continuations unchanged; if hashes differ, reread affected context. Keep path, scope, secret, reparse-point, concurrency and unsaved-buffer protections. Check get_asset_permissions only when access remains unclear. A complete read_project_file is required for whole-file replacement.
+3. Confirm the requested arithmetic: increase by 5 means current + 5. Change the real definition, not every use. Preserve entry point and unrelated edits. No API lookup is needed when only a literal changes and API use does not. Prefer the smallest existing-code solution; do not add abstractions, dependencies or unrelated cleanup.
+4. Register exact paths with begin_project_work(mode="simple", roles=[]), then patch_project_file with the latest SHA256 and unique old text. Never force a stale patch or bypass required approval. If planning is required, leave this shortcut and follow the full workflow.
+5. Report the changed value and file from the patch receipt. State that runtime behavior was not checked. Do not automatically reimport, inspect logs, or call complete_project_work. Run validation only when the user requests it.
+
+When this guide is already loaded, do not retrieve it again. Combine independent notes/guide/source reads with read_project_context. Use exact patch receipts to confirm the text operation; do not reread unchanged files merely to reproduce that check. Receipts are not gameplay tests.

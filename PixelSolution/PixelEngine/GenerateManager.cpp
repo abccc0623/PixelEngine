@@ -159,8 +159,9 @@ void GenerateManager::AddClass(PType* type, std::map<std::string, PixelClassMeta
 
 void GenerateManager::CreateRequireFile(const std::string& outPath)
 {
-	std::filesystem::create_directories(outPath);
-	std::ofstream file(outPath + "/EngineGenerate.lua");
+	const std::filesystem::path outputDirectory(std::u8string(outPath.begin(), outPath.end()));
+	std::filesystem::create_directories(outputDirectory);
+	std::ofstream file(outputDirectory / "EngineGenerate.lua");
 	file << "require(\"" << "Enum" << "\")\n";
 
 	for (auto& K : PTypeMetaList)

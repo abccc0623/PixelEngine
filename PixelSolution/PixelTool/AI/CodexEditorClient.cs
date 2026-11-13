@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -7,15 +7,16 @@ namespace PixelTool;
 // Keeps editor-only operations on the existing permission-checked tool path.
 internal sealed class CodexEditorClient : IAsyncDisposable
 {
+    // UI-only correlation metadata; never serialized into CLI requests or tool replies.
+    internal string? LocalLogRequestId { get; set; }
+    private string? _startingLogRequestId;
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> _logRequests = new();
     private readonly CodexChatClient _server = new();
     private readonly CancellationTokenSource _stop = new();
     private CancellationTokenSource? _turnStop;
     private ChatGptProjectTools? _tools;
     private string _threadId = "";
     private string _project = "", _model = "", _programmerModel = "", _plannerModel = "", _artistModel = "";
-    private string _requestText = "";
-    private string _currentStage = "요청 분석";
-    private static readonly object FailureLogGate = new();
     private string? _programmerEffort, _plannerEffort, _artistEffort;
     private CodexProgrammer? _programmer, _planner;
     private string? _activeTurnId;
@@ -39,7 +40,6 @@ internal sealed class CodexEditorClient : IAsyncDisposable
     public Func<string, int, int, Task<string>>? HighlightLuaLines { get; set; }
     public Func<string, Task<bool>>? CanDeleteAssetFile { get; set; }
     public Func<string, string[], CancellationToken, Task<string>>? AskChoice { get; set; }
-    public Func<string, string, string[], CancellationToken, Task<string>>? AskPlanApproval { get; set; }
 
     internal CodexEditorClient()
     {
@@ -53,12 +53,13 @@ internal sealed class CodexEditorClient : IAsyncDisposable
                 {
                     if (!_startingTurn || _finishedTurns.Contains(id) || (_activeTurnId != null && _activeTurnId != id)) return;
                     _activeTurnId = id;
+                    if (_startingLogRequestId != null) _logRequests[id] = _startingLogRequestId;
                 }
                 // Stop can be clicked before turn/start returns its ID. Local tools are
                 // already canceled; interrupt the CLI as soon as that ID becomes known.
                 if (_turnStop?.IsCancellationRequested == true) _ = InterruptStartedTurnAsync(id);
             }
-            if (ownThread && method == "thread/tokenUsage/updated") { _usage.Observe(p); EmitUsage(); }
+            if (ownThread && method == "thread/tokenUsage/updated") ObserveUsage(p);
             if (ownThread && method == "turn/completed")
             {
                 string id = p.GetProperty("turn").GetProperty("id").GetString()!;
@@ -71,7 +72,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
                 _ = CompleteTurnAsync(p.Clone(), _work);
                 return;
             }
-            Notification?.Invoke(method, p);
+            Emit(method, p);
         };
         _server.Disconnected += details =>
         {
@@ -87,16 +88,6 @@ internal sealed class CodexEditorClient : IAsyncDisposable
     public Task ConnectAsync(string project)
     {
         _project = project; _tools = new ChatGptProjectTools(project);
-        try
-        {
-            string path = new ProjectFileAccess(project).Resolve("Editor/AIToolFailures.md");
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            if (!File.Exists(path)) File.WriteAllText(path, "# AI 도구 실패 기록\n");
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
-        {
-            Emit("turn/toolWarning", new { threadId = _threadId, message = "도구 실패 기록 파일 생성 실패: " + ex.Message });
-        }
         return _server.ConnectAsync(project);
     }
 
@@ -131,17 +122,18 @@ internal sealed class CodexEditorClient : IAsyncDisposable
                 "Native shell/file operations are unavailable. Their read-only sandbox does not describe PixelTool editor permissions. " +
                 "For requested Asset reads, writes, moves and renames, use pixeltool tools, which enforce project paths and approved work scope. " +
                 "If permission is uncertain, call pixeltool.get_asset_permissions; the CLI sandbox does not govern PixelTool project tools. " +
-                "After script changes reimport and fix reported errors. " +
-                "Use focused line reads; preserve existing files and use exact patches. End with a short result/change summary; code changes are shown collapsed by the editor.";
+                "Run reimport and error checks when the user requests validation. " +
+                "Use focused line reads; preserve existing files and use exact patches. Keep replies brief; ask required questions via ask_choice.";
             p["developerInstructions"] = p["developerInstructions"]!.GetValue<string>() + CodexWorkflowTools.Instructions;
             if (method == "thread/start")
             {
-                var tools = ChatGptProjectTools.Definitions.Concat(CodexWorkflowTools.Definitions).Select(definition =>
-                {
-                    var tool = JsonSerializer.SerializeToElement(definition);
-                    return new { type = "function", name = tool.GetProperty("name").GetString(),
-                        description = tool.GetProperty("description").GetString(), inputSchema = tool.GetProperty("parameters") };
-                }).ToArray();
+                var tools = ChatGptProjectTools.Definitions.Concat(CodexWorkflowTools.Definitions)
+                    .Select(definition =>
+                    {
+                        var d = JsonSerializer.SerializeToElement(definition);
+                        return new { type = "function", name = d.GetProperty("name").GetString(),
+                            description = d.GetProperty("description").GetString(), inputSchema = d.GetProperty("parameters") };
+                    }).ToArray();
                 p["dynamicTools"] = JsonSerializer.SerializeToNode(new[] { new { type = "namespace", name = "pixeltool",
                     description = "PixelTool project and editor operations", tools } });
             }
@@ -152,8 +144,8 @@ internal sealed class CodexEditorClient : IAsyncDisposable
         }
         if (method == "turn/start")
         {
-            _requestText = p["input"]?[0]?["text"]?.GetValue<string>() ?? "";
-            _currentStage = "요청 분석";
+            _startingLogRequestId = LocalLogRequestId;
+            using var requestLogScope = AiActionLog.Enter(_startingLogRequestId);
             _turnStop?.Cancel();
             await StopProgrammerAsync().ConfigureAwait(false);
             requestToken.ThrowIfCancellationRequested();
@@ -196,6 +188,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
                 if (_activeTurnId != null && _activeTurnId != id)
                     throw new InvalidOperationException("CLI returned a different active turn.");
                 _activeTurnId = id;
+                if (_startingLogRequestId != null) _logRequests[id] = _startingLogRequestId;
             }
             if (_turnStop.IsCancellationRequested) await InterruptStartedTurnAsync(id).ConfigureAwait(false);
             return started;
@@ -206,7 +199,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
             string? requestedTurn = p["turnId"]?.GetValue<string>();
             if (requestedTurn != null && requestedTurn != _activeTurnId) return JsonSerializer.SerializeToElement(new { });
             _turnStop?.Cancel();
-            // Linked cancellation also stops programmer/reviewer calls and pending approvals.
+            // Linked cancellation also stops programmer/reviewer calls.
             if (_activeTurnId != null) await InterruptStartedTurnAsync(_activeTurnId).ConfigureAwait(false);
             return JsonSerializer.SerializeToElement(new { });
         }
@@ -222,10 +215,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
             await StopProgrammerAsync().ConfigureAwait(false);
             await _toolGate.WaitAsync().ConfigureAwait(false);
             _toolGate.Release();
-            if (work is { HasChanges: true, Finished: false })
-                Emit("turn/toolWarning", new { threadId = _threadId, turnId = completed.GetProperty("turn").GetProperty("id").GetString(),
-                    message = "변경은 수행됐지만 완료 검증·프로젝트 기억 저장이 확인되지 않았습니다. 완료로 간주하지 마세요." });
-            Notification?.Invoke("turn/completed", completed);
+            Emit("turn/completed", completed);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -252,11 +242,52 @@ internal sealed class CodexEditorClient : IAsyncDisposable
         }
     }
 
-    private void Emit(string method, object parameters) => Notification?.Invoke(method, JsonSerializer.SerializeToElement(parameters));
+    private string? RequestFor(JsonElement p)
+    {
+        if (p.ValueKind != JsonValueKind.Object) return null;
+        string? turn = p.TryGetProperty("turnId", out var id) && id.ValueKind == JsonValueKind.String ? id.GetString() : null;
+        if (turn == null && p.TryGetProperty("turn", out var nested) && nested.ValueKind == JsonValueKind.Object && nested.TryGetProperty("id", out id))
+            turn = id.GetString();
+        return turn != null && _logRequests.TryGetValue(turn, out var request) ? request : null;
+    }
+
+    private void Emit(string method, object parameters)
+    {
+        var json = JsonSerializer.SerializeToElement(parameters);
+        var local = JsonNode.Parse(json.GetRawText())!.AsObject();
+        local["localLogRequestId"] = AiActionLog.CurrentRequestId ?? RequestFor(json);
+        Notification?.Invoke(method, JsonSerializer.SerializeToElement(local));
+    }
 
     private Task<object> InvokeToolAsync(JsonElement p) => InvokeToolCoreAsync(p);
 
-    private async Task<object> InvokeToolCoreAsync(JsonElement p, bool programmer = false, CodexWorkSession? expectedWork = null, CancellationToken? programmerToken = null)
+    private async Task<object> InvokeToolCoreAsync(JsonElement p, bool programmer = false, CodexWorkSession? expectedWork = null, CancellationToken? programmerToken = null, string? workerLogRequestId = null)
+    {
+        using var logScope = AiActionLog.Enter(programmer ? workerLogRequestId : RequestFor(p));
+        string name = p.TryGetProperty("tool", out var tool) ? tool.GetString() ?? "unknown" : "unknown";
+        string target = p.TryGetProperty("arguments", out var args) ? AiActionLog.Target(args) : "";
+        try
+        {
+            var reply = await InvokeToolOperationAsync(p, programmer, expectedWork, programmerToken).ConfigureAwait(false);
+            var json = JsonSerializer.SerializeToElement(reply);
+            bool success = json.TryGetProperty("success", out var ok) && ok.ValueKind == JsonValueKind.True;
+            string result = json.GetRawText();
+            if (success && json.TryGetProperty("contentItems", out var items) && items.ValueKind == JsonValueKind.Array)
+                foreach (var item in items.EnumerateArray())
+                    if (item.TryGetProperty("text", out var text) && text.ValueKind == JsonValueKind.String)
+                    { result = text.GetString() ?? ""; break; }
+            bool loggedSuccess = AiActionLog.Record((programmer ? "프로그래머 도구 " : "AI 도구 ") + name, target, result, success);
+            Emit("turn/toolOutcome", new { threadId = _threadId, turnId = _activeTurnId, tool = name, success = loggedSuccess });
+            return reply;
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            AiActionLog.Failed("AI 도구 " + name, target, ex);
+            throw;
+        }
+    }
+
+    private async Task<object> InvokeToolOperationAsync(JsonElement p, bool programmer = false, CodexWorkSession? expectedWork = null, CancellationToken? programmerToken = null)
     {
         string result;
         bool success = true;
@@ -279,28 +310,16 @@ internal sealed class CodexEditorClient : IAsyncDisposable
             ownedWork = work;
             if (name == "planner_task")
             {
-                SetPipelineStage("기획");
                 return await PlannerAsync(args, work, token).ConfigureAwait(false);
             }
             if (name == "programmer_task")
             {
-                SetPipelineStage(args.GetProperty("phase").GetString() == "implement" ? "구현" : "구현 준비");
                 return await ProgrammerAsync(args, work, token).ConfigureAwait(false);
             }
             if (name == "delegate_project_task")
             {
-                SetPipelineStage("조사·검토");
                 return await DelegateAsync(args, work, token).ConfigureAwait(false);
             }
-            string? stage = name switch
-            {
-                "begin_project_work" => "작업 분류·계획",
-                "reimport_project" or "read_editor_logs" or "clear_editor_logs" or "test_game_key" or "set_editor_mode" => "테스트",
-                "complete_project_work" => "완료",
-                _ when CodexWorkSession.IsMutation(name) => "구현",
-                _ => null
-            };
-            if (stage != null) SetPipelineStage(stage);
             await _toolGate.WaitAsync(token).ConfigureAwait(false);
             held = true;
             token.ThrowIfCancellationRequested();
@@ -313,84 +332,15 @@ internal sealed class CodexEditorClient : IAsyncDisposable
                 bool separatePlanner = planned && !string.IsNullOrEmpty(args.GetProperty("proposalId").GetString());
                 var plan = separatePlanner ? work.PlanForReview(args) : planned ? work.ManagerPlanForReview(args) : work.ValidatePlan(args);
                 bool approvalReused = planned ? work.IsPlanApproved(plan) : work.IsScopeApproved(plan);
-                if (planned && !approvalReused)
-                {
-                    if (AskPlanApproval == null && AskChoice == null) throw new InvalidOperationException("계획 승인 화면을 사용할 수 없습니다.");
-                    work.PrepareApproval(separatePlanner ? plan.ProposalId : null);
-                    string review = separatePlanner ? CodexWorkSession.Text(args, "managerReview", 1500) : "";
-                    string question = CodexWorkflowTools.FormatApproval(plan, review);
-                    string answer = await AskPlanApprovalAsync(plan, separatePlanner ? work.Proposal : null, question,
-                        new[] { "이 계획 승인", "계획 수정", "취소" }, token).ConfigureAwait(false);
-                    token.ThrowIfCancellationRequested();
-                    if (answer != "이 계획 승인")
-                    {
-                        if (answer == "취소")
-                        {
-                            work.CancelPlan();
-                            return ToolReply(false, new { approved = false, canceled = true, message = "기획을 취소했습니다. 이 요청에서 구현을 시작하지 마세요." });
-                        }
-                        if (!separatePlanner)
-                        {
-                            if (answer == "계획 수정")
-                                answer = await (AskChoice ?? throw new InvalidOperationException("수정 의견 입력 화면을 사용할 수 없습니다. 수정할 내용을 포함해 계획을 다시 요청하세요."))("수정할 기획 내용을 입력하세요.", new[] { "취소" }, token)
-                                    .WaitAsync(token).ConfigureAwait(false);
-                            if (answer == "취소") { work.CancelPlan(); return ToolReply(false, new { approved = false, canceled = true }); }
-                            work.ReviseManagerPlan();
-                            return ToolReply(false, new { approved = false, revisionRequired = true, feedback = answer,
-                                next = "Revise the manager's plan, then resubmit begin_project_work for approval. Do not edit before approval." });
-                        }
-                        // Require explicit section selection. Free-text instructions never expand the revision scope by inference.
-                        string revision = answer == "계획 수정" ? "" : answer;
-                        for (int attempt = 0; attempt < 3; attempt++)
-                        {
-                            try
-                            {
-                                work.RequestRevision(revision, plan.ProposalId);
-                                return ToolReply(false, new { approved = false, revisionRequired = true,
-                                    sections = work.PendingRevision!.Numbers, feedback = work.PendingRevision.Feedback,
-                                    next = "Call planner_task revise with empty task/context, review its result, then submit the new proposalId." });
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                revision = await (AskChoice ?? throw new InvalidOperationException("항목별 수정 의견 입력 화면을 사용할 수 없습니다."))("수정할 항목 번호와 내용을 직접 입력하세요.\n예: 1, 3: 키보드 입력과 점프 방식을 변경\n지정하지 않은 항목은 그대로 유지됩니다." +
-                                    (revision.Length == 0 ? "" : "\n입력한 내용: " + revision[..Math.Min(revision.Length, 1500)]),
-                                    new[] { "취소" }, token).WaitAsync(token).ConfigureAwait(false);
-                                token.ThrowIfCancellationRequested();
-                                if (revision == "취소") { work.CancelPlan(); return ToolReply(false, new { approved = false, canceled = true }); }
-                            }
-                        }
-                        work.RequestRevision(revision, plan.ProposalId);
-                        return ToolReply(false, new { approved = false, revisionRequired = true,
-                            sections = work.PendingRevision!.Numbers, feedback = work.PendingRevision.Feedback,
-                            next = "Call planner_task revise with empty task/context." });
-                    }
-                }
-                else if (plan.Mode == "scoped" && !approvalReused)
-                {
-                    if (AskPlanApproval == null && AskChoice == null) throw new InvalidOperationException("작업 범위 승인 화면을 사용할 수 없습니다.");
-                    work.PrepareScopeApproval(plan);
-                    string question = CodexWorkflowTools.FormatApproval(plan) +
-                        (work.Proposal == null ? "" : "\n\n기존 승인 기획 (변경 없음)\n" + work.Proposal.Details);
-                    string answer = await AskPlanApprovalAsync(plan, work.Proposal, question,
-                        new[] { "이 범위 승인", "범위 수정", "취소" }, token).ConfigureAwait(false);
-                    token.ThrowIfCancellationRequested();
-                    if (answer != "이 범위 승인")
-                    {
-                        if (answer == "취소") work.CancelPlan();
-                        else work.ReviseScope();
-                        return ToolReply(false, new { approved = false, canceled = answer == "취소",
-                            scopeRevisionRequired = answer != "취소", answer,
-                            next = "Do not implement. Revise only the requested operational scope and resubmit scoped; gameplay design changes require planned." });
-                    }
-                }
+                if (plan.Mode == "scoped" && !approvalReused) work.PrepareScopeApproval(plan);
 
                 token.ThrowIfCancellationRequested();
                 plan = work.AcceptPlan(plan);
-                if (!approvalReused) Emit("turn/teamStatus", new { threadId = _threadId, message = plan.Mode == "planned" ? "Big 상세 기획 승인됨" : plan.Mode == "middle" ? "Middle 간단 기획 승인됨" : plan.Mode == "scoped" ? "작업 범위 승인됨 · 기존 기획 유지" : "Small 작업 범위 등록됨" });
+                if (!approvalReused) Emit("turn/teamStatus", new { threadId = _threadId, message = plan.Mode == "planned" ? "상세 계획 등록됨" : plan.Mode == "middle" ? "계획 등록됨" : "작업 범위 등록됨" });
                 result = JsonSerializer.Serialize(new { approved = true, approvalReused, mode = plan.Mode,
                     proposalId = plan.ProposalId, paths = plan.Paths, roles = plan.Roles,
                     next = (plan.Roles.Contains("programmer") ? "Continue the SAME programmer with implement. " : "Perform the approved work directly with hash-checked project tools. ") +
-                        "Use the returned approved scope without another plan or scope approval for the same work. Path, hash and unsaved-buffer checks still apply; individual file changes need no dialog." });
+                        "Use the registered scope for the same work. Path, hash and unsaved-buffer checks still apply; no approval dialog is shown." });
             }
             else if (name == "complete_project_work")
             {
@@ -442,59 +392,28 @@ internal sealed class CodexEditorClient : IAsyncDisposable
             work.TrackResult(name, result);
             if (name is "write_project_file" or "patch_project_file" or "delete_asset_file" or "delete_asset_folder" or "move_asset" or "create_asset_folder" or "create_png_asset" or "copy_asset" or "import_asset")
                 Emit("item/completed", new { threadId = _threadId, turnId, item = new { id = Guid.NewGuid().ToString("N"), type = "fileChange", result } });
-            if (!success) RecordToolFailure(name, p, result);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             success = false;
-            result = "도구 작업 실패: " + ex.Message;
-            RecordToolFailure(name, p, ex.Message);
+            result = ex.Message == ProjectFileAccess.AssetMutationDenied ? ex.Message : "도구 작업 실패: " + ex.Message;
             if (!token.IsCancellationRequested) Emit("turn/toolWarning", new { threadId = _threadId, turnId, message = result });
         }
         finally { if (mutating) ownedWork?.EndMutation(); if (held) _toolGate.Release(); }
         return new { success, contentItems = new[] { new { type = "inputText", text = result } } };
     }
 
-    private void RecordToolFailure(string name, JsonElement call, string cause)
+    private void ObserveUsage(JsonElement usage)
     {
-        try
-        {
-            var access = new ProjectFileAccess(_project);
-            string path = access.Resolve("Editor/AIToolFailures.md");
-            lock (FailureLogGate)
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                string request = _requestText.Replace("\r", " ").Replace("\n", " ");
-                string arguments = call.TryGetProperty("arguments", out var args) ? args.GetRawText() : "{}";
-                string entry = $"\n## {DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}\n" +
-                    $"요청: {request[..Math.Min(request.Length, 2000)]}\n" +
-                    $"- 파이프라인 단계: {_currentStage}\n- 도구: {name}\n- 원인: {cause.Replace("\r", " ").Replace("\n", " ")}\n" +
-                    $"- 매개변수: `{arguments[..Math.Min(arguments.Length, 4000)].Replace("`", "'")}`\n";
-                File.AppendAllText(path, entry);
-            }
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
-        {
-            Emit("turn/toolWarning", new { threadId = _threadId, message = "도구 실패 기록 저장 실패: " + ex.Message });
-        }
+        _usage.Observe(usage);
+        EmitUsage();
     }
-
-    private void SetPipelineStage(string stage)
-    {
-        _currentStage = stage;
-        Emit("turn/pipelineStage", new { threadId = _threadId, stage });
-    }
-
-    private Task<string> AskPlanApprovalAsync(CodexWorkSession.Plan plan, CodexPlanProposal? proposal,
-        string details, string[] options, CancellationToken token) =>
-        (AskPlanApproval != null
-            ? AskPlanApproval(CodexWorkflowTools.ApprovalPreview(plan, proposal), details, options, token)
-            : AskChoice!(details, options, token)).WaitAsync(token);
 
     private void EmitUsage() => Emit("turn/usage", new { threadId = _threadId, text = _usage.Snapshot().Text });
 
     private async Task<object> ProgrammerAsync(JsonElement args, CodexWorkSession work, CancellationToken token)
     {
+        string? logRequestId = AiActionLog.CurrentRequestId;
         string phase = CodexWorkSession.Text(args, "phase", 20);
         string task = CodexWorkSession.Text(args, "task", 3000);
         string context = args.GetProperty("context").GetString() ?? "";
@@ -507,14 +426,14 @@ internal sealed class CodexEditorClient : IAsyncDisposable
         {
             var programmer = _programmer ??= new CodexProgrammer(usage =>
             {
-                if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) { _usage.Observe(usage); EmitUsage(); }
+                if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) ObserveUsage(usage);
             });
             string instruction = CodexChatClient.SanitizeDiagnostic(task);
             Emit("turn/agentDispatch", new { threadId = _threadId, role = "programmer / " + phase + " / " + _programmerModel,
                 message = CodexWorkflowTools.DispatchMessage("programmer", phase, instruction),
                 instruction = instruction.Length > 1200 ? instruction[..1200] + "…" : instruction });
             var result = await programmer.RunAsync(_project, _programmerModel, _programmerEffort, phase, task, context,
-                (call, workerToken) => InvokeToolCoreAsync(call, true, work, workerToken),
+                (call, workerToken) => InvokeToolCoreAsync(call, true, work, workerToken, logRequestId),
                 id => { if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) { _usage.RegisterWorker(id, "programmer"); EmitUsage(); } }, token).ConfigureAwait(false);
             completed = result.Status == "completed";
             if (!token.IsCancellationRequested && ReferenceEquals(_work, work))
@@ -545,7 +464,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
         {
             var planner = _planner ??= new CodexProgrammer(usage =>
             {
-                if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) { _usage.Observe(usage); EmitUsage(); }
+                if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) ObserveUsage(usage);
             }, planning: true);
             if (phase == "revise")
             {
@@ -556,15 +475,28 @@ internal sealed class CodexEditorClient : IAsyncDisposable
             Emit("turn/agentDispatch", new { threadId = _threadId, role = "planner / " + phase + " / " + _plannerModel,
                 message = CodexWorkflowTools.DispatchMessage("planner", phase, ""),
                 instruction = phase == "revise" ? "사용자가 지정한 기획 항목만 수정" : "엔진 지원 근거를 바탕으로 기능별 기획안 작성" });
+            string? logRequestId = AiActionLog.CurrentRequestId;
             var result = await planner.RunAsync(_project, _plannerModel, _plannerEffort, "analyze", task, context,
                 async (call, workerToken) =>
                 {
+                    using var logScope = AiActionLog.Enter(logRequestId);
                     workerToken.ThrowIfCancellationRequested();
                     if (!ReferenceEquals(_work, work) || !CodexProgrammer.ReadTools.Contains(call.GetProperty("tool").GetString()!))
                         return ToolReply(false, new { error = "Planner is read-only and must belong to this request." });
-                    string output = await _tools!.InvokeAsync(call.GetProperty("tool").GetString()!, call.GetProperty("arguments"),
-                        allowEdits: false, confirmChanges: true, (_, _, _) => Task.FromResult(false), workerToken).ConfigureAwait(false);
-                    return new { success = true, contentItems = new[] { new { type = "inputText", text = output } } };
+                    string name = call.GetProperty("tool").GetString()!;
+                    string target = AiActionLog.Target(call.GetProperty("arguments"));
+                    try
+                    {
+                        string output = await _tools!.InvokeAsync(name, call.GetProperty("arguments"),
+                            allowEdits: false, confirmChanges: true, (_, _, _) => Task.FromResult(false), workerToken).ConfigureAwait(false);
+                        bool success = AiActionLog.Record("기획자 도구 " + name, target, output);
+                        return new { success, contentItems = new[] { new { type = "inputText", text = output } } };
+                    }
+                    catch (Exception ex) when (ex is not OutOfMemoryException)
+                    {
+                        AiActionLog.Failed("기획자 도구 " + name, target, ex);
+                        throw;
+                    }
                 },
                 id => { if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) { _usage.RegisterWorker(id, "planner"); EmitUsage(); } },
                 token).ConfigureAwait(false);
@@ -572,7 +504,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
             if (!ReferenceEquals(_work, work)) throw new InvalidOperationException("기획 요청이 종료되었거나 바뀌었습니다.");
             if (result.Status != "completed") return ToolReply(false, new { role = "planner", result.ThreadId, result.Status, result.Summary });
             var proposal = work.StoreProposal(result.Summary, phase);
-            Emit("turn/teamStatus", new { threadId = _threadId, message = "기획안 작성 완료 · 관리자 검토 후 사용자 승인 대기" });
+            Emit("turn/teamStatus", new { threadId = _threadId, message = "기획안 작성 완료 · 관리자 검토 중" });
             return ToolReply(true, new { role = "planner", threadId = result.ThreadId, proposalId = proposal.Id,
                 summary = proposal.Summary, reason = proposal.Reason, paths = proposal.Paths, roles = proposal.Roles,
                 proposal = proposal.Details, next = "Review feasibility/scope, then begin_project_work planned using this proposalId and managerReview." });
@@ -602,7 +534,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
             var result = await CodexReadOnlyWorker.RunAsync(_project, role == "artist" ? _artistModel : _model,
                 role == "artist" ? _artistEffort : null, role, task, context,
                 (id, label) => { if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) { _usage.RegisterWorker(id, label); EmitUsage(); Emit("turn/teamStatus", new { threadId = _threadId, message = label + " · 읽기 전용 보조 작업 중" }); } },
-                usage => { if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) { _usage.Observe(usage); EmitUsage(); } }, token).ConfigureAwait(false);
+                usage => { if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) ObserveUsage(usage); }, token).ConfigureAwait(false);
             if (!token.IsCancellationRequested && ReferenceEquals(_work, work)) Emit("turn/teamStatus", new { threadId = _threadId, message = role + " · " + result.Status + " · " + (int)result.Duration.TotalSeconds + "초" });
             return new { success = result.Status == "completed", contentItems = new[] { new { type = "inputText", text = JsonSerializer.Serialize(result) } } };
         }
