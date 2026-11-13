@@ -1,7 +1,7 @@
-﻿# LLM Wiki
+# LLM Wiki
 
 사람: 툴 설정 메뉴 → **LLM Wiki 검색**. 검색창 아래에 결과 수와 검색 시간이 표시됩니다.
-AI: 기존 `search_engine_guide` / `Editor_LuaGuide_Search`의 `document`를 `*`로 지정합니다.
+AI: 기존 `search_wiki` / `Editor_Wiki_Search`의 `document`를 `*`로 지정합니다.
 결과의 `wiki/...` 문서 ID는 기존 가이드 읽기 도구에서 사용할 수 있습니다. 별도 AI 호출이나 강제 선행 검색은 없습니다.
 
 ## 원본과 검색

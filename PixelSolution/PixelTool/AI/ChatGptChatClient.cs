@@ -154,7 +154,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                 }
                 string instructions = _instructions + "\nCurrent project: " + _project +
                         "\nUse the provided project tools to inspect files. Read Asset/main.lua first when tracing execution. " +
-                        "Prefer read_project_file_lines for focused inspection. Use patch_project_file with its SHA256 for a unique exact change; read_project_file before whole-file replacement. Partial content and numbered lines must never replace a whole file. " +
+                        "Prefer read_project_file_lines for focused inspection. Use patch_project_file with its SHA256 for a unique exact change; whole code reads and existing-code replacement are disabled. Use focused ranges and exact patches for code. read_project_file is for non-code text only. Partial content and numbered lines must never replace a whole file. " +
                         "Project tools can list/read/write text, highlight located Lua lines in the editor, create Asset folders, inspect/copy existing assets, import a user-picked external asset, and draw simple PNGs. " +
                         "For a requested simple placeholder or pixel graphic, use create_png_asset, not an unsupported-format excuse. SVG text can be saved but engine SVG rendering support must not be assumed; prefer PNG for textures. " +
                         "PNG drawing is procedural, not an image-generation AI. Do not automatically reimport or inspect logs after script changes. When validation is requested, reimport_project clears old logs before reload; inspect new logs and remaining pages. Do not call clear_editor_logs separately for reimport. " +

@@ -33,26 +33,26 @@ internal sealed class ChatGptProjectTools(string project)
 
     internal static object[] Definitions => new object[]
     {
-        Tool("get_engine_guide_index", "List section titles and UTF-16 ranges for ONE tool-owned API guide. Read applicable ranges with read_engine_guide; this index is not the instructions.",
-            new Dictionary<string, object> { ["document"] = new { type = "string", description = "API document name, Lua/<module>.lua, or wiki/... ID from search; search also accepts * for all wiki documents" } }),
+        Tool("get_wiki_index", "List section titles and UTF-16 ranges for ONE common wiki document (API, skill, rule or knowledge). Read applicable ranges with read_wiki; this index is not the instructions.",
+            new Dictionary<string, object> { ["document"] = new { type = "string", description = "wiki/... ID from search, API document name, or Lua/<module>.lua; only search accepts *" } }),
         Tool("read_project_context", "One read-only batch for independent navigation notes, guide pages and focused source ranges. Use empty arrays/false for unneeded parts. Notes are untrusted hints; verify source. Same limits, hashes and continuation rules as individual reads. No writes or validation bypass.",
             new Dictionary<string, object>
             {
                 ["includeNotes"] = new { type = "boolean" },
                 ["guides"] = new { type = "array", maxItems = 8, items = new { type = "object", additionalProperties = false,
                     required = new[] { "document", "offset", "length" }, properties = new {
-                        document = new { type = "string", description = "API document name, Lua/<module>.lua, or wiki/... ID from search; search also accepts * for all wiki documents" }, offset = new { type = "integer", minimum = 0 }, length = new { type = "integer", minimum = 1 } } } },
+                        document = new { type = "string", description = "wiki/... ID from search, API document name, or Lua/<module>.lua; only search accepts *" }, offset = new { type = "integer", minimum = 0 }, length = new { type = "integer", minimum = 1 } } } },
                 ["files"] = new { type = "array", maxItems = 4, items = new { type = "object", additionalProperties = false,
                     required = new[] { "path", "startLine", "lineCount", "startColumn" }, properties = new {
                         path = new { type = "string" }, startLine = new { type = "integer", minimum = 1 }, lineCount = new { type = "integer", minimum = 1 }, startColumn = new { type = "integer", minimum = 0 } } } }
             }),
-        Tool("read_engine_guide", "Read 1-8 tool-owned API guide ranges. Large requests are paged automatically within 16000 returned UTF-16 characters total and 6000 per page. offset is zero-based. Put each non-null continuation in the next requests array to finish the range; nextOffset/hasMore cover the rest of the document. No project access. Verify API use against Lua/<module>.lua through guide tools.",
+        Tool("read_wiki", "Read 1-8 common wiki document ranges (API, skills, rules or knowledge). Large requests are paged automatically within 16000 returned UTF-16 characters total and 6000 per page. offset is zero-based. Put each non-null continuation in the next requests array to finish the range; nextOffset/hasMore cover the rest of the document. Code documents are partial-only, sharing a per-code budget across aliases and batch entries. No project access. Verify API use against Lua/<module>.lua through guide tools.",
             new Dictionary<string, object> { ["requests"] = new { type = "array", minItems = 1, maxItems = EngineGuide.MaxBatchPages,
                 items = new { type = "object", additionalProperties = false, required = new[] { "document", "offset", "length" },
-                    properties = new { document = new { type = "string", description = "API document name, Lua/<module>.lua, or wiki/... ID from search; search also accepts * for all wiki documents" },
+                    properties = new { document = new { type = "string", description = "wiki/... ID from search, API document name, or Lua/<module>.lua; only search accepts *" },
                         offset = new { type = "integer", minimum = 0 }, length = new { type = "integer", minimum = 1 } } } } }),
-        Tool("search_engine_guide", "Search common API/skills/rules with document=*, or literal text within one document. Global hits return wiki/... document IDs, line and snippet; use that ID with read_engine_guide. Up to 20 snippets with UTF-16 offsets/truncation; snippets only locate instructions. Read applicable full sections. Verify API signatures in Lua/<module>.lua through guide tools.",
-            new Dictionary<string, object> { ["document"] = new { type = "string", description = "API document name, Lua/<module>.lua, or wiki/... ID from search; search also accepts * for all wiki documents" },
+        Tool("search_wiki", "Search common API/skills/rules with document=*, or literal text within one document. Global hits return wiki/... document IDs, line and snippet; use that ID with read_wiki. Up to 20 hits: global search returns document IDs/1-based lines, single-document search UTF-16 offsets; snippets only locate instructions. Read applicable full sections. Verify API signatures in Lua/<module>.lua through guide tools.",
+            new Dictionary<string, object> { ["document"] = new { type = "string", description = "wiki/... ID from search, API document name, or Lua/<module>.lua; only search accepts *" },
                 ["query"] = new { type = "string", minLength = 1, maxLength = 200 }, ["limit"] = new { type = "integer", minimum = 1, maximum = EngineGuide.MaxSearchResults } }),
         Tool("ask_choice", "Ask the user one concrete question with 2 to 5 clickable options. Wait for their selection or custom text before continuing. Use for meaningful choices, not approvals or decisions already clear from project code.",
             new Dictionary<string, object> { ["question"] = new { type = "string", minLength = 1, maxLength = 500 },
@@ -81,19 +81,19 @@ internal sealed class ChatGptProjectTools(string project)
             new Dictionary<string, object> { ["query"] = new { type = "string", maxLength = 200 },
                 ["path"] = new { type = "string" }, ["mode"] = new { type = "string", @enum = new[] { "filename", "content" } },
                 ["extensions"] = new { type = "string", maxLength = 200, description = ProjectFileSearch.ExtensionDescription }, ["limit"] = new { type = "integer", minimum = 1, maximum = 50 } }),
-        Tool("search_file_content", "Search one exact project-relative text file for a literal phrase, such as Player.Speed. Use the path found by search_project_files. Returns every match with 1-based line and character column, without scanning sibling files.",
+        Tool("search_file_content", "Search one exact project-relative text file for a literal phrase, such as Player.Speed. Use the path found by search_project_files. Returns bounded matches with 1-based line and character column, without scanning siblings. Code matches omit source snippets; read the relevant range.",
             new Dictionary<string, object> { ["path"] = new { type = "string" }, ["query"] = new { type = "string", minLength = 1, maxLength = 200 },
                 ["limit"] = new { type = "integer", minimum = 1, maximum = 50 } }),
         Tool("list_project_files", "List one project directory. Use a relative path, or . for the root.",
             new Dictionary<string, object> { ["path"] = new { type = "string" } }),
-        Tool("read_project_file", "Read a project text file and its SHA256 for safe replacement. Paths are relative to the project.",
+        Tool("read_project_file", "Read a NON-CODE project text file and SHA256. Code files are always rejected, regardless of size; search then read focused ranges and patch instead.",
             new Dictionary<string, object> { ["path"] = new { type = "string" } }),
-        Tool("read_project_file_lines", "Read 1-4 focused text ranges. Large requests are paged within 200 returned lines and 12000 content characters total, shared equally. Prefer complete lines; long lines continue at zero-based UTF-16 startColumn (normally 0). Put each non-null continuation in the next requests array to finish the range; compare SHA256 between pages. Returns actual ranges and partial/truncated/hasMore. Strip line numbers; whole-file replacement still requires read_project_file.",
+        Tool("read_project_file_lines", "Read 1-4 focused text ranges. Large requests are paged within 200 returned lines and 12000 content characters total, shared equally. Prefer complete lines; long lines continue at zero-based UTF-16 startColumn (normally 0). Put each non-null continuation in the next requests array to finish the range; compare SHA256 between pages. Returns actual ranges and partial/truncated/hasMore. Code output is additionally capped at half the file characters per response, shared across repeated paths. Follow continuations only as needed. Strip line numbers; existing code requires exact patches, never whole-file replacement.",
             new Dictionary<string, object> { ["requests"] = new { type = "array", minItems = 1, maxItems = 4,
                 items = new { type = "object", additionalProperties = false, required = new[] { "path", "startLine", "lineCount", "startColumn" },
                     properties = new { path = new { type = "string" }, startLine = new { type = "integer", minimum = 1 },
                         lineCount = new { type = "integer", minimum = 1 }, startColumn = new { type = "integer", minimum = 0 } } } } }),
-        Tool("write_project_file", "Create or replace one project text file. Read first and supply its expected SHA256; for a new file use an empty expectedHash. A new .pxm uses local Script = {}, Script:Spawn(), Script:Update(DTime), and return Script; never use its filename as the Lua table name. Empty new .pxm content gets the bundled template. Never delete.",
+        Tool("write_project_file", "Create a project text file or replace NON-CODE text only. Existing code must use patch_project_file. Read first and supply its expected SHA256; for a new file use an empty expectedHash. A new .pxm uses local Script = {}, Script:Spawn(), Script:Update(DTime), and return Script; never use its filename as the Lua table name. Empty new .pxm content gets the bundled template. Never delete.",
             new Dictionary<string, object> { ["path"] = new { type = "string" }, ["content"] = new { type = "string" }, ["expectedHash"] = new { type = "string" } }),
         Tool("patch_project_file", "Replace one unique exact span, with current whole-file SHA256 from a full or focused read. Rejects stale hashes and absent/repeated oldText. Whole-file reading is unnecessary for this patch.",
             new Dictionary<string, object> { ["path"] = new { type = "string" }, ["expectedHash"] = new { type = "string" },
@@ -140,7 +140,7 @@ internal sealed class ChatGptProjectTools(string project)
         Action<string, string, string>? savedCode = null, Func<string, Task<bool>>? canDeleteAssetFile = null)
     {
         token.ThrowIfCancellationRequested();
-        if (name == "get_engine_guide_index") return EngineGuide.Index(arguments.GetProperty("document").GetString() ?? "");
+        if (name is "get_wiki_index" or "get_engine_guide_index") return EngineGuide.Index(arguments.GetProperty("document").GetString() ?? "");
         if (name == "read_project_context")
         {
             bool notes = arguments.GetProperty("includeNotes").GetBoolean();
@@ -158,13 +158,13 @@ internal sealed class ChatGptProjectTools(string project)
                     allowEdits, confirmChanges, approve, token).ConfigureAwait(false));
                 results[key] = doc.RootElement.Clone();
             }
-            if (guides.GetArrayLength() > 0) await Add("guides", "read_engine_guide", new { requests = guides });
+            if (guides.GetArrayLength() > 0) await Add("guides", "read_wiki", new { requests = guides });
             if (files.GetArrayLength() > 0) await Add("files", "read_project_file_lines", new { requests = files });
             if (notes) await Add("notes", "read_project_notes", new { });
             return Json(new { results, canRead = true, canEdit = allowEdits,
                 approvalMode = confirmChanges ? "alwaysConfirm" : "automatic" });
         }
-        if (name == "read_engine_guide")
+        if (name is "read_wiki" or "read_engine_guide")
         {
             if (arguments.TryGetProperty("requests", out var pages)) return EngineGuide.ReadBatch(pages);
             return EngineGuide.Read(arguments.GetProperty("document").GetString() ?? "",
@@ -177,16 +177,17 @@ internal sealed class ChatGptProjectTools(string project)
             // Validate every path before reading; size alone is handled by bounded paging.
             foreach (var range in ranges.EnumerateArray()) ValidateReadRange(range);
             var files = new List<JsonElement>();
+            var codeBudget = new ProjectCodeReadBudget();
             foreach (var range in ranges.EnumerateArray())
             {
                 token.ThrowIfCancellationRequested();
-                using var result = JsonDocument.Parse(ReadFileLines(range, 12000 / ranges.GetArrayLength(), 200 / ranges.GetArrayLength()));
+                using var result = JsonDocument.Parse(await Task.Run(() => ReadFileLines(range, 12000 / ranges.GetArrayLength(), 200 / ranges.GetArrayLength(), codeBudget), token).ConfigureAwait(false));
                 files.Add(result.RootElement.Clone());
             }
             return Json(new { files, canRead = true, canEdit = allowEdits,
                 approvalMode = confirmChanges ? "alwaysConfirm" : "automatic" });
         }
-        if (name == "search_engine_guide")
+        if (name is "search_wiki" or "search_engine_guide")
             return await Task.Run(() => EngineGuide.Search(arguments.GetProperty("document").GetString() ?? "",
                 arguments.GetProperty("query").GetString() ?? "", arguments.GetProperty("limit").GetInt32(), token), token).ConfigureAwait(false);
         if (name == "get_asset_layout") return _layout.GetInfo();
@@ -367,10 +368,13 @@ internal sealed class ChatGptProjectTools(string project)
             return Json(new { saved = relative, size = asset.Length, sha256 = Hash(asset),
                 note = "디스크에 저장했습니다. 엔진 등록·렌더링·리임포트 성공을 의미하지 않습니다." });
         }
-        if (name == "read_project_file_lines") return ReadFileLines(arguments);
+        if (name == "read_project_file_lines") return await Task.Run(() => ReadFileLines(arguments), token).ConfigureAwait(false);
         if (!TextExtensions.Contains(Path.GetExtension(path))) throw new InvalidOperationException("지원하지 않는 프로젝트 텍스트 파일 형식입니다.");
         if (name == "read_project_file")
         {
+            if (ProjectFileAccess.IsCode(path))
+                return Json(new { success = false, error = "full_code_read_disabled", path = relative,
+                    message = "Code files are never returned in full. Use search_file_content then read_project_file_lines and patch_project_file." });
             byte[] bytes = ReadBounded(path);
             string text = Encoding.UTF8.GetString(bytes).TrimStart('\uFEFF');
             _fullFileReads[path] = Hash(bytes);
@@ -379,12 +383,15 @@ internal sealed class ChatGptProjectTools(string project)
         if (name == "patch_project_file")
         {
             RequireWritableTextPath(path);
-            return await PatchProjectFileAsync(relative, path, arguments, allowEdits, confirmChanges,
-                approve, token, savedCode).ConfigureAwait(false);
+            return await Task.Run(() => PatchProjectFileAsync(relative, path, arguments, allowEdits, confirmChanges,
+                approve, token, savedCode), token).ConfigureAwait(false);
         }
         if (name != "write_project_file") throw new InvalidOperationException("지원하지 않는 도구입니다.");
         RequireWritableTextPath(path);
         if (!allowEdits) return Json(new { success = false, message = "파일 수정 허용이 꺼져 있습니다. 파일을 변경하지 않았습니다." });
+        if (File.Exists(path) && ProjectFileAccess.IsCode(path))
+            return Json(new { success = false, error = "full_code_replace_disabled", path = relative,
+                message = "Use focused reads and patch_project_file to modify existing code. New code files can still be created." });
         string content = arguments.GetProperty("content").GetString() ?? "";
         if (!File.Exists(path) && Path.GetExtension(path).Equals(".pxm", StringComparison.OrdinalIgnoreCase))
             content = LuaFileManager.PrepareNewPxmContent(content);
@@ -432,51 +439,60 @@ internal sealed class ChatGptProjectTools(string project)
         return (relative, path, startLine, lineCount, startColumn);
     }
 
-    private string ReadFileLines(JsonElement arguments, int contentLimit = 12000, int lineLimit = 200)
+    private string ReadFileLines(JsonElement arguments, int contentLimit = 12000, int lineLimit = 200,
+        ProjectCodeReadBudget? codeBudget = null)
     {
         var (relative, path, startLine, lineCount, startColumn) = ValidateReadRange(arguments);
-        byte[] bytes = ReadBounded(path);
-        string text = Encoding.UTF8.GetString(bytes).TrimStart('\uFEFF');
+        byte[] bytes = ReadBounded(path, ProjectFileAccess.MaxEditableFileBytes);
+        string text = new UTF8Encoding(false, true).GetString(bytes).TrimStart('\uFEFF');
+        string hash = Hash(bytes);
+        codeBudget ??= new ProjectCodeReadBudget();
+        int codeRemaining = codeBudget.Remaining(path, text, hash);
         string[] lines = text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
-        if (startLine > lines.Length)
-            throw new ArgumentOutOfRangeException(nameof(startLine), $"'{relative}' has {lines.Length} lines; startLine must be between 1 and {lines.Length}.");
+        if (startLine > lines.Length) throw new ArgumentOutOfRangeException(nameof(startLine));
         string first = lines[startLine - 1];
-        if (startColumn > first.Length)
-            throw new ArgumentOutOfRangeException(nameof(startColumn), $"'{relative}': line {startLine} has {first.Length} UTF-16 characters; use a column within that line.");
+        if (startColumn > first.Length) throw new ArgumentOutOfRangeException(nameof(startColumn));
         if (startColumn > 0 && startColumn < first.Length && char.IsLowSurrogate(first[startColumn]) && char.IsHighSurrogate(first[startColumn - 1]))
-            throw new ArgumentException($"'{relative}': startColumn splits a Unicode character. Use the returned continuation.");
+            throw new ArgumentException("startColumn splits a Unicode character. Use the returned continuation.");
+        if (codeRemaining == 0)
+            return Json(new { success = false, error = "code_response_budget_exhausted", path = relative, sha256 = hash,
+                totalLines = lines.Length, partial = true,
+                message = "No code text returned: this batch exhausted the per-file budget, or the file is too short to divide. Request a separate focused range for a nontrivial file; never request full code." });
         int requestedEnd = startLine - 1 + Math.Min(lineCount, lines.Length - startLine + 1);
         int limit = startLine - 1 + Math.Min(lineLimit, requestedEnd - startLine + 1);
-        int nextIndex = startLine - 1, nextColumn = startColumn, endLine = startLine - 1;
+        int nextIndex = startLine - 1, nextColumn = startColumn, endLine = startLine - 1, consumed = 0;
         var selected = new StringBuilder();
-        while (nextIndex < limit)
+        while (nextIndex < limit && codeRemaining > 0)
         {
             string line = lines[nextIndex], prefix = $"{nextIndex + 1}: ";
-            int remaining = contentLimit - selected.Length;
-            int count = line.Length - nextColumn;
-            if (prefix.Length + count + 1 > remaining)
-            {
-                // Stop before an incomplete line, except when that line itself exceeds the page.
-                if (selected.Length > 0) break;
-                count = Math.Min(count, remaining - prefix.Length - 1);
-                if (count > 0 && nextColumn + count < line.Length && char.IsHighSurrogate(line[nextColumn + count - 1]) && char.IsLowSurrogate(line[nextColumn + count])) count--;
-                selected.Append(prefix).Append(line.AsSpan(nextColumn, count)).Append('\n');
-                nextColumn += count;
-                endLine = nextIndex + 1;
-                break;
-            }
-            selected.Append(prefix).Append(line.AsSpan(nextColumn)).Append('\n');
-            endLine = ++nextIndex;
+            int count = Math.Min(line.Length - nextColumn, codeRemaining);
+            int remaining = contentLimit - selected.Length - prefix.Length - 1;
+            if (count > remaining && selected.Length > 0) break;
+            count = Math.Min(count, Math.Max(0, remaining));
+            if (count > 0 && nextColumn + count < line.Length && char.IsHighSurrogate(line[nextColumn + count - 1]) && char.IsLowSurrogate(line[nextColumn + count])) count--;
+            if (count == 0 && nextColumn < line.Length) break;
+            selected.Append(prefix).Append(line.AsSpan(nextColumn, count)).Append('\n');
+            codeRemaining -= count;
+            consumed += count;
+            nextColumn += count;
+            endLine = nextIndex + 1;
+            if (nextColumn < line.Length) break;
+            nextIndex++;
             nextColumn = 0;
         }
+        codeBudget.Consume(path, consumed);
+        if (selected.Length == 0)
+            return Json(new { success = false, error = "code_range_cannot_progress", path = relative, sha256 = hash,
+                message = "No text returned: this range cannot fit a complete Unicode character within the partial-code budget. Choose another range; full code is unavailable." });
         int remainingLineCount = requestedEnd - nextIndex;
         bool truncated = remainingLineCount > 0;
-        return Json(new { path = relative, content = selected.ToString(), sha256 = Hash(bytes),
+        return Json(new { path = relative, content = selected.ToString(), sha256 = hash,
             startLine, startColumn, endLine, totalLines = lines.Length, requestedLineCount = lineCount,
-            returnedLineCount = endLine - startLine + 1, partial = true, truncated,
+            returnedLineCount = Math.Max(0, endLine - startLine + 1), partial = true, truncated,
+            codeBudgetLimited = ProjectFileAccess.IsCode(path) && codeRemaining == 0,
             nextStartLine = nextIndex + 1, nextStartColumn = nextColumn, endsMidLine = nextColumn > 0,
             hasMore = nextIndex < lines.Length, remainingLineCount,
-            continuation = truncated ? new { path = relative, startLine = nextIndex + 1, lineCount = remainingLineCount, startColumn = nextColumn } : null });
+            continuation = truncated && consumed > 0 ? new { path = relative, startLine = nextIndex + 1, lineCount = remainingLineCount, startColumn = nextColumn } : null });
     }
 
     private async Task<string> PatchProjectFileAsync(string relative, string path, JsonElement arguments, bool allowEdits,
@@ -488,20 +504,20 @@ internal sealed class ChatGptProjectTools(string project)
         string oldText = arguments.GetProperty("oldText").GetString() ?? "";
         string newText = arguments.GetProperty("newText").GetString() ?? "";
         if (oldText.Length == 0 || oldText == newText) throw new InvalidOperationException("서로 다른 원문과 수정문이 필요합니다.");
-        byte[] original = ReadBounded(path);
+        byte[] original = ReadBounded(path, ProjectFileAccess.MaxEditableFileBytes);
         if (!Matches(original, expected)) return Json(new { success = false, message = "파일이 변경되었습니다. 최신 내용을 다시 읽고 수정하세요." });
-        string before = Encoding.UTF8.GetString(original);
+        string before = new UTF8Encoding(false, true).GetString(original);
         int offset = before.IndexOf(oldText, StringComparison.Ordinal);
         if (offset < 0 || before.IndexOf(oldText, offset + 1, StringComparison.Ordinal) >= 0)
             return Json(new { success = false, message = "원문이 없거나 두 번 이상 나타납니다. 수정하지 않았습니다." });
         string after = before[..offset] + newText + before[(offset + oldText.Length)..];
         byte[] replacement = Encoding.UTF8.GetBytes(after);
         ProjectNavigation.CheckNotesSize(Path.GetRelativePath(_root, path), replacement.Length);
-        if (replacement.Length > 256 * 1024) throw new InvalidOperationException("수정 결과는 256KB까지입니다.");
+        if (replacement.Length > ProjectFileAccess.MaxEditableFileBytes) throw new InvalidOperationException("수정 결과는 4MiB까지입니다.");
         if (confirmChanges && !await approve(relative, before, after).ConfigureAwait(false)) return Json(new { success = false, message = "사용자가 수정을 승인하지 않았습니다." });
         token.ThrowIfCancellationRequested();
         Resolve(relative);
-        byte[] latest = ReadBounded(path);
+        byte[] latest = ReadBounded(path, ProjectFileAccess.MaxEditableFileBytes);
         if (!Matches(latest, expected)) return Json(new { success = false, message = "승인 중 파일이 변경되었습니다. 수정하지 않았습니다." });
         string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try

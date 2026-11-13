@@ -163,13 +163,13 @@ public sealed class PixelToolProjectTools
         }));
     }
 
-    [McpServerTool(Name = "Editor_LuaGuide_Read", ReadOnly = true, Destructive = false, OpenWorld = false),
-     Description("Keywords: Editor. Read a page of an tool-owned API document or Lua/<module>.lua. Input: document, offset, length. Success: {success:true,data:{content,nextOffset,hasMore,...}}; failure: {success:false,error,message}. Verify declarations with this tool using Lua/<module>.lua.")]
+    [McpServerTool(Name = "Editor_Wiki_Read", ReadOnly = true, Destructive = false, OpenWorld = false),
+     Description("Keywords: Editor. Read a common wiki document page (API, skills, rules, knowledge). Required: document (wiki/... ID, API name or Lua/<module>.lua); optional offset=0, length=6000. Offset is UTF-16; reads are capped at 6000 characters. Code documents are partial-only, never full source. No project files or writes. Success: {success:true,data:{content,nextOffset,hasMore,...}}; failure: {success:false,error,message}. Invalid IDs, missing/unreadable files and invalid ranges return failure. Verify declarations with Lua/<module>.lua.")]
     public static string ReadEngineGuide(string document, int offset = 0, int length = 6000)
         => ToolResult(() => EngineGuide.Read(document, offset, length), document);
 
-    [McpServerTool(Name = "Editor_LuaGuide_Search", ReadOnly = true, Destructive = false, OpenWorld = false),
-     Description("Keywords: Editor. Search common API/skills/rules with document=*, or literal text in one API document or Lua/<module>.lua. Global hits return wiki/... document IDs readable by Editor_LuaGuide_Read. Input: document, query, limit. Success: {success:true,data:{matches,truncated,...}}; failure: {success:false,error,message}.")]
+    [McpServerTool(Name = "Editor_Wiki_Search", ReadOnly = true, Destructive = false, OpenWorld = false),
+     Description("Keywords: Editor. Search common wiki API/skills/rules/knowledge with document=*, or literal text within one wiki document. No project files or writes. Global hits return wiki/... document IDs readable by Editor_Wiki_Read. Required: document and query (1-200 chars); optional limit=10 (1-20). Global matches have document/title/line/snippet; single-document matches have UTF-16 offset/snippet. Invalid inputs, missing/unreadable documents return failure; no matches is success with empty matches. Success: {success:true,data:{matches,truncated,...}}; failure: {success:false,error,message}.")]
     public static string SearchEngineGuide(string document, string query, int limit = 10)
         => ToolResult(() => EngineGuide.Search(document, query, limit), document);
 
@@ -192,7 +192,7 @@ public sealed class PixelToolProjectTools
             : new ProjectNavigation(project.ProjectPath).Search(query, path, "filename", extensions, limit, cancellationToken), path);
 
     [McpServerTool(Name = "Asset_FileContent_Search", ReadOnly = true, Destructive = false, OpenWorld = false),
-     Description("Keywords: Asset. Search one saved project text file for a literal phrase. Input: exact path, query, limit. Use Editor_LuaGuide_Read for engine API declarations. Success: {success:true,data:{matches,...}} with 1-based line and column; failure: {success:false,error,message}.")]
+     Description("Keywords: Asset. Search one saved project text file for a literal phrase. Input: exact path, query, limit. Use Editor_Wiki_Read for engine API declarations. Success: {success:true,data:{matches,...}} with 1-based line and column; failure: {success:false,error,message}.")]
     public static string SearchFileContent(PixelToolProjectInfo project, string path, string query = "", int limit = 20,
         CancellationToken cancellationToken = default)
         => ToolResult(() => string.IsNullOrWhiteSpace(query)
@@ -375,7 +375,7 @@ public sealed class PixelToolProjectTools
     }
 
     [McpServerTool(Name = "Asset_File_ReadLines", ReadOnly = true, Destructive = false, OpenWorld = false),
-     Description("Keywords: Asset. Read 1-100 saved text lines with whole-file SHA256. Input: path, startLine, lineCount, startColumn. Success: {success:true,data:{lines,sha256,nextStartLine,...}}; failure: {success:false,error,message}. Asset, Editor and Engine reads are allowed; Engine remains read-only.")]
+     Description("Keywords: Asset. Read 1-100 saved text lines with whole-file SHA256. Code is never returned in full: each response is capped at half its source characters. Follow continuation only as needed. Files up to 4MiB. Input: path, startLine, lineCount, startColumn. Success: {success:true,data:{lines,sha256,nextStartLine,...}}; failure: {success:false,error,message}. Asset, Editor and Engine reads are allowed; Engine remains read-only.")]
     public static string ReadProjectFileLines(PixelToolProjectInfo project, string path, int startLine = 1, int lineCount = 50, int startColumn = 0)
         => ToolResult(() => ReadProjectFileLinesCore(project, path, startLine, lineCount, startColumn), path);
 
@@ -387,8 +387,12 @@ public sealed class PixelToolProjectTools
         string fullPath = files.Resolve(path);
         if (!ProjectFileAccess.TextExtensions.Contains(Path.GetExtension(fullPath)))
             throw new InvalidOperationException("지원하는 텍스트 파일만 읽을 수 있습니다.");
-        byte[] bytes = ProjectFileAccess.ReadBounded(fullPath);
+        byte[] bytes = ProjectFileAccess.ReadBounded(fullPath, ProjectFileAccess.MaxEditableFileBytes);
         string text = new UTF8Encoding(false, true).GetString(bytes).TrimStart('\uFEFF');
+        var codeBudget = new ProjectCodeReadBudget();
+        int codeRemaining = codeBudget.Remaining(fullPath, text, Convert.ToHexString(SHA256.HashData(bytes)));
+        if (codeRemaining == 0)
+            throw new InvalidOperationException("Code is too short to divide. No full code is returned; use an exact known-text patch.");
         string[] lines = text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
         if (startLine > lines.Length) throw new ArgumentOutOfRangeException(nameof(startLine));
         if (startColumn > lines[startLine - 1].Length) throw new ArgumentOutOfRangeException(nameof(startColumn));
@@ -398,24 +402,27 @@ public sealed class PixelToolProjectTools
         int endLine = Math.Min(lines.Length, startLine + lineCount - 1);
         int nextLine = startLine, nextColumn = startColumn, remaining = 12000;
         var page = new List<object>();
-        while (nextLine <= endLine && remaining > 0)
+        while (nextLine <= endLine && remaining > 0 && codeRemaining > 0)
         {
             string line = lines[nextLine - 1];
-            int count = Math.Min(line.Length - nextColumn, remaining);
+            int count = Math.Min(Math.Min(line.Length - nextColumn, remaining), codeRemaining);
             if (count > 0 && nextColumn + count < line.Length && char.IsHighSurrogate(line[nextColumn + count - 1]) &&
                 char.IsLowSurrogate(line[nextColumn + count])) count--;
             if (count == 0 && nextColumn < line.Length) break;
             page.Add(new { number = nextLine, column = nextColumn, text = line.Substring(nextColumn, count),
                 complete = nextColumn + count == line.Length });
             remaining -= count + 32;
+            codeRemaining -= count;
             nextColumn += count;
             if (nextColumn < line.Length) break;
             nextLine++;
             nextColumn = 0;
         }
+        if (page.Count == 0) throw new InvalidOperationException("No text fits the partial-code budget. Choose another range; full code is unavailable.");
         return JsonSerializer.Serialize(new { path = Path.GetRelativePath(files.Root, fullPath).Replace('\\', '/'),
             sha256 = Convert.ToHexString(SHA256.HashData(bytes)), totalLines = lines.Length,
             lines = page, nextStartLine = nextLine, nextStartColumn = nextColumn,
+            partial = true, codeBudgetLimited = ProjectFileAccess.IsCode(fullPath) && codeRemaining == 0,
             truncated = nextLine <= endLine, hasMore = nextLine <= lines.Length });
     }
 
@@ -427,13 +434,15 @@ public sealed class PixelToolProjectTools
         return await ToolResultAsync(async () =>
         {
             var app = Application.Current ?? throw new InvalidOperationException("PixelTool 에디터가 실행 중이지 않습니다.");
-            return await app.Dispatcher.InvokeAsync(() => PatchProjectFileOnEditor(project, path, expectedHash, oldText, newText)).Task.ConfigureAwait(false);
+            return await Task.Run(() => PatchProjectFileCore(project, path, expectedHash, oldText, newText)).ConfigureAwait(false);
         }, path).ConfigureAwait(false);
     }
 
-    private static string PatchProjectFileOnEditor(PixelToolProjectInfo project, string path, string expectedHash,
+    private static string PatchProjectFileCore(PixelToolProjectInfo project, string path, string expectedHash,
         string oldText, string newText)
     {
+        var dispatcher = Application.Current!.Dispatcher;
+        bool HasUnsaved(string file) => dispatcher.Invoke(() => GlobalFunction.GetDockedWindow<LuaEditorWindow>()?.HasUnsavedFile(file) == true);
         expectedHash ??= "";
         newText ??= "";
         var files = new ProjectFileAccess(project.ProjectPath);
@@ -446,10 +455,10 @@ public sealed class PixelToolProjectTools
             return FileFailure(relative, "unsupported_extension", "지원하는 텍스트 파일만 수정할 수 있습니다.");
         if (string.IsNullOrEmpty(oldText) || oldText == newText)
             return FileFailure(relative, "invalid_patch", "서로 다른 원문과 수정문이 필요합니다.");
-        if (GlobalFunction.GetDockedWindow<LuaEditorWindow>()?.HasUnsavedFile(fullPath) == true)
+        if (HasUnsaved(fullPath))
             return FileFailure(relative, "unsaved_buffer", "에디터에 저장되지 않은 변경이 있습니다. 먼저 저장하거나 닫아 주세요.");
         if (!File.Exists(fullPath)) return FileFailure(relative, "not_found", "수정할 파일이 없습니다.");
-        byte[] original = ProjectFileAccess.ReadBounded(fullPath);
+        byte[] original = ProjectFileAccess.ReadBounded(fullPath, ProjectFileAccess.MaxEditableFileBytes);
         string actualHash = Convert.ToHexString(SHA256.HashData(original));
         if (!actualHash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
             return FileFailure(relative, "stale_hash", "파일이 변경되었습니다. 다시 읽고 수정하세요.");
@@ -459,17 +468,27 @@ public sealed class PixelToolProjectTools
             return FileFailure(relative, "ambiguous_text", "기존 문구가 없거나 두 번 이상 나옵니다.");
         string after = before[..offset] + newText + before[(offset + oldText.Length)..];
         byte[] replacement = new UTF8Encoding(false, true).GetBytes(after);
-        if (replacement.Length > 256 * 1024) return FileFailure(relative, "content_too_large", "수정 결과는 256KB까지입니다.");
+        if (replacement.Length > ProjectFileAccess.MaxEditableFileBytes) return FileFailure(relative, "content_too_large", "수정 결과는 4MiB까지입니다.");
         ProjectNavigation.CheckNotesSize(relative, replacement.Length);
         files.Resolve(relative);
-        if (GlobalFunction.GetDockedWindow<LuaEditorWindow>()?.HasUnsavedFile(fullPath) == true ||
-            !Convert.ToHexString(SHA256.HashData(ProjectFileAccess.ReadBounded(fullPath))).Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
-            return FileFailure(relative, "stale_hash", "승인 중 파일이나 편집 내용이 변경되었습니다. 다시 읽고 수정하세요.");
         string temporary = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
+            // Disk reads, hashing, encoding and staging stay off the UI thread.
             File.WriteAllBytes(temporary, replacement);
-            File.Move(temporary, fullPath, overwrite: true);
+            using var latest = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            if (latest.Length > ProjectFileAccess.MaxEditableFileBytes ||
+                !Convert.ToHexString(SHA256.HashData(latest)).Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
+                return FileFailure(relative, "stale_hash", "File changed. Read the current range again.");
+            bool saved = dispatcher.Invoke(() =>
+            {
+                files.Resolve(relative);
+                if (GlobalFunction.GetDockedWindow<LuaEditorWindow>()?.HasUnsavedFile(fullPath) == true) return false;
+                latest.Dispose();
+                File.Move(temporary, fullPath, overwrite: true);
+                return true;
+            });
+            if (!saved) return FileFailure(relative, "unsaved_buffer", "Editor has unsaved changes. Save or close it first.");
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
         return ToolSuccess(new { path = relative,

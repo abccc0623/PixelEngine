@@ -79,6 +79,7 @@ internal sealed class ProjectFileSearch(string project)
         string? stopReason = null;
         var clock = Stopwatch.StartNew();
         string Result() => JsonSerializer.Serialize(new { scope, mode, matches, searchedFiles, searchedFolders, skippedFiles, truncated, stopReason,
+            codeSnippetsOmitted = true,
             note = "검색 결과는 파일·폴더 위치 힌트입니다. 파일 수정 전 실제 문맥과 최신 해시를 확인하세요. 잘림/건너뛴 파일이 있으면 검색 범위를 좁히세요." });
         bool Add(string relative, string kind, int? line, int? column, string snippet, bool snippetTruncated)
         {
@@ -125,9 +126,9 @@ internal sealed class ProjectFileSearch(string project)
                             continue;
                         }
                         long length = new FileInfo(safePath).Length;
-                        if (length > 256 * 1024) { skippedFiles++; continue; }
+                        if (length > ProjectFileAccess.MaxEditableFileBytes) { skippedFiles++; continue; }
                         if (readBytes + length > 4 * 1024 * 1024) { truncated = true; stopReason = "byte_limit"; return Result(); }
-                        byte[] bytes = ProjectFileAccess.ReadBounded(safePath);
+                        byte[] bytes = ProjectFileAccess.ReadBounded(safePath, ProjectFileAccess.MaxEditableFileBytes);
                         readBytes += bytes.Length;
                         string text = Utf8.GetString(bytes).TrimStart('\uFEFF');
                         if (text.Contains('\0')) { skippedFiles++; continue; }
@@ -141,7 +142,7 @@ internal sealed class ProjectFileSearch(string project)
                                 at = line.IndexOf(query, at + 1, StringComparison.OrdinalIgnoreCase))
                             {
                                 int start = Math.Max(0, at - 80), count = Math.Min(240, line.Length - start);
-                                if (!Add(relative, "file", lineNumber, at + 1, line.Substring(start, count), start > 0 || count < line.Length)) return Result();
+                                if (!Add(relative, "file", lineNumber, at + 1, ProjectFileAccess.IsCode(safePath) ? "" : line.Substring(start, count), ProjectFileAccess.IsCode(safePath) || start > 0 || count < line.Length)) return Result();
                             }
                         }
                     }

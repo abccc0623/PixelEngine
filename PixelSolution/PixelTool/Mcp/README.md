@@ -17,7 +17,7 @@ The generated configuration includes a private bearer token. Do not commit or sh
 - `Editor_ProjectNotes_Read`: reads `Editor/AINavigation.md` as untrusted navigation hints; never creates it.
 - `Asset_File_Search`: finds project file and folder names; an empty query lists one directory. Default path is Asset.
 - `Asset_FileContent_Search`: searches one saved project text file for a literal phrase and returns 1-based line and column positions.
-- Lua API lookup: `Asset_File_Search(query="Entity", path="Engine", extensions=".lua")`, then `Asset_FileContent_Search(path="Engine/Entity.lua", query="Create")`. `Editor_LuaGuide_Read` and `Editor_LuaGuide_Search` provide usage reference, not installed declaration proof.
+- Wiki lookup: `Editor_Wiki_Search(document="*", query="Entity", limit=10)` searches Tool-owned API, skills, rules and knowledge. Read a returned `wiki/...` ID with `Editor_Wiki_Read(document=ID, offset=0, length=6000)`. Actual generated declarations live at Tool `LLMWiki/API/Lua`, readable as `Lua/Entity.lua`. Never look for engine declarations under project Asset/Engine.
 - `Asset_Layout_Read`: inspects bounded Asset folders and file kinds without modifying files.
 - `Asset_File_Create`: creates one new `Asset/` `.lua` or `.pxm` file. Empty `.pxm` uses the bundled `Module.lua` template; a different extension is a different filename.
 - `Asset_File_Delete`: moves one `Asset/` file to the Windows Recycle Bin. It rejects unsaved Lua buffers and checks for changes during the call; optional `expectedHash` guards a previously inspected file.
@@ -50,3 +50,21 @@ PixelTool creates `Editor/AINavigation.md` only when missing on project creation
 - After rebuilding, verify authentication, `initialize`, `tools/list` and `tools/call` from an MCP client.
 
 Implementation reference: https://github.com/modelcontextprotocol/csharp-sdk/tree/v2.3.0
+
+## Wiki contracts and migration
+
+`Editor_Wiki_Search` requires `document` and `query` (1–200 characters); `limit` defaults to 10, maximum 20. `document="*"` searches all common wiki categories. A specific document performs literal case-insensitive search. An empty match set is success, not failure.
+
+Global success example: `{"success":true,"data":{"source":"tool-wiki","query":"Entity","matches":[{"document":"wiki/API/Lua/Entity.lua","title":"Entity","line":1,"snippet":"..."}],"truncated":false,"warnings":[]}}` (additional metadata may be present).
+
+`Editor_Wiki_Read` requires `document`; `offset` defaults to 0 and `length` to 6000. Pages are capped at 6000 UTF-16 characters. Use `nextOffset`/`hasMore` to continue. A successful page contains `content`, `offset`, `length`, `nextOffset`, `hasMore`, `partial`, `truncated` and continuation metadata. Invalid ranges/IDs, missing or unreadable documents return `{"success":false,"error":"...","message":"..."}`. Traversal and linked wiki paths are rejected. These read-only tools do not add knowledge or change files.
+
+The old `Editor_LuaGuide_Read/Search` MCP names were replaced, not aliased. Reconnect MCP clients and update explicit calls. Embedded AI now advertises `search_wiki`, `read_wiki`, `get_wiki_index`; saved old calls are accepted internally without advertising duplicate tools. Start a new AI conversation to receive the new definitions. Internal `read_wiki` uses `requests:[{document,offset,length}]` (up to 8 pages); external MCP Read takes a single page. Both use the same file-backed search/read implementation. No automatic or forced lookup was added.
+
+### Partial-only code access
+
+- Source files (`.lua`, `.pxm`, `.scene` and recognized programming-language extensions) are never returned whole, even when small. AI chat `read_project_file` rejects code; existing code uses hash-checked exact patches instead of whole replacement. New files remain supported.
+- `read_project_file_lines` and `Asset_File_ReadLines` retain their line/character caps and additionally share at most half the file's non-newline characters per response. Repeated paths in one batch share this budget. Separate focused follow-up requests are allowed; this is not a cumulative confidentiality restriction.
+- Code content search returns positions without source snippets. Wiki Lua references follow the same partial-only policy, including aliases in a batch. Non-code documentation keeps bounded normal reading.
+- Files up to 4 MiB can be searched, range-read and patched locally; source output budgets do not grow with file size. Invalid UTF-8, stale hashes, ambiguous replacements and disallowed paths remain rejected. Empty or indivisible code returns an explicit limitation, never a full-source fallback.
+- Large patch preparation and range reads run off the UI thread. The external MCP's final unsaved-buffer check and file replacement remain serialized on the editor thread.

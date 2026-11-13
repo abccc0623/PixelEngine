@@ -6,6 +6,13 @@ namespace PixelTool;
 internal sealed class ProjectFileAccess(string project)
 {
     internal const string AssetMutationDenied = "Asset폴더외에 파일및 폴더수정은 불가능합니다.";
+    // Local processing limit is separate from the much smaller model response budget.
+    internal const int MaxEditableFileBytes = 4 * 1024 * 1024;
+    private static readonly HashSet<string> CodeExtensions = new(StringComparer.OrdinalIgnoreCase)
+        { ".lua", ".pxm", ".scene", ".cs", ".csx", ".c", ".h", ".cpp", ".hpp", ".cc", ".cxx", ".hxx",
+          ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".py", ".pyw", ".rb", ".go", ".rs",
+          ".java", ".kt", ".swift", ".sh", ".ps1", ".bat", ".cmd", ".hlsl", ".glsl", ".shader" };
+    internal static bool IsCode(string path) => CodeExtensions.Contains(Path.GetExtension(path));
     internal string Root { get; } = Path.TrimEndingDirectorySeparator(Path.GetFullPath(project));
     internal static readonly HashSet<string> TextExtensions = new(StringComparer.OrdinalIgnoreCase)
         { ".lua", ".pxm", ".scene", ".json", ".md", ".txt", ".csv", ".xml", ".yaml", ".yml", ".svg" };
@@ -40,5 +47,28 @@ internal sealed class ProjectFileAccess(string project)
         byte[] bytes = new byte[checked((int)file.Length)];
         file.ReadExactly(bytes);
         return bytes;
+    }
+}
+
+// One response may expose only part of each code file, including repeated ranges in a batch.
+// Separate requests may follow continuations; this is a token budget, not a confidentiality boundary.
+internal sealed class ProjectCodeReadBudget
+{
+    private readonly Dictionary<string, (string Hash, int Remaining)> _files = new(StringComparer.OrdinalIgnoreCase);
+    internal int Remaining(string path, string text, string hash)
+    {
+        if (!ProjectFileAccess.IsCode(path)) return int.MaxValue;
+        if (!_files.TryGetValue(path, out var state))
+        {
+            int characters = text.Count(c => c is not ('\r' or '\n'));
+            state = (hash, characters / 2);
+            _files.Add(path, state);
+        }
+        if (state.Hash != hash) throw new InvalidOperationException("File changed during the read batch. Read the current range again.");
+        return state.Remaining;
+    }
+    internal void Consume(string path, int characters)
+    {
+        if (_files.TryGetValue(path, out var state)) _files[path] = (state.Hash, state.Remaining - characters);
     }
 }

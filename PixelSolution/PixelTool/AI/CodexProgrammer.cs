@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
@@ -11,7 +11,7 @@ internal sealed class CodexProgrammer : IAsyncDisposable
     internal static readonly HashSet<string> ReadTools = new(StringComparer.Ordinal)
     {
         "get_asset_permissions", "get_asset_layout", "read_project_notes", "search_project_files", "list_project_files",
-        "read_project_file", "read_project_file_lines", "search_file_content", "read_project_context", "inspect_asset", "read_engine_guide", "search_engine_guide", "get_engine_guide_index"
+        "read_project_file", "read_project_file_lines", "search_file_content", "read_project_context", "inspect_asset", "read_wiki", "search_wiki", "get_wiki_index"
     };
     internal static readonly HashSet<string> EditTools = new(StringComparer.Ordinal)
     {
