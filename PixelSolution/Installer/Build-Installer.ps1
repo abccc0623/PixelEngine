@@ -41,6 +41,9 @@ if ($LASTEXITCODE -ne 0) { throw "Self-contained publish failed with exit code $
 foreach ($relative in @('PixelEngine.dll','PixelGraphics.dll','PixelMeta.dll','lua51.dll','Client.exe')) {
     Copy-Item -LiteralPath (Join-Path $source $relative) -Destination (Join-Path $publish $relative) -Force
 }
+$artProject = Join-Path $PSScriptRoot '..\PixelArtStudio\PixelArtStudio.csproj'
+& dotnet publish $artProject --configuration Release --runtime win-x64 --self-contained true --output (Join-Path $publish 'PixelArtStudio')
+if ($LASTEXITCODE -ne 0) { throw "PixelArtStudio publish failed with exit code $LASTEXITCODE" }
 foreach ($runtime in @('coreclr.dll','hostfxr.dll','hostpolicy.dll','PresentationFramework.dll','Microsoft.AspNetCore.Server.Kestrel.Core.dll')) {
     if (-not (Test-Path -LiteralPath (Join-Path $publish $runtime))) {
         throw "Self-contained runtime missing: $runtime"

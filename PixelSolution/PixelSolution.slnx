@@ -24,4 +24,5 @@
   <Project Path="PixelTool/PixelTool.csproj" Id="92a9001b-3885-4616-8c8b-4e2dd7ffcc8d">
     <Platform Project="x64" />
   </Project>
+  <Project Path="PixelArtStudio/PixelArtStudio.csproj"><Platform Project="x64" /></Project>
 </Solution>

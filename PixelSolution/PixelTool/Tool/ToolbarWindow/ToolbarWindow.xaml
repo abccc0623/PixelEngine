@@ -159,7 +159,7 @@
                 <Button Content="&#xE8BD;" Style="{StaticResource ToolbarActionButton}"
                         ToolTip="AI 자비스 (Codex CLI 연결)" Click="OpenAIChat"/>
                 <Button Content="&#xE790;" Style="{StaticResource ToolbarActionButton}"
-                        ToolTip="Art Studio (Codex CLI)" Click="OpenArtStudio"/>
+                        ToolTip="Pixel Art Studio (로컬 앱 · 화면 모드)" Click="OpenArtStudio"/>
                 <Button Content="&#xE8B9;" Style="{StaticResource ToolbarActionButton}"
                         ToolTip="Sprite Editor" Click="OpenSpriteEditor"/>
 

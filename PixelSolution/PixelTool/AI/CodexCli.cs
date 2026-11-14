@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PixelTool;
 
-internal static class ArtCodexCli
+internal static class CodexCli
 {
     internal const string InstallGuide = "https://developers.openai.com/codex/cli/";
     private const string InstallScript = "https://chatgpt.com/codex/install.ps1";
@@ -65,59 +65,4 @@ internal static class ArtCodexCli
         return info;
     }
 
-    private static async Task<(int Code, bool ChatLogin)> Run(ProcessStartInfo info, string? input, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        using var process = Process.Start(info) ?? throw new IOException("Codex CLI 실행 실패");
-        bool login = false;
-        async Task Drain(StreamReader reader)
-        {
-            while (await reader.ReadLineAsync(token) is { } line)
-                if (line.Contains("Logged in using ChatGPT", StringComparison.OrdinalIgnoreCase)) login = true;
-        }
-        using var cancel = token.Register(() => { try { process.Kill(true); } catch (InvalidOperationException) { } catch (System.ComponentModel.Win32Exception) { } });
-        var stdout = Drain(process.StandardOutput);
-        var stderr = Drain(process.StandardError);
-        try
-        {
-            if (input != null) await process.StandardInput.WriteAsync(input.AsMemory(), token);
-            process.StandardInput.Close();
-            await Task.WhenAll(stdout, stderr, process.WaitForExitAsync(token));
-            token.ThrowIfCancellationRequested();
-            return (process.ExitCode, login);
-        }
-        finally { if (!process.HasExited) { try { process.Kill(true); } catch (InvalidOperationException) { } } }
-    }
-
-    internal static async Task CheckAsync(CancellationToken token)
-    {
-        var status = await Run(Command(Path.GetTempPath(), "login", "status"), null, token);
-        if (status.Code != 0 || !status.ChatLogin)
-            throw new InvalidOperationException("Codex CLI에서 ChatGPT 로그인이 필요합니다. 터미널에서 codex login 후 다시 확인하세요.");
-    }
-
-    internal static async Task<byte[]> GenerateAsync(byte[] reference, string prompt, CancellationToken token)
-    {
-        await CheckAsync(token);
-        var dir = Directory.CreateTempSubdirectory("PixelTool-Art-").FullName;
-        string source = Path.Combine(dir, "reference.png"), target = Path.Combine(dir, "result.png");
-        try
-        {
-            await File.WriteAllBytesAsync(source, reference, token);
-            var command = Command(dir, "exec", "--ephemeral", "--skip-git-repo-check", "--sandbox", "workspace-write",
-                "-C", dir, "--image", source, "-");
-            var run = await Run(command, "Use the built-in image_generation tool to create one PNG based on the attached reference and the art brief below. " +
-                "Copy the generated image to result.png in this working directory. Do not draw using code, inspect projects, or install software. If generation fails, do not create a substitute.\nArt brief:\n" + prompt, token);
-            var file = new FileInfo(target);
-            if (run.Code != 0 || !file.Exists || file.Length is < 8 or > 33554432 || file.Attributes.HasFlag(FileAttributes.ReparsePoint))
-                throw new IOException($"Codex CLI가 결과 PNG를 반환하지 않았습니다 (종료 코드 {run.Code}). 로그인·사용량·이미지 생성 지원 여부를 확인하세요.");
-            var bytes = await File.ReadAllBytesAsync(target, token);
-            if (!bytes.AsSpan(0, 8).SequenceEqual(new byte[] {137,80,78,71,13,10,26,10})) throw new IOException("결과가 PNG 파일이 아닙니다.");
-            return bytes;
-        }
-        finally
-        {
-            try { File.Delete(source); File.Delete(target); Directory.Delete(dir, false); } catch (IOException) { }
-        }
-    }
 }

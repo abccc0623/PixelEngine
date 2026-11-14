@@ -90,7 +90,7 @@ public partial class AIChatWindow : UserControl
         using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(5));
         try
         {
-            await ArtCodexCli.InstallAsync(timeout.Token);
+            await CodexCli.InstallAsync(timeout.Token);
             await ConnectAsync(allowBrowserLogin: true);
         }
         catch (Exception ex) { StatusText.Text = "CLI 설치 실패: " + ex.Message; ConnectButton.IsEnabled = true; }

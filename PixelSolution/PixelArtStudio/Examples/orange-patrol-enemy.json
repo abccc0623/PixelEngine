@@ -1,0 +1,11 @@
+{
+  "prompt": "One small orange patrol enemy, front view, full body, centered",
+  "category": "character",
+  "width": 64,
+  "height": 64,
+  "transparent": true,
+  "protectInterior": true,
+  "seed": -1,
+  "steps": 20,
+  "acceptanceCriteria": ["캐릭터가 잘리지 않았는지 사람이 확인", "배경 제거 결과 확인"]
+}

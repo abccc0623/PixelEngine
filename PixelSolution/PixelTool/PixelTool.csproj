@@ -118,4 +118,6 @@
     <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\Installer\Build-Installer.ps1&quot; -SourceDir &quot;$(MSBuildProjectDirectory)\..\bin\$(Configuration)&quot; -OutputDir &quot;$(MSBuildProjectDirectory)\..\bin\Installer&quot; -CompilerPath &quot;$(InnoSetupCompilerPath)&quot;" />
   </Target>
 
+  <!-- Build ordering only: the art application is an independent executable. -->
+  <ItemGroup><ProjectReference Include="..\PixelArtStudio\PixelArtStudio.csproj" ReferenceOutputAssembly="false" Private="false" /></ItemGroup>
 </Project>

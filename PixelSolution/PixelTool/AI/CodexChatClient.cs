@@ -29,7 +29,7 @@ internal sealed class CodexChatClient : IAsyncDisposable
 
     public async Task ConnectAsync(string projectPath)
     {
-        var start = ArtCodexCli.Command(projectPath, "app-server");
+        var start = CodexCli.Command(projectPath, "app-server");
         // Native tools stay read-only; mutations use the editor's permission-checked tools.
         foreach (string value in new[] { "model_provider=\"openai\"", "forced_login_method=\"chatgpt\"",
             "features.shell_tool=false", "features.apply_patch_freeform=false", "features.codex_hooks=false",

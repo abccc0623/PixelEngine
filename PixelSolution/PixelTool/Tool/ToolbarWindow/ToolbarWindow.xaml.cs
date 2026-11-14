@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -288,10 +288,14 @@ namespace PixelTool
             if (Application.Current.MainWindow is MainWindow main) main.ChangeProject();
         }
 
-        private void OpenArtStudio(object sender, RoutedEventArgs e)
+        private async void OpenArtStudio(object sender, RoutedEventArgs e)
         {
-            if (Application.Current.MainWindow is MainWindow main)
-                main.OpenFloatingTool("Art Studio", new ArtStudio(), 1060, 680);
+            if (sender is not Button button) return;
+            button.IsEnabled = false;
+            try { await Task.Run(() => PixelArtStudioLauncher.Launch(AppContext.BaseDirectory)); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception or InvalidOperationException)
+            { PixelMessageBox.Show("Pixel Art Studio 실행 실패: " + ex.Message, "Pixel Art Studio", MessageBoxButton.OK, MessageBoxImage.Error); }
+            finally { button.IsEnabled = true; }
         }
 
         private void OpenSpriteEditor(object sender, RoutedEventArgs e)
