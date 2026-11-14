@@ -27,7 +27,7 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
     public Func<CancellationToken, Task<JsonElement>>? ReimportProject { get; set; }
     public Func<long, int, JsonElement>? ReadEditorLogs { get; set; }
     public Func<Task<long>>? ClearEditorLogs { get; set; }
-    public Func<string, int, CancellationToken, Task<JsonElement>>? TestGameKey { get; set; }
+    public Func<string, int, int, CancellationToken, Task<JsonElement>>? TestGameKey { get; set; }
     public Func<string, Task<JsonElement>>? SetEditorMode { get; set; }
     public Func<string, int, int, Task<string>>? HighlightLuaLines { get; set; }
     public Func<string, Task<bool>>? CanDeleteAssetFile { get; set; }
@@ -157,8 +157,8 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                         "Prefer read_project_file_lines for focused inspection. Use patch_project_file with its SHA256 for a unique exact change; whole code reads and existing-code replacement are disabled. Use focused ranges and exact patches for code. read_project_file is for non-code text only. Partial content and numbered lines must never replace a whole file. " +
                         "Project tools can list/read/write text, highlight located Lua lines in the editor, create Asset folders, inspect/copy existing assets, import a user-picked external asset, and draw simple PNGs. " +
                         "For a requested simple placeholder or pixel graphic, use create_png_asset, not an unsupported-format excuse. SVG text can be saved but engine SVG rendering support must not be assumed; prefer PNG for textures. " +
-                        "PNG drawing is procedural, not an image-generation AI. Do not automatically reimport or inspect logs after script changes. When validation is requested, reimport_project clears old logs before reload; inspect new logs and remaining pages. Do not call clear_editor_logs separately for reimport. " +
-                        "Only for requested gameplay validation, use observable events and temporary [AI_TEST] logs when useful. Reimport, call set_editor_mode(play), use bounded test_game_key and inspect log order, entity IDs and errors. Return to editor mode afterward if this turn changed the mode. Remove temporary test logs and reimport again. Report unavailable checks honestly. Logs do not prove visual correctness. " +
+                        "PNG drawing is procedural, not an image-generation AI. During the test stage after implementation, call reimport_project and inspect its new error logs first. It clears old logs before reload; inspect remaining pages when needed and do not call clear_editor_logs separately. For each changed scene, actually enter it and inspect new errors; startup reimport alone does not validate later scenes. Use bounded play input if reachable, or hash-check a temporary startup-scene change in Asset/main.lua, reimport, restore the original, and reimport again. Report unentered scenes as unverified and any restore failure immediately. " +
+                        "For requested gameplay validation, search_project_game_rules and read matching rules first. Verify current source and observation, then save each discovered global, object or input rule separately with evidence and status; use the existing document SHA256 to update, never duplicate. Determine the game's terminal condition from source and play toward it, using durationMs for sustained movement and short pulses for actions. Observe screen and new logs after meaningful actions; save new rules found during play. Continue through stages until terminal evidence, a concrete blocker, or the QA time limit. A few inputs do not prove a full playthrough. Reimport and use set_editor_mode(play); return to editor mode afterward if this turn changed it. For each confirmed QA bug, reuse a matching work item or create one item per defect with reproduction, expected/actual result, evidence and checks. Route it to FeatureImplementation.md for 버그수정, retest only that item with Test.md, and keep its ID on retry. Report the last reached point if completion is unverified. Logs alone do not prove visual correctness. " +
                         "Reimport resets runtime; it is not a build or a new game/editor process. Asset file/folder creation, moves/renames and recycle-bin deletion are available under current edit/approval settings. Never move/delete Asset itself or Engine/Editor/outside paths. Automatic mode needs no extra confirmation. No arbitrary command execution, permanent deletion, network, build or game launch tool exists. " +
                         "Never claim those actions were performed. If a file or folder creation/edit is blocked because it targets outside Asset, reply with only this sentence: " + ProjectFileAccess.AssetMutationDenied + " Do not suggest manual creation, right-click steps, alternate locations, or a workaround. For other unavailable actions, ask the user when needed. " +
                         CommandExecutionPreference.ForTurn(confirmActions) +
@@ -235,8 +235,12 @@ internal sealed class ChatGptChatClient : IAsyncDisposable
                         else if (name == "test_game_key")
                         {
                             if (TestGameKey == null) throw new InvalidOperationException("게임 입력 도구가 연결되지 않았습니다.");
-                            result = (await TestGameKey(args.RootElement.GetProperty("key").GetString()!,
-                                args.RootElement.GetProperty("frames").GetInt32(), token).WaitAsync(token).ConfigureAwait(false)).GetRawText();
+                            result = (await TestGameKey(args.RootElement.TryGetProperty("keys", out var keys) && keys.ValueKind == JsonValueKind.Array
+                                ? string.Join("+", keys.EnumerateArray().Select(item => item.GetString()))
+                                : args.RootElement.GetProperty("key").GetString()!,
+                                args.RootElement.GetProperty("frames").GetInt32(),
+                                args.RootElement.TryGetProperty("durationMs", out var duration) ? duration.GetInt32() : 0,
+                                token).WaitAsync(token).ConfigureAwait(false)).GetRawText();
                         }
                         else if (name == "set_editor_mode")
                         {

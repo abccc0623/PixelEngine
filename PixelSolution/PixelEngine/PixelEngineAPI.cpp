@@ -94,6 +94,16 @@ void UpdateEngine()
 	}
 }
 
+bool EngineRequestFrameCapture(int maxWidth)
+{
+	return Engine && PixelGraphicsRequestFrameCapture(maxWidth);
+}
+
+int EngineCopyFrameCapture(unsigned char* destination, int capacity, int* width, int* height)
+{
+	return Engine ? PixelGraphicsCopyFrameCapture(destination, capacity, width, height) : 0;
+}
+
 bool RunningEngineCheck()
 {
 	if (Engine != nullptr)

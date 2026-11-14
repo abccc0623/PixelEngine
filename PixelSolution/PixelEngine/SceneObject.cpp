@@ -235,7 +235,8 @@ void SceneObject::DestroyEntityHierarchy(uint32_t id, std::unordered_set<uint32_
 		DestroyEntityHierarchy(childID, destroyingIDs);
 	}
 
-	PixelLog::Info("[" + sceneName + "] DeleteEntity");
+	PixelLog::Info("[" + sceneName + "] DeleteEntity: ID=" + std::to_string(id) +
+		" Script=" + entity->GetScriptName());
 	auto lua = Engine->GetFactory<LuaManager>();
 	if (lua != nullptr)
 	{

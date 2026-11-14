@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.AspNetCore;
+using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
 namespace PixelTool;
@@ -172,6 +173,17 @@ public sealed class PixelToolProjectTools
     public static string SearchEngineGuide(string document, string query, int limit = 10)
         => ToolResult(() => EngineGuide.Search(document, query, limit), document);
 
+    [McpServerTool(Name = "Editor_WorkItem_Update", ReadOnly = false, Destructive = false, OpenWorld = false),
+     Description("Keywords: Editor. Append one implemented 기능변경, 코드개선 or 버그수정 to an existing project work-item document. Input: project-wiki/WorkItems/... document, expectedSha256 from read_project_work_item, changeType, summary and 1-20 changedFiles under Asset/. Only the selected project's Editor/WorkItems file is appended. Success: {success:true,data:{document,updateId,sha256}}; failure: {success:false,error,message}. Stale hash, missing document, invalid path or unsupported type fails without changing the file.")]
+    public static string UpdateProjectWorkItem(PixelToolProjectInfo project, string document, string expectedSha256,
+        string changeType, string summary, string[] changedFiles)
+        => ToolResult(() =>
+        {
+            var updated = new ProjectWorkItemWiki(project.ProjectPath).AppendUpdate(document, expectedSha256,
+                changeType, summary, changedFiles);
+            return ToolSuccess(new { document, updateId = updated.UpdateId, sha256 = updated.Sha256 });
+        }, AiActionLog.WorkItemUpdateTarget(document, changeType, changedFiles));
+
     [McpServerTool(Name = "Asset_Layout_Read", ReadOnly = true, Destructive = false, OpenWorld = false),
      Description("Keywords: Asset. Inspect bounded Asset folders and file kinds. No input. Success: {success:true,data:{categories,complete,truncated,...}}; failure: {success:false,error,message}. Observations never create files or grant placement exceptions.")]
     public static string GetAssetLayout(PixelToolProjectInfo project)
@@ -183,7 +195,7 @@ public sealed class PixelToolProjectTools
         [Description("Optional file extensions, such as .lua,.pxm; matching folders are always included. Empty selects supported text file types; * selects all file names.")] string extensions = "", int limit = 20, CancellationToken cancellationToken = default)
         => ToolResult(() => string.IsNullOrWhiteSpace(query)
             ? new ProjectNavigation(project.ProjectPath).ListDirectory(path, BoundedSearchLimit(limit))
-            : new ProjectNavigation(project.ProjectPath).Search(query, path, "filename", extensions, BoundedSearchLimit(limit), cancellationToken), path);
+            : new ProjectNavigation(project.ProjectPath).Search(query, path, "filename", extensions, BoundedSearchLimit(limit), cancellationToken), AiActionLog.SearchTarget(path, query));
 
     [McpServerTool(Name = "Asset_FileContent_Search", ReadOnly = true, Destructive = false, OpenWorld = false),
      Description("Keywords: Asset. Search one saved project text file for a literal phrase. Input: exact file path found with Asset_File_Search, query, limit. Never pass a folder such as Asset or Asset/Script. Use Editor_Wiki_Read for engine API declarations. Success: {success:true,data:{matches,...}} with 1-based line and column; failure: {success:false,error,message}.")]
@@ -191,7 +203,7 @@ public sealed class PixelToolProjectTools
         CancellationToken cancellationToken = default)
         => ToolResult(() => string.IsNullOrWhiteSpace(query)
             ? ToolFailure("missing_query", "파일 내용 검색에는 검색어가 필요합니다. 파일을 읽으려면 Asset_File_ReadLines를 사용하세요.")
-            : new ProjectNavigation(project.ProjectPath).SearchFileContent(path, query, BoundedSearchLimit(limit), cancellationToken), path);
+            : new ProjectNavigation(project.ProjectPath).SearchFileContent(path, query, BoundedSearchLimit(limit), cancellationToken), AiActionLog.SearchTarget(path, query));
 
     private static int BoundedSearchLimit(int limit) => limit < 1 ? 20 : Math.Min(limit, 50);
 
@@ -509,18 +521,50 @@ public sealed class PixelToolProjectTools
     }
 
     [McpServerTool(Name = "Editor_Game_KeyInput", ReadOnly = false, Destructive = false, OpenWorld = false),
-     Description("Keywords: Editor. In play mode, send one key for 1-120 frames. Input: key=A-Z|Space|Enter|Left|Up|Right|Down, frames. Success: {success:true,data:{key,frames,events,logs,...}}; failure: {success:false,error,message}. Use Editor_Log_Read for details.")]
-    public static async Task<string> TestGameKey(string key, int frames = 1)
+     Description("Keywords: Editor. In play mode, press 1-4 distinct keys simultaneously. Input: keys=[A-Z|Space|Enter|Left|Up|Right|Down], frames=1 (1-120); optional durationMs=100-5000 holds keys for real elapsed time instead of frame count. Legacy single key is accepted. Success: {success:true,data:{keys,frames,durationMs,events,logs,...}}; failure: {success:false,error,message}. Use Editor_Log_Read for details.")]
+    public static async Task<string> TestGameKey(string key = "", int frames = 1, string[]? keys = null, int durationMs = 0)
     {
+        string[] requestedKeys = keys is { Length: > 0 } ? keys : [key];
         return await ToolResultAsync(async () =>
         {
             var app = Application.Current ?? throw new InvalidOperationException("PixelTool 에디터가 실행 중이지 않습니다.");
             var result = await app.Dispatcher.InvokeAsync(() =>
                 app.MainWindow is MainWindow window
-                    ? window.TestGameKeyForAiAsync(key, frames, CancellationToken.None)
+                    ? window.TestGameKeysForAiAsync(requestedKeys, frames, CancellationToken.None, durationMs)
                     : throw new InvalidOperationException("PixelTool 메인 창을 찾을 수 없습니다.")).Task.Unwrap().ConfigureAwait(false);
             return result.GetRawText();
-        }, key).ConfigureAwait(false);
+        }, string.Join("+", requestedKeys) + $" frames={frames} durationMs={durationMs}").ConfigureAwait(false);
+    }
+
+    [McpServerTool(Name = "Editor_Game_Capture", ReadOnly = true, Destructive = false, OpenWorld = false),
+     Description("Keywords: Editor. Capture the current Scene View frame after rendering. Input: maxWidth=960 (320-1920). Success: text {success:true,data:{width,height,mimeType}} and image/png content; failure: {success:false,error,message}. Capture only when visual inspection is needed; no automatic polling.")]
+    public static async Task<CallToolResult> CaptureGameFrame(int maxWidth = 960)
+    {
+        const string operation = "MCP Editor_Game_Capture";
+        try
+        {
+            if (maxWidth is < 320 or > 1920) throw new ArgumentOutOfRangeException(nameof(maxWidth));
+            var app = Application.Current ?? throw new InvalidOperationException("PixelTool 에디터가 실행 중이지 않습니다.");
+            var frame = await app.Dispatcher.InvokeAsync(() =>
+                app.MainWindow is MainWindow window
+                    ? window.CaptureGameFrameForAiAsync(maxWidth, CancellationToken.None)
+                    : throw new InvalidOperationException("PixelTool 메인 창을 찾을 수 없습니다.")).Task.Unwrap().ConfigureAwait(false);
+            string result = ToolSuccess(new { width = frame.Width, height = frame.Height, mimeType = "image/png" });
+            AiActionLog.Record(operation, $"maxWidth={maxWidth}", result, changeState: "대상변경없음", stage: "도구결과");
+            return new CallToolResult
+            {
+                Content = [new TextContentBlock { Text = result }, ImageContentBlock.FromBytes(frame.Png, "image/png")]
+            };
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            AiActionLog.Failed(operation, $"maxWidth={maxWidth}", ex);
+            return new CallToolResult
+            {
+                IsError = true,
+                Content = [new TextContentBlock { Text = ToolFailure(ErrorCode(ex), ex.Message) }]
+            };
+        }
     }
 
     [McpServerTool(Name = "Editor_Game_PlayMode", ReadOnly = false, Destructive = false, OpenWorld = false),

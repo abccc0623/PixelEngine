@@ -431,22 +431,41 @@ void LuaManager::Update()
 		if (IsPlayMode())
 		{
 			float DTime = GetDeltaTime();
-			auto result = UpdateFunction(luaManager, DTime);
-			if (!result.valid())
 			{
-				sol::error err = result;
-				std::string errorMsg = err.what();
-				PixelLog::Error(errorMsg.c_str());
+				auto result = UpdateFunction(luaManager, DTime);
+				if (!result.valid())
+				{
+					sol::error err = result;
+					std::string errorMsg = err.what();
+					PixelLog::Error(errorMsg.c_str());
+				}
 			}
 			// Lua update failed or completed: finish queued deletions after the batch.
 			sol::protected_function flushPendingDestroy = luaManager["FlushPendingDestroy"];
 			if (flushPendingDestroy.valid())
 			{
-				auto flushResult = flushPendingDestroy(luaManager);
-				if (!flushResult.valid())
+				std::vector<unsigned int> pendingIDs;
 				{
-					sol::error err = flushResult;
-					PixelLog::Error(err.what());
+					auto flushResult = flushPendingDestroy(luaManager);
+					if (!flushResult.valid())
+					{
+						sol::error err = flushResult;
+						PixelLog::Error(err.what());
+					}
+					else if (flushResult.get_type() == sol::type::table)
+					{
+						sol::table ids = flushResult;
+						for (const auto& entry : ids)
+						{
+							if (entry.second.is<unsigned int>()) pendingIDs.push_back(entry.second.as<unsigned int>());
+						}
+					}
+				}
+				// Native destruction can remove Lua registrations. Do it only after the
+				// protected Lua call and its result have left the Lua stack.
+				for (const unsigned int id : pendingIDs)
+				{
+					Engine->GetFactory<SceneManager>()->DestroyEntity(id);
 				}
 			}
 		}

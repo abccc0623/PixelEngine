@@ -9,10 +9,16 @@
 extern PixelEngine* Engine;
 UIImageData* UIImage_Add(unsigned int id)
 {
+	if (FindEntity(id) == nullptr) return nullptr;
 	auto registry = GetRegistry();
 	if (!registry->TryAddComponents<UIImageData, GraphicsData>(id)) return nullptr;
 	auto data = registry->Get<UIImageData>(id);
 	auto graphicsData = registry->Get<GraphicsData>(id);
+	if (data == nullptr || graphicsData == nullptr)
+	{
+		PixelLog::EntityError(id, "[UIImage][Add] Image or graphics data is missing.");
+		return nullptr;
+	}
 	data->thisID = id;
 	graphicsData->renderingData.renderType = RENDER_TYPE::QUAD;
 	graphicsData->renderingData.passType = PASS_TYPE::UI;
@@ -68,7 +74,7 @@ void UIImage_SetTexture(unsigned int id, const char* name)
 	auto registry = GetRegistry();
 	auto data1 = registry->Get<UIImageData>(id);
 	auto data2 = registry->Get<GraphicsData>(id);
-	if (data1 != nullptr)
+	if (data1 != nullptr && data2 != nullptr)
 	{
 		std::string textureName(name);
 		auto textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);
@@ -85,7 +91,7 @@ void UIImage_SetTextureSize(unsigned int id, float width, float height)
 	auto registry = GetRegistry();
 	auto data1 = registry->Get<UIImageData>(id);
 	auto data2 = registry->Get<GraphicsData>(id);
-	if (data1 != nullptr)
+	if (data1 != nullptr && data2 != nullptr)
 	{
 		data2->renderingData.sprite.width = width;
 		data2->renderingData.sprite.height = height;

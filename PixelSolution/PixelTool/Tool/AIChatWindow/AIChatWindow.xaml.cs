@@ -138,8 +138,8 @@ public partial class AIChatWindow : UserControl
             _client.ReadEditorLogs = (afterCursor, limit) => ConsoleWindow.ReadLogsForAi(afterCursor, limit);
             _client.ClearEditorLogs = () => Dispatcher.InvokeAsync(() =>
                 ((MainWindow)Application.Current.MainWindow).ClearEditorLogsForAi()).Task;
-            _client.TestGameKey = (key, frames, token) => Dispatcher.InvokeAsync(() =>
-                ((MainWindow)Application.Current.MainWindow).TestGameKeyForAiAsync(key, frames, token)).Task.Unwrap();
+            _client.TestGameKey = (key, frames, durationMs, token) => Dispatcher.InvokeAsync(() =>
+                ((MainWindow)Application.Current.MainWindow).TestGameKeyForAiAsync(key, frames, token, durationMs)).Task.Unwrap();
             _client.SetEditorMode = mode => Dispatcher.InvokeAsync(() =>
                 ((MainWindow)Application.Current.MainWindow).SetEditorModeForAi(mode)).Task;
             _client.HighlightLuaLines = (path, first, last) => Dispatcher.InvokeAsync(() =>

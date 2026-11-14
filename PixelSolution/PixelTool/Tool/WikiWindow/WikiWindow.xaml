@@ -6,9 +6,15 @@
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
   <DockPanel>
    <Button Style="{DynamicResource PixelToolButton}" Content="검색 / 새로고침" DockPanel.Dock="Right" Margin="8,0,0,0" Padding="10,4" Click="Refresh_Click"/>
-   <TextBox x:Name="Query" Style="{DynamicResource PixelTextBox}" TextChanged="Query_Changed" ToolTip="API, 스킬, 규칙 검색. 별칭은 문서 상단 aliases: 이동, movement 형식으로 등록합니다."/>
+   <ComboBox x:Name="SearchScope" DockPanel.Dock="Right" Width="112" SelectedIndex="0" SelectionChanged="Scope_Changed" ToolTip="검색할 문서 범위 선택">
+    <ComboBoxItem Content="전체"/>
+    <ComboBoxItem Content="API·가이드"/>
+    <ComboBoxItem Content="일감"/>
+    <ComboBoxItem Content="규칙"/>
+   </ComboBox>
+   <TextBox x:Name="Query" Style="{DynamicResource PixelTextBox}" TextChanged="Query_Changed" ToolTip="선택한 범위의 제목, 별칭, 본문을 검색합니다."/>
   </DockPanel>
-  <TextBlock x:Name="Status" Grid.Row="1" Margin="0,6,0,10" FontSize="11" Foreground="{DynamicResource PixelMutedTextBrush}" Text="검색어를 입력하세요. API · Skills · Rules · Knowledge" TextWrapping="Wrap"/>
+  <TextBlock x:Name="Status" Grid.Row="1" Margin="0,6,0,10" FontSize="11" Foreground="{DynamicResource PixelMutedTextBrush}" Text="검색어를 입력하세요. 공통 문서 · 현재 프로젝트 일감·규칙" TextWrapping="Wrap"/>
   <Grid Grid.Row="2">
    <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="3*"/></Grid.ColumnDefinitions>
    <ListBox x:Name="Results" SelectionChanged="Result_Selected" Background="{DynamicResource PixelBackgroundBrush}" Foreground="{DynamicResource PixelTextBrush}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">

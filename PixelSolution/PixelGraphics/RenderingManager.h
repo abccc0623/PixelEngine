@@ -33,6 +33,8 @@ namespace PixelGraphics
 		void Release();
 		void Rendering();
 		bool Resize(int width, int height);
+		bool RequestFrameCapture(int maxWidth);
+		int CopyFrameCapture(std::uint8_t* destination, int capacity, int* width, int* height);
 
 		void SetBackgroundColor(float r, float g, float b);
 		void SetRendering(RenderingData& data);

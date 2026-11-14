@@ -34,6 +34,13 @@ public static class PixelEngineNative
     public static extern void UpdateEngine();
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    public static extern bool EngineRequestFrameCapture(int maxWidth);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int EngineCopyFrameCapture([Out] byte[]? destination, int capacity, out int width, out int height);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int GetFPS();
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]

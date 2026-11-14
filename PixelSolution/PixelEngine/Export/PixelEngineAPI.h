@@ -26,6 +26,8 @@ ECS::Registry* GetRegistry();
 //Engine 시작 코드
 extern "C" PIXEL_ENGINEDLL bool EngineInitialize(PixelWindowHandle hWnd, int width, int height, const char* assetPath);
 extern "C" PIXEL_ENGINEDLL void UpdateEngine();
+extern "C" PIXEL_ENGINEDLL bool EngineRequestFrameCapture(int maxWidth);
+extern "C" PIXEL_ENGINEDLL int EngineCopyFrameCapture(unsigned char* destination, int capacity, int* width, int* height);
 extern "C" PIXEL_ENGINEDLL void ReleaseEngine();
 extern "C" PIXEL_ENGINEDLL void QuitWindow();
 extern "C" PIXEL_ENGINEDLL bool ResizeEngine(int width, int height);

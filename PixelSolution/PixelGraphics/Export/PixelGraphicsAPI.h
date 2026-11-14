@@ -6,6 +6,8 @@
 PICNIC_GRAPHICS_DLL bool PixelGraphicsInitialize(HWND hwnd, int Width, int Height);
 PICNIC_GRAPHICS_DLL void PixelGraphicsRelease();
 PICNIC_GRAPHICS_DLL void PixelGraphicsRendering();
+PICNIC_GRAPHICS_DLL bool PixelGraphicsRequestFrameCapture(int maxWidth);
+PICNIC_GRAPHICS_DLL int PixelGraphicsCopyFrameCapture(unsigned char* destination, int capacity, int* width, int* height);
 PICNIC_GRAPHICS_DLL void PixelGraphicsResize(int Width, int Height);
 PICNIC_GRAPHICS_DLL void PixelGraphicsBackgroundColor(int R, int G, int B);
 

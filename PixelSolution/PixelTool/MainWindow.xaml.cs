@@ -134,20 +134,27 @@ namespace PixelTool
             });
         }
 
-        internal async Task<System.Text.Json.JsonElement> TestGameKeyForAiAsync(string key, int frames, CancellationToken token)
+        internal async Task<System.Text.Json.JsonElement> TestGameKeyForAiAsync(string key, int frames, CancellationToken token, int durationMs = 0)
+            => await TestGameKeysForAiAsync(key.Split('+'), frames, token, durationMs);
+
+        internal async Task<System.Text.Json.JsonElement> TestGameKeysForAiAsync(string[] keys, int frames, CancellationToken token, int durationMs = 0)
         {
             Dispatcher.VerifyAccess();
             if (!EditorToolbar.IsPlayMode || LuaDebugSession.IsInspecting)
                 throw new InvalidOperationException("게임 테스트는 플레이 모드이며 디버거가 중단되지 않았을 때만 가능합니다.");
-            string normalized = key.Trim().ToUpperInvariant();
-            byte virtualKey = normalized switch
+            if (keys.Length is < 1 or > 4 || keys.Any(string.IsNullOrWhiteSpace))
+                throw new ArgumentException("키는 1~4개가 필요합니다.", nameof(keys));
+            string[] normalized = keys.Select(key => key.Trim().ToUpperInvariant()).ToArray();
+            if (normalized.Distinct(StringComparer.Ordinal).Count() != normalized.Length)
+                throw new ArgumentException("중복된 키는 입력할 수 없습니다.", nameof(keys));
+            byte[] virtualKeys = normalized.Select(key => (byte)(key switch
             {
                 "SPACE" => 0x20, "ENTER" => 0x0D, "LEFT" => 0x25, "UP" => 0x26,
                 "RIGHT" => 0x27, "DOWN" => 0x28,
-                _ when normalized.Length == 1 && normalized[0] is >= 'A' and <= 'Z' => (byte)normalized[0],
+                _ when key.Length == 1 && key[0] is >= 'A' and <= 'Z' => (byte)key[0],
                 _ => throw new ArgumentException("지원 키: A-Z, Space, Enter, Left, Up, Right, Down", nameof(key))
-            };
-            long cursor = await GraphicsWindow.RequestTestKeyAsync(virtualKey, frames, token);
+            })).ToArray();
+            long cursor = await GraphicsWindow.RequestTestKeysAsync(virtualKeys, frames, token, durationMs);
             var page = ConsoleWindow.ReadLogsForAi(cursor, 100);
             var events = page.GetProperty("entries").EnumerateArray()
                 .Where(entry => (entry.GetProperty("message").GetString() ?? "").StartsWith("[AI_TEST]", StringComparison.Ordinal))
@@ -155,8 +162,15 @@ namespace PixelTool
                 .Take(20).ToArray();
             return System.Text.Json.JsonSerializer.SerializeToElement(new
             {
-                key = normalized, frames, afterCursor = cursor, events, logs = ConsoleWindow.SummarizeLogsForAi(cursor)
+                key = normalized.Length == 1 ? normalized[0] : null, keys = normalized, frames,
+                durationMs, afterCursor = cursor, events, logs = ConsoleWindow.SummarizeLogsForAi(cursor)
             });
+        }
+
+        internal Task<(byte[] Png, int Width, int Height)> CaptureGameFrameForAiAsync(int maxWidth, CancellationToken token)
+        {
+            Dispatcher.VerifyAccess();
+            return GraphicsWindow.RequestGameFrameAsync(maxWidth, token);
         }
 
         internal System.Text.Json.JsonElement SetEditorModeForAi(string mode)

@@ -8,9 +8,15 @@
 extern PixelEngine* Engine;
 Renderer2DData* Renderer2D_Add(unsigned int id)
 {
+	if (FindEntity(id) == nullptr) return nullptr;
 	auto registry = GetRegistry();
 	if (!registry->TryAddComponents<Renderer2DData, GraphicsData>(id)) return nullptr;
 	auto graphics = registry->Get<GraphicsData>(id);
+	if (graphics == nullptr)
+	{
+		PixelLog::EntityError(id, "[Renderer2D][Add] Graphics data is missing.");
+		return nullptr;
+	}
 	graphics->renderingData.renderType = RENDER_TYPE::QUAD;
 	graphics->renderingData.passType = PASS_TYPE::SCENE;
 	graphics->renderingData.transparent = false;
@@ -55,10 +61,15 @@ bool Renderer2D_Has(unsigned int id)
 
 void Renderer2D_SetTexture(unsigned int id, const char* name)
 {
+	if (name == nullptr)
+	{
+		PixelLog::EntityError(id, "[Renderer2D][SetTexture] Texture name is null.");
+		return;
+	}
 	auto registry = GetRegistry();
 	auto data1 = registry->Get<Renderer2DData>(id);
 	auto data2 = registry->Get<GraphicsData>(id);
-	if (data1 != nullptr)
+	if (data1 != nullptr && data2 != nullptr)
 	{
 		std::string textureName(name);
 		auto textureID = Engine->GetResourceID(RESOURCE_TYPE::TEXTURE, textureName);

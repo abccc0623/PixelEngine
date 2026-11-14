@@ -38,7 +38,7 @@ internal sealed class CodexChatClient : IAsyncDisposable
             "features.code_mode.direct_only_tool_namespaces=[\"pixeltool\",\"pixeltool_assets\"]",
             "sandbox_mode=\"read-only\"", "approval_policy=\"never\"", "mcp_servers={}",
             "mcp_servers.pixeltool_assets.enabled=true",
-            "mcp_servers.pixeltool_assets.enabled_tools=[\"Asset_File_Search\",\"Asset_FileContent_Search\"]",
+            "mcp_servers.pixeltool_assets.enabled_tools=[\"Asset_File_Search\",\"Asset_FileContent_Search\",\"Editor_WorkItem_Update\",\"Editor_Game_Capture\"]",
             $"mcp_servers.pixeltool_assets.url=\"http://127.0.0.1:{PixelToolMcpServer.Port}/mcp\"",
             "mcp_servers.pixeltool_assets.bearer_token_env_var=\"PIXELTOOL_MCP_TOKEN\"" })
         {

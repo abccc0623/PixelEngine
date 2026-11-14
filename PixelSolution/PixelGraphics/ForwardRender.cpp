@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ForwardRender.h"
 #include <cstring>
+#include <wincodec.h>
 #include "GraphicsCore.h"
 #include "RenderringData.h"
 #include "ResourceManager.h"
@@ -110,5 +111,61 @@ void PixelGraphics::ForwardRender::Rendering()
 	core->ApplyViewport(GraphicsCore::VirtualWidth, GraphicsCore::VirtualHeight);
 
 	postProcessPass->Rendering(mainRenderTarget);
+	if (captureRequested)
+	{
+		captureRequested = false;
+		capturedPng.clear();
+		capturedWidth = capturedHeight = 0;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+		DirectX::ScratchImage image;
+		if (core->GetSwapChain() &&
+			SUCCEEDED(core->GetSwapChain()->GetBuffer(0, IID_PPV_ARGS(backBuffer.GetAddressOf()))) &&
+			SUCCEEDED(DirectX::CaptureTexture(core->GetDevice(), context, backBuffer.Get(), image)))
+		{
+			const DirectX::Image* source = image.GetImage(0, 0, 0);
+			DirectX::ScratchImage resized;
+			if (source && source->width > static_cast<size_t>(captureMaxWidth))
+			{
+				const size_t height = (std::max)(size_t(1), source->height * captureMaxWidth / source->width);
+				if (SUCCEEDED(DirectX::Resize(*source, captureMaxWidth, height, DirectX::TEX_FILTER_DEFAULT, resized)))
+					source = resized.GetImage(0, 0, 0);
+				else source = nullptr;
+			}
+			DirectX::Blob png;
+			const HRESULT comStatus = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+			if (source && SUCCEEDED(DirectX::SaveToWICMemory(*source, DirectX::WIC_FLAGS_NONE,
+				GUID_ContainerFormatPng, png)))
+			{
+				const auto* bytes = static_cast<const std::uint8_t*>(png.GetBufferPointer());
+				capturedPng.assign(bytes, bytes + png.GetBufferSize());
+				capturedWidth = static_cast<int>(source->width);
+				capturedHeight = static_cast<int>(source->height);
+			}
+			if (SUCCEEDED(comStatus)) CoUninitialize();
+		}
+	}
 	core->Present();
+}
+
+bool PixelGraphics::ForwardRender::RequestFrameCapture(int maxWidth)
+{
+	if (maxWidth < 320 || maxWidth > 1920) return false;
+	captureMaxWidth = maxWidth;
+	captureRequested = true;
+	capturedPng.clear();
+	capturedWidth = capturedHeight = 0;
+	return true;
+}
+
+int PixelGraphics::ForwardRender::CopyFrameCapture(std::uint8_t* destination, int capacity, int* width, int* height)
+{
+	if (capturedPng.empty()) return 0;
+	if (width) *width = capturedWidth;
+	if (height) *height = capturedHeight;
+	const int required = static_cast<int>(capturedPng.size());
+	if (destination == nullptr || capacity == 0) return required;
+	if (capacity < required) return -required;
+	std::memcpy(destination, capturedPng.data(), capturedPng.size());
+	capturedPng.clear();
+	return required;
 }

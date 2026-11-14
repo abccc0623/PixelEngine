@@ -27,3 +27,8 @@
 - 프로젝트 루트는 `ProjectPathService`가 관리한다. `AssetPath`, `EnginePath`, `EditorPath`는 선택된 루트에서 계산한다.
 - WPF와 LSP 네임스페이스를 함께 쓰면 `Color` 타입을 명시한다. AvalonDock 탭은 실제 컨트롤과 바인딩 속성을 확인한다.
 - 새 대화상자는 기존 `PixelMessageBox`, `PixelPromptDialog`와 공유 스타일을 확인한다.
+
+## AI pipeline diagram
+
+- When changing PixelTool AI chat connections, instructions, tool routing, or pipeline behavior, compare the implementation with `PixelSolution/AI_PIPELINE.md` and update the diagram.
+- Run `pwsh -File PixelSolution/Check-AiPipelineDocs.ps1`. If a touched flow file does not change the flow, review it and pass `-AcknowledgeNoFlowChange`. This check only detects co-changes; verify diagram accuracy manually.

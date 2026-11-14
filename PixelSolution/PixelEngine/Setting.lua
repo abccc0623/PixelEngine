@@ -57,10 +57,12 @@ end
 ---업데이트 중 요청한 삭제를 실제 엔진에 반영한다.
 function LuaManager:FlushPendingDestroy()
 	isUpdating = false
+	local ids = {}
 	for ID in pairs(pendingDestroy) do
 		pendingDestroy[ID] = nil
-		DestroyEntity(ID)
+		ids[#ids + 1] = ID
 	end
+	return ids
 end
 
 ---생성 중인 객체가 포함된 삭제는 무시하고, 완료 객체만 기존 삭제 규칙을 따른다.

@@ -35,7 +35,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
     public Func<CancellationToken, Task<JsonElement>>? ReimportProject { get; set; }
     public Func<long, int, JsonElement>? ReadEditorLogs { get; set; }
     public Func<Task<long>>? ClearEditorLogs { get; set; }
-    public Func<string, int, CancellationToken, Task<JsonElement>>? TestGameKey { get; set; }
+    public Func<string, int, int, CancellationToken, Task<JsonElement>>? TestGameKey { get; set; }
     public Func<string, Task<JsonElement>>? SetEditorMode { get; set; }
     public Func<string, int, int, Task<string>>? HighlightLuaLines { get; set; }
     public Func<string, Task<bool>>? CanDeleteAssetFile { get; set; }
@@ -122,7 +122,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
                 "Use pixeltool_assets MCP Asset_File_Search to locate an exact file path first. Asset_FileContent_Search requires that exact file path; never pass a folder or guessed path. Use pixeltool tools for remaining Asset reads, writes, moves and renames. " +
                 "If permission is uncertain, call pixeltool.get_asset_permissions; the CLI sandbox does not govern PixelTool project tools. " +
                 "Run reimport and error checks when the user requests validation. " +
-                "Use focused line reads; preserve existing files and use exact patches. Keep replies brief; ask required questions via ask_choice.";
+                "Use focused line reads; preserve existing files and use exact patches. Keep replies brief. For implementation choices, use a supported default from current project and engine docs and continue. Do not interrupt work with a choice question. If essential user-only information still blocks progress, report the exact blocker in the final answer.";
             p["developerInstructions"] = p["developerInstructions"]!.GetValue<string>() + CodexInstructions.Text;
             if (method == "thread/start")
             {
@@ -143,6 +143,7 @@ internal sealed class CodexEditorClient : IAsyncDisposable
         }
         if (method == "turn/start")
         {
+            _tools?.BeginTurn();
             _startingLogRequestId = LocalLogRequestId;
             using var requestLogScope = AiActionLog.Enter(_startingLogRequestId);
             _turnStop?.Cancel();
@@ -257,7 +258,8 @@ internal sealed class CodexEditorClient : IAsyncDisposable
                 foreach (var item in items.EnumerateArray())
                     if (item.TryGetProperty("text", out var text) && text.ValueKind == JsonValueKind.String)
                     { result = text.GetString() ?? ""; break; }
-            bool loggedSuccess = AiActionLog.Record("AI 도구 " + name, target, result, success);
+            bool loggedSuccess = AiActionLog.Record("AI 도구 " + name, target, result, success,
+                stage: AiActionLog.FailureStage(result));
             Emit("turn/toolOutcome", new { threadId = _threadId, turnId = _activeTurnId, tool = name, success = loggedSuccess });
             return reply;
         }
@@ -310,7 +312,12 @@ internal sealed class CodexEditorClient : IAsyncDisposable
             }
             else if (name == "test_game_key")
                 result = (await (TestGameKey ?? throw new InvalidOperationException("게임 입력 도구가 연결되지 않았습니다."))(
-                    args.GetProperty("key").GetString()!, args.GetProperty("frames").GetInt32(), token).WaitAsync(token).ConfigureAwait(false)).GetRawText();
+                    args.TryGetProperty("keys", out var keys) && keys.ValueKind == JsonValueKind.Array
+                        ? string.Join("+", keys.EnumerateArray().Select(item => item.GetString()))
+                        : args.GetProperty("key").GetString()!,
+                    args.GetProperty("frames").GetInt32(),
+                    args.TryGetProperty("durationMs", out var duration) ? duration.GetInt32() : 0,
+                    token).WaitAsync(token).ConfigureAwait(false)).GetRawText();
             else if (name == "set_editor_mode")
                 result = (await (SetEditorMode ?? throw new InvalidOperationException("모드 전환 도구가 연결되지 않았습니다."))(
                     args.GetProperty("mode").GetString()!).WaitAsync(token).ConfigureAwait(false)).GetRawText();

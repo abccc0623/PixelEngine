@@ -16,7 +16,7 @@ struct Physics2DData
 	JPH::EMotionType Motiontype = JPH::EMotionType::Kinematic;
 	bool sensor = true;
 	bool active = true;
-	JPH::EAllowedDOFs allowedDOFs = JPH::EAllowedDOFs::All;
+	JPH::EAllowedDOFs allowedDOFs = JPH::EAllowedDOFs::Plane2D;
 
 	std::string layer = "Default";
 

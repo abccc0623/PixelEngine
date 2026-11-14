@@ -22,11 +22,18 @@ namespace PixelGraphics
 		void Rendering() override;
 		void SetRenderingData(RenderingData& renderingData) override;
 		bool Resize(int width, int height) override;
+		bool RequestFrameCapture(int maxWidth);
+		int CopyFrameCapture(std::uint8_t* destination, int capacity, int* width, int* height);
 
 	private:
 		CameraManager* cameraManager = nullptr;
 		PostProcessPass* postProcessPass = nullptr;
 		std::vector<PASS*> passList;
 		RenderTarget mainRenderTarget;
+		bool captureRequested = false;
+		int captureMaxWidth = 960;
+		int capturedWidth = 0;
+		int capturedHeight = 0;
+		std::vector<std::uint8_t> capturedPng;
 	};
 }

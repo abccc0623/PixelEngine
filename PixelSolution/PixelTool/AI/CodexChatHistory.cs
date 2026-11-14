@@ -11,7 +11,7 @@ internal sealed class CodexChatHistory
     public string? ThreadId { get; set; }
     public int ToolSchemaVersion { get; set; }
     public List<string> PreviousThreadIds { get; set; } = new();
-    internal const int CurrentToolSchemaVersion = 26;
+    internal const int CurrentToolSchemaVersion = 30;
     public string Executable { get; set; } = "codex.exe";
     public string? Model { get; set; }
     public List<CodexChatMessage> Messages { get; set; } = new();

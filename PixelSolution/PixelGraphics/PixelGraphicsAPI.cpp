@@ -34,6 +34,16 @@ void PixelGraphicsRendering()
 	}
 }
 
+bool PixelGraphicsRequestFrameCapture(int maxWidth)
+{
+	return mEngine && mEngine->IsReady() && mEngine->GetRenderingManager()->RequestFrameCapture(maxWidth);
+}
+
+int PixelGraphicsCopyFrameCapture(unsigned char* destination, int capacity, int* width, int* height)
+{
+	return mEngine && mEngine->IsReady() ? mEngine->GetRenderingManager()->CopyFrameCapture(destination, capacity, width, height) : 0;
+}
+
 void PixelGraphicsResize(int Width, int Height)
 {
 	if (mEngine != nullptr)

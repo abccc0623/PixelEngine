@@ -15,6 +15,7 @@ public partial class WikiWindow : UserControl
         Loaded += (_, _) => QueueSearch(false);
     }
     private void Query_Changed(object sender, TextChangedEventArgs e) { if (IsLoaded) QueueSearch(true); }
+    private void Scope_Changed(object sender, SelectionChangedEventArgs e) { if (IsLoaded) QueueSearch(false); }
     private void Refresh_Click(object sender, RoutedEventArgs e) => QueueSearch(false);
     private async void QueueSearch(bool debounce)
     {
@@ -23,21 +24,33 @@ public partial class WikiWindow : UserControl
         var source = new CancellationTokenSource();
         search = source;
         string query = Query.Text.Trim();
+        int scope = SearchScope.SelectedIndex;
         preview?.Cancel(); Results.ItemsSource = null; Preview.Clear();
-        if (query.Length == 0) { Status.Text = "검색어를 입력하세요. 공통 문서 · 현재 프로젝트 일감"; source.Dispose(); search = null; return; }
+        if (query.Length == 0 && scope is not (2 or 3)) { Status.Text = scope == 1 ? "검색어를 입력하세요. API·가이드" : "검색어를 입력하세요. 공통 문서 · 현재 프로젝트 일감·규칙"; source.Dispose(); search = null; return; }
         Status.Text = "검색 중…";
         try
         {
             if (debounce) await Task.Delay(200, source.Token);
             var result = await Task.Run(() =>
             {
-                var common = WikiSearchService.Shared.Search(query, 100, source.Token);
-                if (string.IsNullOrWhiteSpace(ProjectPathService.ProjectRootPath)) return common;
-                var project = new ProjectWorkItemWiki(ProjectPathService.ProjectRootPath).Search(query, 100, source.Token);
-                return new WikiSearchService.Result(common.Matches.Concat(project.Matches)
+                if (scope == 2 && query.Length == 0)
+                    return string.IsNullOrWhiteSpace(ProjectPathService.ProjectRootPath)
+                        ? new WikiSearchService.Result([], 0, 0, false, [])
+                        : new ProjectWorkItemWiki(ProjectPathService.ProjectRootPath).List(100);
+                if (scope == 3 && query.Length == 0)
+                    return string.IsNullOrWhiteSpace(ProjectPathService.ProjectRootPath)
+                        ? new WikiSearchService.Result([], 0, 0, false, [])
+                        : new ProjectGameRuleWiki(ProjectPathService.ProjectRootPath).List(100);
+                var empty = new WikiSearchService.Result(Array.Empty<WikiSearchService.Hit>(), 0, 0, false, Array.Empty<string>());
+                var common = scope is 2 or 3 ? empty : WikiSearchService.Shared.Search(query, 100, source.Token);
+                if (scope == 1 || string.IsNullOrWhiteSpace(ProjectPathService.ProjectRootPath)) return common;
+                var workItems = scope == 3 ? empty : new ProjectWorkItemWiki(ProjectPathService.ProjectRootPath).Search(query, 100, source.Token);
+                var gameRules = scope == 2 ? empty : new ProjectGameRuleWiki(ProjectPathService.ProjectRootPath).Search(query, 100, source.Token);
+                return new WikiSearchService.Result(common.Matches.Concat(workItems.Matches).Concat(gameRules.Matches)
                     .OrderByDescending(h => h.Score).ThenBy(h => h.Document, StringComparer.Ordinal).Take(100).ToArray(),
-                    common.ElapsedMs + project.ElapsedMs, common.Documents + project.Documents,
-                    common.Truncated || project.Truncated, common.Warnings.Concat(project.Warnings).ToArray());
+                    common.ElapsedMs + workItems.ElapsedMs + gameRules.ElapsedMs, common.Documents + workItems.Documents + gameRules.Documents,
+                    common.Truncated || workItems.Truncated || gameRules.Truncated,
+                    common.Warnings.Concat(workItems.Warnings).Concat(gameRules.Warnings).ToArray());
             }, source.Token);
             if (current != revision || !IsLoaded) return;
             Results.ItemsSource = result.Matches;
@@ -58,7 +71,9 @@ public partial class WikiWindow : UserControl
         Preview.Text = "문서 읽는 중…";
         try
         {
-            string text = await Task.Run(() => hit.Document.StartsWith("project-wiki/", StringComparison.Ordinal)
+            string text = await Task.Run(() => hit.Document.StartsWith("project-wiki/GameRules/", StringComparison.Ordinal)
+                ? new ProjectGameRuleWiki(ProjectPathService.ProjectRootPath).ReadSnapshot(hit.Document).Content
+                : hit.Document.StartsWith("project-wiki/", StringComparison.Ordinal)
                 ? new ProjectWorkItemWiki(ProjectPathService.ProjectRootPath).Read(hit.Document)
                 : WikiSearchService.Shared.Read(hit.Document), source.Token);
             if (text.Length > 24000)

@@ -55,16 +55,23 @@ namespace PixelTool
         private readonly object _engineLock = new object(); // C++ Native 호출 동기화 락
         private readonly ConcurrentQueue<Action> _pendingUiChanges = new ConcurrentQueue<Action>();
         private readonly ConcurrentQueue<Action> _afterFrameActions = new();
-        private readonly List<(int Remaining, long Cursor, TaskCompletionSource<long> Completion, CancellationToken Token)> _testKeys = new();
+        private readonly SemaphoreSlim _captureLock = new(1, 1);
+        private readonly List<(int Remaining, long Cursor, TaskCompletionSource<long> Completion, CancellationToken Token, long EndTicks, byte[] Keys)> _testKeys = new();
 
         [DllImport("PixelEngine.dll", CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         private static extern bool Input_QueueVirtualKey(byte virtualKey, int frames);
 
         internal async Task<long> RequestTestKeyAsync(byte virtualKey, int frames, CancellationToken token)
+            => await RequestTestKeysAsync([virtualKey], frames, token).ConfigureAwait(false);
+
+        internal async Task<long> RequestTestKeysAsync(byte[] virtualKeys, int frames, CancellationToken token, int durationMs = 0)
         {
             if (!_isRunning) throw new InvalidOperationException("Scene View 엔진이 실행 중이 아닙니다.");
             if (frames is < 1 or > 120) throw new ArgumentOutOfRangeException(nameof(frames));
+            if (durationMs != 0 && durationMs is < 100 or > 5000) throw new ArgumentOutOfRangeException(nameof(durationMs));
+            if (virtualKeys.Length is < 1 or > 4 || virtualKeys.Distinct().Count() != virtualKeys.Length)
+                throw new ArgumentException("서로 다른 키 1~4개가 필요합니다.", nameof(virtualKeys));
             var completion = new TaskCompletionSource<long>(TaskCreationOptions.RunContinuationsAsynchronously);
             _pendingUiChanges.Enqueue(() =>
             {
@@ -72,12 +79,54 @@ namespace PixelTool
                 try
                 {
                     long cursor = ConsoleWindow.LogCursor;
-                    if (!Input_QueueVirtualKey(virtualKey, frames)) throw new InvalidOperationException("게임 키 입력을 예약하지 못했습니다.");
-                    _testKeys.Add((frames + 1, cursor, completion, token));
+                    foreach (byte virtualKey in virtualKeys)
+                        if (!Input_QueueVirtualKey(virtualKey, durationMs == 0 ? frames : 2))
+                            throw new InvalidOperationException("게임 키 입력을 예약하지 못했습니다.");
+                    long endTicks = durationMs == 0 ? 0 : System.Diagnostics.Stopwatch.GetTimestamp() +
+                        (long)(durationMs * (System.Diagnostics.Stopwatch.Frequency / 1000.0));
+                    _testKeys.Add((durationMs == 0 ? frames + 1 : 0, cursor, completion, token, endTicks, virtualKeys));
                 }
                 catch (Exception ex) { completion.TrySetException(ex); }
             });
             return await completion.Task.WaitAsync(token).ConfigureAwait(false);
+        }
+
+        internal async Task<(byte[] Png, int Width, int Height)> RequestGameFrameAsync(int maxWidth, CancellationToken token)
+        {
+            if (!_isRunning) throw new InvalidOperationException("Scene View 엔진이 실행 중이 아닙니다.");
+            if (maxWidth is < 320 or > 1920) throw new ArgumentOutOfRangeException(nameof(maxWidth));
+            using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
+            deadline.CancelAfter(TimeSpan.FromSeconds(15));
+            await _captureLock.WaitAsync(deadline.Token).ConfigureAwait(false);
+            try
+            {
+                var completion = new TaskCompletionSource<(byte[], int, int)>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _pendingUiChanges.Enqueue(() =>
+                {
+                    if (deadline.IsCancellationRequested || !_isRunning) { completion.TrySetCanceled(deadline.Token); return; }
+                    try
+                    {
+                        if (!PixelEngineNative.EngineRequestFrameCapture(maxWidth))
+                            throw new InvalidOperationException("게임 화면 캡처를 예약하지 못했습니다.");
+                        _afterFrameActions.Enqueue(() =>
+                        {
+                            try
+                            {
+                                int size = PixelEngineNative.EngineCopyFrameCapture(null, 0, out int width, out int height);
+                                if (size <= 0) throw new InvalidOperationException("게임 화면 캡처에 실패했습니다.");
+                                byte[] png = new byte[size];
+                                if (PixelEngineNative.EngineCopyFrameCapture(png, png.Length, out width, out height) != size)
+                                    throw new InvalidOperationException("게임 화면 데이터를 읽지 못했습니다.");
+                                completion.TrySetResult((png, width, height));
+                            }
+                            catch (Exception ex) { completion.TrySetException(ex); }
+                        });
+                    }
+                    catch (Exception ex) { completion.TrySetException(ex); }
+                });
+                return await completion.Task.WaitAsync(deadline.Token).ConfigureAwait(false);
+            }
+            finally { _captureLock.Release(); }
         }
 
         internal async Task<long> RequestReimportAsync(CancellationToken token)
@@ -160,7 +209,19 @@ namespace PixelTool
                     {
                         var pending = _testKeys[i];
                         if (pending.Token.IsCancellationRequested) { pending.Completion.TrySetCanceled(pending.Token); _testKeys.RemoveAt(i); continue; }
-                        if (pending.Remaining > 1) { _testKeys[i] = (pending.Remaining - 1, pending.Cursor, pending.Completion, pending.Token); continue; }
+                        if (pending.EndTicks != 0 && pending.Remaining == 0)
+                        {
+                            if (System.Diagnostics.Stopwatch.GetTimestamp() < pending.EndTicks)
+                            {
+                                bool queued = true;
+                                foreach (byte key in pending.Keys) queued &= Input_QueueVirtualKey(key, 2);
+                                if (!queued) { pending.Completion.TrySetException(new InvalidOperationException("게임 키 입력을 유지하지 못했습니다.")); _testKeys.RemoveAt(i); }
+                                continue;
+                            }
+                            _testKeys[i] = (3, pending.Cursor, pending.Completion, pending.Token, pending.EndTicks, pending.Keys);
+                            continue;
+                        }
+                        if (pending.Remaining > 1) { _testKeys[i] = (pending.Remaining - 1, pending.Cursor, pending.Completion, pending.Token, pending.EndTicks, pending.Keys); continue; }
                         pending.Completion.TrySetResult(pending.Cursor);
                         _testKeys.RemoveAt(i);
                     }

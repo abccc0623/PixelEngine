@@ -54,6 +54,16 @@ bool PixelGraphics::RenderingManager::Resize(int width, int height)
 	return targetPipeline != nullptr && targetPipeline->Resize(width, height);
 }
 
+bool PixelGraphics::RenderingManager::RequestFrameCapture(int maxWidth)
+{
+	return pipelineType == PipelineType::FORWARD && static_cast<ForwardRender*>(targetPipeline)->RequestFrameCapture(maxWidth);
+}
+
+int PixelGraphics::RenderingManager::CopyFrameCapture(std::uint8_t* destination, int capacity, int* width, int* height)
+{
+	return pipelineType == PipelineType::FORWARD ? static_cast<ForwardRender*>(targetPipeline)->CopyFrameCapture(destination, capacity, width, height) : 0;
+}
+
 void PixelGraphics::RenderingManager::SetBackgroundColor(float r, float g, float b)
 {
 	if (targetPipeline != nullptr)

@@ -5,10 +5,16 @@
 #include "EntityObject.h"
 TransformData* Transform_Add(unsigned int id)
 {
+	if (FindEntity(id) == nullptr) return nullptr;
 	auto registry = GetRegistry();
 	if (!registry->TryAddComponents<TransformData, WorldData>(id)) return nullptr;
 
 	auto data = registry->Get<TransformData>(id);
+	if (data == nullptr)
+	{
+		PixelLog::EntityError(id, "[Transform][Add] Transform data is missing.");
+		return nullptr;
+	}
 	data->thisID = id;
 	return data;
 }
